@@ -11,7 +11,17 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <style>
-    :root { --bg-login: #dcf1fc; --primary-blue: #0b1f8c; --text-dark: #333333; --text-gray: #666666; --input-bg: #f4f6f8; --border-color: #e5e8ec; --success-green: #27ae60; --danger: #e74c3c; --warning: #f39c12; }
+    :root {
+      --bg-login: #dcf1fc; 
+      --primary-blue: #0b1f8c;
+      --text-dark: #333333;
+      --text-gray: #666666;
+      --input-bg: #f4f6f8;
+      --border-color: #e5e8ec;
+      --success-green: #27ae60;
+      --danger: #e74c3c;
+      --warning: #f39c12;
+    }
     body { font-family: 'Manrope', sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box; background-color: var(--bg-login); }
     
     .login-wrapper { width: 100%; display: flex; flex-direction: column; align-items: center; padding: 20px; box-sizing: border-box; }
@@ -24,279 +34,164 @@
 
     .form-group { display: flex; flex-direction: column; text-align: left; margin-bottom: 20px; position: relative; }
     .form-group label { font-weight: 600; font-size: 13px; color: var(--text-gray); margin-bottom: 8px; }
-    .form-control { width: 100%; padding: 14px 16px; border: 1px solid #ccc; border-radius: 6px; font-family: 'Manrope', sans-serif; font-size: 14px; color: #333; box-sizing: border-box; transition: all 0.3s; }
-    .form-control:focus { background-color: #fff; border-color: var(--primary-blue); outline: none; box-shadow: 0 0 0 3px rgba(11, 31, 140, 0.1); }
+    .form-control { width: 100%; padding: 14px 16px; border: 1px solid #ccc; border-radius: 6px; font-family: 'Manrope', sans-serif; font-size: 14px; color: #333; box-sizing: border-box; }
     .password-toggle { position: absolute; right: 15px; top: 40px; cursor: pointer; color: #999; font-size: 12px; font-weight: 700; }
 
-    .btn-submit { background-color: var(--primary-blue); color: white; width: 100%; padding: 14px; border: none; border-radius: 30px; font-size: 15px; font-weight: 700; cursor: pointer; text-transform: uppercase; margin-top: 10px; margin-bottom: 25px; transition: 0.2s; }
+    .btn-submit { background-color: var(--primary-blue); color: white; width: 100%; padding: 14px; border: none; border-radius: 30px; font-size: 15px; font-weight: 700; cursor: pointer; text-transform: uppercase; margin-top: 10px; margin-bottom: 25px; }
     .btn-submit:hover { background-color: #081666; }
     .login-footer { font-size: 11px; color: #666; text-align: center; line-height: 1.5; }
 
     .dashboard-container { display: none; background-color: #ffffff; width: 95%; max-width: 1450px; border-radius: 12px; padding: 40px 60px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08); position: relative; box-sizing: border-box; max-height: 90vh; overflow-y: auto; }
     .dash-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border-color); padding-bottom: 20px; margin-bottom: 25px; }
-    .dash-header-left { display: flex; align-items: center; gap: 20px; }
     .dash-title { color: var(--primary-blue); margin: 0; font-weight: 800; font-size: 24px; text-transform: uppercase; }
     .user-badge { font-weight: 700; background: var(--input-bg); padding: 10px 20px; border-radius: 30px; color: var(--text-dark); }
     .btn-logout { color: var(--danger); font-weight: 700; text-decoration: none; margin-left: 15px; cursor: pointer; }
 
     .super-admin-toolbar { display: none; background: #0a1f35; color: white; padding: 20px; border-radius: 10px; margin-bottom: 25px; align-items: center; justify-content: space-between; }
-    .super-admin-toolbar select { padding: 10px 20px; border-radius: 6px; font-family: 'Manrope'; font-weight: 700; border: none; outline: none; cursor: pointer; }
+    .super-admin-toolbar select { padding: 10px 20px; border-radius: 6px; font-family: 'Manrope'; font-weight: 700; border: none; outline: none; }
 
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th { background: var(--input-bg); color: var(--text-dark); padding: 16px 10px; font-size: 14px; font-weight: 800; text-align: center; border: 1px solid var(--border-color); }
+    th { background: var(--input-bg); color: var(--text-dark); padding: 16px 10px; font-size: 14px; font-weight: 800; border: 1px solid var(--border-color); }
     td { padding: 16px 10px; border: 1px solid var(--border-color); text-align: center; font-size: 14px; vertical-align: middle; }
-    
-    .input-budget { width: 130px; padding: 10px; border: 2px solid #3498db; border-radius: 6px; text-align: right; font-weight: 800; color: var(--danger); font-family: 'Manrope'; background: #fffaf9; }
-    .input-note { width: 90%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-family: 'Manrope'; background: var(--input-bg); }
-    
+    .input-budget { width: 130px; padding: 10px; border: 2px solid #3498db; border-radius: 6px; text-align: right; font-weight: 800; color: var(--danger); font-family: 'Manrope'; }
+    .input-note { width: 90%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-family: 'Manrope'; }
+
     .btn-action { padding: 10px 18px; border: none; border-radius: 6px; font-family: 'Manrope'; font-weight: 700; color: white; cursor: pointer; margin: 0 5px; }
     .btn-approve { background: var(--success-green); }
     .btn-reject { background: var(--danger); }
     .btn-draft { background: var(--warning); }
-
     .loading-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; justify-content:center; align-items:center; font-weight:800; color:#fff; font-size: 18px; }
   </style>
 </head>
 <body>
 
-  <div class="loading-overlay" id="loadingOverlay">ĐANG XỬ LÝ DỮ LIỆU...</div>
+  <div class="loading-overlay" id="loadingOverlay">ĐANG XỬ LÝ...</div>
 
   <div class="login-wrapper" id="loginScreen">
     <div class="login-header">
-      <img src="logo.svg" alt="An Việt Homes" onerror="this.src='https://placehold.co/120x60/dcf1fc/0b1f8c?text=LOGO'">
+      <img src="logo.svg" alt="Logo" onerror="this.src='https://placehold.co/120x60/dcf1fc/0b1f8c?text=LOGO'">
       <h1>HỆ THỐNG PHÊ DUYỆT ĐỀ XUẤT MARKETING HÀNG THÁNG</h1>
     </div>
     <div class="login-card">
       <h2>TÀI KHOẢN QUẢN TRỊ NỘI BỘ</h2>
       <form onsubmit="event.preventDefault(); handleLogin();">
-        <div class="form-group">
-          <label>Tên tài khoản</label>
-          <input type="text" id="username" class="form-control" required placeholder="Nhập tên tài khoản đã được cấp">
-        </div>
-        <div class="form-group">
-          <label>Mật khẩu</label>
-          <input type="password" id="pwdInput" class="form-control" required placeholder="Nhập mật khẩu đã được cấp">
-          <span class="password-toggle" onclick="togglePassword()">HIỆN</span>
-        </div>
+        <div class="form-group"><label>Tên tài khoản</label><input type="text" id="username" class="form-control" required placeholder="Nhập tài khoản..."></div>
+        <div class="form-group"><label>Mật khẩu</label><input type="password" id="pwdInput" class="form-control" required placeholder="Nhập mật khẩu..."><span class="password-toggle" onclick="togglePassword()">HIỆN</span></div>
         <button type="submit" class="btn-submit">ĐĂNG NHẬP</button>
       </form>
-      <div class="login-footer">
-        Hệ thống quản trị dành cho leader được phân quyền phê duyệt đề xuất Marketing.<br>
-        Vui lòng đăng nhập bằng tên tài khoản và mật khẩu Phòng Marketing đã cấp.<br>
-        Trường hợp mất hoặc quên mật khẩu, vui lòng liên hệ MKT để được cấp lại.<br><br>
-        Mọi nhu cầu lỗi hoặc đề xuất nâng cấp hệ thống vui lòng liên hệ<br>
-        Phòng Marketing An Việt Homes để được hỗ trợ.
-      </div>
+      <div class="login-footer">Hệ thống bảo mật nội bộ An Việt Homes. Liên hệ phòng MKT để cấp phát tài khoản.</div>
     </div>
   </div>
 
   <div class="dashboard-container" id="dashboardScreen">
     <div class="dash-header">
-      <div class="dash-header-left">
-        <img src="logo.svg" alt="An Việt Homes" style="margin:0; max-width: 100px;" onerror="this.src='https://placehold.co/100x40/ffffff/004b9a?text=LOGO'">
-        <h2 class="dash-title">KHU VỰC PHÊ DUYỆT</h2>
-      </div>
-      <div>
-        <span class="user-badge" id="userInfo"></span>
-        <a class="btn-logout" onclick="window.location.reload()">Đăng xuất</a>
-      </div>
+      <div class="dash-header-left"><h2 class="dash-title">KHU VỰC PHÊ DUYỆT ĐỀ XUẤT</h2></div>
+      <div><span class="user-badge" id="userInfo"></span><a class="btn-logout" onclick="window.location.reload()">Đăng xuất</a></div>
     </div>
-
+    
     <div class="super-admin-toolbar" id="superAdminToolbar">
+      <div><span style="font-size: 20px; font-weight: 800; color: #4da6ff;">⚡ CHẾ ĐỘ QUẢN TRỊ VIÊN TỐI CAO</span></div>
       <div>
-        <span style="font-size: 20px; font-weight: 800; color: #4da6ff;">⚡ CHẾ ĐỘ QUẢN TRỊ VIÊN TỐI CAO</span>
-        <div style="font-size: 13px; margin-top: 5px; color: #ccc;">Can thiệp và hiển thị mọi bước duyệt của hệ thống.</div>
-      </div>
-      <div>
-        <label style="margin-right: 10px; font-weight: 700;">Đổi góc nhìn:</label>
+        <label>Đổi góc nhìn giả lập:</label>
         <select id="roleSimulator" onchange="simulateRole(this.value)">
-          <option value="SUPER_ADMIN">Tổng quan (Tất cả)</option>
-          <option value="TPKD">Góc nhìn: Trưởng phòng KD</option>
-          <option value="GDKD">Góc nhìn: Giám đốc KD</option>
-          <option value="PTGD">Góc nhìn: Phó TGĐ</option>
-          <option value="BLD">Góc nhìn: Ban Lãnh Đạo (Chốt số)</option>
+          <option value="SUPER_ADMIN">Tổng quan (Tất cả)</option><option value="TPKD">Trưởng phòng KD</option><option value="GDKD">Giám đốc KD</option><option value="PTGD">Phó TGĐ</option><option value="BLD">Ban Lãnh Đạo</option>
         </select>
       </div>
     </div>
 
-    <div style="overflow-x: auto;">
-      <table id="dataTable">
-        <thead><tr id="tableHeader"></tr></thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-    </div>
-    
+    <div style="overflow-x: auto;"><table id="dataTable"><thead><tr id="tableHeader"></tr></thead><tbody id="tableBody"></tbody></table></div>
     <div id="bldActions" style="display: none; justify-content: flex-end; margin-top: 30px; gap: 15px;">
-       <button class="btn-action btn-draft" style="padding: 14px 25px;" onclick="submitBldApproval(false)">Lưu Nháp Tạm Thời</button>
-       <button class="btn-action btn-approve" style="padding: 14px 25px;" onclick="submitBldApproval(true)">Xác Nhận & Xuất Form Báo Cáo</button>
+       <button class="btn-action btn-draft" onclick="submitBldApproval(false)">Lưu Nháp Tạm Thời</button>
+       <button class="btn-action btn-approve" onclick="submitBldApproval(true)">Xác Nhận & Xuất Báo Cáo</button>
     </div>
   </div>
 
   <script>
-    // DÁN LINK DEPLOY MỚI NHẤT VÀO ĐÂY
     const API_URL = "https://script.google.com/macros/s/AKfycbwFgszaVmJmOhs_GOMlcomv-RTcFJ2SXU4nbrGDRRqS8mZcFOR59YnBEl5boKmTeBFa/exec";
-    
-    let loggedInUser = null; 
-    let currentViewRole = ''; 
-    let globalData = []; 
+    let loggedInUser = null; let currentViewRole = ''; let globalData = [];
 
-    function showLoading(show) { document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none'; }
-    
-    function togglePassword() {
-      const pwd = document.getElementById('pwdInput');
-      const toggle = document.querySelector('.password-toggle');
-      if(pwd.type === 'password') { pwd.type = 'text'; toggle.textContent = 'ẨN'; } 
-      else { pwd.type = 'password'; toggle.textContent = 'HIỆN'; }
+    // HÀM HELPER GỌI LUỒNG JSONP XUYÊN QUA MỌI LỚP CHẶN CORS
+    function callAPI(action, params, successCallback) {
+      const callbackName = "cb_" + action + "_" + new Date().getTime();
+      window[callbackName] = function(response) {
+        successCallback(response);
+        document.getElementById(scriptId).remove();
+        delete window[callbackName];
+      };
+      const scriptId = "jsonp_" + new Date().getTime();
+      const script = document.createElement("script");
+      script.id = scriptId;
+      let queryString = `?action=${action}&callback=${callbackName}`;
+      for (let key in params) { queryString += `&${key}=${encodeURIComponent(params[key])}`; }
+      script.src = API_URL + queryString;
+      document.body.appendChild(script);
     }
 
-    async function handleLogin() {
-      const userVal = document.getElementById('username').value;
-      const pwdVal = document.getElementById('pwdInput').value;
-      showLoading(true);
+    function showLoading(show) { document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none'; }
+    function togglePassword() { const pwd = document.getElementById('pwdInput'); const t = document.querySelector('.password-toggle'); if(pwd.type === 'password') { pwd.type = 'text'; t.textContent = 'ẨN'; } else { pwd.type = 'password'; t.textContent = 'HIỆN'; } }
 
-      try {
-        const response = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ action: "login", username: userVal, password: pwdVal })
-        });
-        const result = await response.json();
-        
-        if(result.success) {
+    function handleLogin() {
+      showLoading(true);
+      callAPI("login", { username: document.getElementById('username').value, password: document.getElementById('pwdInput').value }, function(result) {
+        showLoading(false);
+        if (result.success) {
           loggedInUser = result.user;
           document.getElementById('loginScreen').style.display = 'none';
           document.getElementById('dashboardScreen').style.display = 'block';
-          document.body.style.backgroundColor = '#f4f7f6'; 
+          document.body.style.backgroundColor = '#f4f7f6';
           document.getElementById('userInfo').innerText = `Xin chào, ${loggedInUser.name}`;
-          
-          if (loggedInUser.role === 'SUPER_ADMIN') { document.getElementById('superAdminToolbar').style.display = 'flex'; }
+          if (loggedInUser.role === 'SUPER_ADMIN') document.getElementById('superAdminToolbar').style.display = 'flex';
           simulateRole(loggedInUser.role);
-        } else {
-          alert(result.message);
-        }
-      } catch (error) {
-        alert("Lỗi kết nối Server API!");
-      } finally {
-        showLoading(false);
-      }
+        } else { alert(result.message); }
+      });
     }
 
-    // LOAD DỮ LIỆU BẢNG BẰNG GET 
-    async function simulateRole(role) {
-      currentViewRole = role;
-      showLoading(true);
-      try {
-        const deptsEncoded = encodeURIComponent(JSON.stringify(loggedInUser.managedDepartments));
-        const url = `${API_URL}?action=getDashboardData&role=${currentViewRole}&departments=${deptsEncoded}`;
-        const response = await fetch(url, { method: "GET" });
-        const result = await response.json();
-        
-        if(result.success) {
-          globalData = result.data;
-          renderTableByRole(currentViewRole);
-        }
-      } catch (error) {
-        alert("Không thể tải dữ liệu từ máy chủ.");
-      } finally {
+    function simulateRole(role) {
+      currentViewRole = role; showLoading(true);
+      const deptsString = JSON.stringify(loggedInUser.managedDepartments);
+      callAPI("getDashboardData", { role: currentViewRole, departments: deptsString }, function(result) {
         showLoading(false);
-      }
+        if (result.success) { globalData = result.data; renderTableByRole(currentViewRole); }
+      });
     }
 
     function renderTableByRole(role) {
-      const thead = document.getElementById('tableHeader');
-      const tbody = document.getElementById('tableBody');
-      const bldActions = document.getElementById('bldActions');
-      
+      const thead = document.getElementById('tableHeader'); const tbody = document.getElementById('tableBody'); const bldActions = document.getElementById('bldActions');
       let theadHTML = `<th>Mã Phiếu</th><th>Phòng Ban</th><th>Dự Án</th><th>Ngân Sách Đề Xuất</th>`;
-      if (role === 'BLD' || role === 'SUPER_ADMIN') {
-        theadHTML += `<th>BLĐ Duyệt Thực Tế</th><th>Ghi Chú Điều Chỉnh</th>`;
-        bldActions.style.display = 'flex'; 
-      } else {
-        theadHTML += `<th>Trạng Thái</th><th>Hành Động</th>`;
-        bldActions.style.display = 'none';
-      }
-      thead.innerHTML = theadHTML;
-
-      let tbodyHTML = '';
-      if(globalData.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="padding:30px; color:#888;">Không có dữ liệu chờ duyệt.</td></tr>`;
-        return;
-      }
-
+      if (role === 'BLD' || role === 'SUPER_ADMIN') { theadHTML += `<th>BLĐ Duyệt Thực Tế</th><th>Ghi Chú Điều Chỉnh</th>`; bldActions.style.display = 'flex'; } else { theadHTML += `<th>Trạng Tư</th><th>Hành Động</th>`; bldActions.style.display = 'none'; }
+      thead.innerHTML = theadHTML; let tbodyHTML = '';
+      if(globalData.length === 0) { tbody.innerHTML = `<tr><td colspan="6">Không có dữ liệu chờ phê duyệt.</td></tr>`; return; }
+      
       globalData.forEach(phieu => {
-        const chiTiet = phieu.chiTiet[0]; 
-        tbodyHTML += `<tr data-id-phieu="${phieu.idPhieu}" data-id-dong="${chiTiet.idDong}">
-          <td><span style="background:var(--input-bg); padding:6px 12px; border-radius:20px; font-weight:700;">${phieu.idPhieu}</span></td>
-          <td>${phieu.phongKD}</td>
-          <td style="font-weight: 800; color: var(--primary-blue);">${chiTiet.tenDuAn}</td>
-          <td style="font-weight: 700;">${Number(chiTiet.nganSachDeXuat).toLocaleString()} VNĐ</td>
-        `;
-
+        const chiTiet = phieu.chiTiet[0];
+        tbodyHTML += `<tr data-id-phieu="${phieu.idPhieu}" data-id-dong="${chiTiet.idDong}"><td>${phieu.idPhieu}</td><td>${phieu.phongKD}</td><td>${chiTiet.tenDuAn}</td><td>${Number(chiTiet.nganSachDeXuat).toLocaleString()} VNĐ</td>`;
         if (role === 'BLD' || role === 'SUPER_ADMIN') {
-          tbodyHTML += `
-            <td><input type="number" class="input-budget bld-budget" value="${chiTiet.nganSachDuyet}"></td>
-            <td><input type="text" class="input-note bld-note" placeholder="Nhập lý do nếu có..." value="${chiTiet.ghiChuBLD}"></td>
-          `;
+          tbodyHTML += `<td><input type="number" class="input-budget bld-budget" value="${chiTiet.nganSachDuyet}"></td><td><input type="text" class="input-note bld-note" value="${chiTiet.ghiChuBLD}"></td>`;
         } else {
-          let nextStatus = "PENDING_GDKD";
-          if(phieu.trangThai === 'PENDING_GDKD') nextStatus = "PENDING_PTGD";
-          if(phieu.trangThai === 'PENDING_PTGD') nextStatus = "PENDING_BLD";
-
-          tbodyHTML += `
-            <td><span style="color: var(--warning); font-weight: 700;">${phieu.trangThai}</span></td>
-            <td>
-              <button class="btn-action btn-approve" onclick="updateStatus('${phieu.idPhieu}', '${nextStatus}')">Duyệt</button>
-              <button class="btn-action btn-reject" onclick="updateStatus('${phieu.idPhieu}', 'REJECTED')">Từ Chối</button>
-            </td>
-          `;
+          let nextStatus = phieu.trangThai === 'PENDING_GDKD' ? "PENDING_PTGD" : (phieu.trangThai === 'PENDING_PTGD' ? "PENDING_BLD" : "PENDING_GDKD");
+          tbodyHTML += `<td>${phieu.trangThai}</td><td><button class="btn-action btn-approve" onclick="updateStatus('${phieu.idPhieu}', '${nextStatus}')">Duyệt</button><button class="btn-action btn-reject" onclick="updateStatus('${phieu.idPhieu}', 'REJECTED')">Từ Chối</button></td>`;
         }
         tbodyHTML += `</tr>`;
       });
       tbody.innerHTML = tbodyHTML;
     }
 
-    async function updateStatus(idPhieu, newStatus) {
-      if(!confirm("Xác nhận thao tác phê duyệt này?")) return;
-      showLoading(true);
-      try {
-        const response = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ action: "updateStatus", data: { idPhieu: idPhieu, newStatus: newStatus } })
-        });
-        const result = await response.json();
-        if(result.success) {
-          alert("Duyệt phiếu thành công!");
-          simulateRole(currentViewRole); 
-        }
-      } catch(e) { alert("Lỗi mạng!"); } finally { showLoading(false); }
+    function updateStatus(idPhieu, newStatus) {
+      if(!confirm("Xác nhận thao tác phê duyệt này?")) return; showLoading(true);
+      callAPI("updateStatus", { data: JSON.stringify({ idPhieu: idPhieu, newStatus: newStatus }) }, function(res) {
+        showLoading(false); alert("Đã cập nhật trạng thái phiếu!"); simulateRole(currentViewRole);
+      });
     }
 
-    async function submitBldApproval(isFinal) {
-      if(isFinal && !confirm("Xác nhận chốt phê duyệt? Hệ thống sẽ kết xuất file báo cáo cuối cùng.")) return;
-      showLoading(true);
-
+    function submitBldApproval(isFinal) {
+      if(isFinal && !confirm("Xác nhận chốt số? Hệ thống sẽ kết xuất file báo cáo cuối cùng.")) return; showLoading(true);
       const itemsData = [];
       document.querySelectorAll('#tableBody tr').forEach(row => {
-        itemsData.push({
-          idDong: row.getAttribute('data-id-dong'),
-          nganSachDuyet: row.querySelector('.bld-budget').value,
-          ghiChuBLD: row.querySelector('.bld-note').value
-        });
+        itemsData.push({ idDong: row.getAttribute('data-id-dong'), nganSachDuyet: row.querySelector('.bld-budget').value, ghiChuBLD: row.querySelector('.bld-note').value });
       });
-
-      try {
-        const response = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ action: "bldApprove", data: { isFinalApprove: isFinal, items: itemsData } })
-        });
-        const result = await response.json();
-        if(result.success) {
-          alert(result.message);
-          simulateRole(currentViewRole);
-        }
-      } catch(e) { alert("Lỗi mạng!"); } finally { showLoading(false); }
+      callAPI("bldApprove", { data: JSON.stringify({ isFinalApprove: isFinal, items: itemsData }) }, function(res) {
+        showLoading(false); alert(res.message); simulateRole(currentViewRole);
+      });
     }
   </script>
 </body>
