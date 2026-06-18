@@ -17,7 +17,7 @@
     .btn-check-status { background-color: var(--primary-blue); color: #fff; border: none; border-radius: 30px; padding: 14px 35px; font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(11, 31, 140, 0.2); transition: 0.2s; }
     .btn-check-status:hover { background-color: #081666; }
 
-    .main-card { background: #ffffff; width: 95%; max-width: 1450px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.06); padding: 40px 80px 60px 80px; margin-bottom: 50px; box-sizing: border-box; position: relative; }
+    .main-card { background: #ffffff; width: 95%; max-width: 1450px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.06); padding: 40px 80px 60px 80px; margin-bottom: 30px; box-sizing: border-box; position: relative; }
     .card-title-area { text-align: center; margin-bottom: 40px; position: relative; }
     .card-title-area h2 { color: var(--primary-blue); font-size: 28px; font-weight: 800; margin: 0 0 5px 0; text-transform: uppercase; }
     .card-title-area p { color: var(--text-gray); font-size: 15px; margin: 0 0 15px 0; font-style: italic; }
@@ -70,7 +70,6 @@
     .btn-modal-submit:hover { background-color: #081666; }
     .btn-close-modal { position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 24px; color: #999; cursor: pointer; }
 
-    /* CSS CHO KẾT QUẢ TRA CỨU CAROUSEL */
     #resultView { display: none; width: 100%; }
     .pill-text { border: 1px solid #ccc; border-radius: 20px; padding: 8px 15px; font-size: 14px; font-weight: 600; color: #333; display: inline-block; text-align: center; min-width: 100px; }
     .pill-text.small { min-width: 70px; }
@@ -85,11 +84,21 @@
     .phieu-id-title { text-align: center; font-size: 18px; color: var(--primary-blue); font-weight: 800; margin-bottom: 25px; }
     #loadingDepts { position: absolute; font-size: 12px; color: #666; right: -70px; top: 10px; display: none; }
 
-    /* Controls cho Slider */
     .carousel-wrap { display: flex; align-items: center; justify-content: center; gap: 20px; width: 100%; }
     .carousel-arrow { background: #e8f4fc; border: none; font-size: 24px; width: 50px; height: 50px; border-radius: 50%; color: var(--primary-blue); cursor: pointer; transition: 0.2s; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     .carousel-arrow:hover { background: var(--primary-blue); color: white; }
     #carouselContent { flex: 1; overflow: hidden; }
+
+    /* FOOTER CHUẨN YÊU CẦU */
+    .main-footer {
+      text-align: center;
+      padding: 20px 40px;
+      color: var(--text-gray);
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      max-width: 1450px;
+    }
   </style>
 </head>
 <body>
@@ -158,15 +167,15 @@
         <thead>
           <tr>
             <th rowspan="2" width="4%">STT</th>
-            <th rowspan="2" width="16%">Dự án</th>
+            <th rowspan="2" width="15%">Dự án</th>
             <th colspan="4">Thông tin chiến dịch Marketing đăng ký</th>
-            <th rowspan="2" width="10%">Kênh chạy</th>
-            <th rowspan="2" width="12%">Số điện thoại<br>đăng ký trên quảng cáo</th>
-            <th rowspan="2" width="14%">Tài khoản đăng ký<br>chạy quảng cáo</th>
-            <th rowspan="2" width="12%">Ban lãnh đạo<br>phê duyệt</th>
+            <th rowspan="2" width="9%">Kênh chạy</th>
+            <th rowspan="2" width="11%">Số điện thoại<br>đăng ký trên quảng cáo</th>
+            <th rowspan="2" width="13%">Tài khoản đăng ký<br>chạy quảng cáo</th>
+            <th rowspan="2" width="10%">Ban lãnh đạo<br>phê duyệt</th>
           </tr>
           <tr>
-            <th width="15%">Ngân sách</th><th width="7%">Bắt đầu</th><th width="7%">Kết thúc</th><th width="7%">KPI</th>
+            <th width="18%">Ngân sách</th><th width="7%">Bắt đầu</th><th width="7%">Kết thúc</th><th width="6%">KPI</th>
           </tr>
         </thead>
         <tbody id="tableBody">
@@ -174,8 +183,8 @@
             <td>1</td>
             <td><select class="table-input project-select" name="project" required><option value="" disabled selected>Chọn dự án...</option></select></td>
             <td><input type="text" class="table-input calc-budget" name="budget" placeholder="0" oninput="formatCurrency(this)" required></td>
-            <td><input type="text" class="table-input" name="start" placeholder="..."></td>
-            <td><input type="text" class="table-input" name="end" placeholder="..."></td>
+            <td><input type="text" class="table-input" name="start" placeholder="..." required></td>
+            <td><input type="text" class="table-input" name="end" placeholder="..." required></td>
             <td><input type="text" class="table-input" name="kpi" placeholder="..."></td>
             <td><input type="text" class="table-input" name="channel" placeholder="..."></td>
             <td><input type="text" class="table-input" name="phone" placeholder="..."></td>
@@ -233,6 +242,11 @@
       <div id="carouselPageIndicator" style="text-align:center; margin-top:20px; font-weight:800; color:#999; font-size:16px;"></div>
     </div>
   </main>
+
+  <footer class="main-footer">
+    Trang web đề xuất Marketing phục vụ đăng ký các chiến dịch Marketing nội bộ.<br>
+    Yêu cầu chạy đủ tối thiểu 100% ngân sách BLĐ phê duyệt. Ngân sách thực chạy ghi nhận không bao gồm các chi phí mua tool (xây dựng content, website, quay chụp,...) và không bao gồm VAT hoặc phí nền tảng.
+  </footer>
 
   <div class="modal-overlay" id="searchModal">
     <div class="modal-card">
@@ -322,7 +336,6 @@
     function openModal() { document.getElementById('searchModal').style.display = 'flex'; }
     function closeModal() { document.getElementById('searchModal').style.display = 'none'; }
 
-    // RENDER LẠI KẾT QUẢ TỪ API THÀNH SLIDER CAROUSEL
     function executeSearch() {
       const sName = document.getElementById('searchName').value.trim();
       const sId = document.getElementById('searchId').value.trim();
@@ -340,7 +353,6 @@
           currentSearchResults = res.data;
           currentSearchIndex = 0;
           
-          // Render tiêu đề thông báo số lượng phiếu
           let displayMonth = sMonth ? sMonth.split('-')[1] + "/" + sMonth.split('-')[0] : '...';
           let displayName = sName ? sName : (sId ? 'AVH' + sId : 'Nhóm của bạn');
           
@@ -444,8 +456,8 @@
 
         <table class="data-table">
           <thead>
-            <tr><th rowspan="2" width="4%">STT</th><th rowspan="2" width="16%">Dự án</th><th colspan="4">Thông tin chiến dịch Marketing đăng ký</th><th rowspan="2" width="10%">Kênh chạy</th><th rowspan="2" width="12%">Số điện thoại</th><th rowspan="2" width="14%">Tài khoản</th><th rowspan="2" width="12%">Ban lãnh đạo phê duyệt</th></tr>
-            <tr><th width="15%">Ngân sách</th><th width="7%">Bắt đầu</th><th width="7%">Kết thúc</th><th width="7%">KPI</th></tr>
+            <tr><th rowspan="2" width="4%">STT</th><th rowspan="2" width="15%">Dự án</th><th colspan="4">Thông tin chiến dịch Marketing đăng ký</th><th rowspan="2" width="9%">Kênh chạy</th><th rowspan="2" width="11%">Số điện thoại</th><th rowspan="2" width="13%">Tài khoản</th><th rowspan="2" width="10%">Ban lãnh đạo phê duyệt</th></tr>
+            <tr><th width="18%">Ngân sách</th><th width="7%">Bắt đầu</th><th width="7%">Kết thúc</th><th width="6%">KPI</th></tr>
           </thead>
           <tbody>${rowsHtml}</tbody>
           <tfoot><tr class="total-row"><td colspan="2" style="text-align: right; padding-right: 20px;">Tổng cộng</td><td class="total-bg-blue">${formatNumber(phieu.tongTien)}</td><td colspan="7" style="border-bottom: transparent; border-right: transparent;"></td></tr></tfoot>
