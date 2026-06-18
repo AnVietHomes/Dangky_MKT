@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cổng Quản Trị - An Việt Homes</title>
+  
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,110 +12,202 @@
   
   <style>
     :root {
-      --primary-dark: #0a1f35;
-      --primary-blue: #0056b3;
-      --text-main: #333;
-      --success: #27ae60;
-      --warning: #f39c12;
+      --bg-login: #dcf1fc; /* Màu nền xanh lơ nhạt của màn hình Login */
+      --primary-blue: #0b1f8c;
+      --text-dark: #333333;
+      --text-gray: #666666;
+      --input-bg: #f4f6f8;
+      --border-color: #e5e8ec;
+      --success-green: #27ae60;
       --danger: #e74c3c;
+      --warning: #f39c12;
     }
     
-    body { font-family: 'Manrope', sans-serif; margin: 0; padding: 0; background-color: #f8f9fa; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+    body { 
+      font-family: 'Manrope', sans-serif; 
+      margin: 0; 
+      padding: 0; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      min-height: 100vh;
+      box-sizing: border-box;
+      /* Mặc định màu nền cho Login */
+      background-color: var(--bg-login);
+    }
     
-    /* Login Split Layout */
-    .split-layout { display: flex; width: 100%; height: 100%; }
-    .left-panel { background-color: var(--primary-dark); width: 45%; padding: 50px; display: flex; flex-direction: column; justify-content: space-between; position: relative; color: white; }
-    .brand-logo { max-width: 150px; }
-    .left-content { z-index: 2; margin-top: -100px; }
-    .left-content h3 { font-weight: 500; font-size: 24px; color: #4da6ff; margin: 0 0 5px 0; letter-spacing: 1px; }
-    .left-content h1 { font-size: 38px; font-weight: 800; margin: 0; line-height: 1.2; text-transform: uppercase; }
-    .illustration-box { width: 100%; height: 350px; background: url('https://placehold.co/600x400/0a1f35/4da6ff?text=Admin+Portal') no-repeat center bottom; background-size: contain; opacity: 0.8; }
+    /* ======================================= */
+    /* GIAO DIỆN LOGIN THEO ẢNH SỐ 4           */
+    /* ======================================= */
+    .login-wrapper {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
 
-    .right-panel { width: 55%; background-color: #fff; display: flex; align-items: center; justify-content: center; }
-    .login-box { width: 100%; max-width: 420px; padding: 40px; }
-    .login-box h2 { font-size: 28px; font-weight: 800; color: var(--primary-dark); margin: 0 0 5px 0; }
-    .form-group { margin-bottom: 20px; position: relative; }
-    .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #444; }
-    .form-control { width: 100%; padding: 14px 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: 'Manrope'; font-size: 15px; background: #fafafa; }
-    .form-control:focus { border-color: var(--primary-blue); outline: none; background: #fff; }
-    .password-toggle { position: absolute; right: 15px; top: 40px; cursor: pointer; color: #999; font-size: 12px; font-weight: 600; }
-    .btn-primary { background-color: var(--primary-blue); color: white; width: 100%; padding: 16px; border: none; border-radius: 6px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; }
-    .btn-primary:hover { background-color: #004494; }
+    .login-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .login-header img {
+      max-width: 140px;
+      margin-bottom: 15px;
+    }
+    .login-header h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--primary-blue);
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
 
-    /* Dashboard Layout */
-    .dashboard-container { display: none; width: 100%; height: 100%; overflow-y: auto; padding: 30px; box-sizing: border-box; background: #f4f7f6; }
-    .dash-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ddd; padding-bottom: 15px; margin-bottom: 20px; }
-    .dash-logo { max-width: 120px; }
+    .login-card {
+      background-color: #ffffff;
+      width: 100%;
+      max-width: 480px;
+      border-radius: 12px;
+      padding: 40px 50px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      box-sizing: border-box;
+    }
+
+    .login-card h2 {
+      text-align: center;
+      color: var(--primary-blue);
+      font-size: 20px;
+      font-weight: 800;
+      margin: 0 0 30px 0;
+      text-transform: uppercase;
+    }
+
+    .form-group { display: flex; flex-direction: column; text-align: left; margin-bottom: 20px; position: relative; }
+    .form-group label { font-weight: 600; font-size: 13px; color: var(--text-gray); margin-bottom: 8px; }
     
-    .super-admin-toolbar { display: none; background: #0a1f35; color: white; padding: 15px 20px; border-radius: 8px; margin-bottom: 25px; align-items: center; justify-content: space-between; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .super-admin-toolbar select { padding: 8px 15px; border-radius: 4px; font-family: 'Manrope'; font-weight: 600; border: none; outline: none; cursor: pointer; }
+    .form-control { width: 100%; padding: 14px 16px; border: 1px solid #ccc; border-radius: 6px; font-family: 'Manrope', sans-serif; font-size: 14px; color: #333; box-sizing: border-box; transition: all 0.3s; }
+    .form-control:focus { background-color: #fff; border-color: var(--primary-blue); outline: none; box-shadow: 0 0 0 3px rgba(11, 31, 140, 0.1); }
     
-    table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-    th { background: var(--primary-blue); color: white; padding: 15px 10px; font-size: 14px; }
-    td { padding: 15px 10px; border-bottom: 1px solid #eee; text-align: center; font-size: 14px; }
-    .input-budget { width: 120px; padding: 8px; border: 2px solid #3498db; border-radius: 4px; text-align: right; font-weight: 800; color: var(--danger); font-family: 'Manrope'; }
-    .badge { padding: 5px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; background: #e6f0fa; color: var(--primary-blue); }
+    .password-toggle { position: absolute; right: 15px; top: 40px; cursor: pointer; color: #999; font-size: 12px; font-weight: 700; }
+
+    .btn-submit { background-color: var(--primary-blue); color: white; width: 100%; padding: 14px; border: none; border-radius: 30px; font-size: 15px; font-weight: 700; cursor: pointer; text-transform: uppercase; margin-top: 10px; margin-bottom: 25px; transition: 0.2s; }
+    .btn-submit:hover { background-color: #081666; }
+
+    .login-footer {
+      font-size: 11px;
+      color: #666;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    /* ======================================= */
+    /* GIAO DIỆN DASHBOARD SAU KHI LOGIN       */
+    /* ======================================= */
+    .dashboard-container {
+      display: none;
+      background-color: #ffffff;
+      width: 95%;
+      max-width: 1450px;
+      border-radius: 12px;
+      padding: 40px 60px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      position: relative;
+      box-sizing: border-box;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .dash-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border-color); padding-bottom: 20px; margin-bottom: 25px; }
+    .dash-header-left { display: flex; align-items: center; gap: 20px; }
+    .dash-title { color: var(--primary-blue); margin: 0; font-weight: 800; font-size: 24px; text-transform: uppercase; }
+    .user-badge { font-weight: 700; background: var(--input-bg); padding: 10px 20px; border-radius: 30px; color: var(--text-dark); }
+    .btn-logout { color: var(--danger); font-weight: 700; text-decoration: none; margin-left: 15px; cursor: pointer; }
+
+    .super-admin-toolbar { display: none; background: #0a1f35; color: white; padding: 20px; border-radius: 10px; margin-bottom: 25px; align-items: center; justify-content: space-between; }
+    .super-admin-toolbar select { padding: 10px 20px; border-radius: 6px; font-family: 'Manrope'; font-weight: 700; border: none; outline: none; cursor: pointer; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th { background: var(--input-bg); color: var(--text-dark); padding: 16px 10px; font-size: 14px; font-weight: 800; text-align: center; }
+    td { padding: 16px 10px; border-bottom: 1px dashed var(--border-color); text-align: center; font-size: 14px; vertical-align: middle; }
     
-    .btn-sm { padding: 8px 15px; border: none; border-radius: 4px; font-family: 'Manrope'; font-weight: 600; color: white; cursor: pointer; margin: 0 5px; }
-    .btn-approve { background: var(--success); }
+    .input-budget { width: 130px; padding: 10px; border: 2px solid #3498db; border-radius: 6px; text-align: right; font-weight: 800; color: var(--danger); font-family: 'Manrope'; background: #fffaf9; }
+    .input-note { width: 90%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-family: 'Manrope'; background: var(--input-bg); }
+    
+    .btn-action { padding: 10px 18px; border: none; border-radius: 6px; font-family: 'Manrope'; font-weight: 700; color: white; cursor: pointer; margin: 0 5px; }
+    .btn-approve { background: var(--success-green); }
     .btn-reject { background: var(--danger); }
-    .loading-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:9999; justify-content:center; align-items:center; font-weight:bold; color:var(--primary-blue); font-size: 18px;}
+    .btn-draft { background: var(--warning); }
+
+    .loading-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; justify-content:center; align-items:center; font-weight:800; color:#fff; font-size: 18px; }
+
+    @media (max-width: 768px) {
+      .login-card { padding: 30px 20px; }
+      .dashboard-container { padding: 30px 20px; }
+      .dash-header { flex-direction: column; gap: 15px; align-items: flex-start; }
+      .super-admin-toolbar { flex-direction: column; gap: 15px; align-items: flex-start; }
+    }
   </style>
 </head>
 <body>
 
-  <div class="loading-overlay" id="loadingOverlay">Hệ thống đang xử lý, vui lòng chờ...</div>
+  <div class="loading-overlay" id="loadingOverlay">ĐANG XỬ LÝ DỮ LIỆU...</div>
 
-  <div class="split-layout" id="loginScreen">
-    <div class="left-panel">
-      <img src="logo.svg" alt="An Việt Homes" class="brand-logo" onerror="this.src='https://placehold.co/150x50/0a1f35/FFF?text=LOGO'">
-      <div class="left-content">
-        <h3>HỆ THỐNG TRÌNH DUYỆT</h3>
-        <h1>ĐĂNG KÝ MARKETING</h1>
-      </div>
-      <div class="illustration-box"></div>
+  <!-- GIAO DIỆN LOGIN (Chuẩn ảnh GIAO DIỆN LOGIN_4) -->
+  <div class="login-wrapper" id="loginScreen">
+    <div class="login-header">
+      <img src="logo.svg" alt="An Việt Homes" onerror="this.src='https://placehold.co/120x60/dcf1fc/0b1f8c?text=LOGO'">
+      <h1>HỆ THỐNG PHÊ DUYỆT ĐỀ XUẤT MARKETING HÀNG THÁNG</h1>
     </div>
     
-    <div class="right-panel">
-      <div class="login-box">
-        <h2>ĐĂNG NHẬP</h2>
-        <p style="color: #777; margin-bottom: 30px;">Cổng quản trị dành cho Lãnh đạo</p>
-        
-        <form onsubmit="event.preventDefault(); handleLogin();">
-          <div class="form-group">
-            <label>Tài khoản</label>
-            <input type="text" id="username" class="form-control" required placeholder="Nhập tài khoản (VD: admin_tong)">
-          </div>
-          <div class="form-group">
-            <label>Mật khẩu</label>
-            <input type="password" id="pwdInput" class="form-control" required placeholder="Nhập mật khẩu...">
-            <span class="password-toggle" onclick="togglePassword()">HIỆN</span>
-          </div>
-          <button type="submit" class="btn-primary">ĐĂNG NHẬP</button>
-        </form>
+    <div class="login-card">
+      <h2>TÀI KHOẢN QUẢN TRỊ NỘI BỘ</h2>
+      
+      <form onsubmit="event.preventDefault(); handleLogin();">
+        <div class="form-group">
+          <label>Tên tài khoản</label>
+          <input type="text" id="username" class="form-control" required placeholder="Nhập tên tài khoản đã được cấp">
+        </div>
+        <div class="form-group">
+          <label>Mật khẩu</label>
+          <input type="password" id="pwdInput" class="form-control" required placeholder="Nhập mật khẩu đã được cấp">
+          <span class="password-toggle" onclick="togglePassword()">HIỆN</span>
+        </div>
+        <button type="submit" class="btn-submit">ĐĂNG NHẬP</button>
+      </form>
+
+      <div class="login-footer">
+        Hệ thống quản trị dành cho leader được phân quyền phê duyệt đề xuất Marketing.<br>
+        Vui lòng đăng nhập bằng tên tài khoản và mật khẩu Phòng Marketing đã cấp.<br>
+        Trường hợp mất hoặc quên mật khẩu, vui lòng liên hệ MKT để được cấp lại.<br><br>
+        Mọi nhu cầu lỗi hoặc đề xuất nâng cấp hệ thống vui lòng liên hệ<br>
+        Phòng Marketing An Việt Homes để được hỗ trợ.
       </div>
     </div>
   </div>
 
+  <!-- GIAO DIỆN DASHBOARD -->
   <div class="dashboard-container" id="dashboardScreen">
     <div class="dash-header">
-      <div style="display: flex; align-items: center; gap: 20px;">
-        <img src="logo.svg" alt="An Việt Homes" class="dash-logo" onerror="this.src='https://placehold.co/120x40/0a1f35/FFF?text=LOGO'">
-        <h2 style="color: var(--primary-blue); margin: 0;">KHU VỰC PHÊ DUYỆT</h2>
+      <div class="dash-header-left">
+        <img src="logo.svg" alt="An Việt Homes" style="margin:0; max-width: 100px;" onerror="this.src='https://placehold.co/100x40/ffffff/004b9a?text=LOGO'">
+        <h2 class="dash-title">KHU VỰC PHÊ DUYỆT</h2>
       </div>
-      <div style="display: flex; align-items: center; gap: 15px;">
-        <span id="userInfo" style="font-weight: 600; background: #e6f0fa; padding: 8px 15px; border-radius: 20px;"></span>
-        <a href="#" onclick="window.location.reload()" style="color: var(--danger); font-weight: 600; text-decoration: none;">Đăng xuất</a>
+      <div>
+        <span class="user-badge" id="userInfo"></span>
+        <a class="btn-logout" onclick="window.location.reload()">Đăng xuất</a>
       </div>
     </div>
 
+    <!-- SUPER ADMIN TOOLBAR -->
     <div class="super-admin-toolbar" id="superAdminToolbar">
       <div>
         <span style="font-size: 20px; font-weight: 800; color: #4da6ff;">⚡ CHẾ ĐỘ QUẢN TRỊ VIÊN TỐI CAO</span>
         <div style="font-size: 13px; margin-top: 5px; color: #ccc;">Can thiệp và hiển thị mọi bước duyệt của hệ thống.</div>
       </div>
       <div>
-        <label style="margin-right: 10px; font-weight: 600;">Góc nhìn:</label>
+        <label style="margin-right: 10px; font-weight: 700;">Đổi góc nhìn:</label>
         <select id="roleSimulator" onchange="simulateRole(this.value)">
           <option value="SUPER_ADMIN">Tổng quan (Tất cả)</option>
           <option value="TPKD">Góc nhìn: Trưởng phòng KD</option>
@@ -125,24 +218,25 @@
       </div>
     </div>
 
-    <table id="dataTable">
-      <thead><tr id="tableHeader"></tr></thead>
-      <tbody id="tableBody"></tbody>
-    </table>
+    <div style="overflow-x: auto;">
+      <table id="dataTable">
+        <thead><tr id="tableHeader"></tr></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
     
-    <div id="bldActions" style="display: none; justify-content: flex-end; margin-top: 20px; gap: 15px;">
-       <button class="btn-sm" style="background: var(--warning); padding: 12px 20px;" onclick="submitBldApproval(false)">Lưu Nháp Tạm Thời</button>
-       <button class="btn-sm btn-approve" style="padding: 12px 20px;" onclick="submitBldApproval(true)">Xác Nhận & Xuất Form Cuối</button>
+    <div id="bldActions" style="display: none; justify-content: flex-end; margin-top: 30px; gap: 15px;">
+       <button class="btn-action btn-draft" style="padding: 14px 25px;" onclick="submitBldApproval(false)">Lưu Nháp Tạm Thời</button>
+       <button class="btn-action btn-approve" style="padding: 14px 25px;" onclick="submitBldApproval(true)">Xác Nhận & Xuất Form Báo Cáo</button>
     </div>
   </div>
 
   <script>
-    // LẮP LINK API CHÍNH THỨC
     const API_URL = "https://script.google.com/macros/s/AKfycbwFgszaVmJmOhs_GOMlcomv-RTcFJ2SXU4nbrGDRRqS8mZcFOR59YnBEl5boKmTeBFa/exec";
     
     let loggedInUser = null; 
     let currentViewRole = ''; 
-    let globalData = []; // Lưu trữ data lấy từ server
+    let globalData = []; 
 
     function showLoading(show) { document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none'; }
     
@@ -153,7 +247,6 @@
       else { pwd.type = 'password'; toggle.textContent = 'HIỆN'; }
     }
 
-    // 1. API ĐĂNG NHẬP
     async function handleLogin() {
       const userVal = document.getElementById('username').value;
       const pwdVal = document.getElementById('pwdInput').value;
@@ -171,6 +264,10 @@
           loggedInUser = result.user;
           document.getElementById('loginScreen').style.display = 'none';
           document.getElementById('dashboardScreen').style.display = 'block';
+          
+          // Khi vào dashboard, có thể đổi nền body sang màu khác nếu muốn (vd: màu xám nhạt)
+          document.body.style.backgroundColor = '#f4f7f6'; 
+
           document.getElementById('userInfo').innerText = `Xin chào, ${loggedInUser.name}`;
           
           if (loggedInUser.role === 'SUPER_ADMIN') {
@@ -188,7 +285,6 @@
       }
     }
 
-    // 2. API LOAD DỮ LIỆU BẢNG ĐIỀU KHIỂN
     async function simulateRole(role) {
       currentViewRole = role;
       showLoading(true);
@@ -206,14 +302,12 @@
           renderTableByRole(currentViewRole);
         }
       } catch (error) {
-        console.error(error);
         alert("Không thể tải dữ liệu từ máy chủ.");
       } finally {
         showLoading(false);
       }
     }
 
-    // 3. RENDER BẢNG DỮ LIỆU
     function renderTableByRole(role) {
       const thead = document.getElementById('tableHeader');
       const tbody = document.getElementById('tableBody');
@@ -221,7 +315,7 @@
       
       let theadHTML = `<th>Mã Phiếu</th><th>Phòng Ban</th><th>Dự Án</th><th>Ngân Sách Đề Xuất</th>`;
       if (role === 'BLD' || role === 'SUPER_ADMIN') {
-        theadHTML += `<th>BLĐ Duyệt Thực Tế</th><th>Ghi Chú</th>`;
+        theadHTML += `<th>BLĐ Duyệt Thực Tế</th><th>Ghi Chú Điều Chỉnh</th>`;
         bldActions.style.display = 'flex'; 
       } else {
         theadHTML += `<th>Trạng Thái</th><th>Hành Động</th>`;
@@ -236,32 +330,30 @@
       }
 
       globalData.forEach(phieu => {
-        // Chỉ lấy dòng dự án đầu tiên để hiển thị cho gọn (có thể vòng lặp thêm nếu 1 phiếu có nhiều dự án)
         const chiTiet = phieu.chiTiet[0]; 
         
         tbodyHTML += `<tr data-id-phieu="${phieu.idPhieu}" data-id-dong="${chiTiet.idDong}">
-          <td><span class="badge">${phieu.idPhieu}</span></td>
+          <td><span style="background:var(--input-bg); padding:6px 12px; border-radius:20px; font-weight:700;">${phieu.idPhieu}</span></td>
           <td>${phieu.phongKD}</td>
-          <td style="font-weight: 600; color: var(--primary-blue);">${chiTiet.tenDuAn}</td>
-          <td>${Number(chiTiet.nganSachDeXuat).toLocaleString()} VNĐ</td>
+          <td style="font-weight: 800; color: var(--primary-blue);">${chiTiet.tenDuAn}</td>
+          <td style="font-weight: 700;">${Number(chiTiet.nganSachDeXuat).toLocaleString()} VNĐ</td>
         `;
 
         if (role === 'BLD' || role === 'SUPER_ADMIN') {
           tbodyHTML += `
             <td><input type="number" class="input-budget bld-budget" value="${chiTiet.nganSachDuyet}"></td>
-            <td><input type="text" class="form-control bld-note" style="padding: 8px;" placeholder="Ghi chú..." value="${chiTiet.ghiChuBLD}"></td>
+            <td><input type="text" class="input-note bld-note" placeholder="Nhập lý do nếu có..." value="${chiTiet.ghiChuBLD}"></td>
           `;
         } else {
-          // Tính toán trạng thái tiếp theo để gắn vào nút Duyệt
           let nextStatus = "PENDING_GDKD";
           if(phieu.trangThai === 'PENDING_GDKD') nextStatus = "PENDING_PTGD";
           if(phieu.trangThai === 'PENDING_PTGD') nextStatus = "PENDING_BLD";
 
           tbodyHTML += `
-            <td><span style="color: #f39c12; font-weight: 600;">${phieu.trangThai}</span></td>
+            <td><span style="color: var(--warning); font-weight: 700;">${phieu.trangThai}</span></td>
             <td>
-              <button class="btn-sm btn-approve" onclick="updateStatus('${phieu.idPhieu}', '${nextStatus}')">Duyệt</button>
-              <button class="btn-sm btn-reject" onclick="updateStatus('${phieu.idPhieu}', 'REJECTED')">Từ Chối</button>
+              <button class="btn-action btn-approve" onclick="updateStatus('${phieu.idPhieu}', '${nextStatus}')">Duyệt</button>
+              <button class="btn-action btn-reject" onclick="updateStatus('${phieu.idPhieu}', 'REJECTED')">Từ Chối</button>
             </td>
           `;
         }
@@ -271,7 +363,6 @@
       tbody.innerHTML = tbodyHTML;
     }
 
-    // 4. API DUYỆT BƯỚC TRUNG GIAN (TPKD, GDKD, PTGD)
     async function updateStatus(idPhieu, newStatus) {
       if(!confirm("Xác nhận thao tác phê duyệt này?")) return;
       showLoading(true);
@@ -284,15 +375,14 @@
         });
         const result = await response.json();
         if(result.success) {
-          alert("Thành công!");
-          simulateRole(currentViewRole); // Tải lại bảng
+          alert("Duyệt phiếu thành công!");
+          simulateRole(currentViewRole); 
         }
       } catch(e) { alert("Lỗi mạng!"); } finally { showLoading(false); }
     }
 
-    // 5. API CHỐT SỐ CỦA BAN LÃNH ĐẠO
     async function submitBldApproval(isFinal) {
-      if(isFinal && !confirm("Xác nhận chốt số? Hệ thống sẽ xuất file cuối cùng.")) return;
+      if(isFinal && !confirm("Xác nhận chốt phê duyệt? Hệ thống sẽ kết xuất file báo cáo cuối cùng.")) return;
       showLoading(true);
 
       const itemsData = [];
@@ -313,7 +403,7 @@
         const result = await response.json();
         if(result.success) {
           alert(result.message);
-          simulateRole(currentViewRole); // Tải lại bảng
+          simulateRole(currentViewRole);
         }
       } catch(e) { alert("Lỗi mạng!"); } finally { showLoading(false); }
     }
