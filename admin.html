@@ -16,15 +16,19 @@
     .login-header { text-align: center; margin-bottom: 30px; }
     .login-header img { max-width: 90px; margin-bottom: 15px; }
     .login-header h1 { font-size: 24px; font-weight: 800; color: var(--primary-blue); margin: 0; text-transform: uppercase; letter-spacing: 0.5px; }
+
     .login-card { background-color: #ffffff; width: 100%; max-width: 480px; border-radius: 12px; padding: 40px 50px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); box-sizing: border-box; }
-    .login-card h2 { text-align: center; color: var(--primary-blue); font-size: 20px; font-weight: 800; margin: 0 0 30px 0; }
+    .login-card h2 { text-align: center; color: var(--primary-blue); font-size: 20px; font-weight: 800; margin: 0 0 30px 0; text-transform: uppercase; }
+
     .form-group { display: flex; flex-direction: column; text-align: left; margin-bottom: 20px; position: relative; }
     .form-group label { font-weight: 600; font-size: 13px; color: var(--text-gray); margin-bottom: 8px; }
     .form-control { width: 100%; padding: 14px 16px; border: 1px solid #ccc; border-radius: 6px; font-family: 'Manrope', sans-serif; font-size: 14px; outline: none;}
     .form-control:focus { border-color: var(--primary-blue); box-shadow: 0 0 0 3px rgba(11, 31, 140, 0.1); }
     .password-toggle { position: absolute; right: 15px; top: 40px; cursor: pointer; color: #999; font-size: 12px; font-weight: 700; }
+
     .btn-submit { background-color: var(--primary-blue); color: white; width: 100%; padding: 14px; border: none; border-radius: 30px; font-size: 15px; font-weight: 700; cursor: pointer; text-transform: uppercase; margin-top: 10px; margin-bottom: 25px; transition: 0.2s; }
     .btn-submit:hover { background-color: #081666; }
+    
     .login-footer { font-size: 12px; color: #666; text-align: center; line-height: 1.6; font-weight: 500;}
 
     .dashboard-container { display: none; background-color: #ffffff; width: 95%; max-width: 1600px; border-radius: 12px; padding: 30px 40px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08); max-height: 95vh; overflow-y: auto; }
@@ -36,7 +40,6 @@
     .super-admin-toolbar { display: none; background: #0a1f35; color: white; padding: 15px 20px; border-radius: 10px; margin-bottom: 25px; align-items: center; justify-content: space-between; }
     .super-admin-toolbar select { padding: 8px 15px; border-radius: 6px; font-family: 'Manrope'; font-weight: 700; outline: none; }
 
-    /* MKT TOOLBAR */
     .mkt-toolbar { display: none; background: #e8f4fc; padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; align-items: center; justify-content: space-between; border: 1px solid var(--primary-blue); }
 
     .summary-table-wrap { display: none; margin-bottom: 25px; background: #fdfdfd; border: 1px solid var(--primary-blue); border-radius: 8px; overflow: hidden; }
@@ -59,17 +62,16 @@
     .btn-draft { background: var(--warning); }
     .subtotal-row { background: #fffaf0; }
 
-    /* ROW TRẠNG THÁI (MỜ / ĐỎ) */
-    .row-dimmed { opacity: 0.6; background: #f9f9f9; }
-    .row-dimmed:hover { opacity: 1; transition: 0.3s; }
-    .row-rejected { background: #ffebee; border-left: 4px solid var(--danger); }
+    /* HIỆU ỨNG UX: Mờ đi cho hàng Đã duyệt, Đỏ cho hàng Từ chối */
+    .row-dimmed { opacity: 0.5; background: #fafafa; }
+    .row-dimmed:hover { opacity: 0.9; transition: 0.2s; }
+    .row-rejected { background: #ffebee; border-left: 5px solid var(--danger); }
 
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1000; }
     .modal-card { background: #fff; width: 1000px; max-width: 95%; max-height: 90vh; overflow-y: auto; border-radius: 12px; padding: 30px; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
     .btn-close { position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; background: none; border: none; color: #888; }
     .modal-header { font-size: 22px; font-weight: 800; color: var(--primary-blue); text-align: center; margin-bottom: 20px; text-transform: uppercase;}
     
-    /* Vùng chứa ẩn dùng để in PDF (Phải để visibility thay vì display:none để PDF render được) */
     #pdfPrintArea { position: absolute; top: 0; left: 0; width: 1122px; background: #fff; padding: 40px; font-family: 'Manrope', sans-serif; color:#333; z-index:-10; visibility:hidden; }
     .pdf-title { text-align: center; color: var(--primary-blue); font-size: 24px; font-weight: 800; margin-bottom: 30px; text-transform: uppercase;}
     .pdf-info { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 14px; }
@@ -102,9 +104,9 @@
         <button type="submit" class="btn-submit">ĐĂNG NHẬP</button>
       </form>
       <div class="login-footer">
-        Hệ thống quản lý giành cho leader thực hiện quá trình duyệt đề xuất Marketing.<br>
-        Vui lòng đăng nhập đúng tên tài khoản và mật khẩu phòng Marketing đã cấp.<br>
-        Trường hợp mất hoặc quên mật khẩu vui lòng liên hệ MKT để được cấp lại.<br><br>
+        Hệ thống quản lý cho leader thực hiện duyệt đề xuất Marketing.<br>
+        Vui lòng đăng nhập đúng tên tài khoản và mật khẩu P. Marketing đã cấp.<br>
+        Trường hợp quên mật khẩu vui lòng liên hệ MKT để được cấp lại.<br><br>
         Mọi báo cáo lỗi hoặc đề xuất nâng cấp hệ thống vui lòng liên hệ<br>Phòng Marketing An Việt Homes để được hỗ trợ.
       </div>
     </div>
@@ -122,7 +124,7 @@
     <div class="super-admin-toolbar" id="superAdminToolbar">
       <div><span style="font-size: 20px; font-weight: 800; color: #4da6ff;">⚡ CHẾ ĐỘ QUẢN TRỊ VIÊN TỐI CAO</span></div>
       <div>
-        <label>Đổi góc nhìn:</label>
+        <label>Đổi góc nhìn giả lập:</label>
         <select id="roleSimulator" onchange="simulateRole(this.value)">
           <option value="SUPER_ADMIN">Tổng quan (Tất cả)</option><option value="TPMKT">TP Marketing</option><option value="MKT">Nhân viên MKT</option><option value="TPKD">Trưởng phòng KD</option><option value="GDKD">Giám đốc KD</option><option value="PTGD">Phó TGĐ</option><option value="BLD">Ban Lãnh Đạo</option>
         </select>
@@ -144,7 +146,7 @@
     </div>
 
     <div id="exportBlock" style="display: none; background: #e8f4fc; padding: 15px; border-radius: 8px; margin-bottom: 20px; align-items: center; gap: 15px;">
-      <b>Link Google Sheet Theo Dõi:</b>
+      <b>Link Google Sheet Theo Dõi (Sẽ lưu vào Tab Tháng Hiện Tại):</b>
       <input type="text" id="trackingUrl" class="form-control" style="flex:1; margin:0;" placeholder="Dán đường link Google Sheet vào đây...">
       <button class="btn-action btn-approve" style="padding: 12px 25px;" onclick="exportToTracking()">Đồng bộ Dữ liệu</button>
     </div>
@@ -251,14 +253,13 @@
       document.getElementById('modalTableBody').innerHTML = tBody; document.getElementById('viewFormModal').style.display = 'flex';
     }
 
-    // XÁC ĐỊNH TRẠNG THÁI HIỂN THỊ
     function getStatusGroup(phieu, role) {
       if (phieu.trangThai === 'REJECTED') return 'REJECTED';
       if (role === 'TPKD' && phieu.trangThai === 'PENDING_TPKD') return 'ACTION';
       if (role === 'GDKD' && phieu.trangThai === 'PENDING_GDKD') return 'ACTION';
       if (role === 'PTGD' && phieu.trangThai === 'PENDING_PTGD') return 'ACTION';
-      if (role === 'TPMKT' && phieu.trangThai === 'PENDING_BLD') return 'ACTION'; // TPMKT duyệt đẩy lên BLD
-      return 'HISTORY';
+      if (role === 'TPMKT' && phieu.trangThai === 'PENDING_BLD') return 'ACTION'; 
+      return 'HISTORY'; // Các trạng thái đã duyệt trôi qua
     }
 
     function renderTableByRole(role) {
@@ -292,7 +293,7 @@
             currentProject = item.tenDuAn; projectSubDeXuat = 0;
           }
           projectSubDeXuat += item.nsDeXuat;
-          let rowClass = item.trangThai === 'APPROVED_BY_BLD' ? 'row-dimmed' : '';
+          let rowClass = item.trangThai === 'APPROVED_BY_BLD' ? 'row-dimmed' : (item.trangThai === 'REJECTED' ? 'row-rejected' : '');
           html += `<tr data-id-dong="${item.idDong}" class="${rowClass}">
             <td><button class="btn-view" onclick="viewDetail('${item.idPhieu}')">👁️</button></td>
             <td><b>${item.idPhieu}</b></td><td style="color:var(--primary-blue); font-weight:800;">${item.tenDuAn}</td><td>${item.khoi}</td><td>${item.phong}</td><td style="text-align:left; font-size:12px; line-height:1.5;">${item.thanhVien}</td>
@@ -351,21 +352,19 @@
       if (role === 'BLD' || role === 'SUPER_ADMIN') recalcBLDSummary();
     }
 
-    // UX TỐC ĐỘ CAO
+    // UX CHUYỂN ĐỘNG NHANH
     function updateStatusOptimistic(idPhieu, newStatus, btnElement) {
       if(!confirm("Xác nhận chuyển trạng thái phiếu này?")) return;
       const row = btnElement.closest('tr');
-      
-      // Xóa row khỏi UI tạm thời để duyệt tiếp
-      row.style.display = 'none';
+      row.style.opacity = '0.2'; row.style.pointerEvents = 'none'; // Làm mờ để UX tốt hơn
 
       callAPI("updateStatus", { data: JSON.stringify({ idPhieu: idPhieu, newStatus: newStatus }) }, function(res) {
         if(res.success) {
-          // Thành công -> Reload ngầm để xếp lại vị trí chuẩn xác
+          // Tải lại ngầm để đưa Row về đúng bảng (History hoặc Action)
           simulateRole(currentViewRole);
         } else { 
-          alert("Lỗi kết nối, đã hoàn tác!"); 
-          row.style.display = ''; 
+          alert("Có lỗi, đã hoàn tác"); 
+          row.style.opacity = '1'; row.style.pointerEvents = 'auto'; 
         }
       });
     }
@@ -380,19 +379,26 @@
       });
     }
 
+    // GỬI MAIL ĐỆ QUY TỰ ĐỘNG CHỐNG TREO
     function sendAllApprovalMails() {
       const approvedItems = globalData.filter(p => p.trangThai === 'APPROVED_BY_BLD');
       if(approvedItems.length === 0) { alert("Không có phiếu nào đã được BLĐ duyệt để gửi!"); return; }
-      if(!confirm(`Sẽ thực hiện gửi tự động ${approvedItems.length} email đính kèm bản duyệt tới các nhóm. Tiếp tục?`)) return;
+      if(!confirm(`Hệ thống sẽ tiến hành gửi ${approvedItems.length} email bản duyệt tự động. Vui lòng không đóng trang trong quá trình này. Tiếp tục?`)) return;
       
       showLoading(true);
-      let count = 0;
-      approvedItems.forEach(item => {
+      let currentIndex = 0;
+
+      function sendNext() {
+        if (currentIndex >= approvedItems.length) {
+          showLoading(false); alert("Hoàn tất gửi Email hàng loạt!"); return;
+        }
+        let item = approvedItems[currentIndex];
         callAPI("sendPdfEmail", { idPhieu: item.idPhieu }, function(res) {
-          count++;
-          if(count === approvedItems.length) { showLoading(false); alert("Đã hoàn tất tiến trình gửi email hàng loạt!"); }
+          currentIndex++;
+          sendNext(); // Gọi đệ quy tiếp theo cho đến khi hết
         });
-      });
+      }
+      sendNext();
     }
 
     function downloadPDFs() {
@@ -440,7 +446,7 @@
       });
       
       printArea.innerHTML = htmlPages;
-      printArea.style.visibility = 'visible'; // Ép hiện tạm thời để chụp PDF
+      printArea.style.visibility = 'visible'; 
       
       var opt = { margin: 10, filename: 'De_Xuat_MKT_' + monthVal + '.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } };
       
