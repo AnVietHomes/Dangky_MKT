@@ -8,7 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <style>
-    :root { --bg-light-blue: #e8f4fc; --primary-blue: #0b1f8c; --text-dark: #222222; --text-gray: #666666; --red-status: #c00000; --table-border: #222222; }
+    :root { --bg-light-blue: #d4efff; --primary-blue: #0b1f8c; --text-dark: #222222; --text-gray: #666666; --red-status: #c00000; --table-border: #222222; }
     body { font-family: 'Manrope', sans-serif; margin: 0; padding: 0; background-color: var(--bg-light-blue); color: var(--text-dark); min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
     .top-header { width: 100%; max-width: 1600px; display: flex; justify-content: space-between; align-items: center; padding: 20px 50px; margin-top: 10px; box-sizing: border-box; }
     .header-left { display: flex; align-items: center; gap: 20px; }
@@ -48,7 +48,6 @@
     .data-table th { background-color: var(--primary-blue); color: #fff; font-weight: 600; font-size: 13px; padding: 12px 5px; }
     .data-table td { padding: 0; height: 50px; overflow: hidden; }
     .table-input { width: 100%; height: 100%; border: none; background: transparent; text-align: center; font-family: 'Manrope', sans-serif; font-size: 14px; color: #333; outline: none; box-sizing: border-box; padding: 5px; }
-    
     select.table-input { cursor: pointer; appearance: none; background: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") no-repeat right 5px center; background-size: 12px; font-weight: 600; color: var(--primary-blue); }
 
     .total-row td { border-top: 1px solid var(--table-border); font-weight: 700; font-size: 14px; }
@@ -71,7 +70,8 @@
     .btn-modal-submit:hover { background-color: #081666; }
     .btn-close-modal { position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 24px; color: #999; cursor: pointer; }
 
-    #resultView { display: none; }
+    /* CSS CHO KẾT QUẢ TRA CỨU CAROUSEL */
+    #resultView { display: none; width: 100%; }
     .pill-text { border: 1px solid #ccc; border-radius: 20px; padding: 8px 15px; font-size: 14px; font-weight: 600; color: #333; display: inline-block; text-align: center; min-width: 100px; }
     .pill-text.small { min-width: 70px; }
     .table-text { padding: 10px; font-size: 14px; font-weight: 600; color: #333; }
@@ -82,11 +82,14 @@
     .badge-red { background-color: var(--red-status); }
     .badge-blue { background-color: var(--primary-blue); }
     
-    .result-block { margin-bottom: 60px; padding-bottom: 40px; border-bottom: 3px dashed #ccc; }
-    .result-block:last-child { border-bottom: none; }
     .phieu-id-title { text-align: center; font-size: 18px; color: var(--primary-blue); font-weight: 800; margin-bottom: 25px; }
-
     #loadingDepts { position: absolute; font-size: 12px; color: #666; right: -70px; top: 10px; display: none; }
+
+    /* Controls cho Slider */
+    .carousel-wrap { display: flex; align-items: center; justify-content: center; gap: 20px; width: 100%; }
+    .carousel-arrow { background: #e8f4fc; border: none; font-size: 24px; width: 50px; height: 50px; border-radius: 50%; color: var(--primary-blue); cursor: pointer; transition: 0.2s; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .carousel-arrow:hover { background: var(--primary-blue); color: white; }
+    #carouselContent { flex: 1; overflow: hidden; }
   </style>
 </head>
 <body>
@@ -107,7 +110,6 @@
       <hr>
     </div>
 
-    <!-- VIEW FORM ĐĂNG KÝ -->
     <form id="marketingForm">
       <div class="info-section">
         <div class="info-row">
@@ -216,9 +218,19 @@
       <div class="btn-submit-container"><button type="submit" id="btnSubmit" class="btn-submit">Xác nhận gửi</button></div>
     </form>
 
-    <!-- VIEW KẾT QUẢ TRA CỨU ĐỘNG -->
     <div id="resultView">
-      <div id="searchResultsContainer"></div>
+      <div id="searchSummaryText" style="text-align:center; font-size:18px; color:var(--primary-blue); font-weight:800; margin-bottom: 25px;"></div>
+      
+      <div class="carousel-wrap">
+        <button id="btnPrevSlide" class="carousel-arrow" onclick="changeSlide(-1)" style="display:none;">&#10094;</button>
+        
+        <div id="carouselContent">
+           </div>
+
+        <button id="btnNextSlide" class="carousel-arrow" onclick="changeSlide(1)" style="display:none;">&#10095;</button>
+      </div>
+
+      <div id="carouselPageIndicator" style="text-align:center; margin-top:20px; font-weight:800; color:#999; font-size:16px;"></div>
     </div>
   </main>
 
@@ -227,7 +239,7 @@
       <button class="btn-close-modal" onclick="closeModal()">×</button>
       <h2 class="modal-title">TRA CỨU LỊCH SỬ/ TRẠNG THÁI</h2>
       <div class="modal-form-group">
-        <label class="modal-label">Tên thành viên / Tên nhóm</label>
+        <label class="modal-label">Tên nhân viên</label>
         <div class="modal-input-wrap"><input type="text" class="modal-input" id="searchName" placeholder="Nhập tên nhân viên..."></div>
       </div>
       <div class="modal-form-group">
@@ -251,6 +263,10 @@
 
     const API_URL = "https://script.google.com/macros/s/AKfycbwFgszaVmJmOhs_GOMlcomv-RTcFJ2SXU4nbrGDRRqS8mZcFOR59YnBEl5boKmTeBFa/exec";
     let departmentsData = [];
+    
+    // BIẾN LƯU KẾT QUẢ TÌM KIẾM ĐỂ LÀM SLIDER
+    let currentSearchResults = [];
+    let currentSearchIndex = 0;
 
     function callAPI(action, params, successCallback) {
       const callbackName = "cb_" + action + "_" + new Date().getTime();
@@ -266,7 +282,6 @@
     document.addEventListener("DOMContentLoaded", function() {
       const today = new Date();
       document.getElementById('timeRealtime').innerText = `Tháng ${String(today.getMonth() + 1).padStart(2, '0')} Năm ${today.getFullYear()}`;
-      
       document.getElementById('loadingDepts').style.display = 'inline';
       
       callAPI("getInitialData", {}, function(result) {
@@ -307,13 +322,13 @@
     function openModal() { document.getElementById('searchModal').style.display = 'flex'; }
     function closeModal() { document.getElementById('searchModal').style.display = 'none'; }
 
-    // RENDER LẠI KẾT QUẢ TỪ API
+    // RENDER LẠI KẾT QUẢ TỪ API THÀNH SLIDER CAROUSEL
     function executeSearch() {
-      const sName = document.getElementById('searchName').value;
-      const sId = document.getElementById('searchId').value;
+      const sName = document.getElementById('searchName').value.trim();
+      const sId = document.getElementById('searchId').value.trim();
       const sMonth = document.getElementById('searchMonth').value;
 
-      if(!sName && !sId && !sMonth) { alert("Vui lòng nhập ít nhất 1 thông tin để tra cứu (VD: Chọn tháng)!"); return; }
+      if(!sName && !sId && !sMonth) { alert("Vui lòng nhập thông tin để tra cứu (VD: Chọn tháng/Tên)!"); return; }
 
       const btn = document.getElementById('btnRunSearch');
       btn.innerText = "ĐANG TÌM KIẾM..."; btn.disabled = true;
@@ -321,7 +336,34 @@
       callAPI("searchProposals", { data: JSON.stringify({name: sName, mnv: sId, month: sMonth}) }, function(res) {
         btn.innerText = "KIỂM TRA"; btn.disabled = false;
         if(res.success) {
-          renderSearchResults(res.data);
+          
+          currentSearchResults = res.data;
+          currentSearchIndex = 0;
+          
+          // Render tiêu đề thông báo số lượng phiếu
+          let displayMonth = sMonth ? sMonth.split('-')[1] + "/" + sMonth.split('-')[0] : '...';
+          let displayName = sName ? sName : (sId ? 'AVH' + sId : 'Nhóm của bạn');
+          
+          if(currentSearchResults.length === 0) {
+             document.getElementById('searchSummaryText').innerHTML = `Không tìm thấy phiếu đăng ký nào của <span style="color:#c00000;">${displayName}</span> trong <span style="color:#c00000;">${displayMonth}</span>.`;
+             document.getElementById('carouselContent').innerHTML = "";
+             document.getElementById('btnPrevSlide').style.display = 'none';
+             document.getElementById('btnNextSlide').style.display = 'none';
+             document.getElementById('carouselPageIndicator').innerText = "";
+          } else {
+             document.getElementById('searchSummaryText').innerHTML = `Nhân sự <span style="color:#e74c3c;">${displayName}</span> có <span style="color:#e74c3c;">${currentSearchResults.length}</span> phiếu đăng ký trong <span style="color:#e74c3c;">${displayMonth}</span>`;
+             
+             if(currentSearchResults.length > 1) {
+                document.getElementById('btnPrevSlide').style.display = 'block';
+                document.getElementById('btnNextSlide').style.display = 'block';
+             } else {
+                document.getElementById('btnPrevSlide').style.display = 'none';
+                document.getElementById('btnNextSlide').style.display = 'none';
+             }
+             
+             renderSlide(currentSearchIndex);
+          }
+
           closeModal();
           document.getElementById('marketingForm').style.display = 'none';
           document.getElementById('resultView').style.display = 'block';
@@ -331,103 +373,101 @@
       });
     }
 
+    function changeSlide(direction) {
+      currentSearchIndex += direction;
+      if(currentSearchIndex < 0) currentSearchIndex = currentSearchResults.length - 1;
+      if(currentSearchIndex >= currentSearchResults.length) currentSearchIndex = 0;
+      renderSlide(currentSearchIndex);
+    }
+
+    function renderSlide(index) {
+      const phieu = currentSearchResults[index];
+      const container = document.getElementById('carouselContent');
+      document.getElementById('carouselPageIndicator').innerText = `Kết quả: ${index + 1} / ${currentSearchResults.length}`;
+
+      let tvs = phieu.thanhVien.split(',').map(s=>s.trim());
+      let mnvs = phieu.maNhanVien.split(',').map(s=>s.trim());
+      
+      let tv1 = tvs[0] || '...'; let tv2 = tvs[1] || '...'; let tv3 = tvs[2] || '...';
+      let m1 = mnvs[0] || '...'; let m2 = mnvs[1] || '...'; let m3 = mnvs[2] || '...';
+      let khoi = departmentsData.find(d => d.phong === phieu.phongKD)?.khoi || '...';
+
+      let rowsHtml = '';
+      phieu.chiTiet.forEach((ct, i) => {
+        rowsHtml += `<tr>
+          <td>${i+1}</td>
+          <td class="table-text" style="color:var(--primary-blue);">${ct.tenDuAn}</td>
+          <td class="table-text">${formatNumber(ct.nganSach)}</td>
+          <td class="table-text">...</td><td class="table-text">...</td><td class="table-text">${ct.kpi}</td>
+          <td class="table-text">${ct.channel}</td><td class="table-text">${ct.phone}</td><td class="table-text">${ct.account}</td><td style="background-color: #f9f9f9;"></td>
+        </tr>`;
+      });
+      
+      for(let j = phieu.chiTiet.length + 1; j <= 3; j++) {
+         rowsHtml += `<tr><td>${j}</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td style="background-color: #f9f9f9;"></td></tr>`;
+      }
+
+      let st = phieu.trangThai;
+      let sTpkd = 'red', sGdkd = 'red', sPtgd = 'red', sMkt = 'red', sBld = 'red';
+      let tTpkd = 'Chưa xác nhận', tGdkd = 'Chưa xác nhận', tPtgd = 'Chưa xác nhận', tMkt = 'Chưa xác nhận', tBld = 'Chưa xác nhận';
+
+      if(st !== 'PENDING_TPKD' && st !== 'REJECTED') { sTpkd = 'blue'; tTpkd = 'Đã xác nhận'; }
+      if(st === 'PENDING_PTGD' || st === 'PENDING_BLD' || st === 'BLD_DRAFTING' || st === 'APPROVED_BY_BLD') { sGdkd = 'blue'; tGdkd = 'Đã xác nhận'; }
+      if(st === 'PENDING_BLD' || st === 'BLD_DRAFTING' || st === 'APPROVED_BY_BLD') { sPtgd = 'blue'; tPtgd = 'Đã xác nhận'; sMkt = 'blue'; tMkt = 'Đã xác nhận';}
+      if(st === 'APPROVED_BY_BLD') { sBld = 'blue'; tBld = 'Đã xác nhận'; }
+
+      const html = `
+      <div class="result-block">
+        <div class="phieu-id-title">MÃ PHIẾU: ${phieu.idPhieu}</div>
+        <div class="info-section">
+          <div class="info-row">
+            <div class="info-group">
+              <span class="info-label" style="min-width: 100px;">Thành viên:</span>
+              <span class="pill-text">${tv1}</span>
+              <span class="pill-text">${tv2}</span>
+              <span class="pill-text">${tv3}</span>
+            </div>
+            <div class="info-group" style="flex: 0 0 auto;">
+              <span class="info-label" style="min-width: 100px;">Mã nhân viên:</span>
+              <span class="pill-text small">${m1}</span><span class="pill-text small">${m2}</span><span class="pill-text small">${m3}</span>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="inline-group"><span class="info-label">Tên nhóm:</span><div class="inline-input">${phieu.tenNhom}</div></div>
+            <div class="inline-group"><span class="info-label">Email liên hệ:</span><div class="inline-input">${phieu.email}</div></div>
+          </div>
+          <div class="info-row">
+            <div class="info-group" style="flex: 1;"><span class="info-label" style="min-width: 130px;">Phòng kinh doanh:</span><span class="pill-text small" style="width: auto; min-width: 90px;">${phieu.phongKD}</span></div>
+            <div class="inline-group"><span class="info-label">Khối kinh doanh:</span><div class="inline-input">${khoi}</div></div>
+          </div>
+        </div>
+
+        <table class="data-table">
+          <thead>
+            <tr><th rowspan="2" width="4%">STT</th><th rowspan="2" width="16%">Dự án</th><th colspan="4">Thông tin chiến dịch Marketing đăng ký</th><th rowspan="2" width="10%">Kênh chạy</th><th rowspan="2" width="12%">Số điện thoại</th><th rowspan="2" width="14%">Tài khoản</th><th rowspan="2" width="12%">Ban lãnh đạo phê duyệt</th></tr>
+            <tr><th width="15%">Ngân sách</th><th width="7%">Bắt đầu</th><th width="7%">Kết thúc</th><th width="7%">KPI</th></tr>
+          </thead>
+          <tbody>${rowsHtml}</tbody>
+          <tfoot><tr class="total-row"><td colspan="2" style="text-align: right; padding-right: 20px;">Tổng cộng</td><td class="total-bg-blue">${formatNumber(phieu.tongTien)}</td><td colspan="7" style="border-bottom: transparent; border-right: transparent;"></td></tr></tfoot>
+        </table>
+
+        <div class="status-area">
+          <div class="status-col"><div class="status-label">Ban Lãnh Đạo</div><div class="status-badge badge-${sBld}">${tBld}</div></div>
+          <div class="status-col"><div class="status-label">Xác nhận P. MKT</div><div class="status-badge badge-${sMkt}">${tMkt}</div></div>
+          <div class="status-col"><div class="status-label">Xác nhận P. TGĐ/ GĐCN</div><div class="status-badge badge-${sPtgd}">${tPtgd}</div></div>
+          <div class="status-col"><div class="status-label">Xác nhận GĐK</div><div class="status-badge badge-${sGdkd}">${tGdkd}</div></div>
+          <div class="status-col"><div class="status-label">Xác nhận TPKD</div><div class="status-badge badge-${sTpkd}">${tTpkd}</div></div>
+        </div>
+      </div>`;
+      
+      container.innerHTML = html;
+    }
+
     function showFormView() {
       document.getElementById('resultView').style.display = 'none';
       document.getElementById('marketingForm').style.display = 'block';
       document.getElementById('mainTitle').innerText = "ĐỀ XUẤT CHIẾN DỊCH MARKETING";
       document.getElementById('btnBack').style.display = 'none';
-    }
-
-    function renderSearchResults(dataArr) {
-      const container = document.getElementById('searchResultsContainer');
-      container.innerHTML = '';
-
-      if (dataArr.length === 0) {
-        container.innerHTML = '<div style="text-align:center; padding: 50px; font-size: 18px; color: var(--danger);">Không tìm thấy phiếu đăng ký nào phù hợp với dữ liệu tra cứu.</div>';
-        return;
-      }
-
-      dataArr.forEach(phieu => {
-        // Tách các mảng chuỗi
-        let tvs = phieu.thanhVien.split(',').map(s=>s.trim());
-        let mnvs = phieu.maNhanVien.split(',').map(s=>s.trim());
-        
-        let tv1 = tvs[0] || '...'; let tv2 = tvs[1] || '...'; let tv3 = tvs[2] || '...';
-        let m1 = mnvs[0] || '...'; let m2 = mnvs[1] || '...'; let m3 = mnvs[2] || '...';
-        let khoi = departmentsData.find(d => d.phong === phieu.phongKD)?.khoi || '...';
-
-        // Tạo bảng Chi tiết
-        let rowsHtml = '';
-        phieu.chiTiet.forEach((ct, i) => {
-          rowsHtml += `<tr>
-            <td>${i+1}</td>
-            <td class="table-text">${ct.tenDuAn}</td>
-            <td class="table-text">${formatNumber(ct.nganSach)}</td>
-            <td class="table-text">...</td><td class="table-text">...</td><td class="table-text">${ct.kpi}</td>
-            <td class="table-text">${ct.channel}</td><td class="table-text">${ct.phone}</td><td class="table-text">${ct.account}</td><td style="background-color: #f9f9f9;"></td>
-          </tr>`;
-        });
-        
-        // Cần đảm bảo có đủ 3 dòng cho đẹp layout
-        for(let j = phieu.chiTiet.length + 1; j <= 3; j++) {
-           rowsHtml += `<tr><td>${j}</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td style="background-color: #f9f9f9;"></td></tr>`;
-        }
-
-        // Logic Mapping Trạng Thái Sang Nút Xanh/Đỏ
-        let st = phieu.trangThai;
-        let sTpkd = 'red', sGdkd = 'red', sPtgd = 'red', sMkt = 'red', sBld = 'red';
-        let tTpkd = 'Chưa xác nhận', tGdkd = 'Chưa xác nhận', tPtgd = 'Chưa xác nhận', tMkt = 'Chưa xác nhận', tBld = 'Chưa xác nhận';
-
-        if(st !== 'PENDING_TPKD' && st !== 'REJECTED') { sTpkd = 'blue'; tTpkd = 'Đã xác nhận'; }
-        if(st === 'PENDING_PTGD' || st === 'PENDING_BLD' || st === 'BLD_DRAFTING' || st === 'APPROVED_BY_BLD') { sGdkd = 'blue'; tGdkd = 'Đã xác nhận'; }
-        if(st === 'PENDING_BLD' || st === 'BLD_DRAFTING' || st === 'APPROVED_BY_BLD') { sPtgd = 'blue'; tPtgd = 'Đã xác nhận'; sMkt = 'blue'; tMkt = 'Đã xác nhận';}
-        if(st === 'APPROVED_BY_BLD') { sBld = 'blue'; tBld = 'Đã xác nhận'; }
-
-        const html = `
-        <div class="result-block">
-          <div class="phieu-id-title">MÃ PHIẾU ĐĂNG KÝ: ${phieu.idPhieu}</div>
-          <div class="info-section">
-            <div class="info-row">
-              <div class="info-group">
-                <span class="info-label" style="min-width: 100px;">Thành viên:</span>
-                <span class="pill-text">${tv1}</span>
-                <span class="pill-text">${tv2}</span>
-                <span class="pill-text">${tv3}</span>
-              </div>
-              <div class="info-group" style="flex: 0 0 auto;">
-                <span class="info-label" style="min-width: 100px;">Mã nhân viên:</span>
-                <span class="pill-text small">${m1}</span><span class="pill-text small">${m2}</span><span class="pill-text small">${m3}</span>
-              </div>
-            </div>
-            <div class="info-row">
-              <div class="inline-group"><span class="info-label">Tên nhóm:</span><div class="inline-input">${phieu.tenNhom}</div></div>
-              <div class="inline-group"><span class="info-label">Email liên hệ:</span><div class="inline-input">${phieu.email}</div></div>
-            </div>
-            <div class="info-row">
-              <div class="info-group" style="flex: 1;"><span class="info-label" style="min-width: 130px;">Phòng kinh doanh:</span><span class="pill-text small" style="width: auto; min-width: 90px;">${phieu.phongKD}</span></div>
-              <div class="inline-group"><span class="info-label">Khối kinh doanh:</span><div class="inline-input">${khoi}</div></div>
-            </div>
-          </div>
-
-          <table class="data-table">
-            <thead>
-              <tr><th rowspan="2" width="4%">STT</th><th rowspan="2" width="16%">Dự án</th><th colspan="4">Thông tin chiến dịch Marketing đăng ký</th><th rowspan="2" width="10%">Kênh chạy</th><th rowspan="2" width="12%">Số điện thoại</th><th rowspan="2" width="14%">Tài khoản</th><th rowspan="2" width="12%">Ban lãnh đạo phê duyệt</th></tr>
-              <tr><th width="15%">Ngân sách</th><th width="7%">Bắt đầu</th><th width="7%">Kết thúc</th><th width="7%">KPI</th></tr>
-            </thead>
-            <tbody>${rowsHtml}</tbody>
-            <tfoot><tr class="total-row"><td colspan="2" style="text-align: right; padding-right: 20px;">Tổng cộng</td><td class="total-bg-blue">${formatNumber(phieu.tongTien)}</td><td colspan="7" style="border-bottom: transparent; border-right: transparent;"></td></tr></tfoot>
-          </table>
-
-          <div class="status-area">
-            <div class="status-col"><div class="status-label">Ban Lãnh Đạo</div><div class="status-badge badge-${sBld}">${tBld}</div></div>
-            <div class="status-col"><div class="status-label">Xác nhận P. MKT</div><div class="status-badge badge-${sMkt}">${tMkt}</div></div>
-            <div class="status-col"><div class="status-label">Xác nhận P. TGĐ/ GĐCN</div><div class="status-badge badge-${sPtgd}">${tPtgd}</div></div>
-            <div class="status-col"><div class="status-label">Xác nhận GĐK</div><div class="status-badge badge-${sGdkd}">${tGdkd}</div></div>
-            <div class="status-col"><div class="status-label">Xác nhận TPKD</div><div class="status-badge badge-${sTpkd}">${tTpkd}</div></div>
-          </div>
-        </div>`;
-        container.innerHTML += html;
-      });
     }
 
     document.getElementById('marketingForm').addEventListener('submit', function(e) {
