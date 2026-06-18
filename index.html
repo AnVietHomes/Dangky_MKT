@@ -49,7 +49,6 @@
     .data-table td { padding: 0; height: 50px; overflow: hidden; }
     .table-input { width: 100%; height: 100%; border: none; background: transparent; text-align: center; font-family: 'Manrope', sans-serif; font-size: 14px; color: #333; outline: none; box-sizing: border-box; padding: 5px; }
     
-    /* CSS Cấu hình ô Dropdown Dự Án */
     select.table-input { cursor: pointer; appearance: none; background: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") no-repeat right 5px center; background-size: 12px; font-weight: 600; color: var(--primary-blue); }
 
     .total-row td { border-top: 1px solid var(--table-border); font-weight: 700; font-size: 14px; }
@@ -63,7 +62,7 @@
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(232, 244, 252, 0.85); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1000; }
     .modal-card { background: #fff; width: 450px; border-radius: 12px; padding: 40px; box-shadow: 0 15px 40px rgba(0,0,0,0.1); position: relative; }
     .modal-title { color: var(--primary-blue); font-size: 22px; font-weight: 800; text-align: center; margin: 0 0 30px 0; }
-    .modal-form-group { margin-bottom: 25px; }
+    .modal-form-group { margin-bottom: 20px; }
     .modal-label { display: block; font-size: 13px; font-weight: 700; color: #000; margin-bottom: 8px; }
     .modal-input-wrap { border: 1px solid var(--primary-blue); border-radius: 8px; display: flex; overflow: hidden; }
     .modal-input { border: none; padding: 12px 15px; width: 100%; font-family: 'Manrope'; font-size: 14px; outline: none; }
@@ -76,12 +75,17 @@
     .pill-text { border: 1px solid #ccc; border-radius: 20px; padding: 8px 15px; font-size: 14px; font-weight: 600; color: #333; display: inline-block; text-align: center; min-width: 100px; }
     .pill-text.small { min-width: 70px; }
     .table-text { padding: 10px; font-size: 14px; font-weight: 600; color: #333; }
-    .status-area { display: flex; justify-content: space-between; align-items: center; margin-top: 50px; padding: 0 20px; }
+    .status-area { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; padding: 0 20px; }
     .status-col { display: flex; flex-direction: column; align-items: center; gap: 10px; }
     .status-label { font-size: 14px; font-weight: 700; color: #333; text-transform: uppercase; }
     .status-badge { border-radius: 30px; padding: 10px 30px; color: #fff; font-size: 14px; font-weight: 700; text-align: center; }
     .badge-red { background-color: var(--red-status); }
     .badge-blue { background-color: var(--primary-blue); }
+    
+    .result-block { margin-bottom: 60px; padding-bottom: 40px; border-bottom: 3px dashed #ccc; }
+    .result-block:last-child { border-bottom: none; }
+    .phieu-id-title { text-align: center; font-size: 18px; color: var(--primary-blue); font-weight: 800; margin-bottom: 25px; }
+
     #loadingDepts { position: absolute; font-size: 12px; color: #666; right: -70px; top: 10px; display: none; }
   </style>
 </head>
@@ -103,9 +107,9 @@
       <hr>
     </div>
 
+    <!-- VIEW FORM ĐĂNG KÝ -->
     <form id="marketingForm">
       <div class="info-section">
-        
         <div class="info-row">
           <div class="info-group">
             <span class="info-label" style="min-width: 100px;">Thành viên:</span>
@@ -145,7 +149,6 @@
             <input type="text" class="inline-input" id="division" placeholder="Tự động nhảy theo phòng..." readonly required>
           </div>
         </div>
-
       </div>
 
       <div class="table-title">Nội dung đề xuất chiến dịch Marketing</div>
@@ -213,87 +216,9 @@
       <div class="btn-submit-container"><button type="submit" id="btnSubmit" class="btn-submit">Xác nhận gửi</button></div>
     </form>
 
+    <!-- VIEW KẾT QUẢ TRA CỨU ĐỘNG -->
     <div id="resultView">
-      <div class="info-section">
-        <div class="info-row">
-          <div class="info-group">
-            <span class="info-label" style="min-width: 100px;">Thành viên:</span>
-            <span class="pill-text">Nguyễn Văn A</span>
-            <span class="pill-text">Nguyễn Văn B</span>
-            <span class="pill-text">Nguyễn Văn C</span>
-          </div>
-          <div class="info-group" style="flex: 0 0 auto;">
-            <span class="info-label" style="min-width: 100px;">Mã nhân viên:</span>
-            <span class="pill-text small">AVH001</span>
-            <span class="pill-text small">AVH002</span>
-            <span class="pill-text small">AVH003</span>
-          </div>
-        </div>
-
-        <div class="info-row">
-          <div class="inline-group">
-            <span class="info-label">Tên nhóm:</span>
-            <div class="inline-input">ABC</div>
-          </div>
-          <div class="inline-group">
-            <span class="info-label">Email liên hệ:</span>
-            <div class="inline-input">nguyenvana@gmail.com</div>
-          </div>
-        </div>
-
-        <div class="info-row">
-          <div class="info-group" style="flex: 1;">
-            <span class="info-label" style="min-width: 130px;">Phòng kinh doanh:</span>
-            <span class="pill-text small" style="width: auto; min-width: 90px;">AV1</span>
-          </div>
-          <div class="inline-group">
-            <span class="info-label">Khối kinh doanh:</span>
-            <div class="inline-input">A1</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="table-title">Nội dung đề xuất chiến dịch Marketing</div>
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th rowspan="2" width="4%">STT</th>
-            <th rowspan="2" width="16%">Dự án</th>
-            <th colspan="4">Thông tin chiến dịch Marketing đăng ký</th>
-            <th rowspan="2" width="10%">Kênh chạy</th>
-            <th rowspan="2" width="12%">Số điện thoại<br>đăng ký trên quảng cáo</th>
-            <th rowspan="2" width="14%">Tài khoản đăng ký<br>chạy quảng cáo</th>
-            <th rowspan="2" width="12%">Ban lãnh đạo<br>phê duyệt</th>
-          </tr>
-          <tr>
-            <th width="15%">Ngân sách</th><th width="7%">Bắt đầu</th><th width="7%">Kết thúc</th><th width="7%">KPI</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1</td><td class="table-text">Prima Bay</td><td class="table-text">30.000.000</td><td class="table-text">01/07</td><td class="table-text">31/07</td><td class="table-text"></td><td class="table-text">Facebook</td><td class="table-text">096xxxxxxx</td><td class="table-text"></td><td style="background-color: #f9f9f9;"></td>
-          </tr>
-          <tr>
-            <td>2</td><td class="table-text">Radisson</td><td class="table-text">30.000.000</td><td class="table-text">01/07</td><td class="table-text">31/07</td><td class="table-text"></td><td class="table-text">Facebook<br>Google</td><td class="table-text"></td><td class="table-text"></td><td style="background-color: #f9f9f9;"></td>
-          </tr>
-          <tr>
-            <td>3</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td style="background-color: #f9f9f9;"></td>
-          </tr>
-        </tbody>
-        <tfoot>
-          <tr class="total-row">
-            <td colspan="2" style="text-align: right; padding-right: 20px;">Tổng cộng</td><td class="total-bg-blue">60.000.000</td><td colspan="7" style="border-bottom: transparent; border-right: transparent;"></td>
-          </tr>
-        </tfoot>
-      </table>
-
-      <div class="status-area">
-        <div class="status-col"><div class="status-label">Ban Lãnh Đạo</div><div class="status-badge badge-red">Chưa xác nhận</div></div>
-        <div class="status-col"><div class="status-label">Xác nhận P. MKT</div><div class="status-badge badge-red">Chưa xác nhận</div></div>
-        <div class="status-col"><div class="status-label">Xác nhận P. TGĐ/ GĐCN</div><div class="status-badge badge-red">Chưa xác nhận</div></div>
-        <div class="status-col"><div class="status-label">Xác nhận GĐK</div><div class="status-badge badge-blue">Đã xác nhận</div></div>
-        <div class="status-col"><div class="status-label">Xác nhận TPKD</div><div class="status-badge badge-blue">Đã xác nhận</div></div>
-      </div>
+      <div id="searchResultsContainer"></div>
     </div>
   </main>
 
@@ -301,9 +226,22 @@
     <div class="modal-card">
       <button class="btn-close-modal" onclick="closeModal()">×</button>
       <h2 class="modal-title">TRA CỨU LỊCH SỬ/ TRẠNG THÁI</h2>
-      <div class="modal-form-group"><label class="modal-label">Tên thành viên/ tên nhóm</label><div class="modal-input-wrap"><input type="text" class="modal-input" placeholder="Nhập tên nhân viên..."></div></div>
-      <div class="modal-form-group"><label class="modal-label">Mã nhân viên</label><div class="modal-input-wrap"><span class="modal-prefix">AVH</span><input type="text" class="modal-input" placeholder="Nhập mã nhân viên (Chỉ nhập phần số)"></div></div>
-      <button class="btn-modal-submit" onclick="executeSearch()">KIỂM TRA</button>
+      <div class="modal-form-group">
+        <label class="modal-label">Tên thành viên / Tên nhóm</label>
+        <div class="modal-input-wrap"><input type="text" class="modal-input" id="searchName" placeholder="Nhập tên nhân viên..."></div>
+      </div>
+      <div class="modal-form-group">
+        <label class="modal-label">Mã nhân viên</label>
+        <div class="modal-input-wrap">
+          <span class="modal-prefix">AVH</span>
+          <input type="text" class="modal-input" id="searchId" placeholder="Nhập phần số (Tùy chọn)">
+        </div>
+      </div>
+      <div class="modal-form-group">
+        <label class="modal-label">Tháng nộp đăng ký</label>
+        <div class="modal-input-wrap"><input type="month" class="modal-input" id="searchMonth"></div>
+      </div>
+      <button class="btn-modal-submit" id="btnRunSearch" onclick="executeSearch()">KIỂM TRA</button>
     </div>
   </div>
 
@@ -311,25 +249,19 @@
     document.getElementById('tv2').addEventListener('input', function() { document.getElementById('mnv2').required = this.value.trim() !== ''; });
     document.getElementById('tv3').addEventListener('input', function() { document.getElementById('mnv3').required = this.value.trim() !== ''; });
 
-    // API URL CHÍNH THỨC
     const API_URL = "https://script.google.com/macros/s/AKfycbwFgszaVmJmOhs_GOMlcomv-RTcFJ2SXU4nbrGDRRqS8mZcFOR59YnBEl5boKmTeBFa/exec";
     let departmentsData = [];
 
     function callAPI(action, params, successCallback) {
       const callbackName = "cb_" + action + "_" + new Date().getTime();
-      window[callbackName] = function(response) {
-        successCallback(response);
-        document.getElementById(scriptId).remove();
-        delete window[callbackName];
-      };
-      const scriptId = "jsonp_" + new Date().getTime();
-      const script = document.createElement("script");
-      script.id = scriptId;
+      window[callbackName] = function(response) { successCallback(response); document.getElementById(scriptId).remove(); delete window[callbackName]; };
+      const scriptId = "jsonp_" + new Date().getTime(); const script = document.createElement("script"); script.id = scriptId;
       let queryString = `?action=${action}&callback=${callbackName}`;
       for (let key in params) { queryString += `&${key}=${encodeURIComponent(params[key])}`; }
-      script.src = API_URL + queryString;
-      document.body.appendChild(script);
+      script.src = API_URL + queryString; document.body.appendChild(script);
     }
+
+    function formatNumber(num) { return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
 
     document.addEventListener("DOMContentLoaded", function() {
       const today = new Date();
@@ -337,7 +269,6 @@
       
       document.getElementById('loadingDepts').style.display = 'inline';
       
-      // GỌI DATA PHÒNG BAN VÀ DỰ ÁN
       callAPI("getInitialData", {}, function(result) {
         document.getElementById('loadingDepts').style.display = 'none';
         if (result.success) {
@@ -346,7 +277,6 @@
           s.innerHTML = '<option value="" disabled selected>Chọn phòng ban</option>';
           departmentsData.forEach(item => { s.innerHTML += `<option value="${item.phong}">${item.phong}</option>`; });
 
-          // Render Dự án
           const projs = result.data.projects;
           document.querySelectorAll('.project-select').forEach(sel => {
              projs.forEach(p => { sel.innerHTML += `<option value="${p}">${p}</option>`; });
@@ -371,18 +301,34 @@
       document.querySelectorAll('.calc-budget').forEach(input => {
         total += parseFloat(input.value.replace(/\./g, '')) || 0;
       });
-      document.getElementById('totalBudgetDisplay').innerText = total.toLocaleString('vi-VN').replace(/,/g, '.');
+      document.getElementById('totalBudgetDisplay').innerText = formatNumber(total);
     }
 
     function openModal() { document.getElementById('searchModal').style.display = 'flex'; }
     function closeModal() { document.getElementById('searchModal').style.display = 'none'; }
 
+    // RENDER LẠI KẾT QUẢ TỪ API
     function executeSearch() {
-      closeModal();
-      document.getElementById('marketingForm').style.display = 'none';
-      document.getElementById('resultView').style.display = 'block';
-      document.getElementById('mainTitle').innerText = "KẾT QUẢ TRA CỨU";
-      document.getElementById('btnBack').style.display = 'flex';
+      const sName = document.getElementById('searchName').value;
+      const sId = document.getElementById('searchId').value;
+      const sMonth = document.getElementById('searchMonth').value;
+
+      if(!sName && !sId && !sMonth) { alert("Vui lòng nhập ít nhất 1 thông tin để tra cứu (VD: Chọn tháng)!"); return; }
+
+      const btn = document.getElementById('btnRunSearch');
+      btn.innerText = "ĐANG TÌM KIẾM..."; btn.disabled = true;
+
+      callAPI("searchProposals", { data: JSON.stringify({name: sName, mnv: sId, month: sMonth}) }, function(res) {
+        btn.innerText = "KIỂM TRA"; btn.disabled = false;
+        if(res.success) {
+          renderSearchResults(res.data);
+          closeModal();
+          document.getElementById('marketingForm').style.display = 'none';
+          document.getElementById('resultView').style.display = 'block';
+          document.getElementById('mainTitle').innerText = "KẾT QUẢ TRA CỨU";
+          document.getElementById('btnBack').style.display = 'flex';
+        } else { alert("Lỗi: " + res.message); }
+      });
     }
 
     function showFormView() {
@@ -392,10 +338,101 @@
       document.getElementById('btnBack').style.display = 'none';
     }
 
+    function renderSearchResults(dataArr) {
+      const container = document.getElementById('searchResultsContainer');
+      container.innerHTML = '';
+
+      if (dataArr.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding: 50px; font-size: 18px; color: var(--danger);">Không tìm thấy phiếu đăng ký nào phù hợp với dữ liệu tra cứu.</div>';
+        return;
+      }
+
+      dataArr.forEach(phieu => {
+        // Tách các mảng chuỗi
+        let tvs = phieu.thanhVien.split(',').map(s=>s.trim());
+        let mnvs = phieu.maNhanVien.split(',').map(s=>s.trim());
+        
+        let tv1 = tvs[0] || '...'; let tv2 = tvs[1] || '...'; let tv3 = tvs[2] || '...';
+        let m1 = mnvs[0] || '...'; let m2 = mnvs[1] || '...'; let m3 = mnvs[2] || '...';
+        let khoi = departmentsData.find(d => d.phong === phieu.phongKD)?.khoi || '...';
+
+        // Tạo bảng Chi tiết
+        let rowsHtml = '';
+        phieu.chiTiet.forEach((ct, i) => {
+          rowsHtml += `<tr>
+            <td>${i+1}</td>
+            <td class="table-text">${ct.tenDuAn}</td>
+            <td class="table-text">${formatNumber(ct.nganSach)}</td>
+            <td class="table-text">...</td><td class="table-text">...</td><td class="table-text">${ct.kpi}</td>
+            <td class="table-text">${ct.channel}</td><td class="table-text">${ct.phone}</td><td class="table-text">${ct.account}</td><td style="background-color: #f9f9f9;"></td>
+          </tr>`;
+        });
+        
+        // Cần đảm bảo có đủ 3 dòng cho đẹp layout
+        for(let j = phieu.chiTiet.length + 1; j <= 3; j++) {
+           rowsHtml += `<tr><td>${j}</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td style="background-color: #f9f9f9;"></td></tr>`;
+        }
+
+        // Logic Mapping Trạng Thái Sang Nút Xanh/Đỏ
+        let st = phieu.trangThai;
+        let sTpkd = 'red', sGdkd = 'red', sPtgd = 'red', sMkt = 'red', sBld = 'red';
+        let tTpkd = 'Chưa xác nhận', tGdkd = 'Chưa xác nhận', tPtgd = 'Chưa xác nhận', tMkt = 'Chưa xác nhận', tBld = 'Chưa xác nhận';
+
+        if(st !== 'PENDING_TPKD' && st !== 'REJECTED') { sTpkd = 'blue'; tTpkd = 'Đã xác nhận'; }
+        if(st === 'PENDING_PTGD' || st === 'PENDING_BLD' || st === 'BLD_DRAFTING' || st === 'APPROVED_BY_BLD') { sGdkd = 'blue'; tGdkd = 'Đã xác nhận'; }
+        if(st === 'PENDING_BLD' || st === 'BLD_DRAFTING' || st === 'APPROVED_BY_BLD') { sPtgd = 'blue'; tPtgd = 'Đã xác nhận'; sMkt = 'blue'; tMkt = 'Đã xác nhận';}
+        if(st === 'APPROVED_BY_BLD') { sBld = 'blue'; tBld = 'Đã xác nhận'; }
+
+        const html = `
+        <div class="result-block">
+          <div class="phieu-id-title">MÃ PHIẾU ĐĂNG KÝ: ${phieu.idPhieu}</div>
+          <div class="info-section">
+            <div class="info-row">
+              <div class="info-group">
+                <span class="info-label" style="min-width: 100px;">Thành viên:</span>
+                <span class="pill-text">${tv1}</span>
+                <span class="pill-text">${tv2}</span>
+                <span class="pill-text">${tv3}</span>
+              </div>
+              <div class="info-group" style="flex: 0 0 auto;">
+                <span class="info-label" style="min-width: 100px;">Mã nhân viên:</span>
+                <span class="pill-text small">${m1}</span><span class="pill-text small">${m2}</span><span class="pill-text small">${m3}</span>
+              </div>
+            </div>
+            <div class="info-row">
+              <div class="inline-group"><span class="info-label">Tên nhóm:</span><div class="inline-input">${phieu.tenNhom}</div></div>
+              <div class="inline-group"><span class="info-label">Email liên hệ:</span><div class="inline-input">${phieu.email}</div></div>
+            </div>
+            <div class="info-row">
+              <div class="info-group" style="flex: 1;"><span class="info-label" style="min-width: 130px;">Phòng kinh doanh:</span><span class="pill-text small" style="width: auto; min-width: 90px;">${phieu.phongKD}</span></div>
+              <div class="inline-group"><span class="info-label">Khối kinh doanh:</span><div class="inline-input">${khoi}</div></div>
+            </div>
+          </div>
+
+          <table class="data-table">
+            <thead>
+              <tr><th rowspan="2" width="4%">STT</th><th rowspan="2" width="16%">Dự án</th><th colspan="4">Thông tin chiến dịch Marketing đăng ký</th><th rowspan="2" width="10%">Kênh chạy</th><th rowspan="2" width="12%">Số điện thoại</th><th rowspan="2" width="14%">Tài khoản</th><th rowspan="2" width="12%">Ban lãnh đạo phê duyệt</th></tr>
+              <tr><th width="15%">Ngân sách</th><th width="7%">Bắt đầu</th><th width="7%">Kết thúc</th><th width="7%">KPI</th></tr>
+            </thead>
+            <tbody>${rowsHtml}</tbody>
+            <tfoot><tr class="total-row"><td colspan="2" style="text-align: right; padding-right: 20px;">Tổng cộng</td><td class="total-bg-blue">${formatNumber(phieu.tongTien)}</td><td colspan="7" style="border-bottom: transparent; border-right: transparent;"></td></tr></tfoot>
+          </table>
+
+          <div class="status-area">
+            <div class="status-col"><div class="status-label">Ban Lãnh Đạo</div><div class="status-badge badge-${sBld}">${tBld}</div></div>
+            <div class="status-col"><div class="status-label">Xác nhận P. MKT</div><div class="status-badge badge-${sMkt}">${tMkt}</div></div>
+            <div class="status-col"><div class="status-label">Xác nhận P. TGĐ/ GĐCN</div><div class="status-badge badge-${sPtgd}">${tPtgd}</div></div>
+            <div class="status-col"><div class="status-label">Xác nhận GĐK</div><div class="status-badge badge-${sGdkd}">${tGdkd}</div></div>
+            <div class="status-col"><div class="status-label">Xác nhận TPKD</div><div class="status-badge badge-${sTpkd}">${tTpkd}</div></div>
+          </div>
+        </div>`;
+        container.innerHTML += html;
+      });
+    }
+
     document.getElementById('marketingForm').addEventListener('submit', function(e) {
       e.preventDefault();
-      const btn = document.getElementById('btnSubmit');
-      btn.disabled = true; btn.innerText = "ĐANG XỬ LÝ...";
+      const btn = document.getElementById('btnSubmit'); btn.disabled = true; btn.innerText = "ĐANG XỬ LÝ...";
 
       const items = [];
       document.querySelectorAll('#tableBody tr').forEach(row => {
@@ -415,8 +452,10 @@
       if(items.length === 0) { alert("Vui lòng chọn ít nhất 1 dự án và nhập số tiền!"); btn.disabled = false; btn.innerText = "Xác nhận gửi"; return; }
 
       const mems = [document.getElementById('tv1').value, document.getElementById('tv2').value, document.getElementById('tv3').value].filter(v => v).join(", ");
+      const ids = [document.getElementById('mnv1').value, document.getElementById('mnv2').value, document.getElementById('mnv3').value].filter(v => v).join(", ");
+      
       const payload = {
-        teamName: document.getElementById('teamName').value, memberName: mems, emailContact: document.getElementById('emailContact').value,
+        teamName: document.getElementById('teamName').value, memberName: mems, memberIds: ids, emailContact: document.getElementById('emailContact').value,
         department: document.getElementById('department').value + " - " + document.getElementById('division').value, items: items
       };
 
