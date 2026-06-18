@@ -13,194 +13,87 @@
   <style>
     :root {
       --bg-light-blue: #e8f4fc;
-      --primary-blue: #0b1f8c; /* Màu xanh đậm thương hiệu */
+      --primary-blue: #0b1f8c; 
       --text-dark: #222222;
       --text-gray: #666666;
       --red-status: #c00000;
+      --table-border: #222222; 
     }
     
-    body {
-      font-family: 'Manrope', sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: var(--bg-light-blue);
-      color: var(--text-dark);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+    body { font-family: 'Manrope', sans-serif; margin: 0; padding: 0; background-color: var(--bg-light-blue); color: var(--text-dark); min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
 
-    /* HEADER NGOÀI FORM */
-    .top-header {
-      width: 95%;
-      max-width: 1450px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 0;
-      margin-top: 10px;
-    }
-
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
+    .top-header { width: 95%; max-width: 1450px; display: flex; justify-content: space-between; align-items: center; padding: 20px 0; margin-top: 10px; }
+    .header-left { display: flex; align-items: center; gap: 20px; }
     .brand-logo { max-width: 120px; height: auto; }
-    .company-name {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text-gray);
-      line-height: 1.4;
-      text-transform: uppercase;
-    }
+    .company-name { font-size: 15px; font-weight: 700; color: var(--text-gray); line-height: 1.4; text-transform: uppercase; white-space: nowrap; }
 
-    .btn-check-status {
-      background-color: var(--primary-blue);
-      color: #fff;
-      border: none;
-      border-radius: 30px;
-      padding: 14px 35px;
-      font-family: 'Manrope', sans-serif;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(11, 31, 140, 0.2);
-      transition: 0.2s;
-    }
+    .btn-check-status { background-color: var(--primary-blue); color: #fff; border: none; border-radius: 30px; padding: 14px 35px; font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(11, 31, 140, 0.2); transition: 0.2s; }
     .btn-check-status:hover { background-color: #081666; }
 
-    /* CARD CHÍNH - MỞ RỘNG TỐI ĐA */
-    .main-card {
-      background: #ffffff;
-      width: 95%;
-      max-width: 1450px;
-      border-radius: 12px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.06);
-      padding: 40px 80px 60px 80px;
-      margin-bottom: 50px;
-      box-sizing: border-box;
-      position: relative;
-    }
+    .main-card { background: #ffffff; width: 95%; max-width: 1450px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.06); padding: 40px 80px 60px 80px; margin-bottom: 50px; box-sizing: border-box; position: relative; }
 
-    /* TIÊU ĐỀ CARD */
     .card-title-area { text-align: center; margin-bottom: 40px; position: relative; }
-    .card-title-area h2 {
-      color: var(--primary-blue);
-      font-size: 28px;
-      font-weight: 800;
-      margin: 0 0 5px 0;
-      text-transform: uppercase;
-    }
+    .card-title-area h2 { color: var(--primary-blue); font-size: 28px; font-weight: 800; margin: 0 0 5px 0; text-transform: uppercase; }
     .card-title-area p { color: var(--text-gray); font-size: 15px; margin: 0 0 15px 0; font-style: italic; }
     .card-title-area hr { width: 400px; border: none; border-top: 1.5px solid #ccc; margin: 0 auto; }
 
-    /* Nút Quay Lại (Ẩn mặc định) */
-    .btn-back {
-      position: absolute; left: 0; top: 0;
-      background: none; border: none; color: var(--text-gray); font-weight: 700; cursor: pointer; font-size: 15px;
-      display: flex; align-items: center; gap: 5px;
-    }
+    .btn-back { position: absolute; left: 0; top: 0; background: none; border: none; color: var(--text-gray); font-weight: 700; cursor: pointer; font-size: 15px; display: flex; align-items: center; gap: 5px; }
     .btn-back:hover { color: var(--primary-blue); }
 
-    /* PHẦN THÔNG TIN CHUNG */
     .info-section { margin-bottom: 30px; font-size: 15px; }
-    .info-row { display: flex; justify-content: space-between; margin-bottom: 20px; align-items: center; gap: 40px; }
-    .info-group { display: flex; align-items: center; gap: 15px; flex: 1; }
-    .info-label { font-weight: 600; color: #333; min-width: 140px; }
+    .info-row { display: flex; justify-content: space-between; margin-bottom: 20px; align-items: center; gap: 30px; }
+    .info-group { display: flex; align-items: center; gap: 10px; flex: 1; }
+    .info-label { font-weight: 600; color: #333; white-space: nowrap; }
     
-    .pill-input {
-      border: 1px solid #999;
-      border-radius: 20px;
-      padding: 8px 20px;
-      font-family: 'Manrope', sans-serif;
-      font-size: 14px;
-      outline: none;
-      text-align: center;
-      color: #333;
-      width: 160px;
-    }
+    .pill-input { border: 1px solid #999; border-radius: 20px; padding: 8px 15px; font-family: 'Manrope', sans-serif; font-size: 14px; outline: none; text-align: center; color: #333; width: 140px; }
     .pill-input:focus { border-color: var(--primary-blue); box-shadow: 0 0 0 2px rgba(11,31,140,0.1); }
-    
-    .pill-input.small { width: 100px; }
+    .pill-input.small { width: 85px; padding: 8px 10px;}
     
     .inline-input { border: none; font-family: 'Manrope', sans-serif; font-size: 15px; color: #000; outline: none; width: 100%; border-bottom: 1px dashed #ccc; padding-bottom: 2px;}
     .inline-input:focus { border-bottom-color: var(--primary-blue); }
+    .inline-input[readonly] { background-color: transparent; color: var(--primary-blue); font-weight: 700; cursor: not-allowed; border-bottom: 1px dotted #ccc; }
 
     select.pill-input { cursor: pointer; appearance: none; text-align: left; background: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") no-repeat right 15px center; background-size: 12px; }
 
-    /* BẢNG DỮ LIỆU ĐỀ XUẤT */
     .table-title { font-size: 15px; font-weight: 700; color: #000; margin-bottom: 15px; }
-    
     .data-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; table-layout: fixed; }
-    .data-table th, .data-table td { border: 1px solid var(--primary-blue); text-align: center; vertical-align: middle; }
-    
+    .data-table th, .data-table td { border: 1px solid var(--table-border); text-align: center; vertical-align: middle; }
     .data-table th { background-color: var(--primary-blue); color: #fff; font-weight: 600; font-size: 13px; padding: 12px 5px; }
     .data-table td { padding: 0; height: 50px; overflow: hidden; }
 
     .table-input { width: 100%; height: 100%; border: none; background: transparent; text-align: center; font-family: 'Manrope', sans-serif; font-size: 14px; color: #333; outline: none; box-sizing: border-box; padding: 5px; }
-    
-    .total-row td { border-top: 1px solid var(--primary-blue); font-weight: 700; font-size: 14px; }
+    .total-row td { border-top: 1px solid var(--table-border); font-weight: 700; font-size: 14px; }
     .total-bg-blue { background-color: var(--primary-blue); color: #fff; }
 
     .btn-submit-container { text-align: center; margin-top: 50px; }
     .btn-submit { background-color: var(--primary-blue); color: #fff; border: none; border-radius: 30px; padding: 14px 50px; font-family: 'Manrope', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(11,31,140,0.2); }
 
-    /* ==================================================== */
-    /* MODAL TRA CỨU (GIAO DIỆN SỐ 2)                       */
-    /* ==================================================== */
-    .modal-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(232, 244, 252, 0.85); backdrop-filter: blur(5px);
-      display: none; align-items: center; justify-content: center; z-index: 1000;
-    }
-    .modal-card {
-      background: #fff; width: 450px; border-radius: 12px; padding: 40px;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.1); position: relative;
-    }
+    /* MODAL TRA CỨU */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(232, 244, 252, 0.85); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1000; }
+    .modal-card { background: #fff; width: 450px; border-radius: 12px; padding: 40px; box-shadow: 0 15px 40px rgba(0,0,0,0.1); position: relative; }
     .modal-title { color: var(--primary-blue); font-size: 22px; font-weight: 800; text-align: center; margin: 0 0 30px 0; }
-    
     .modal-form-group { margin-bottom: 25px; }
     .modal-label { display: block; font-size: 13px; font-weight: 700; color: #000; margin-bottom: 8px; }
     .modal-input-wrap { border: 1px solid var(--primary-blue); border-radius: 8px; display: flex; overflow: hidden; }
     .modal-input { border: none; padding: 12px 15px; width: 100%; font-family: 'Manrope'; font-size: 14px; outline: none; }
     .modal-prefix { background: var(--primary-blue); color: white; padding: 12px 20px; font-weight: 700; font-size: 14px; }
-    
     .btn-modal-submit { background: var(--primary-blue); color: white; border: none; border-radius: 30px; padding: 14px; width: 100%; font-weight: 700; font-size: 15px; cursor: pointer; margin-top: 10px; }
-
     .btn-close-modal { position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 24px; color: #999; cursor: pointer; }
 
-    /* ==================================================== */
-    /* GIAO DIỆN KẾT QUẢ (GIAO DIỆN SỐ 3)                   */
-    /* ==================================================== */
+    /* VIEW 3: KẾT QUẢ TRA CỨU */
     #resultView { display: none; }
-    
-    /* Chỉnh sửa Pill thành dạng Text (Tĩnh) */
-    .pill-text {
-      border: 1px solid #ccc; border-radius: 20px; padding: 8px 20px;
-      font-size: 14px; font-weight: 600; color: #333; display: inline-block;
-      text-align: center; min-width: 100px;
-    }
+    .pill-text { border: 1px solid #ccc; border-radius: 20px; padding: 8px 15px; font-size: 14px; font-weight: 600; color: #333; display: inline-block; text-align: center; min-width: 100px; }
     .pill-text.small { min-width: 70px; }
-    
     .table-text { padding: 10px; font-size: 14px; font-weight: 600; color: #333; }
-    
-    /* Vùng Trạng thái ở Đáy Card */
-    .status-area {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-top: 50px; padding: 0 20px;
-    }
+    .status-area { display: flex; justify-content: space-between; align-items: center; margin-top: 50px; padding: 0 20px; }
     .status-col { display: flex; flex-direction: column; align-items: center; gap: 10px; }
     .status-label { font-size: 14px; font-weight: 700; color: #333; text-transform: uppercase; }
-    
-    .status-badge {
-      border-radius: 30px; padding: 10px 30px; color: #fff;
-      font-size: 14px; font-weight: 700; text-align: center;
-    }
+    .status-badge { border-radius: 30px; padding: 10px 30px; color: #fff; font-size: 14px; font-weight: 700; text-align: center; }
     .badge-red { background-color: var(--red-status); }
     .badge-blue { background-color: var(--primary-blue); }
 
+    /* LOADER PHÒNG BAN */
+    #loadingDepts { position: absolute; font-size: 12px; color: #666; right: -70px; top: 10px; display: none; }
   </style>
 </head>
 <body>
@@ -218,7 +111,7 @@
     <div class="card-title-area">
       <button class="btn-back" id="btnBack" style="display:none;" onclick="showFormView()">← Quay lại đăng ký</button>
       <h2 id="mainTitle">ĐỀ XUẤT CHIẾN DỊCH MARKETING</h2>
-      <p>Tháng..... Năm.....</p>
+      <p id="timeRealtime">Tháng..... Năm.....</p>
       <hr>
     </div>
 
@@ -226,12 +119,12 @@
       <div class="info-section">
         <div class="info-row">
           <div class="info-group">
-            <span class="info-label">Thành viên:</span>
+            <span class="info-label" style="min-width: 100px;">Thành viên:</span>
             <input type="text" class="pill-input" id="tv1" placeholder="Nguyễn Văn A" required>
             <input type="text" class="pill-input" id="tv2" placeholder="Nguyễn Văn B">
             <input type="text" class="pill-input" id="tv3" placeholder="Nguyễn Văn C">
           </div>
-          <div class="info-group">
+          <div class="info-group" style="flex: 0 0 auto;">
             <span class="info-label" style="min-width: 100px;">Mã nhân viên:</span>
             <input type="text" class="pill-input small" id="mnv1" placeholder="AVH001" required>
             <input type="text" class="pill-input small" id="mnv2" placeholder="AVH002">
@@ -241,27 +134,26 @@
 
         <div class="info-row">
           <div class="info-group">
-            <span class="info-label">Tên nhóm:</span>
+            <span class="info-label" style="min-width: 100px;">Tên nhóm:</span>
             <input type="text" class="inline-input" id="teamName" placeholder="VD: ABC" required>
           </div>
-          <div class="info-group">
+          <div class="info-group" style="flex: 0 0 450px;">
             <span class="info-label" style="min-width: 100px;">Email liên hệ:</span>
             <input type="email" class="inline-input" id="emailContact" placeholder="VD: nguyenvana@gmail.com" required>
           </div>
         </div>
 
         <div class="info-row">
-          <div class="info-group">
-            <span class="info-label">Phòng kinh doanh:</span>
+          <div class="info-group" style="position: relative;">
+            <span class="info-label" style="min-width: 100px;">Phòng kinh doanh:</span>
             <select class="pill-input small" id="department" required>
-              <option value="AV1">AV1</option>
-              <option value="AV2">AV2</option>
-              <option value="AV3">AV3</option>
+              <option value="" disabled selected>Đang tải...</option>
             </select>
+            <span id="loadingDepts">⏳</span>
           </div>
-          <div class="info-group">
+          <div class="info-group" style="flex: 0 0 450px;">
             <span class="info-label" style="min-width: 100px;">Khối kinh doanh:</span>
-            <input type="text" class="inline-input" id="division" placeholder="VD: A1" required>
+            <input type="text" class="inline-input" id="division" placeholder="Tự động nhảy theo phòng..." readonly required>
           </div>
         </div>
       </div>
@@ -280,21 +172,21 @@
             <th rowspan="2" width="12%">Ban lãnh đạo<br>phê duyệt</th>
           </tr>
           <tr>
-            <th width="10%">Ngân sách</th>
+            <th width="15%">Ngân sách</th>
             <th width="7%">Bắt đầu</th>
             <th width="7%">Kết thúc</th>
-            <th width="8%">KPI</th>
+            <th width="7%">KPI</th>
           </tr>
         </thead>
         <tbody id="tableBody">
           <tr>
             <td>1</td>
-            <td><input type="text" class="table-input" name="project" placeholder="Tên dự án..." required></td>
-            <td><input type="number" class="table-input calc-budget" name="budget" placeholder="0" oninput="calculateTotal()" required></td>
-            <td><input type="text" class="table-input" name="start" placeholder="dd/mm"></td>
-            <td><input type="text" class="table-input" name="end" placeholder="dd/mm"></td>
+            <td><input type="text" class="table-input" name="project" placeholder="..." required></td>
+            <td><input type="text" class="table-input calc-budget" name="budget" placeholder="0" oninput="formatCurrency(this)" required></td>
+            <td><input type="text" class="table-input" name="start" placeholder="..."></td>
+            <td><input type="text" class="table-input" name="end" placeholder="..."></td>
             <td><input type="text" class="table-input" name="kpi" placeholder="..."></td>
-            <td><input type="text" class="table-input" name="channel" placeholder="Facebook"></td>
+            <td><input type="text" class="table-input" name="channel" placeholder="..."></td>
             <td><input type="text" class="table-input" name="phone" placeholder="..."></td>
             <td><input type="text" class="table-input" name="account" placeholder="..."></td>
             <td style="background-color: #f9f9f9;" readonly></td>
@@ -302,7 +194,7 @@
           <tr>
             <td>2</td>
             <td><input type="text" class="table-input" name="project" placeholder="..."></td>
-            <td><input type="number" class="table-input calc-budget" name="budget" placeholder="0" oninput="calculateTotal()"></td>
+            <td><input type="text" class="table-input calc-budget" name="budget" placeholder="0" oninput="formatCurrency(this)"></td>
             <td><input type="text" class="table-input" name="start" placeholder="..."></td>
             <td><input type="text" class="table-input" name="end" placeholder="..."></td>
             <td><input type="text" class="table-input" name="kpi" placeholder="..."></td>
@@ -314,7 +206,7 @@
           <tr>
             <td>3</td>
             <td><input type="text" class="table-input" name="project" placeholder="..."></td>
-            <td><input type="number" class="table-input calc-budget" name="budget" placeholder="0" oninput="calculateTotal()"></td>
+            <td><input type="text" class="table-input calc-budget" name="budget" placeholder="0" oninput="formatCurrency(this)"></td>
             <td><input type="text" class="table-input" name="start" placeholder="..."></td>
             <td><input type="text" class="table-input" name="end" placeholder="..."></td>
             <td><input type="text" class="table-input" name="kpi" placeholder="..."></td>
@@ -342,12 +234,12 @@
       <div class="info-section">
         <div class="info-row">
           <div class="info-group">
-            <span class="info-label">Thành viên:</span>
+            <span class="info-label" style="min-width: 100px;">Thành viên:</span>
             <span class="pill-text">Nguyễn Văn A</span>
             <span class="pill-text">Nguyễn Văn B</span>
             <span class="pill-text">Nguyễn Văn C</span>
           </div>
-          <div class="info-group">
+          <div class="info-group" style="flex: 0 0 auto;">
             <span class="info-label" style="min-width: 100px;">Mã nhân viên:</span>
             <span class="pill-text small">AVH001</span>
             <span class="pill-text small">AVH002</span>
@@ -357,23 +249,23 @@
 
         <div class="info-row">
           <div class="info-group">
-            <span class="info-label">Tên nhóm:</span>
-            <span style="font-weight: 700; width: 100%;">ABC</span>
+            <span class="info-label" style="min-width: 100px;">Tên nhóm:</span>
+            <span style="font-weight: 700; width: 100%; border-bottom: 1px dashed #ccc; padding-bottom: 2px;">ABC</span>
           </div>
-          <div class="info-group">
+          <div class="info-group" style="flex: 0 0 450px;">
             <span class="info-label" style="min-width: 100px;">Email liên hệ:</span>
-            <span style="font-weight: 700; width: 100%;">nguyenvana@gmail.com</span>
+            <span style="font-weight: 700; width: 100%; border-bottom: 1px dashed #ccc; padding-bottom: 2px;">nguyenvana@gmail.com</span>
           </div>
         </div>
 
         <div class="info-row">
           <div class="info-group">
-            <span class="info-label">Phòng kinh doanh:</span>
+            <span class="info-label" style="min-width: 100px;">Phòng kinh doanh:</span>
             <span class="pill-text small">AV1</span>
           </div>
-          <div class="info-group">
+          <div class="info-group" style="flex: 0 0 450px;">
             <span class="info-label" style="min-width: 100px;">Khối kinh doanh:</span>
-            <span style="font-weight: 700; width: 100%;">A1</span>
+            <span style="font-weight: 700; width: 100%; border-bottom: 1px dashed #ccc; padding-bottom: 2px;">A1</span>
           </div>
         </div>
       </div>
@@ -391,10 +283,10 @@
             <th rowspan="2" width="12%">Ban lãnh đạo<br>phê duyệt</th>
           </tr>
           <tr>
-            <th width="10%">Ngân sách</th>
+            <th width="15%">Ngân sách</th>
             <th width="7%">Bắt đầu</th>
             <th width="7%">Kết thúc</th>
-            <th width="8%">KPI</th>
+            <th width="7%">KPI</th>
           </tr>
         </thead>
         <tbody>
@@ -488,48 +380,100 @@
   </div>
 
   <script>
-    /* LOGIC TÍNH TỔNG TIỀN */
+    // 1. LINK API CHÍNH THỨC
+    const API_URL = "https://script.google.com/macros/s/AKfycbwFgszaVmJmOhs_GOMlcomv-RTcFJ2SXU4nbrGDRRqS8mZcFOR59YnBEl5boKmTeBFa/exec";
+
+    // Mảng lưu dữ liệu phòng - khối tải về
+    let departmentsData = [];
+
+    // 2. CHẠY KHI VỪA MỞ WEB
+    document.addEventListener("DOMContentLoaded", function() {
+      // Tự động nhảy Tháng / Năm
+      const today = new Date();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const year = today.getFullYear();
+      document.getElementById('timeRealtime').innerText = `Tháng ${month} Năm ${year}`;
+
+      // Tải danh sách phòng ban
+      loadDepartments();
+    });
+
+    // 3. TẢI DATA PHÒNG BAN TỪ GOOGLE SHEET
+    async function loadDepartments() {
+      document.getElementById('loadingDepts').style.display = 'inline';
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ action: "getDepartments" })
+        });
+        const result = await response.json();
+        if (result.success) {
+          departmentsData = result.data;
+          const deptSelect = document.getElementById('department');
+          deptSelect.innerHTML = '<option value="" disabled selected>Chọn phòng ban</option>';
+          departmentsData.forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = item.phong;
+            opt.innerText = item.phong;
+            deptSelect.appendChild(opt);
+          });
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        document.getElementById('loadingDepts').style.display = 'none';
+      }
+    }
+
+    // 4. LẮNG NGHE SỰ KIỆN KHI SALE CHỌN PHÒNG KINH DOANH -> TỰ ĐỘNG NHẢY KHỐI
+    document.getElementById('department').addEventListener('change', function(e) {
+      const selectedPhong = e.target.value;
+      const found = departmentsData.find(d => d.phong === selectedPhong);
+      if (found) {
+        document.getElementById('division').value = found.khoi;
+      }
+    });
+
+    // 5. FORMAT CẤU TRÚC NGÂN SÁCH (TỰ ĐỘNG THÊM DẤU CHẤM)
+    function formatCurrency(input) {
+      let val = input.value.replace(/\D/g, '');
+      if (val !== '') { val = val.replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
+      input.value = val;
+      calculateTotal();
+    }
+
     function calculateTotal() {
       const budgetInputs = document.querySelectorAll('.calc-budget');
       let total = 0;
       budgetInputs.forEach(input => {
-        const val = parseFloat(input.value) || 0;
+        const rawValue = input.value.replace(/\./g, '');
+        const val = parseFloat(rawValue) || 0;
         total += val;
       });
-      document.getElementById('totalBudgetDisplay').innerText = total.toLocaleString('vi-VN');
+      document.getElementById('totalBudgetDisplay').innerText = total.toLocaleString('vi-VN').replace(/,/g, '.');
     }
 
-    /* LOGIC MỞ/ĐÓNG/CHUYỂN MÀN HÌNH MODAL */
-    function openModal() {
-      document.getElementById('searchModal').style.display = 'flex';
-    }
-    
-    function closeModal() {
-      document.getElementById('searchModal').style.display = 'none';
-    }
+    // 6. LOGIC MỞ/ĐÓNG/CHUYỂN MÀN HÌNH MODAL
+    function openModal() { document.getElementById('searchModal').style.display = 'flex'; }
+    function closeModal() { document.getElementById('searchModal').style.display = 'none'; }
 
     function executeSearch() {
-      // Khi bấm Kiểm tra trong Modal
       closeModal();
-      document.getElementById('marketingForm').style.display = 'none'; // Ẩn form
-      document.getElementById('resultView').style.display = 'block';   // Hiện kết quả
-      
-      // Đổi title thành Kết Quả Tra Cứu và hiện nút Quay lại
+      document.getElementById('marketingForm').style.display = 'none'; 
+      document.getElementById('resultView').style.display = 'block';   
       document.getElementById('mainTitle').innerText = "KẾT QUẢ TRA CỨU";
       document.getElementById('btnBack').style.display = 'flex';
     }
 
     function showFormView() {
-      // Quay về Màn hình đăng ký ban đầu
       document.getElementById('resultView').style.display = 'none';
       document.getElementById('marketingForm').style.display = 'block';
       document.getElementById('mainTitle').innerText = "ĐỀ XUẤT CHIẾN DỊCH MARKETING";
       document.getElementById('btnBack').style.display = 'none';
     }
 
-    /* LOGIC GỬI FORM LÊN GOOGLE SHEETS */
-    const API_URL = "https://script.google.com/macros/s/AKfycbwFgszaVmJmOhs_GOMlcomv-RTcFJ2SXU4nbrGDRRqS8mZcFOR59YnBEl5boKmTeBFa/exec";
-
+    // 7. GỬI FORM LÊN GOOGLE SHEETS
     document.getElementById('marketingForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const btn = document.getElementById('btnSubmit');
@@ -541,9 +485,10 @@
       rows.forEach(row => {
         const project = row.querySelector('input[name="project"]').value;
         if (project.trim() !== "") {
+          const rawBudget = row.querySelector('input[name="budget"]').value.replace(/\./g, '');
           items.push({
             projectName: project,
-            proposedBudget: row.querySelector('input[name="budget"]').value || 0,
+            proposedBudget: rawBudget || 0,
             start: row.querySelector('input[name="start"]').value,
             end: row.querySelector('input[name="end"]').value,
             kpi: row.querySelector('input[name="kpi"]').value,
@@ -567,6 +512,7 @@
           teamName: document.getElementById('teamName').value,
           memberName: mems,
           emailContact: document.getElementById('emailContact').value,
+          // Gộp Phòng - Khối
           department: document.getElementById('department').value + " - " + document.getElementById('division').value,
           items: items
         }
@@ -583,6 +529,7 @@
         if (result.success) {
           alert("Gửi đề xuất thành công! Mã phiếu: " + result.id);
           document.getElementById('marketingForm').reset();
+          document.getElementById('division').value = ''; // Xóa Khối
           calculateTotal(); 
         } else {
           alert("Lỗi: " + result.message);
