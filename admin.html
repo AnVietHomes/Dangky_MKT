@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hệ Thống Phê Duyệt Marketing - Admin</title>
-  
+  <title>Cổng Quản Trị - An Việt Homes</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,244 +11,132 @@
   
   <style>
     :root {
-      --primary-blue: #004d99;
-      --light-bg: #f4f7f6;
-      --success: #27ae60;
-      --warning: #f39c12;
-      --danger: #e74c3c;
+      --primary-dark: #0a1f35;
+      --primary-blue: #0056b3;
+      --text-main: #333;
+      --border-color: #ddd;
     }
     
-    body { font-family: 'Manrope', sans-serif; background-color: var(--light-bg); margin: 0; color: #333; }
+    body { font-family: 'Manrope', sans-serif; margin: 0; padding: 0; background-color: #f8f9fa; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
     
-    /* Giao diện Login */
-    .login-container { display: flex; justify-content: center; align-items: center; height: 100vh; }
-    .login-box { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 360px; text-align: center; border-top: 5px solid var(--primary-blue); }
-    .brand-logo { max-width: 160px; height: auto; margin-bottom: 20px; }
-    .login-box h2 { color: var(--primary-blue); margin-bottom: 25px; font-weight: 800; font-size: 22px; line-height: 1.4; }
-    .form-input { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-family: 'Manrope'; font-size: 15px; }
-    .form-input:focus { border-color: var(--primary-blue); outline: none; }
-    .btn-login { width: 100%; background: var(--primary-blue); color: white; border: none; padding: 14px; border-radius: 5px; cursor: pointer; font-weight: 700; font-size: 16px; font-family: 'Manrope'; transition: 0.3s; }
-    .btn-login:hover { background: #003d7a; }
+    /* Màn Hình Login Split Layout */
+    .split-layout { display: flex; width: 100%; height: 100%; }
     
-    /* Giao diện Dashboard */
-    .dashboard-container { display: none; padding: 30px; max-width: 1400px; margin: 0 auto; }
-    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ddd; padding-bottom: 15px; margin-bottom: 25px; }
-    .header-left { display: flex; align-items: center; gap: 20px; }
-    .header-logo { max-width: 120px; height: auto; }
-    .header h2 { margin: 0; color: var(--primary-blue); font-weight: 800; }
-    #userInfo { font-weight: 600; color: #555; background: #e6f0fa; padding: 8px 15px; border-radius: 20px; }
+    .left-panel { background-color: var(--primary-dark); width: 45%; padding: 50px; display: flex; flex-direction: column; justify-content: space-between; position: relative; color: white; }
+    .brand-logo { max-width: 150px; }
+    .left-content { z-index: 2; margin-top: -100px; }
+    .left-content h3 { font-weight: 500; font-size: 24px; color: #4da6ff; margin: 0 0 5px 0; letter-spacing: 1px; }
+    .left-content h1 { font-size: 38px; font-weight: 800; margin: 0; line-height: 1.2; text-transform: uppercase; }
+    .illustration-box { width: 100%; height: 350px; background: url('https://placehold.co/600x400/0a1f35/4da6ff?text=Illustration+Image') no-repeat center bottom; background-size: contain; opacity: 0.8; }
 
-    /* Thẻ thống kê */
-    .stats-board { display: flex; gap: 20px; margin-bottom: 30px; overflow-x: auto; padding-bottom: 10px; }
-    .stat-card { flex: 1; min-width: 250px; background: white; padding: 20px; border-radius: 8px; border-left: 5px solid var(--primary-blue); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-    .stat-card h4 { margin: 0 0 10px 0; color: #777; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .stat-value { font-size: 26px; font-weight: 800; color: var(--primary-blue); }
-    .stat-diff { font-size: 14px; margin-top: 8px; font-weight: 600; color: #555; }
-    .stat-diff.negative { color: var(--danger); }
-    .stat-diff.positive { color: var(--success); }
+    .right-panel { width: 55%; background-color: #fff; display: flex; align-items: center; justify-content: center; }
+    
+    .login-box { width: 100%; max-width: 420px; padding: 40px; }
+    .login-box h2 { font-size: 28px; font-weight: 800; color: var(--primary-dark); margin: 0 0 5px 0; text-transform: uppercase; }
+    .login-box p { color: #777; margin-bottom: 30px; font-size: 15px; }
+    
+    .form-group { margin-bottom: 20px; position: relative; }
+    .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #444; }
+    .form-control { width: 100%; padding: 14px 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: 'Manrope'; font-size: 15px; transition: 0.3s; background: #fafafa; }
+    .form-control:focus { border-color: var(--primary-blue); outline: none; background: #fff; }
+    
+    .password-toggle { position: absolute; right: 15px; top: 40px; cursor: pointer; color: #999; font-size: 12px; font-weight: 600; }
+    
+    .login-options { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; font-size: 14px; }
+    .remember-me { display: flex; align-items: center; gap: 8px; cursor: pointer; color: #555; font-weight: 500; }
+    .forgot-password { color: var(--primary-blue); text-decoration: none; font-weight: 600; }
+    .forgot-password:hover { text-decoration: underline; }
 
-    /* Table Duyệt */
-    .table-wrap { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden; }
-    table { width: 100%; border-collapse: collapse; }
-    th { background: var(--primary-blue); color: white; padding: 15px 10px; text-align: center; font-weight: 600; font-size: 14px; }
-    td { padding: 12px 10px; border-bottom: 1px solid #eee; text-align: center; vertical-align: middle; font-size: 14px; }
-    tbody tr:hover { background-color: #f9fdfa; }
+    .btn-primary { background-color: var(--primary-blue); color: white; width: 100%; padding: 16px; border: none; border-radius: 6px; font-size: 16px; font-weight: 700; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+    .btn-primary:hover { background-color: #004494; }
+
+    /* Màn Hình Dashboard (Ẩn mặc định) */
+    .dashboard-container { display: none; width: 100%; height: 100%; overflow-y: auto; padding: 30px; box-sizing: border-box; background: #f4f7f6; }
+    .dash-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ddd; padding-bottom: 15px; margin-bottom: 25px; }
+    .dash-logo { max-width: 120px; }
+    .dash-title { color: var(--primary-blue); font-weight: 800; margin: 0; }
     
-    .input-budget { width: 130px; padding: 10px; border: 2px solid #3498db; border-radius: 4px; text-align: right; font-weight: 800; color: var(--danger); font-family: 'Manrope'; font-size: 15px; background: #fffaf9; transition: 0.3s; }
-    .input-budget:focus { border-color: var(--danger); outline: none; }
-    .input-note { width: 90%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: 'Manrope'; }
-    .input-note:focus { border-color: var(--primary-blue); outline: none; }
-    
-    .actions-bar { margin-top: 25px; display: flex; justify-content: flex-end; gap: 15px; }
-    .btn-action { padding: 12px 25px; border: none; border-radius: 5px; cursor: pointer; font-weight: 700; font-family: 'Manrope'; font-size: 15px; color: white; transition: 0.2s; }
-    .btn-draft { background: var(--warning); }
-    .btn-draft:hover { background: #d68910; }
-    .btn-approve { background: var(--success); }
-    .btn-approve:hover { background: #219653; }
-    
-    .badge { padding: 5px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; background: #e6f0fa; color: var(--primary-blue); }
+    /* Responsive */
+    @media (max-width: 992px) {
+      .split-layout { flex-direction: column; height: auto; overflow: visible; }
+      .left-panel, .right-panel { width: 100%; }
+      .left-panel { padding: 40px 20px; text-align: center; }
+      .illustration-box { display: none; }
+      .login-box { padding: 40px 20px; }
+    }
   </style>
 </head>
 <body>
 
-  <div class="login-container" id="loginScreen">
-    <div class="login-box">
+  <div class="split-layout" id="loginScreen">
+    <div class="left-panel">
       <img src="logo.svg" alt="An Việt Homes" class="brand-logo">
-      <h2>CỔNG QUẢN TRỊ & PHÊ DUYỆT</h2>
-      <input type="text" id="username" class="form-input" placeholder="Tài khoản (VD: gdkd_nam)">
-      <input type="password" id="password" class="form-input" placeholder="Mật khẩu">
-      <button class="btn-login" onclick="handleLogin()">ĐĂNG NHẬP</button>
+      <div class="left-content">
+        <h3>HỆ THỐNG TRÌNH DUYỆT</h3>
+        <h1>ĐĂNG KÝ MARKETING</h1>
+      </div>
+      <div class="illustration-box"></div>
+    </div>
+    
+    <div class="right-panel">
+      <div class="login-box">
+        <h2>ĐĂNG NHẬP</h2>
+        <p>Vui lòng đăng nhập để tiếp tục</p>
+        
+        <form onsubmit="event.preventDefault(); handleLogin();">
+          <div class="form-group">
+            <label>Tên đăng nhập</label>
+            <input type="text" class="form-control" placeholder="Nhập tài khoản...">
+          </div>
+          <div class="form-group">
+            <label>Mật khẩu</label>
+            <input type="password" id="pwdInput" class="form-control" placeholder="Nhập mật khẩu...">
+            <span class="password-toggle" onclick="togglePassword()">HIỆN</span>
+          </div>
+          
+          <div class="login-options">
+            <label class="remember-me">
+              <input type="checkbox"> Ghi nhớ đăng nhập
+            </label>
+            <a href="#" class="forgot-password">Quên mật khẩu?</a>
+          </div>
+
+          <button type="submit" class="btn-primary">ĐĂNG NHẬP</button>
+        </form>
+      </div>
     </div>
   </div>
 
   <div class="dashboard-container" id="dashboardScreen">
-    <div class="header">
-      <div class="header-left">
-        <img src="logo.svg" alt="An Việt Homes" class="header-logo">
-        <h2>KHU VỰC PHÊ DUYỆT - BAN LÃNH ĐẠO</h2>
+    <div class="dash-header">
+      <div style="display: flex; align-items: center; gap: 20px;">
+        <img src="logo.svg" alt="An Việt Homes" class="dash-logo">
+        <h2 class="dash-title">KHU VỰC PHÊ DUYỆT - BAN LÃNH ĐẠO</h2>
       </div>
-      <div id="userInfo">Xin chào, BLĐ</div>
+      <div style="font-weight: 600; background: #e6f0fa; padding: 8px 15px; border-radius: 20px;">Xin chào, BLĐ</div>
     </div>
-
-    <div class="stats-board" id="statsBoard">
-      </div>
-
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th width="8%">Mã Phiếu</th>
-            <th width="12%">Phòng Ban</th>
-            <th width="20%">Dự Án / Chiến Dịch</th>
-            <th width="15%">Đề Xuất (VNĐ)</th>
-            <th width="15%">BLĐ Thực Duyệt (VNĐ)</th>
-            <th width="30%">Ghi chú điều chỉnh (Tùy chọn)</th>
-          </tr>
-        </thead>
-        <tbody id="bldTableBody">
-          <tr data-id="D-12345" data-project="Đua Top 20 Tỷ đi Thái Lan" data-proposed="30000000">
-            <td><span class="badge">DX-123</span></td>
-            <td>Phòng KD 1</td>
-            <td style="font-weight: 600; color: var(--primary-blue);">Đua Top 20 Tỷ đi Thái Lan</td>
-            <td>30,000,000</td>
-            <td>
-              <input type="number" class="input-budget" value="30000000" oninput="calculateTotals()">
-            </td>
-            <td><input type="text" class="input-note" placeholder="Nhập lý do nếu cắt giảm..."></td>
-          </tr>
-          <tr data-id="D-12346" data-project="Đua Top 20 Tỷ đi Thái Lan" data-proposed="25000000">
-            <td><span class="badge">DX-124</span></td>
-            <td>Phòng KD 2</td>
-            <td style="font-weight: 600; color: var(--primary-blue);">Đua Top 20 Tỷ đi Thái Lan</td>
-            <td>25,000,000</td>
-            <td>
-              <input type="number" class="input-budget" value="25000000" oninput="calculateTotals()">
-            </td>
-            <td><input type="text" class="input-note"></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="actions-bar">
-      <button class="btn-action btn-draft" onclick="saveDraft()">Lưu Nháp Tạm Thời</button>
-      <button class="btn-action btn-approve" onclick="finalApprove()">Chốt Phê Duyệt & Xuất Form Cuối</button>
-    </div>
+    
+    <h3 style="text-align: center; color: #555; margin-top: 50px;">Bảng thông kê và tính năng duyệt nháp sẽ hiển thị tại đây...</h3>
+    <p style="text-align: center;"><a href="#" onclick="window.location.reload()">Đăng xuất</a></p>
   </div>
 
   <script>
-    // ĐIỀN LINK WEB APP CỦA BẠN VÀO ĐÂY SAU KHI DEPLOY GAS
-    const API_URL = "YOUR_WEB_APP_URL"; 
+    function togglePassword() {
+      const pwd = document.getElementById('pwdInput');
+      const toggle = document.querySelector('.password-toggle');
+      if(pwd.type === 'password') {
+        pwd.type = 'text';
+        toggle.textContent = 'ẨN';
+      } else {
+        pwd.type = 'password';
+        toggle.textContent = 'HIỆN';
+      }
+    }
 
-    // --- LOGIC GIAO DIỆN & TÍNH TOÁN REAL-TIME --- //
-    
     function handleLogin() {
-      // Giả lập vượt qua đăng nhập để test luồng BLĐ ngay lập tức
+      // Giả lập vượt qua đăng nhập
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('dashboardScreen').style.display = 'block';
-      calculateTotals(); 
-    }
-
-    function calculateTotals() {
-      const rows = document.querySelectorAll('#bldTableBody tr');
-      let summary = {};
-      let totalProposedAll = 0;
-      let totalApprovedAll = 0;
-
-      rows.forEach(row => {
-        const projectName = row.getAttribute('data-project');
-        const proposed = parseFloat(row.getAttribute('data-proposed')) || 0;
-        const approvedInput = row.querySelector('.input-budget').value;
-        const approved = parseFloat(approvedInput) || 0;
-
-        if (!summary[projectName]) {
-          summary[projectName] = { proposed: 0, approved: 0 };
-        }
-        summary[projectName].proposed += proposed;
-        summary[projectName].approved += approved;
-        
-        totalProposedAll += proposed;
-        totalApprovedAll += approved;
-      });
-
-      const statsBoard = document.getElementById('statsBoard');
-      let html = `
-        <div class="stat-card" style="border-color: #27ae60; background: #f9fdfa;">
-          <h4>TỔNG NGÂN SÁCH DUYỆT (ALL)</h4>
-          <div class="stat-value" style="color: #27ae60">${totalApprovedAll.toLocaleString('vi-VN')} VNĐ</div>
-          <div class="stat-diff">Tổng đề xuất gốc: ${totalProposedAll.toLocaleString('vi-VN')} VNĐ</div>
-        </div>
-      `;
-
-      for (const [project, data] of Object.entries(summary)) {
-        const diff = data.approved - data.proposed;
-        const diffClass = diff < 0 ? 'negative' : (diff > 0 ? 'positive' : '');
-        const diffSign = diff > 0 ? '+' : '';
-        
-        html += `
-          <div class="stat-card">
-            <h4>DỰ ÁN: ${project}</h4>
-            <div class="stat-value">${data.approved.toLocaleString('vi-VN')} VNĐ</div>
-            <div class="stat-diff ${diffClass}">
-              Chênh lệch: ${diffSign}${diff.toLocaleString('vi-VN')} VNĐ
-            </div>
-          </div>
-        `;
-      }
-      statsBoard.innerHTML = html;
-    }
-
-    // --- LOGIC API FETCH --- //
-
-    async function sendDataToBackend(isFinal) {
-      const payload = {
-        action: "bldApprove",
-        isFinalApprove: isFinal,
-        items: []
-      };
-
-      document.querySelectorAll('#bldTableBody tr').forEach(row => {
-        payload.items.push({
-          idDong: row.getAttribute('data-id'),
-          nganSachDuyet: row.querySelector('.input-budget').value,
-          ghiChuBLD: row.querySelector('.input-note').value
-        });
-      });
-
-      try {
-        const response = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify(payload)
-        });
-        const result = await response.json();
-        return result;
-      } catch (error) {
-        console.error("Fetch error:", error);
-        return { success: false, message: "Lỗi kết nối máy chủ." };
-      }
-    }
-
-    async function saveDraft() {
-      const result = await sendDataToBackend(false);
-      if(result.success) {
-        alert("Đã lưu nháp thành công! Bạn có thể quay lại duyệt tiếp sau.");
-      } else {
-        alert("Có lỗi xảy ra khi lưu nháp.");
-      }
-    }
-
-    async function finalApprove() {
-      if(!confirm("Xác nhận chốt phê duyệt? Hệ thống sẽ kết xuất tự động ra File Excel (Form cuối) và gửi thông báo cho P.MKT.")) return;
-      
-      const result = await sendDataToBackend(true);
-      if(result.success) {
-        alert("Đã phê duyệt thành công! Luồng dữ liệu đã được đẩy đi.");
-        // Chuyển hướng hoặc reload sau khi duyệt xong
-        // window.location.reload(); 
-      } else {
-        alert("Có lỗi xảy ra: " + result.message);
-      }
     }
   </script>
 </body>
