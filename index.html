@@ -19,70 +19,44 @@
     }
     
     body { font-family: 'Manrope', sans-serif; margin: 0; padding: 0; background-color: #fff; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
-    
-    /* Layout Chia Đôi */
     .split-layout { display: flex; width: 100%; height: 100%; }
     
-    /* Cột Trái (Banner) */
+    /* Left Panel */
     .left-panel { background-color: var(--primary-dark); width: 45%; padding: 50px; display: flex; flex-direction: column; justify-content: space-between; position: relative; color: white; }
     .brand-logo { max-width: 150px; }
     .left-content { z-index: 2; margin-top: -100px; }
     .left-content h3 { font-weight: 500; font-size: 24px; color: #4da6ff; margin: 0 0 5px 0; letter-spacing: 1px; }
     .left-content h1 { font-size: 38px; font-weight: 800; margin: 0; line-height: 1.2; text-transform: uppercase; }
-    
-    /* Vùng chứa ảnh minh họa - Giả lập bằng khối màu hoặc bạn có thể chèn thẻ img thật */
-    .illustration-box { width: 100%; height: 350px; background: url('https://placehold.co/600x400/0a1f35/4da6ff?text=Illustration+Image') no-repeat center bottom; background-size: contain; opacity: 0.8; }
+    .illustration-box { width: 100%; height: 350px; background: url('https://placehold.co/600x400/0a1f35/4da6ff?text=Marketing+Campaign') no-repeat center bottom; background-size: contain; opacity: 0.8; }
 
-    /* Cột Phải (Nội dung) */
+    /* Right Panel */
     .right-panel { width: 55%; background-color: #fff; display: flex; flex-direction: column; overflow-y: auto; }
-    
-    /* Tabs Header */
     .tabs-header { display: flex; justify-content: flex-end; padding: 30px 50px 0; border-bottom: 1px solid #eee; }
     .tab { padding: 15px 30px; cursor: pointer; font-weight: 700; color: #999; font-size: 15px; text-transform: uppercase; border-bottom: 3px solid transparent; transition: 0.3s; }
     .tab.active { color: var(--primary-blue); border-bottom: 3px solid var(--primary-blue); }
     .tab:hover:not(.active) { color: var(--primary-blue); }
     
-    /* Form & Content Area */
     .content-area { padding: 40px 50px; max-width: 700px; margin: 0 auto; width: 100%; box-sizing: border-box; }
     .content-area h2 { color: var(--primary-blue); font-size: 24px; font-weight: 800; margin-top: 0; margin-bottom: 30px; text-transform: uppercase; }
-    
     .tab-content { display: none; animation: fadeIn 0.4s ease; }
     .tab-content.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Form Styles */
+    /* Form */
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     .form-group { margin-bottom: 20px; }
     .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #444; }
     .form-control { width: 100%; padding: 14px 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: 'Manrope', sans-serif; font-size: 15px; transition: 0.3s; background: #fafafa; }
     .form-control:focus { border-color: var(--primary-blue); outline: none; background: #fff; box-shadow: 0 0 0 3px rgba(0,86,179,0.1); }
-    
     .btn-primary { background-color: var(--primary-blue); color: white; width: 100%; padding: 16px; border: none; border-radius: 6px; font-size: 16px; font-weight: 700; cursor: pointer; text-transform: uppercase; transition: 0.2s; margin-top: 10px; }
     .btn-primary:hover { background-color: #004494; }
+    .btn-primary:disabled { background-color: #999; cursor: not-allowed; }
 
-    /* Stepper - Tra Cứu */
+    /* Tra cứu */
     .search-box { display: flex; gap: 10px; margin-bottom: 40px; }
     .search-box .form-control { flex: 1; margin-bottom: 0; }
     .search-box .btn-primary { width: auto; margin-top: 0; padding: 14px 30px; }
     
-    .stepper-container { display: none; background: #f8f9fa; padding: 30px; border-radius: 10px; border: 1px solid #eee; }
-    .stepper { display: flex; justify-content: space-between; position: relative; margin-bottom: 30px; }
-    .stepper::before { content: ''; position: absolute; top: 15px; left: 0; right: 0; height: 3px; background: #ddd; z-index: 1; }
-    
-    .step { position: relative; z-index: 2; text-align: center; flex: 1; }
-    .step-icon { width: 32px; height: 32px; background: #ddd; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px auto; font-weight: bold; border: 4px solid #f8f9fa; transition: 0.3s; }
-    .step.active .step-icon { background: #27ae60; }
-    .step.current .step-icon { background: var(--primary-blue); box-shadow: 0 0 0 4px rgba(0,86,179,0.2); }
-    .step-text { font-size: 13px; font-weight: 600; color: #777; }
-    .step.active .step-text, .step.current .step-text { color: #333; }
-
-    .result-card { background: white; border-left: 4px solid var(--primary-blue); padding: 20px; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-    .result-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 15px; border-bottom: 1px dashed #eee; padding-bottom: 10px; }
-    .result-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-    .result-label { color: #777; font-weight: 500; }
-    .result-value { font-weight: 700; color: #222; }
-
-    /* Responsive */
     @media (max-width: 992px) {
       .split-layout { flex-direction: column; height: auto; overflow: visible; }
       .left-panel { width: 100%; padding: 40px 20px; text-align: center; box-sizing: border-box; }
@@ -98,9 +72,8 @@
 <body>
 
 <div class="split-layout">
-  
   <div class="left-panel">
-    <img src="logo.svg" alt="An Việt Homes" class="brand-logo">
+    <img src="logo.svg" alt="An Việt Homes" class="brand-logo" onerror="this.src='https://placehold.co/150x50/0a1f35/FFF?text=LOGO'">
     <div class="left-content">
       <h3>HỆ THỐNG TRÌNH DUYỆT</h3>
       <h1>ĐĂNG KÝ MARKETING</h1>
@@ -109,144 +82,95 @@
   </div>
 
   <div class="right-panel">
-    
     <div class="tabs-header">
       <div class="tab active" onclick="switchTab('dangky', this)">ĐĂNG KÝ CHIẾN DỊCH</div>
       <div class="tab" onclick="switchTab('tracuu', this)">TRA CỨU</div>
     </div>
 
     <div class="content-area">
-      
       <div id="dangky" class="tab-content active">
         <h2>ĐỀ XUẤT CHIẾN DỊCH MARKETING</h2>
         <form id="marketingForm">
           <div class="grid-2">
             <div class="form-group">
               <label>Tên nhóm / Team</label>
-              <input type="text" class="form-control" placeholder="Nhập tên nhóm...">
+              <input type="text" id="teamName" class="form-control" required placeholder="Nhập tên nhóm...">
             </div>
             <div class="form-group">
               <label>Tên Trưởng Nhóm</label>
-              <input type="text" class="form-control" placeholder="Nhập họ và tên...">
+              <input type="text" id="memberName" class="form-control" required placeholder="Nhập họ và tên...">
             </div>
           </div>
-
           <div class="grid-2">
             <div class="form-group">
               <label>Phòng Kinh doanh</label>
-              <select class="form-control">
+              <select id="department" class="form-control" required>
                 <option value="">Chọn phòng ban</option>
-                <option>Phòng KD 1</option>
-                <option>Phòng KD 2</option>
+                <option value="Phòng KD 1">Phòng KD 1</option>
+                <option value="Phòng KD 2">Phòng KD 2</option>
+                <option value="Phòng KD 3">Phòng KD 3</option>
               </select>
             </div>
             <div class="form-group">
-              <label>Khối Kinh doanh</label>
-              <select class="form-control">
-                <option value="">Chọn khối</option>
-                <option>Khối 1</option>
-                <option>Khối 2</option>
-              </select>
+              <label>Email liên hệ</label>
+              <input type="email" id="emailContact" class="form-control" required placeholder="Nhập email nhận thông báo...">
             </div>
           </div>
+          
+          <hr style="border: 0; border-top: 1px dashed #ddd; margin: 25px 0;">
 
           <div class="form-group">
             <label>Tên chiến dịch / Dự án</label>
-            <input type="text" class="form-control" placeholder="Nhập tên chiến dịch hoặc dự án...">
+            <input type="text" id="projectName" class="form-control" required placeholder="Nhập tên chiến dịch hoặc dự án...">
           </div>
-
           <div class="grid-2">
             <div class="form-group">
               <label>Ngân sách đề xuất (VNĐ)</label>
-              <input type="text" class="form-control" placeholder="VD: 30,000,000">
+              <input type="number" id="proposedBudget" class="form-control" required placeholder="VD: 30000000">
             </div>
             <div class="form-group">
               <label>KPI Cam kết</label>
-              <input type="text" class="form-control" placeholder="VD: 50 Data Net">
+              <input type="text" id="kpi" class="form-control" required placeholder="VD: 50 Data Net">
             </div>
           </div>
-
           <div class="grid-2">
             <div class="form-group">
               <label>Kênh chạy</label>
-              <select class="form-control">
-                <option>Facebook Ads</option>
-                <option>Google Ads</option>
-                <option>Tiktok Ads</option>
+              <select id="channel" class="form-control">
+                <option value="Facebook Ads">Facebook Ads</option>
+                <option value="Google Ads">Google Ads</option>
+                <option value="Tiktok Ads">Tiktok Ads</option>
               </select>
             </div>
             <div class="form-group">
               <label>Phương án chạy</label>
-              <select class="form-control">
-                <option>Tự chạy</option>
-                <option>Phòng MKT chạy</option>
+              <select id="runMethod" class="form-control">
+                <option value="Tự chạy">Tự chạy</option>
+                <option value="P.MKT chạy">Phòng MKT chạy</option>
               </select>
             </div>
           </div>
-
           <div class="grid-2">
             <div class="form-group">
               <label>SĐT đăng ký</label>
-              <input type="text" class="form-control" placeholder="Nhập số điện thoại...">
+              <input type="text" id="phoneNumber" class="form-control" required placeholder="Nhập số điện thoại...">
             </div>
             <div class="form-group">
               <label>Tài khoản ĐK</label>
-              <input type="text" class="form-control" placeholder="Nhập link/ID tài khoản...">
+              <input type="text" id="accountInfo" class="form-control" required placeholder="Nhập link/ID tài khoản...">
             </div>
           </div>
 
-          <button type="submit" class="btn-primary">GỬI ĐỀ XUẤT TRÌNH DUYỆT</button>
+          <button type="submit" id="btnSubmit" class="btn-primary">GỬI ĐỀ XUẤT TRÌNH DUYỆT</button>
         </form>
       </div>
 
       <div id="tracuu" class="tab-content">
         <h2>TRA CỨU TIẾN ĐỘ PHÊ DUYỆT</h2>
-        
         <div class="search-box">
-          <input type="text" id="searchInput" class="form-control" placeholder="Nhập mã phiếu đề xuất (VD: DX-1718...)">
-          <button type="button" class="btn-primary" onclick="simulateSearch()">TRA CỨU</button>
+          <input type="text" id="searchInput" class="form-control" placeholder="Nhập mã phiếu (VD: DX-1718...)">
+          <button type="button" class="btn-primary" onclick="alert('Tính năng tra cứu theo mã đang được hoàn thiện cập nhật!')">TRA CỨU</button>
         </div>
-
-        <div id="stepperResult" class="stepper-container">
-          <div class="stepper">
-            <div class="step active">
-              <div class="step-icon">✓</div>
-              <div class="step-text">TPKD</div>
-            </div>
-            <div class="step active">
-              <div class="step-icon">✓</div>
-              <div class="step-text">GĐKD</div>
-            </div>
-            <div class="step current">
-              <div class="step-icon">3</div>
-              <div class="step-text">PTGĐ</div>
-            </div>
-            <div class="step">
-              <div class="step-icon">4</div>
-              <div class="step-text">P.MKT</div>
-            </div>
-            <div class="step">
-              <div class="step-icon">5</div>
-              <div class="step-text">BLĐ</div>
-            </div>
-          </div>
-
-          <div class="result-card">
-            <div class="result-row">
-              <span class="result-label">Mã phiếu:</span>
-              <span class="result-value" style="color: var(--primary-blue);">DX-1718712</span>
-            </div>
-            <div class="result-row">
-              <span class="result-label">Chiến dịch:</span>
-              <span class="result-value">Đua Top 20 Tỷ đi Thái Lan</span>
-            </div>
-            <div class="result-row">
-              <span class="result-label">Trạng thái:</span>
-              <span class="result-value" style="color: #f39c12;">Đang chờ PTGĐ phê duyệt</span>
-            </div>
-          </div>
-        </div>
-
       </div>
 
     </div>
@@ -254,6 +178,9 @@
 </div>
 
 <script>
+  // LINK API CHÍNH THỨC
+  const API_URL = "https://script.google.com/macros/s/AKfycbwFgszaVmJmOhs_GOMlcomv-RTcFJ2SXU4nbrGDRRqS8mZcFOR59YnBEl5boKmTeBFa/exec";
+
   function switchTab(tabId, element) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -261,14 +188,52 @@
     document.getElementById(tabId).classList.add('active');
   }
 
-  function simulateSearch() {
-    const input = document.getElementById('searchInput').value;
-    if(input.trim() === '') {
-      alert('Vui lòng nhập mã phiếu!');
-      return;
+  document.getElementById('marketingForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btnSubmit');
+    btn.disabled = true;
+    btn.innerText = "ĐANG XỬ LÝ...";
+
+    const payload = {
+      action: "submitForm",
+      data: {
+        teamName: document.getElementById('teamName').value,
+        memberName: document.getElementById('memberName').value,
+        department: document.getElementById('department').value,
+        emailContact: document.getElementById('emailContact').value,
+        items: [{
+          projectName: document.getElementById('projectName').value,
+          proposedBudget: document.getElementById('proposedBudget').value,
+          kpi: document.getElementById('kpi').value,
+          channel: document.getElementById('channel').value,
+          phoneNumber: document.getElementById('phoneNumber').value,
+          accountInfo: document.getElementById('accountInfo').value,
+          runMethod: document.getElementById('runMethod').value
+        }]
+      }
+    };
+
+    try {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      });
+      const result = await response.json();
+      
+      if(result.success) {
+        alert("Gửi đề xuất thành công! Mã phiếu của bạn là: " + result.id);
+        document.getElementById('marketingForm').reset();
+      } else {
+        alert("Lỗi: " + result.message);
+      }
+    } catch (error) {
+      alert("Lỗi kết nối máy chủ!");
+    } finally {
+      btn.disabled = false;
+      btn.innerText = "GỬI ĐỀ XUẤT TRÌNH DUYỆT";
     }
-    document.getElementById('stepperResult').style.display = 'block';
-  }
+  });
 </script>
 </body>
 </html>
