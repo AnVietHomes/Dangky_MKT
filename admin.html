@@ -11,10 +11,8 @@
   <style>
     :root { --bg-login: #d4efff; --primary-blue: #0b1f8c; --text-dark: #333333; --text-gray: #666666; --input-bg: #f4f6f8; --border-color: #e5e8ec; --success-green: #27ae60; --danger: #e74c3c; --warning: #f39c12; }
     
-    /* FIX: Khóa thanh cuộn trình duyệt, Màu nền mới */
-    body { font-family: 'Manrope', sans-serif; margin: 0; padding: 0; height: 100vh; overflow: hidden; background-color: var(--bg-login); box-sizing: border-box; }
+    body { font-family: 'Manrope', sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; background-color: var(--bg-login); box-sizing: border-box; }
     
-    /* FIX: Cấu trúc Login căn giữa hoàn hảo */
     .login-wrapper { width: 100%; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; position: absolute; top: 0; left: 0; z-index: 10; background: var(--bg-login); }
     .login-header { text-align: center; margin-bottom: 30px; }
     .login-header img { max-width: 90px; margin-bottom: 15px; }
@@ -30,7 +28,6 @@
     .btn-submit:hover { background-color: #081666; }
     .login-footer { font-size: 12px; color: #666; text-align: center; line-height: 1.6; font-weight: 500;}
 
-    /* FIX: Giới hạn chiều cao Card 95vh, cấu trúc Flex cột */
     .dashboard-container { display: none; background-color: #ffffff; width: 95%; max-width: 1600px; border-radius: 12px; padding: 30px 40px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08); height: 95vh; flex-direction: column; box-sizing: border-box; margin: 2.5vh auto; position: relative; z-index: 5; }
     
     .dash-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; flex-shrink: 0; }
@@ -50,7 +47,6 @@
 
     #exportBlock { display: none; background: #e8f4fc; padding: 15px; border-radius: 8px; margin-bottom: 20px; align-items: center; gap: 15px; flex-shrink: 0; }
 
-    /* FIX: Vùng thanh cuộn bên trong bảng + Tiêu đề cố định (Sticky Header) */
     .table-container { flex: 1; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; }
     table { width: 100%; border-collapse: collapse; margin-top: 0; }
     th { position: sticky; top: 0; z-index: 10; background: var(--input-bg); color: var(--text-dark); padding: 14px 10px; font-size: 13px; font-weight: 800; border: 1px solid var(--border-color); border-top: none; text-align: center; }
@@ -76,7 +72,8 @@
     .btn-close { position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; background: none; border: none; color: #888; }
     .modal-header { font-size: 22px; font-weight: 800; color: var(--primary-blue); text-align: center; margin-bottom: 20px; text-transform: uppercase;}
 
-    #pdfPrintArea { position: absolute; top: -99999px; left: 0; width: 1122px; background: #fff; font-family: 'Manrope', sans-serif !important; color:#333; display: none; }
+    /* FIX: Giữ ở tọa độ 0,0 để thư viện chụp được ảnh, nhưng đưa xuống lớp âm và làm tàng hình */
+    #pdfPrintArea { position: absolute; top: 0; left: 0; width: 1122px; background: #fff; font-family: 'Manrope', sans-serif !important; color:#333; z-index:-100; visibility:hidden; pointer-events: none; }
     #pdfPrintArea * { font-family: 'Manrope', sans-serif !important; }
 
     .loading-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; justify-content:center; align-items:center; font-weight:800; color:#fff; font-size: 18px; flex-direction: column; gap:15px;}
@@ -149,7 +146,6 @@
       <button class="btn-action btn-approve" style="padding: 12px 25px;" onclick="exportToTracking()">Đồng bộ Dữ liệu</button>
     </div>
 
-    <!-- KHU VỰC CHỨA BẢNG CÓ THANH CUỘN BÊN TRONG -->
     <div class="table-container">
       <table id="dataTable">
         <thead><tr id="tableHeader"></tr></thead>
@@ -177,13 +173,13 @@
     </div>
   </div>
 
+  <!-- BẢN VẼ TẠM ĐỂ XUẤT PDF -->
   <div id="pdfPrintArea"></div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwFgszaVmJmOhs_GOMlcomv-RTcFJ2SXU4nbrGDRRqS8mZcFOR59YnBEl5boKmTeBFa/exec";
     let loggedInUser = null; let currentViewRole = ''; let globalData = []; let bldItemsArray = [];
 
-    // KIỂM TRA LƯU SESSION F5 (LocalStorage)
     document.addEventListener("DOMContentLoaded", function() {
       const savedSession = localStorage.getItem("avh_admin_session");
       if (savedSession) {
@@ -220,7 +216,6 @@
         showLoading(false);
         if (result.success) {
           loggedInUser = result.user;
-          // Lưu Session
           localStorage.setItem("avh_admin_session", JSON.stringify(loggedInUser));
 
           document.getElementById('loginScreen').style.display = 'none'; 
@@ -417,6 +412,7 @@
       sendNext();
     }
 
+    // ĐÃ FIX: CHỤP ẢNH CHÍNH XÁC HTML TRONG TẦM MẮT RỒI LÀM TÀNG HÌNH NÓ
     function downloadPDFs() {
       const monthVal = document.getElementById('pdfMonth').value;
       if(!monthVal) { alert("Vui lòng chọn Tháng/Năm để tải!"); return; }
@@ -425,18 +421,19 @@
       if(filteredData.length === 0) { alert("Không có phiếu nào được duyệt trong tháng này!"); return; }
       
       showLoading(true, "Đang trích xuất File PDF, vui lòng chờ...");
-      let htmlContainerString = `<div style="font-family: 'Manrope', sans-serif !important; color: #222; background:#fff;">`;
+      let htmlPages = ``;
       
       filteredData.forEach(phieu => {
         let tongTien = 0; let rowsHtml = '';
         phieu.chiTiet.forEach((ct, index) => {
           tongTien += Number(ct.nganSachDuyet);
+          let mThang = monthVal.split('-')[1];
           rowsHtml += `<tr style="font-family: 'Manrope', sans-serif;">
             <td style="border:1px solid #000; padding:10px; text-align:center;">${index+1}</td>
-            <td style="border:1px solid #000; padding:10px; text-align:center; font-family: 'Manrope', sans-serif;"><b>${ct.tenDuAn}</b></td>
-            <td style="border:1px solid #000; padding:10px; text-align:center; color:#c00000; font-weight:bold; font-family: 'Manrope', sans-serif;">${formatNumber(ct.nganSachDuyet)}</td>
-            <td style="border:1px solid #000; padding:10px; text-align:center;">01/MM</td>
-            <td style="border:1px solid #000; padding:10px; text-align:center;">31/MM</td>
+            <td style="border:1px solid #000; padding:10px; text-align:center;"><b>${ct.tenDuAn}</b></td>
+            <td style="border:1px solid #000; padding:10px; text-align:center; color:#c00000; font-weight:bold;">${formatNumber(ct.nganSachDuyet)}</td>
+            <td style="border:1px solid #000; padding:10px; text-align:center;">01/${mThang}</td>
+            <td style="border:1px solid #000; padding:10px; text-align:center;">31/${mThang}</td>
             <td style="border:1px solid #000; padding:10px; text-align:center;">${ct.kpi || ''}</td>
             <td style="border:1px solid #000; padding:10px; text-align:center;">${ct.channel || ''}</td>
             <td style="border:1px solid #000; padding:10px; text-align:center;">${ct.phone || ''}</td>
@@ -445,27 +442,27 @@
           </tr>`;
         });
 
-        htmlContainerString += `
-          <div style="page-break-after: always; padding: 30px; box-sizing:border-box; font-family: 'Manrope', sans-serif;">
-            <h2 style="text-align:center; color:#0b1f8c; font-size:24px; font-weight:800; text-transform:uppercase; margin-bottom:5px; font-family: 'Manrope', sans-serif;">KẾT QUẢ BẢN DUYỆT ĐỀ XUẤT MARKETING</h2>
-            <p style="text-align:center; color:#555; margin-bottom:30px; font-family: 'Manrope', sans-serif;">Mã số phiếu: <b>${phieu.idPhieu}</b></p>
+        htmlPages += `
+          <div style="page-break-after: always; padding: 30px; box-sizing:border-box; font-family: 'Manrope', sans-serif; background:#fff; width: 1122px; min-height:790px;">
+            <h2 style="text-align:center; color:#0b1f8c; font-size:24px; font-weight:800; text-transform:uppercase; margin-bottom:5px;">KẾT QUẢ BẢN DUYỆT ĐỀ XUẤT MARKETING</h2>
+            <p style="text-align:center; color:#555; margin-bottom:30px;">Mã số phiếu: <b>${phieu.idPhieu}</b></p>
             
             <table style="width:100%; border:none; font-size:14px; margin-bottom:20px; line-height:1.6; font-family: 'Manrope', sans-serif;">
               <tr>
-                <td style="font-family: 'Manrope', sans-serif;"><b>Thành viên:</b><br>${phieu.thanhVien.replace(/,/g, '<br>')}</td>
-                <td style="text-align:right; vertical-align:top; font-family: 'Manrope', sans-serif;"><b>Tên nhóm:</b> ${phieu.tenNhom}<br><b>Phòng ban:</b> ${phieu.phongKD}</td>
+                <td><b>Thành viên:</b><br>${phieu.thanhVien.replace(/,/g, '<br>')}</td>
+                <td style="text-align:right; vertical-align:top;"><b>Tên nhóm:</b> ${phieu.tenNhom}<br><b>Phòng ban:</b> ${phieu.phongKD}</td>
               </tr>
             </table>
 
             <table style="width:100%; border-collapse:collapse; margin-bottom:30px; font-family: 'Manrope', sans-serif;">
               <thead>
-                <tr style="background-color:#0b1f8c; color:#fff; font-size:13px; font-family: 'Manrope', sans-serif;">
+                <tr style="background-color:#0b1f8c; color:#fff; font-size:13px;">
                   <th style="border:1px solid #000; padding:10px;">STT</th><th style="border:1px solid #000; padding:10px;">Dự án</th><th style="border:1px solid #000; padding:10px;">Ngân sách (Duyệt)</th><th style="border:1px solid #000; padding:10px;">Bắt đầu</th><th style="border:1px solid #000; padding:10px;">Kết thúc</th><th style="border:1px solid #000; padding:10px;">KPI</th><th style="border:1px solid #000; padding:10px;">Kênh chạy</th><th style="border:1px solid #000; padding:10px;">SĐT</th><th style="border:1px solid #000; padding:10px;">Tài khoản</th><th style="border:1px solid #000; padding:10px;">BLĐ Duyệt</th>
                 </tr>
               </thead>
               <tbody>${rowsHtml}</tbody>
               <tfoot>
-                <tr style="background:#f4f6f8; font-weight:bold; font-family: 'Manrope', sans-serif;">
+                <tr style="background:#f4f6f8; font-weight:bold;">
                   <td colspan="2" style="border:1px solid #000; padding:10px; text-align:right;">TỔNG CỘNG PHÊ DUYỆT</td>
                   <td style="border:1px solid #000; padding:10px; text-align:center; color:#fff; background:#0b1f8c; font-size:14px;">${formatNumber(tongTien)}</td>
                   <td colspan="7" style="border:1px solid #000;"></td>
@@ -475,32 +472,35 @@
 
             <table style="width:100%; text-align:center; font-size:12px; margin-top:50px; font-weight:bold; line-height:2; font-family: 'Manrope', sans-serif;">
               <tr>
-                <td>Ban Lãnh Đạo<br><span style="display:inline-block; border-radius:20px; padding:4px 15px; color:#fff; background:#0b1f8c; font-size:11px; margin-top:5px; font-family: 'Manrope', sans-serif;">Đã xác nhận</span></td>
-                <td>Phòng MKT<br><span style="display:inline-block; border-radius:20px; padding:4px 15px; color:#fff; background:#0b1f8c; font-size:11px; margin-top:5px; font-family: 'Manrope', sans-serif;">Đã xác nhận</span></td>
-                <td>Phó TGĐ/GĐCN<br><span style="display:inline-block; border-radius:20px; padding:4px 15px; color:#fff; background:#0b1f8c; font-size:11px; margin-top:5px; font-family: 'Manrope', sans-serif;">Đã xác nhận</span></td>
-                <td>Giám Đốc Khối<br><span style="display:inline-block; border-radius:20px; padding:4px 15px; color:#fff; background:#0b1f8c; font-size:11px; margin-top:5px; font-family: 'Manrope', sans-serif;">Đã xác nhận</span></td>
-                <td>TP Kinh Doanh<br><span style="display:inline-block; border-radius:20px; padding:4px 15px; color:#fff; background:#0b1f8c; font-size:11px; margin-top:5px; font-family: 'Manrope', sans-serif;">Đã xác nhận</span></td>
+                <td>Ban Lãnh Đạo<br><span style="display:inline-block; border-radius:20px; padding:4px 15px; color:#fff; background:#0b1f8c; font-size:11px; margin-top:5px;">Đã xác nhận</span></td>
+                <td>Phòng MKT<br><span style="display:inline-block; border-radius:20px; padding:4px 15px; color:#fff; background:#0b1f8c; font-size:11px; margin-top:5px;">Đã xác nhận</span></td>
+                <td>Phó TGĐ/GĐCN<br><span style="display:inline-block; border-radius:20px; padding:4px 15px; color:#fff; background:#0b1f8c; font-size:11px; margin-top:5px;">Đã xác nhận</span></td>
+                <td>Giám Đốc Khối<br><span style="display:inline-block; border-radius:20px; padding:4px 15px; color:#fff; background:#0b1f8c; font-size:11px; margin-top:5px;">Đã xác nhận</span></td>
+                <td>TP Kinh Doanh<br><span style="display:inline-block; border-radius:20px; padding:4px 15px; color:#fff; background:#0b1f8c; font-size:11px; margin-top:5px;">Đã xác nhận</span></td>
               </tr>
             </table>
           </div>`;
       });
-      htmlContainerString += `</div>`;
 
       const printArea = document.getElementById('pdfPrintArea');
-      printArea.innerHTML = htmlContainerString;
-      printArea.style.display = 'block'; 
+      printArea.innerHTML = htmlPages;
+      printArea.style.visibility = 'visible'; // Hiện ra để chụp ảnh
       
       var opt = { 
         margin: 10, 
         filename: 'Bao_Cao_MKT_' + monthVal + '.pdf', 
         image: { type: 'jpeg', quality: 0.98 }, 
-        html2canvas: { scale: 2, useCORS: true }, 
+        html2canvas: { scale: 2, useCORS: true, letterRendering: true }, 
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } 
       };
       
       html2pdf().set(opt).from(printArea).save().then(() => { 
-        printArea.style.display = 'none'; 
+        printArea.style.visibility = 'hidden'; // Ẩn đi sau khi chụp xong
         showLoading(false); 
+      }).catch(err => {
+        printArea.style.visibility = 'hidden'; 
+        showLoading(false);
+        alert("Lỗi tạo PDF!");
       });
     }
 
