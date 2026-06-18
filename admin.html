@@ -9,7 +9,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   
   <style>
-    :root { --bg-login: #dcf1fc; --primary-blue: #0b1f8c; --text-dark: #333333; --text-gray: #666666; --input-bg: #f4f6f8; --border-color: #e5e8ec; --success-green: #27ae60; --danger: #e74c3c; --warning: #f39c12; }
+    :root { --bg-login: #d4efff; --primary-blue: #0b1f8c; --text-dark: #333333; --text-gray: #666666; --input-bg: #f4f6f8; --border-color: #e5e8ec; --success-green: #27ae60; --danger: #e74c3c; --warning: #f39c12; }
     body { font-family: 'Manrope', sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box; background-color: var(--bg-login); }
     
     .login-wrapper { width: 100%; display: flex; flex-direction: column; align-items: center; padding: 20px; box-sizing: border-box; }
@@ -27,7 +27,7 @@
     .btn-submit:hover { background-color: #081666; }
     .login-footer { font-size: 12px; color: #666; text-align: center; line-height: 1.6; font-weight: 500;}
 
-    .dashboard-container { display: none; background-color: #ffffff; width: 95%; max-width: 1600px; border-radius: 12px; padding: 30px 40px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08); max-height: 95vh; overflow-y: auto; }
+    .dashboard-container { display: none; background-color: #d4efff; width: 95%; max-width: 1600px; border-radius: 12px; padding: 30px 40px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08); max-height: 95vh; overflow-y: auto; }
     .dash-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; }
     .dash-title { color: var(--primary-blue); margin: 0; font-weight: 800; font-size: 22px; text-transform: uppercase; }
     .user-badge { font-weight: 700; background: var(--input-bg); padding: 10px 20px; border-radius: 30px; }
@@ -58,7 +58,6 @@
     .btn-draft { background: var(--warning); }
     .subtotal-row { background: #fffaf0; }
 
-    /* LAYOUT ĐỘNG THEO YÊU CẦU: Mờ hàng đã duyệt, Đỏ hàng từ chối */
     .row-dimmed { opacity: 0.4; background: #fafafa; }
     .row-dimmed:hover { opacity: 0.9; transition: 0.2s; }
     .row-rejected { background: #ffebee !important; border-left: 5px solid var(--danger); }
@@ -67,6 +66,10 @@
     .modal-card { background: #fff; width: 1000px; max-width: 95%; max-height: 90vh; overflow-y: auto; border-radius: 12px; padding: 30px; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
     .btn-close { position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; background: none; border: none; color: #888; }
     .modal-header { font-size: 22px; font-weight: 800; color: var(--primary-blue); text-align: center; margin-bottom: 20px; text-transform: uppercase;}
+
+    /* CHUẨN HÓA VÙNG IN PDF - ÉP SỬ DỤNG FONT MANROPE MỌI LỚP */
+    #pdfPrintArea { position: absolute; top: 0; left: 0; width: 1122px; background: #fff; padding: 40px; font-family: 'Manrope', sans-serif !important; color:#333; z-index:-10; visibility:hidden; }
+    #pdfPrintArea * { font-family: 'Manrope', sans-serif !important; }
 
     .loading-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; justify-content:center; align-items:center; font-weight:800; color:#fff; font-size: 18px; }
   </style>
@@ -130,7 +133,7 @@
     </div>
 
     <div id="exportBlock" style="display: none; background: #e8f4fc; padding: 15px; border-radius: 8px; margin-bottom: 20px; align-items: center; gap: 15px;">
-      <b>Link Google Sheet Theo Dõi (Tab tự lập theo từng tháng):</b>
+      <b>Link Google Sheet Theo Dõi (Sẽ lưu vào Tab Tháng Hiện Tại):</b>
       <input type="text" id="trackingUrl" class="form-control" style="flex:1; margin:0;" placeholder="Dán đường link Google Sheet vào đây...">
       <button class="btn-action btn-approve" style="padding: 12px 25px;" onclick="exportToTracking()">Đồng bộ Dữ liệu</button>
     </div>
@@ -161,6 +164,8 @@
       </table>
     </div>
   </div>
+
+  <div id="pdfPrintArea"></div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwFgszaVmJmOhs_GOMlcomv-RTcFJ2SXU4nbrGDRRqS8mZcFOR59YnBEl5boKmTeBFa/exec";
@@ -255,18 +260,24 @@
       tbAction.innerHTML = ''; tbHistory.innerHTML = ''; tbRejected.innerHTML = '';
       if (role === 'MKT' || role === 'TPMKT') { mktBlock.style.display = 'flex'; } else { mktBlock.style.display = 'none'; }
 
+      // THÊM: Mở quyền xuất Sheet cho MKT, TPMKT, BLD, SUPER_ADMIN
+      if (role === 'MKT' || role === 'TPMKT' || role === 'BLD' || role === 'SUPER_ADMIN') {
+        expBlock.style.display = 'flex';
+      }
+
+      // Xây dựng mảng tổng hợp Data cho Sync Google Sheet dùng chung
+      bldItemsArray = [];
+      globalData.forEach(phieu => {
+        let tk = phieu.phongKD.split('-'); let phong = tk[0] ? tk[0].trim() : ''; let khoi = tk[1] ? tk[1].trim() : '';
+        let tv = phieu.thanhVien.split(',').join('<br>');
+        phieu.chiTiet.forEach(ct => { bldItemsArray.push({ idPhieu: phieu.idPhieu, phong: phong, khoi: khoi, thanhVien: tv, tenDuAn: ct.tenDuAn, nsDeXuat: Number(ct.nganSachDeXuat), nsDuyet: Number(ct.nganSachDuyet), ghiChu: ct.ghiChuBLD, idDong: ct.idDong, trangThai: phieu.trangThai }); });
+      });
+      bldItemsArray.sort((a,b) => { if(a.tenDuAn !== b.tenDuAn) return a.tenDuAn.localeCompare(b.tenDuAn); if(a.khoi !== b.khoi) return a.khoi.localeCompare(b.khoi); return a.phong.localeCompare(b.phong); });
+
       if (role === 'BLD' || role === 'SUPER_ADMIN') {
         thead.innerHTML = `<th width="4%"></th><th>Mã Phiếu</th><th>Dự Án</th><th>Khối</th><th>Phòng</th><th>Thành Viên</th><th>Ngân Sách Đề Xuất</th><th>BLĐ Duyệt Thực Tế</th><th>Ghi Chú Điều Chỉnh</th>`;
-        bldActions.style.display = 'flex'; sumBlock.style.display = 'block'; expBlock.style.display = 'flex';
+        bldActions.style.display = 'flex'; sumBlock.style.display = 'block'; 
         
-        bldItemsArray = [];
-        globalData.forEach(phieu => {
-          let tk = phieu.phongKD.split('-'); let phong = tk[0] ? tk[0].trim() : ''; let khoi = tk[1] ? tk[1].trim() : '';
-          let tv = phieu.thanhVien.split(',').join('<br>');
-          phieu.chiTiet.forEach(ct => { bldItemsArray.push({ idPhieu: phieu.idPhieu, phong: phong, khoi: khoi, thanhVien: tv, tenDuAn: ct.tenDuAn, nsDeXuat: Number(ct.nganSachDeXuat), nsDuyet: Number(ct.nganSachDuyet), ghiChu: ct.ghiChuBLD, idDong: ct.idDong, trangThai: phieu.trangThai }); });
-        });
-        bldItemsArray.sort((a,b) => { if(a.tenDuAn !== b.tenDuAn) return a.tenDuAn.localeCompare(b.tenDuAn); if(a.khoi !== b.khoi) return a.khoi.localeCompare(b.khoi); return a.phong.localeCompare(b.phong); });
-
         let currentProject = ''; let projectSubDeXuat = 0; let html = '';
         bldItemsArray.forEach((item, index) => {
           if(item.tenDuAn !== currentProject) {
@@ -277,7 +288,7 @@
           let rowClass = item.trangThai === 'APPROVED_BY_BLD' ? 'row-dimmed' : (item.trangThai === 'REJECTED' ? 'row-rejected' : '');
           html += `<tr data-id-dong="${item.idDong}" class="${rowClass}">
             <td><button class="btn-view" onclick="viewDetail('${item.idPhieu}')">👁️</button></td>
-            <td><b>${item.idPhieu}</b></td><td style="#0b1f8c; font-weight:800;">${item.tenDuAn}</td><td>${item.khoi}</td><td>${item.phong}</td><td style="text-align:left; font-size:12px; line-height:1.5;">${item.thanhVien}</td>
+            <td><b>${item.idPhieu}</b></td><td style="color:#0b1f8c; font-weight:800;">${item.tenDuAn}</td><td>${item.khoi}</td><td>${item.phong}</td><td style="text-align:left; font-size:12px; line-height:1.5;">${item.thanhVien}</td>
             <td>${formatNumber(item.nsDeXuat)}</td>
             <td><input type="text" class="input-budget bld-budget" data-project="${item.tenDuAn}" value="${formatNumber(item.nsDuyet)}" oninput="formatCurrencyAdmin(this)"></td>
             <td><input type="text" class="input-note bld-note" value="${item.ghiChu}"></td>
@@ -285,10 +296,11 @@
         });
         if(currentProject !== '') html += `<tr class="subtotal-row"><td colspan="6" style="text-align:right;"><b>Tổng cộng ${currentProject}</b></td><td style="color:#0b1f8c;"><b>${formatNumber(projectSubDeXuat)}</b></td><td><input type="text" readonly class="input-budget" id="subtotal_${currentProject}" style="border:none; background:transparent;"></td><td></td></tr>`;
         tbAction.innerHTML = html;
-        
+        recalcBLDSummary();
+
       } else {
-        thead.innerHTML = `<th width="5%"></th><th>Mã Phiếu</th><th>Phòng Ban</th><th>Thành Viên</th><th>Dự Án</th><th>Ngân Sách Đề Xuất</th><th>Trạng Thức</th><th>Hành Động</th>`;
-        bldActions.style.display = 'none'; sumBlock.style.display = 'none'; expBlock.style.display = 'none';
+        thead.innerHTML = `<th width="5%"></th><th>Mã Phiếu</th><th>Phòng Ban</th><th>Thành Viên</th><th>Dự Án</th><th>Ngân Sách Đề Xuất</th><th>Trạng Thái</th><th>Hành Động</th>`;
+        bldActions.style.display = 'none'; sumBlock.style.display = 'none';
         
         let htmlAction = ''; let htmlHistory = ''; let htmlRejected = '';
         globalData.forEach(phieu => {
@@ -369,16 +381,15 @@
       sendNext();
     }
 
-    // NÂNG CẤP XUẤT FILE PDF TUYỆT ĐỐI BẰNG CHUỖI KHÔNG LO LỖI TRẮNG FILE
     function downloadPDFs() {
       const monthVal = document.getElementById('pdfMonth').value;
-      if(!monthVal) { alert("Vui lòng chọn Tháng/Năm!"); return; }
+      if(!monthVal) { alert("Vui lòng chọn Tháng/Năm để tải!"); return; }
       
       const filteredData = globalData.filter(p => p.trangThai === 'APPROVED_BY_BLD' && p.ngayTao && p.ngayTao.includes(monthVal));
       if(filteredData.length === 0) { alert("Không có phiếu nào được duyệt trong tháng này!"); return; }
       
       showLoading(true);
-      let htmlContainerString = `<div style="font-family: 'Arial', sans-serif; color: #222; background:#fff;">`;
+      let htmlContainerString = `<div style="font-family: 'Manrope', sans-serif !important; color: #222; background:#fff;">`;
       
       filteredData.forEach(phieu => {
         let tongTien = 0; let rowsHtml = '';
@@ -388,8 +399,8 @@
             <td style="border:1px solid #000; padding:10px; text-align:center;">${index+1}</td>
             <td style="border:1px solid #000; padding:10px; text-align:center;"><b>${ct.tenDuAn}</b></td>
             <td style="border:1px solid #000; padding:10px; text-align:center; color:#c00000; font-weight:bold;">${formatNumber(ct.nganSachDuyet)}</td>
-            <td style="border:1px solid #000; padding:10px; text-align:center;">01/07</td>
-            <td style="border:1px solid #000; padding:10px; text-align:center;">31/07</td>
+            <td style="border:1px solid #000; padding:10px; text-align:center;">01/MM</td>
+            <td style="border:1px solid #000; padding:10px; text-align:center;">31/MM</td>
             <td style="border:1px solid #000; padding:10px; text-align:center;">${ct.kpi || ''}</td>
             <td style="border:1px solid #000; padding:10px; text-align:center;">${ct.channel || ''}</td>
             <td style="border:1px solid #000; padding:10px; text-align:center;">${ct.phone || ''}</td>
@@ -439,9 +450,16 @@
       });
       htmlContainerString += `</div>`;
 
+      const printArea = document.getElementById('pdfPrintArea');
+      printArea.innerHTML = htmlContainerString;
+      printArea.style.visibility = 'visible';
+      
       var opt = { margin: 10, filename: 'Bao_Cao_MKT_' + monthVal + '.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } };
-      // Đổ thẳng chuỗi HTML vào Sandbox xử lý của thư viện -> Đảm bảo hiển thị hoàn hảo dữ liệu
-      html2pdf().set(opt).from(htmlContainerString).save().then(() => { showLoading(false); });
+      
+      html2pdf().set(opt).from(printArea).save().then(() => { 
+        printArea.style.visibility = 'hidden'; 
+        showLoading(false); 
+      });
     }
 
     function submitBldApproval(isFinal) {
@@ -458,7 +476,7 @@
       const url = document.getElementById('trackingUrl').value.trim();
       if(!url) { alert("Vui lòng dán link Google Sheet!"); return; }
       showLoading(true);
-      callAPI("exportTracking", { url: url, items: JSON.stringify(bldItemsArray) }, function(res) { showLoading(false); alert(res.message); });
+      callAPI("exportTracking", { data: JSON.stringify({ url: url, items: bldItemsArray }) }, function(res) { showLoading(false); alert(res.message); });
     }
   </script>
 </body>
