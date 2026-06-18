@@ -435,8 +435,10 @@ async function loadDepartments() {
       deptSelect.innerHTML = '<option value="" disabled selected>Lỗi: Chưa tải được</option>';
       alert("Lỗi tải danh sách: " + result.message + "\n👉 Vui lòng vào Apps Script Deploy Phiên bản mới!");
     }
-  } catch (err) {
+ } catch (err) {
     console.error(err);
+    alert("Chi tiết lỗi: " + err.message); // Thêm dòng này để bắt bệnh
+    const deptSelect = document.getElementById('department');
     deptSelect.innerHTML = '<option value="" disabled selected>Lỗi mạng / Không kết nối được API</option>';
   } finally {
     document.getElementById('loadingDepts').style.display = 'none';
