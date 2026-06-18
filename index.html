@@ -20,9 +20,12 @@
       --table-border: #222222; 
     }
     body { font-family: 'Manrope', sans-serif; margin: 0; padding: 0; background-color: var(--bg-light-blue); color: var(--text-dark); min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
-    .top-header { width: 95%; max-width: 1450px; display: flex; justify-content: space-between; align-items: center; padding: 20px 0; margin-top: 10px; }
+    
+    /* ĐÃ SỬA HEADER: Rộng ra 2 bên, Padding to hơn */
+    .top-header { width: 100%; max-width: 1600px; display: flex; justify-content: space-between; align-items: center; padding: 20px 50px; margin-top: 10px; box-sizing: border-box; }
     .header-left { display: flex; align-items: center; gap: 20px; }
-    .brand-logo { max-width: 120px; height: auto; }
+    /* ĐÃ SỬA LOGO: Nhỏ lại */
+    .brand-logo { max-width: 85px; height: auto; }
     .company-name { font-size: 15px; font-weight: 700; color: var(--text-gray); line-height: 1.4; text-transform: uppercase; white-space: nowrap; }
     .btn-check-status { background-color: var(--primary-blue); color: #fff; border: none; border-radius: 30px; padding: 14px 35px; font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(11, 31, 140, 0.2); transition: 0.2s; }
     .btn-check-status:hover { background-color: #081666; }
@@ -36,15 +39,21 @@
     .btn-back:hover { color: var(--primary-blue); }
 
     .info-section { margin-bottom: 30px; font-size: 15px; }
-    .info-row { display: flex; justify-content: space-between; margin-bottom: 20px; align-items: center; gap: 30px; }
+    .info-row { display: flex; justify-content: space-between; margin-bottom: 25px; align-items: center; gap: 40px; }
     .info-group { display: flex; align-items: center; gap: 10px; flex: 1; }
     .info-label { font-weight: 600; color: #333; white-space: nowrap; }
+    
     .pill-input { border: 1px solid #999; border-radius: 20px; padding: 8px 15px; font-family: 'Manrope', sans-serif; font-size: 14px; outline: none; text-align: center; color: #333; width: 140px; }
     .pill-input:focus { border-color: var(--primary-blue); box-shadow: 0 0 0 2px rgba(11,31,140,0.1); }
     .pill-input.small { width: 85px; padding: 8px 10px;}
-    .inline-input { border: none; font-family: 'Manrope', sans-serif; font-size: 15px; color: #000; outline: none; width: 100%; border-bottom: 1px dashed #ccc; padding-bottom: 2px;}
-    .inline-input:focus { border-bottom-color: var(--primary-blue); }
-    .inline-input[readonly] { background-color: transparent; color: var(--primary-blue); font-weight: 700; cursor: not-allowed; border-bottom: 1px dotted #ccc; }
+    
+    /* ĐÃ SỬA LỖI ĐÈ CHỮ: Cấu trúc inline-group mới đảm bảo không bao giờ đè chữ */
+    .inline-group { display: flex; align-items: flex-end; gap: 15px; flex: 1; width: 100%; }
+    .inline-group .info-label { white-space: nowrap; margin: 0; line-height: 1; }
+    .inline-group .inline-input { flex: 1; min-width: 0; width: 100%; border: none; border-bottom: 1px dashed #ccc; font-family: 'Manrope', sans-serif; font-size: 15px; color: #000; outline: none; padding-bottom: 2px; }
+    .inline-group .inline-input:focus { border-bottom-color: var(--primary-blue); }
+    .inline-group .inline-input[readonly] { background-color: transparent; color: var(--primary-blue); font-weight: 700; cursor: not-allowed; border-bottom: 1px dotted #ccc; }
+
     select.pill-input { cursor: pointer; appearance: none; text-align: left; background: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") no-repeat right 15px center; background-size: 12px; padding-right: 30px; }
 
     .table-title { font-size: 15px; font-weight: 700; color: #000; margin-bottom: 15px; }
@@ -57,7 +66,9 @@
     .total-bg-blue { background-color: var(--primary-blue); color: #fff; }
 
     .btn-submit-container { text-align: center; margin-top: 50px; }
-    .btn-submit { background-color: var(--primary-blue); color: #fff; border: none; border-radius: 30px; padding: 14px 50px; font-family: 'Manrope', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(11,31,140,0.2); }
+    .btn-submit { background-color: var(--primary-blue); color: #fff; border: none; border-radius: 30px; padding: 14px 50px; font-family: 'Manrope', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(11,31,140,0.2); transition: 0.2s; }
+    .btn-submit:hover { background-color: #081666; }
+    .btn-submit:disabled { background-color: #999; cursor: not-allowed; }
 
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(232, 244, 252, 0.85); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1000; }
     .modal-card { background: #fff; width: 450px; border-radius: 12px; padding: 40px; box-shadow: 0 15px 40px rgba(0,0,0,0.1); position: relative; }
@@ -67,7 +78,8 @@
     .modal-input-wrap { border: 1px solid var(--primary-blue); border-radius: 8px; display: flex; overflow: hidden; }
     .modal-input { border: none; padding: 12px 15px; width: 100%; font-family: 'Manrope'; font-size: 14px; outline: none; }
     .modal-prefix { background: var(--primary-blue); color: white; padding: 12px 20px; font-weight: 700; font-size: 14px; }
-    .btn-modal-submit { background: var(--primary-blue); color: white; border: none; border-radius: 30px; padding: 14px; width: 100%; font-weight: 700; font-size: 15px; cursor: pointer; margin-top: 10px; }
+    .btn-modal-submit { background: var(--primary-blue); color: white; border: none; border-radius: 30px; padding: 14px; width: 100%; font-weight: 700; font-size: 15px; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+    .btn-modal-submit:hover { background-color: #081666; }
     .btn-close-modal { position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 24px; color: #999; cursor: pointer; }
 
     #resultView { display: none; }
@@ -87,7 +99,7 @@
 
   <header class="top-header">
     <div class="header-left">
-      <img src="logo.svg" alt="An Việt Homes" class="brand-logo">
+      <img src="logo.svg" alt="An Việt Homes" class="brand-logo" onerror="this.src='https://placehold.co/120x60/e8f4fc/0b1f8c?text=LOGO'">
       <div class="company-name">CÔNG TY CỔ PHẦN PHÁT TRIỂN DỊCH VỤ<br>VÀ ĐỊA ỐC AN VIỆT HOMES</div>
     </div>
     <button class="btn-check-status" onclick="openModal()">Kiểm tra trạng thái duyệt</button>
@@ -101,8 +113,10 @@
       <hr>
     </div>
 
+    <!-- VIEW FORM ĐĂNG KÝ -->
     <form id="marketingForm">
       <div class="info-section">
+        
         <div class="info-row">
           <div class="info-group">
             <span class="info-label" style="min-width: 100px;">Thành viên:</span>
@@ -117,29 +131,35 @@
             <input type="text" class="pill-input small" id="mnv3" placeholder="...">
           </div>
         </div>
+
         <div class="info-row">
-          <div class="info-group">
-            <span class="info-label" style="min-width: 100px;">Tên nhóm:</span>
+          <!-- Áp dụng cấu trúc inline-group mới cho Tên Nhóm -->
+          <div class="inline-group">
+            <span class="info-label">Tên nhóm:</span>
             <input type="text" class="inline-input" id="teamName" placeholder="VD: ABC" required>
           </div>
-          <div class="info-group" style="flex: 0 0 450px;">
-            <span class="info-label" style="min-width: 100px;">Email liên hệ:</span>
+          <!-- Áp dụng cấu trúc inline-group mới cho Email -->
+          <div class="inline-group">
+            <span class="info-label">Email liên hệ:</span>
             <input type="email" class="inline-input" id="emailContact" placeholder="VD: nguyenvana@gmail.com" required>
           </div>
         </div>
+
         <div class="info-row">
-          <div class="info-group" style="position: relative;">
-            <span class="info-label" style="min-width: 100px;">Phòng kinh doanh:</span>
-            <select class="pill-input small" id="department" required>
+          <div class="info-group" style="position: relative; flex: 1;">
+            <span class="info-label" style="min-width: 130px;">Phòng kinh doanh:</span>
+            <select class="pill-input small" id="department" required style="width: auto; min-width: 120px;">
               <option value="" disabled selected>Đang tải...</option>
             </select>
             <span id="loadingDepts">⏳</span>
           </div>
-          <div class="info-group" style="flex: 0 0 450px;">
-            <span class="info-label" style="min-width: 100px;">Khối kinh doanh:</span>
+          <!-- Áp dụng cấu trúc inline-group mới cho Khối kinh doanh -->
+          <div class="inline-group">
+            <span class="info-label">Khối kinh doanh:</span>
             <input type="text" class="inline-input" id="division" placeholder="Tự động nhảy theo phòng..." readonly required>
           </div>
         </div>
+
       </div>
 
       <div class="table-title">Nội dung đề xuất chiến dịch Marketing</div>
@@ -207,31 +227,87 @@
       <div class="btn-submit-container"><button type="submit" id="btnSubmit" class="btn-submit">Xác nhận gửi</button></div>
     </form>
 
+    <!-- VIEW KẾT QUẢ TRA CỨU -->
     <div id="resultView">
-      <div class="info-section" id="staticInfoTarget"></div>
+      <div class="info-section">
+        <div class="info-row">
+          <div class="info-group">
+            <span class="info-label" style="min-width: 100px;">Thành viên:</span>
+            <span class="pill-text">Nguyễn Văn A</span>
+            <span class="pill-text">Nguyễn Văn B</span>
+            <span class="pill-text">Nguyễn Văn C</span>
+          </div>
+          <div class="info-group" style="flex: 0 0 auto;">
+            <span class="info-label" style="min-width: 100px;">Mã nhân viên:</span>
+            <span class="pill-text small">AVH001</span>
+            <span class="pill-text small">AVH002</span>
+            <span class="pill-text small">AVH003</span>
+          </div>
+        </div>
+
+        <div class="info-row">
+          <div class="inline-group">
+            <span class="info-label">Tên nhóm:</span>
+            <div class="inline-input">ABC</div>
+          </div>
+          <div class="inline-group">
+            <span class="info-label">Email liên hệ:</span>
+            <div class="inline-input">nguyenvana@gmail.com</div>
+          </div>
+        </div>
+
+        <div class="info-row">
+          <div class="info-group" style="flex: 1;">
+            <span class="info-label" style="min-width: 130px;">Phòng kinh doanh:</span>
+            <span class="pill-text small" style="width: auto; min-width: 90px;">AV1</span>
+          </div>
+          <div class="inline-group">
+            <span class="info-label">Khối kinh doanh:</span>
+            <div class="inline-input">A1</div>
+          </div>
+        </div>
+      </div>
+
       <div class="table-title">Nội dung đề xuất chiến dịch Marketing</div>
       <table class="data-table">
         <thead>
           <tr>
-            <th rowspan="2" width="4%">STT</th><th rowspan="2" width="16%">Dự án</th><th colspan="4">Thông tin chiến dịch Marketing đăng ký</th><th rowspan="2" width="10%">Kênh chạy</th><th rowspan="2" width="12%">Số điện thoại</th><th rowspan="2" width="14%">Tài khoản</th><th rowspan="2" width="12%">BLĐ duyệt</th>
+            <th rowspan="2" width="4%">STT</th>
+            <th rowspan="2" width="16%">Dự án</th>
+            <th colspan="4">Thông tin chiến dịch Marketing đăng ký</th>
+            <th rowspan="2" width="10%">Kênh chạy</th>
+            <th rowspan="2" width="12%">Số điện thoại<br>đăng ký trên quảng cáo</th>
+            <th rowspan="2" width="14%">Tài khoản đăng ký<br>chạy quảng cáo</th>
+            <th rowspan="2" width="12%">Ban lãnh đạo<br>phê duyệt</th>
           </tr>
           <tr>
             <th width="15%">Ngân sách</th><th width="7%">Bắt đầu</th><th width="7%">Kết thúc</th><th width="7%">KPI</th>
           </tr>
         </thead>
-        <tbody id="staticTableTarget"></tbody>
+        <tbody>
+          <tr>
+            <td>1</td><td class="table-text">Prima Bay</td><td class="table-text">30.000.000</td><td class="table-text">01/07</td><td class="table-text">31/07</td><td class="table-text"></td><td class="table-text">Facebook</td><td class="table-text">096xxxxxxx</td><td class="table-text"></td><td style="background-color: #f9f9f9;"></td>
+          </tr>
+          <tr>
+            <td>2</td><td class="table-text">Radisson</td><td class="table-text">30.000.000</td><td class="table-text">01/07</td><td class="table-text">31/07</td><td class="table-text"></td><td class="table-text">Facebook<br>Google</td><td class="table-text"></td><td class="table-text"></td><td style="background-color: #f9f9f9;"></td>
+          </tr>
+          <tr>
+            <td>3</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td style="background-color: #f9f9f9;"></td>
+          </tr>
+        </tbody>
         <tfoot>
           <tr class="total-row">
-            <td colspan="2" style="text-align: right; padding-right: 20px;">Tổng cộng</td><td class="total-bg-blue" id="staticTotalBudget">0</td><td colspan="7" style="border-bottom: transparent; border-right: transparent;"></td>
+            <td colspan="2" style="text-align: right; padding-right: 20px;">Tổng cộng</td><td class="total-bg-blue">60.000.000</td><td colspan="7" style="border-bottom: transparent; border-right: transparent;"></td>
           </tr>
         </tfoot>
       </table>
+
       <div class="status-area">
-        <div class="status-col"><div class="status-label">Ban Lãnh Đạo</div><div class="status-badge badge-red" id="badge_BLD">Chưa xác nhận</div></div>
-        <div class="status-col"><div class="status-label">Xác nhận P. MKT</div><div class="status-badge badge-red" id="badge_MKT">Chưa xác nhận</div></div>
-        <div class="status-col"><div class="status-label">Xác nhận P. TGĐ</div><div class="status-badge badge-red" id="badge_PTGD">Chưa xác nhận</div></div>
-        <div class="status-col"><div class="status-label">Xác nhận GĐK</div><div class="status-badge badge-blue" id="badge_GDKD">Đã xác nhận</div></div>
-        <div class="status-col"><div class="status-label">Xác nhận TPKD</div><div class="status-badge badge-blue" id="badge_TPKD">Đã xác nhận</div></div>
+        <div class="status-col"><div class="status-label">Ban Lãnh Đạo</div><div class="status-badge badge-red">Chưa xác nhận</div></div>
+        <div class="status-col"><div class="status-label">Xác nhận P. MKT</div><div class="status-badge badge-red">Chưa xác nhận</div></div>
+        <div class="status-col"><div class="status-label">Xác nhận P. TGĐ/ GĐCN</div><div class="status-badge badge-red">Chưa xác nhận</div></div>
+        <div class="status-col"><div class="status-label">Xác nhận GĐK</div><div class="status-badge badge-blue">Đã xác nhận</div></div>
+        <div class="status-col"><div class="status-label">Xác nhận TPKD</div><div class="status-badge badge-blue">Đã xác nhận</div></div>
       </div>
     </div>
   </main>
@@ -240,18 +316,22 @@
     <div class="modal-card">
       <button class="btn-close-modal" onclick="closeModal()">×</button>
       <h2 class="modal-title">TRA CỨU LỊCH SỬ/ TRẠNG THÁI</h2>
-      <div class="modal-form-group"><label class="modal-label">Tên thành viên/ tên nhóm</label><div class="modal-input-wrap"><input type="text" class="modal-input" id="searchName" placeholder="Nhập tên nhân viên..."></div></div>
-      <div class="modal-form-group"><label class="modal-label">Mã nhân viên</label><div class="modal-input-wrap"><span class="modal-prefix">AVH</span><input type="text" class="modal-input" id="searchId" placeholder="Nhập phần số"></div></div>
+      <div class="modal-form-group"><label class="modal-label">Tên thành viên/ tên nhóm</label><div class="modal-input-wrap"><input type="text" class="modal-input" placeholder="Nhập tên nhân viên..."></div></div>
+      <div class="modal-form-group"><label class="modal-label">Mã nhân viên</label><div class="modal-input-wrap"><span class="modal-prefix">AVH</span><input type="text" class="modal-input" placeholder="Nhập mã nhân viên (Chỉ nhập phần số)"></div></div>
       <button class="btn-modal-submit" onclick="executeSearch()">KIỂM TRA</button>
     </div>
   </div>
 
   <script>
-    // LINK WEB APP CHÍNH THỨC CỦA BẠN
+    // Ràng buộc động Tên -> Mã NV
+    document.getElementById('tv2').addEventListener('input', function() { document.getElementById('mnv2').required = this.value.trim() !== ''; });
+    document.getElementById('tv3').addEventListener('input', function() { document.getElementById('mnv3').required = this.value.trim() !== ''; });
+
+    // API URL CHÍNH THỨC
     const API_URL = "https://script.google.com/macros/s/AKfycbwFgszaVmJmOhs_GOMlcomv-RTcFJ2SXU4nbrGDRRqS8mZcFOR59YnBEl5boKmTeBFa/exec";
     let departmentsData = [];
 
-    // HÀM HELPER GỌI JSONP CHỐNG LỖI MẠNG / CORS TUYỆT ĐỐI
+    // HÀM CALL API JSONP CHUẨN XÁC BẢO MẬT
     function callAPI(action, params, successCallback) {
       const callbackName = "cb_" + action + "_" + new Date().getTime();
       window[callbackName] = function(response) {
@@ -267,9 +347,6 @@
       script.src = API_URL + queryString;
       document.body.appendChild(script);
     }
-
-    document.getElementById('tv2').addEventListener('input', function() { document.getElementById('mnv2').required = this.value.trim() !== ''; });
-    document.getElementById('tv3').addEventListener('input', function() { document.getElementById('mnv3').required = this.value.trim() !== ''; });
 
     document.addEventListener("DOMContentLoaded", function() {
       const today = new Date();
