@@ -15,13 +15,15 @@
       --primary-blue: #0056b3;
       --text-main: #333;
       --border-color: #ddd;
+      --success: #27ae60;
+      --warning: #f39c12;
+      --danger: #e74c3c;
     }
     
     body { font-family: 'Manrope', sans-serif; margin: 0; padding: 0; background-color: #f8f9fa; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
     
-    /* Màn Hình Login Split Layout */
+    /* Login Split Layout */
     .split-layout { display: flex; width: 100%; height: 100%; }
-    
     .left-panel { background-color: var(--primary-dark); width: 45%; padding: 50px; display: flex; flex-direction: column; justify-content: space-between; position: relative; color: white; }
     .brand-logo { max-width: 150px; }
     .left-content { z-index: 2; margin-top: -100px; }
@@ -30,40 +32,36 @@
     .illustration-box { width: 100%; height: 350px; background: url('https://placehold.co/600x400/0a1f35/4da6ff?text=Illustration+Image') no-repeat center bottom; background-size: contain; opacity: 0.8; }
 
     .right-panel { width: 55%; background-color: #fff; display: flex; align-items: center; justify-content: center; }
-    
     .login-box { width: 100%; max-width: 420px; padding: 40px; }
-    .login-box h2 { font-size: 28px; font-weight: 800; color: var(--primary-dark); margin: 0 0 5px 0; text-transform: uppercase; }
-    .login-box p { color: #777; margin-bottom: 30px; font-size: 15px; }
-    
+    .login-box h2 { font-size: 28px; font-weight: 800; color: var(--primary-dark); margin: 0 0 5px 0; }
     .form-group { margin-bottom: 20px; position: relative; }
     .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #444; }
-    .form-control { width: 100%; padding: 14px 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: 'Manrope'; font-size: 15px; transition: 0.3s; background: #fafafa; }
+    .form-control { width: 100%; padding: 14px 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: 'Manrope'; font-size: 15px; background: #fafafa; }
     .form-control:focus { border-color: var(--primary-blue); outline: none; background: #fff; }
-    
     .password-toggle { position: absolute; right: 15px; top: 40px; cursor: pointer; color: #999; font-size: 12px; font-weight: 600; }
-    
-    .login-options { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; font-size: 14px; }
-    .remember-me { display: flex; align-items: center; gap: 8px; cursor: pointer; color: #555; font-weight: 500; }
-    .forgot-password { color: var(--primary-blue); text-decoration: none; font-weight: 600; }
-    .forgot-password:hover { text-decoration: underline; }
-
-    .btn-primary { background-color: var(--primary-blue); color: white; width: 100%; padding: 16px; border: none; border-radius: 6px; font-size: 16px; font-weight: 700; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+    .btn-primary { background-color: var(--primary-blue); color: white; width: 100%; padding: 16px; border: none; border-radius: 6px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; }
     .btn-primary:hover { background-color: #004494; }
 
-    /* Màn Hình Dashboard (Ẩn mặc định) */
+    /* Dashboard Layout */
     .dashboard-container { display: none; width: 100%; height: 100%; overflow-y: auto; padding: 30px; box-sizing: border-box; background: #f4f7f6; }
-    .dash-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ddd; padding-bottom: 15px; margin-bottom: 25px; }
+    .dash-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ddd; padding-bottom: 15px; margin-bottom: 20px; }
     .dash-logo { max-width: 120px; }
-    .dash-title { color: var(--primary-blue); font-weight: 800; margin: 0; }
     
-    /* Responsive */
-    @media (max-width: 992px) {
-      .split-layout { flex-direction: column; height: auto; overflow: visible; }
-      .left-panel, .right-panel { width: 100%; }
-      .left-panel { padding: 40px 20px; text-align: center; }
-      .illustration-box { display: none; }
-      .login-box { padding: 40px 20px; }
-    }
+    /* Super Admin Toolbar */
+    .super-admin-toolbar { display: none; background: #0a1f35; color: white; padding: 15px 20px; border-radius: 8px; margin-bottom: 25px; align-items: center; justify-content: space-between; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .super-admin-toolbar select { padding: 8px 15px; border-radius: 4px; font-family: 'Manrope'; font-weight: 600; border: none; outline: none; cursor: pointer; }
+    
+    /* Table & Actions */
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    th { background: var(--primary-blue); color: white; padding: 15px 10px; font-size: 14px; }
+    td { padding: 15px 10px; border-bottom: 1px solid #eee; text-align: center; font-size: 14px; }
+    
+    .input-budget { width: 120px; padding: 8px; border: 2px solid #3498db; border-radius: 4px; text-align: right; font-weight: 800; color: var(--danger); font-family: 'Manrope'; }
+    .badge { padding: 5px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; background: #e6f0fa; color: var(--primary-blue); }
+    
+    .btn-sm { padding: 8px 15px; border: none; border-radius: 4px; font-family: 'Manrope'; font-weight: 600; color: white; cursor: pointer; margin: 0 5px; }
+    .btn-approve { background: var(--success); }
+    .btn-reject { background: var(--danger); }
   </style>
 </head>
 <body>
@@ -81,26 +79,18 @@
     <div class="right-panel">
       <div class="login-box">
         <h2>ĐĂNG NHẬP</h2>
-        <p>Vui lòng đăng nhập để tiếp tục</p>
+        <p style="color: #777; margin-bottom: 30px;">Cổng quản trị dành cho Lãnh đạo</p>
         
         <form onsubmit="event.preventDefault(); handleLogin();">
           <div class="form-group">
-            <label>Tên đăng nhập</label>
-            <input type="text" class="form-control" placeholder="Nhập tài khoản...">
+            <label>Tài khoản</label>
+            <input type="text" id="username" class="form-control" placeholder="Nhập tài khoản (VD: admin_tong)">
           </div>
           <div class="form-group">
             <label>Mật khẩu</label>
             <input type="password" id="pwdInput" class="form-control" placeholder="Nhập mật khẩu...">
             <span class="password-toggle" onclick="togglePassword()">HIỆN</span>
           </div>
-          
-          <div class="login-options">
-            <label class="remember-me">
-              <input type="checkbox"> Ghi nhớ đăng nhập
-            </label>
-            <a href="#" class="forgot-password">Quên mật khẩu?</a>
-          </div>
-
           <button type="submit" class="btn-primary">ĐĂNG NHẬP</button>
         </form>
       </div>
@@ -111,32 +101,149 @@
     <div class="dash-header">
       <div style="display: flex; align-items: center; gap: 20px;">
         <img src="logo.svg" alt="An Việt Homes" class="dash-logo">
-        <h2 class="dash-title">KHU VỰC PHÊ DUYỆT - BAN LÃNH ĐẠO</h2>
+        <h2 style="color: var(--primary-blue); margin: 0;">KHU VỰC PHÊ DUYỆT</h2>
       </div>
-      <div style="font-weight: 600; background: #e6f0fa; padding: 8px 15px; border-radius: 20px;">Xin chào, BLĐ</div>
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <span id="userInfo" style="font-weight: 600; background: #e6f0fa; padding: 8px 15px; border-radius: 20px;"></span>
+        <a href="#" onclick="window.location.reload()" style="color: var(--danger); font-weight: 600; text-decoration: none;">Đăng xuất</a>
+      </div>
     </div>
+
+    <div class="super-admin-toolbar" id="superAdminToolbar">
+      <div>
+        <span style="font-size: 20px; font-weight: 800; color: #4da6ff;">⚡ CHẾ ĐỘ QUẢN TRỊ VIÊN TỐI CAO</span>
+        <div style="font-size: 13px; margin-top: 5px; color: #ccc;">Bạn đang có quyền can thiệp vào mọi bước duyệt của hệ thống.</div>
+      </div>
+      <div>
+        <label style="margin-right: 10px; font-weight: 600;">Góc nhìn hiển thị hiện tại:</label>
+        <select id="roleSimulator" onchange="simulateRole(this.value)">
+          <option value="SUPER_ADMIN">Hiển thị Tổng quan (Tất cả)</option>
+          <option value="TPKD">Góc nhìn: Trưởng phòng KD</option>
+          <option value="GDKD">Góc nhìn: Giám đốc KD</option>
+          <option value="PTGD">Góc nhìn: Phó TGĐ</option>
+          <option value="BLD">Góc nhìn: Ban Lãnh Đạo (Sửa Ngân Sách)</option>
+        </select>
+      </div>
+    </div>
+
+    <table id="dataTable">
+      <thead>
+        <tr id="tableHeader">
+          </tr>
+      </thead>
+      <tbody id="tableBody">
+        </tbody>
+    </table>
     
-    <h3 style="text-align: center; color: #555; margin-top: 50px;">Bảng thông kê và tính năng duyệt nháp sẽ hiển thị tại đây...</h3>
-    <p style="text-align: center;"><a href="#" onclick="window.location.reload()">Đăng xuất</a></p>
+    <div id="bldActions" style="display: none; justify-content: flex-end; margin-top: 20px; gap: 15px;">
+       <button class="btn-sm" style="background: var(--warning); padding: 12px 20px;">Lưu Nháp Tạm Thời</button>
+       <button class="btn-sm btn-approve" style="padding: 12px 20px;">Xác Nhận Của Ban Lãnh Đạo & Xuất Form</button>
+    </div>
+
   </div>
 
   <script>
+    // Biến lưu trữ thông tin user hiện tại
+    let loggedInUser = null; 
+    let currentViewRole = ''; 
+
     function togglePassword() {
       const pwd = document.getElementById('pwdInput');
       const toggle = document.querySelector('.password-toggle');
-      if(pwd.type === 'password') {
-        pwd.type = 'text';
-        toggle.textContent = 'ẨN';
-      } else {
-        pwd.type = 'password';
-        toggle.textContent = 'HIỆN';
-      }
+      if(pwd.type === 'password') { pwd.type = 'text'; toggle.textContent = 'ẨN'; } 
+      else { pwd.type = 'password'; toggle.textContent = 'HIỆN'; }
     }
 
     function handleLogin() {
-      // Giả lập vượt qua đăng nhập
+      const userVal = document.getElementById('username').value;
+      
+      // Giả lập logic check backend - Nếu gõ "admin_tong" thì gán quyền SUPER_ADMIN
+      if(userVal === 'admin_tong') {
+        loggedInUser = { name: "Quản trị hệ thống", role: "SUPER_ADMIN" };
+      } else {
+        loggedInUser = { name: "Giám Đốc KD", role: "GDKD" }; // Giả lập user thường
+      }
+
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('dashboardScreen').style.display = 'block';
+      document.getElementById('userInfo').innerText = `Xin chào, ${loggedInUser.name}`;
+
+      // Xử lý bật tắt Thanh công cụ Super Admin
+      if (loggedInUser.role === 'SUPER_ADMIN') {
+        document.getElementById('superAdminToolbar').style.display = 'flex';
+      }
+
+      // Render giao diện mặc định
+      simulateRole(loggedInUser.role);
+    }
+
+    // HÀM CHUYỂN ĐỔI GÓC NHÌN (IMPERSONATION)
+    function simulateRole(role) {
+      currentViewRole = role;
+      renderTableByRole(role);
+    }
+
+    // HÀM RENDER CẤU TRÚC BẢNG TÙY THEO GÓC NHÌN
+    function renderTableByRole(role) {
+      const thead = document.getElementById('tableHeader');
+      const tbody = document.getElementById('tableBody');
+      const bldActions = document.getElementById('bldActions');
+      
+      let theadHTML = `
+        <th>Mã Phiếu</th>
+        <th>Phòng Ban</th>
+        <th>Dự Án / Chiến Dịch</th>
+        <th>Ngân Sách Đề Xuất</th>
+      `;
+
+      // Cấu trúc bảng phụ thuộc vào góc nhìn
+      if (role === 'BLD' || role === 'SUPER_ADMIN') {
+        theadHTML += `
+          <th>BLĐ Duyệt Thực Tế</th>
+          <th>Thao Tác / Ghi Chú</th>
+        `;
+        bldActions.style.display = 'flex'; 
+      } else {
+        theadHTML += `<th>Trạng Thái</th><th>Hành Động</th>`;
+        bldActions.style.display = 'none';
+      }
+      
+      thead.innerHTML = theadHTML;
+
+      // Giả lập Dữ liệu (Mock Data)
+      let mockData = [
+        { id: "DX-001", room: "Phòng KD 1", project: "Đua Top Thái Lan", budget: 30000000, status: "PENDING_GDKD" }
+      ];
+
+      let tbodyHTML = '';
+      mockData.forEach(item => {
+        tbodyHTML += `<tr>
+          <td><span class="badge">${item.id}</span></td>
+          <td>${item.room}</td>
+          <td style="font-weight: 600; color: var(--primary-blue);">${item.project}</td>
+          <td>${item.budget.toLocaleString()} VNĐ</td>
+        `;
+
+        if (role === 'BLD' || role === 'SUPER_ADMIN') {
+          // Góc nhìn BLĐ: Cho phép nhập số tiền
+          tbodyHTML += `
+            <td><input type="number" class="input-budget" value="${item.budget}"></td>
+            <td><input type="text" class="form-control" style="width: 80%; display: inline-block; padding: 8px;" placeholder="Ghi chú điều chỉnh..."></td>
+          `;
+        } else {
+          // Góc nhìn quản lý cấp trung (TPKD, GDKD, PTGD): Duyệt hoặc Từ chối
+          tbodyHTML += `
+            <td><span style="color: #f39c12; font-weight: 600;">Đang chờ duyệt</span></td>
+            <td>
+              <button class="btn-sm btn-approve" onclick="alert('Đã duyệt qua bước tiếp theo')">Duyệt</button>
+              <button class="btn-sm btn-reject" onclick="alert('Đã từ chối phiếu')">Từ Chối</button>
+            </td>
+          `;
+        }
+        tbodyHTML += `</tr>`;
+      });
+
+      tbody.innerHTML = tbodyHTML;
     }
   </script>
 </body>
