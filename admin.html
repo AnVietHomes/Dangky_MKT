@@ -11,17 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <style>
-    :root {
-      --bg-login: #dcf1fc; 
-      --primary-blue: #0b1f8c;
-      --text-dark: #333333;
-      --text-gray: #666666;
-      --input-bg: #f4f6f8;
-      --border-color: #e5e8ec;
-      --success-green: #27ae60;
-      --danger: #e74c3c;
-      --warning: #f39c12;
-    }
+    :root { --bg-login: #dcf1fc; --primary-blue: #0b1f8c; --text-dark: #333333; --text-gray: #666666; --input-bg: #f4f6f8; --border-color: #e5e8ec; --success-green: #27ae60; --danger: #e74c3c; --warning: #f39c12; }
     body { font-family: 'Manrope', sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box; background-color: var(--bg-login); }
     
     .login-wrapper { width: 100%; display: flex; flex-direction: column; align-items: center; padding: 20px; box-sizing: border-box; }
@@ -35,14 +25,16 @@
     .form-group { display: flex; flex-direction: column; text-align: left; margin-bottom: 20px; position: relative; }
     .form-group label { font-weight: 600; font-size: 13px; color: var(--text-gray); margin-bottom: 8px; }
     .form-control { width: 100%; padding: 14px 16px; border: 1px solid #ccc; border-radius: 6px; font-family: 'Manrope', sans-serif; font-size: 14px; color: #333; box-sizing: border-box; }
+    .form-control:focus { background-color: #fff; border-color: var(--primary-blue); outline: none; box-shadow: 0 0 0 3px rgba(11, 31, 140, 0.1); }
     .password-toggle { position: absolute; right: 15px; top: 40px; cursor: pointer; color: #999; font-size: 12px; font-weight: 700; }
 
-    .btn-submit { background-color: var(--primary-blue); color: white; width: 100%; padding: 14px; border: none; border-radius: 30px; font-size: 15px; font-weight: 700; cursor: pointer; text-transform: uppercase; margin-top: 10px; margin-bottom: 25px; }
+    .btn-submit { background-color: var(--primary-blue); color: white; width: 100%; padding: 14px; border: none; border-radius: 30px; font-size: 15px; font-weight: 700; cursor: pointer; text-transform: uppercase; margin-top: 10px; margin-bottom: 25px; transition: 0.2s; }
     .btn-submit:hover { background-color: #081666; }
     .login-footer { font-size: 11px; color: #666; text-align: center; line-height: 1.5; }
 
     .dashboard-container { display: none; background-color: #ffffff; width: 95%; max-width: 1450px; border-radius: 12px; padding: 40px 60px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08); position: relative; box-sizing: border-box; max-height: 90vh; overflow-y: auto; }
     .dash-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border-color); padding-bottom: 20px; margin-bottom: 25px; }
+    .dash-header-left { display: flex; align-items: center; gap: 20px; }
     .dash-title { color: var(--primary-blue); margin: 0; font-weight: 800; font-size: 24px; text-transform: uppercase; }
     .user-badge { font-weight: 700; background: var(--input-bg); padding: 10px 20px; border-radius: 30px; color: var(--text-dark); }
     .btn-logout { color: var(--danger); font-weight: 700; text-decoration: none; margin-left: 15px; cursor: pointer; }
@@ -53,8 +45,8 @@
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th { background: var(--input-bg); color: var(--text-dark); padding: 16px 10px; font-size: 14px; font-weight: 800; border: 1px solid var(--border-color); }
     td { padding: 16px 10px; border: 1px solid var(--border-color); text-align: center; font-size: 14px; vertical-align: middle; }
-    .input-budget { width: 130px; padding: 10px; border: 2px solid #3498db; border-radius: 6px; text-align: right; font-weight: 800; color: var(--danger); font-family: 'Manrope'; }
-    .input-note { width: 90%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-family: 'Manrope'; }
+    .input-budget { width: 130px; padding: 10px; border: 2px solid #3498db; border-radius: 6px; text-align: right; font-weight: 800; color: var(--danger); font-family: 'Manrope'; background: #fffaf9; }
+    .input-note { width: 90%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-family: 'Manrope'; background: var(--input-bg); }
 
     .btn-action { padding: 10px 18px; border: none; border-radius: 6px; font-family: 'Manrope'; font-weight: 700; color: white; cursor: pointer; margin: 0 5px; }
     .btn-approve { background: var(--success-green); }
@@ -67,6 +59,7 @@
 
   <div class="loading-overlay" id="loadingOverlay">ĐANG XỬ LÝ...</div>
 
+  <!-- VIEW DĂNG NHẬP -->
   <div class="login-wrapper" id="loginScreen">
     <div class="login-header">
       <img src="logo.svg" alt="Logo" onerror="this.src='https://placehold.co/120x60/dcf1fc/0b1f8c?text=LOGO'">
@@ -83,9 +76,14 @@
     </div>
   </div>
 
+  <!-- VIEW DASHBOARD -->
   <div class="dashboard-container" id="dashboardScreen">
     <div class="dash-header">
-      <div class="dash-header-left"><h2 class="dash-title">KHU VỰC PHÊ DUYỆT ĐỀ XUẤT</h2></div>
+      <div class="dash-header-left">
+        <!-- ĐÃ CĂN CHỈNH KÍCH CỠ LOGO NHỎ LẠI -->
+        <img src="logo.svg" alt="An Việt Homes" style="margin:0; max-width: 85px;" onerror="this.src='https://placehold.co/100x40/ffffff/004b9a?text=LOGO'">
+        <h2 class="dash-title">KHU VỰC PHÊ DUYỆT ĐỀ XUẤT</h2>
+      </div>
       <div><span class="user-badge" id="userInfo"></span><a class="btn-logout" onclick="window.location.reload()">Đăng xuất</a></div>
     </div>
     
@@ -158,18 +156,18 @@
     function renderTableByRole(role) {
       const thead = document.getElementById('tableHeader'); const tbody = document.getElementById('tableBody'); const bldActions = document.getElementById('bldActions');
       let theadHTML = `<th>Mã Phiếu</th><th>Phòng Ban</th><th>Dự Án</th><th>Ngân Sách Đề Xuất</th>`;
-      if (role === 'BLD' || role === 'SUPER_ADMIN') { theadHTML += `<th>BLĐ Duyệt Thực Tế</th><th>Ghi Chú Điều Chỉnh</th>`; bldActions.style.display = 'flex'; } else { theadHTML += `<th>Trạng Tư</th><th>Hành Động</th>`; bldActions.style.display = 'none'; }
+      if (role === 'BLD' || role === 'SUPER_ADMIN') { theadHTML += `<th>BLĐ Duyệt Thực Tế</th><th>Ghi Chú Điều Chỉnh</th>`; bldActions.style.display = 'flex'; } else { theadHTML += `<th>Trạng Thái</th><th>Hành Động</th>`; bldActions.style.display = 'none'; }
       thead.innerHTML = theadHTML; let tbodyHTML = '';
       if(globalData.length === 0) { tbody.innerHTML = `<tr><td colspan="6">Không có dữ liệu chờ phê duyệt.</td></tr>`; return; }
       
       globalData.forEach(phieu => {
         const chiTiet = phieu.chiTiet[0];
-        tbodyHTML += `<tr data-id-phieu="${phieu.idPhieu}" data-id-dong="${chiTiet.idDong}"><td>${phieu.idPhieu}</td><td>${phieu.phongKD}</td><td>${chiTiet.tenDuAn}</td><td>${Number(chiTiet.nganSachDeXuat).toLocaleString()} VNĐ</td>`;
+        tbodyHTML += `<tr data-id-phieu="${phieu.idPhieu}" data-id-dong="${chiTiet.idDong}"><td><span style="background:var(--input-bg); padding:6px 12px; border-radius:20px; font-weight:700;">${phieu.idPhieu}</span></td><td>${phieu.phongKD}</td><td style="font-weight: 800; color: var(--primary-blue);">${chiTiet.tenDuAn}</td><td style="font-weight: 700;">${Number(chiTiet.nganSachDeXuat).toLocaleString()} VNĐ</td>`;
         if (role === 'BLD' || role === 'SUPER_ADMIN') {
           tbodyHTML += `<td><input type="number" class="input-budget bld-budget" value="${chiTiet.nganSachDuyet}"></td><td><input type="text" class="input-note bld-note" value="${chiTiet.ghiChuBLD}"></td>`;
         } else {
           let nextStatus = phieu.trangThai === 'PENDING_GDKD' ? "PENDING_PTGD" : (phieu.trangThai === 'PENDING_PTGD' ? "PENDING_BLD" : "PENDING_GDKD");
-          tbodyHTML += `<td>${phieu.trangThai}</td><td><button class="btn-action btn-approve" onclick="updateStatus('${phieu.idPhieu}', '${nextStatus}')">Duyệt</button><button class="btn-action btn-reject" onclick="updateStatus('${phieu.idPhieu}', 'REJECTED')">Từ Chối</button></td>`;
+          tbodyHTML += `<td><span style="color: var(--warning); font-weight: 700;">${phieu.trangThai}</span></td><td><button class="btn-action btn-approve" onclick="updateStatus('${phieu.idPhieu}', '${nextStatus}')">Duyệt</button><button class="btn-action btn-reject" onclick="updateStatus('${phieu.idPhieu}', 'REJECTED')">Từ Chối</button></td>`;
         }
         tbodyHTML += `</tr>`;
       });
