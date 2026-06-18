@@ -14,7 +14,6 @@
       --primary-dark: #0a1f35;
       --primary-blue: #0056b3;
       --text-main: #333;
-      --border-color: #ddd;
       --success: #27ae60;
       --warning: #f39c12;
       --danger: #e74c3c;
@@ -29,7 +28,7 @@
     .left-content { z-index: 2; margin-top: -100px; }
     .left-content h3 { font-weight: 500; font-size: 24px; color: #4da6ff; margin: 0 0 5px 0; letter-spacing: 1px; }
     .left-content h1 { font-size: 38px; font-weight: 800; margin: 0; line-height: 1.2; text-transform: uppercase; }
-    .illustration-box { width: 100%; height: 350px; background: url('https://placehold.co/600x400/0a1f35/4da6ff?text=Illustration+Image') no-repeat center bottom; background-size: contain; opacity: 0.8; }
+    .illustration-box { width: 100%; height: 350px; background: url('https://placehold.co/600x400/0a1f35/4da6ff?text=Admin+Portal') no-repeat center bottom; background-size: contain; opacity: 0.8; }
 
     .right-panel { width: 55%; background-color: #fff; display: flex; align-items: center; justify-content: center; }
     .login-box { width: 100%; max-width: 420px; padding: 40px; }
@@ -47,28 +46,28 @@
     .dash-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ddd; padding-bottom: 15px; margin-bottom: 20px; }
     .dash-logo { max-width: 120px; }
     
-    /* Super Admin Toolbar */
     .super-admin-toolbar { display: none; background: #0a1f35; color: white; padding: 15px 20px; border-radius: 8px; margin-bottom: 25px; align-items: center; justify-content: space-between; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     .super-admin-toolbar select { padding: 8px 15px; border-radius: 4px; font-family: 'Manrope'; font-weight: 600; border: none; outline: none; cursor: pointer; }
     
-    /* Table & Actions */
     table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     th { background: var(--primary-blue); color: white; padding: 15px 10px; font-size: 14px; }
     td { padding: 15px 10px; border-bottom: 1px solid #eee; text-align: center; font-size: 14px; }
-    
     .input-budget { width: 120px; padding: 8px; border: 2px solid #3498db; border-radius: 4px; text-align: right; font-weight: 800; color: var(--danger); font-family: 'Manrope'; }
     .badge { padding: 5px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; background: #e6f0fa; color: var(--primary-blue); }
     
     .btn-sm { padding: 8px 15px; border: none; border-radius: 4px; font-family: 'Manrope'; font-weight: 600; color: white; cursor: pointer; margin: 0 5px; }
     .btn-approve { background: var(--success); }
     .btn-reject { background: var(--danger); }
+    .loading-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:9999; justify-content:center; align-items:center; font-weight:bold; color:var(--primary-blue); font-size: 18px;}
   </style>
 </head>
 <body>
 
+  <div class="loading-overlay" id="loadingOverlay">Hệ thống đang xử lý, vui lòng chờ...</div>
+
   <div class="split-layout" id="loginScreen">
     <div class="left-panel">
-      <img src="logo.svg" alt="An Việt Homes" class="brand-logo">
+      <img src="logo.svg" alt="An Việt Homes" class="brand-logo" onerror="this.src='https://placehold.co/150x50/0a1f35/FFF?text=LOGO'">
       <div class="left-content">
         <h3>HỆ THỐNG TRÌNH DUYỆT</h3>
         <h1>ĐĂNG KÝ MARKETING</h1>
@@ -84,11 +83,11 @@
         <form onsubmit="event.preventDefault(); handleLogin();">
           <div class="form-group">
             <label>Tài khoản</label>
-            <input type="text" id="username" class="form-control" placeholder="Nhập tài khoản (VD: admin_tong)">
+            <input type="text" id="username" class="form-control" required placeholder="Nhập tài khoản (VD: admin_tong)">
           </div>
           <div class="form-group">
             <label>Mật khẩu</label>
-            <input type="password" id="pwdInput" class="form-control" placeholder="Nhập mật khẩu...">
+            <input type="password" id="pwdInput" class="form-control" required placeholder="Nhập mật khẩu...">
             <span class="password-toggle" onclick="togglePassword()">HIỆN</span>
           </div>
           <button type="submit" class="btn-primary">ĐĂNG NHẬP</button>
@@ -100,7 +99,7 @@
   <div class="dashboard-container" id="dashboardScreen">
     <div class="dash-header">
       <div style="display: flex; align-items: center; gap: 20px;">
-        <img src="logo.svg" alt="An Việt Homes" class="dash-logo">
+        <img src="logo.svg" alt="An Việt Homes" class="dash-logo" onerror="this.src='https://placehold.co/120x40/0a1f35/FFF?text=LOGO'">
         <h2 style="color: var(--primary-blue); margin: 0;">KHU VỰC PHÊ DUYỆT</h2>
       </div>
       <div style="display: flex; align-items: center; gap: 15px;">
@@ -112,41 +111,41 @@
     <div class="super-admin-toolbar" id="superAdminToolbar">
       <div>
         <span style="font-size: 20px; font-weight: 800; color: #4da6ff;">⚡ CHẾ ĐỘ QUẢN TRỊ VIÊN TỐI CAO</span>
-        <div style="font-size: 13px; margin-top: 5px; color: #ccc;">Bạn đang có quyền can thiệp vào mọi bước duyệt của hệ thống.</div>
+        <div style="font-size: 13px; margin-top: 5px; color: #ccc;">Can thiệp và hiển thị mọi bước duyệt của hệ thống.</div>
       </div>
       <div>
-        <label style="margin-right: 10px; font-weight: 600;">Góc nhìn hiển thị hiện tại:</label>
+        <label style="margin-right: 10px; font-weight: 600;">Góc nhìn:</label>
         <select id="roleSimulator" onchange="simulateRole(this.value)">
-          <option value="SUPER_ADMIN">Hiển thị Tổng quan (Tất cả)</option>
+          <option value="SUPER_ADMIN">Tổng quan (Tất cả)</option>
           <option value="TPKD">Góc nhìn: Trưởng phòng KD</option>
           <option value="GDKD">Góc nhìn: Giám đốc KD</option>
           <option value="PTGD">Góc nhìn: Phó TGĐ</option>
-          <option value="BLD">Góc nhìn: Ban Lãnh Đạo (Sửa Ngân Sách)</option>
+          <option value="BLD">Góc nhìn: Ban Lãnh Đạo (Chốt số)</option>
         </select>
       </div>
     </div>
 
     <table id="dataTable">
-      <thead>
-        <tr id="tableHeader">
-          </tr>
-      </thead>
-      <tbody id="tableBody">
-        </tbody>
+      <thead><tr id="tableHeader"></tr></thead>
+      <tbody id="tableBody"></tbody>
     </table>
     
     <div id="bldActions" style="display: none; justify-content: flex-end; margin-top: 20px; gap: 15px;">
-       <button class="btn-sm" style="background: var(--warning); padding: 12px 20px;">Lưu Nháp Tạm Thời</button>
-       <button class="btn-sm btn-approve" style="padding: 12px 20px;">Xác Nhận Của Ban Lãnh Đạo & Xuất Form</button>
+       <button class="btn-sm" style="background: var(--warning); padding: 12px 20px;" onclick="submitBldApproval(false)">Lưu Nháp Tạm Thời</button>
+       <button class="btn-sm btn-approve" style="padding: 12px 20px;" onclick="submitBldApproval(true)">Xác Nhận & Xuất Form Cuối</button>
     </div>
-
   </div>
 
   <script>
-    // Biến lưu trữ thông tin user hiện tại
+    // LẮP LINK API CHÍNH THỨC
+    const API_URL = "https://script.google.com/macros/s/AKfycbwFgszaVmJmOhs_GOMlcomv-RTcFJ2SXU4nbrGDRRqS8mZcFOR59YnBEl5boKmTeBFa/exec";
+    
     let loggedInUser = null; 
     let currentViewRole = ''; 
+    let globalData = []; // Lưu trữ data lấy từ server
 
+    function showLoading(show) { document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none'; }
+    
     function togglePassword() {
       const pwd = document.getElementById('pwdInput');
       const toggle = document.querySelector('.password-toggle');
@@ -154,89 +153,115 @@
       else { pwd.type = 'password'; toggle.textContent = 'HIỆN'; }
     }
 
-    function handleLogin() {
+    // 1. API ĐĂNG NHẬP
+    async function handleLogin() {
       const userVal = document.getElementById('username').value;
-      
-      // Giả lập logic check backend - Nếu gõ "admin_tong" thì gán quyền SUPER_ADMIN
-      if(userVal === 'admin_tong') {
-        loggedInUser = { name: "Quản trị hệ thống", role: "SUPER_ADMIN" };
-      } else {
-        loggedInUser = { name: "Giám Đốc KD", role: "GDKD" }; // Giả lập user thường
+      const pwdVal = document.getElementById('pwdInput').value;
+      showLoading(true);
+
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ action: "login", username: userVal, password: pwdVal })
+        });
+        const result = await response.json();
+        
+        if(result.success) {
+          loggedInUser = result.user;
+          document.getElementById('loginScreen').style.display = 'none';
+          document.getElementById('dashboardScreen').style.display = 'block';
+          document.getElementById('userInfo').innerText = `Xin chào, ${loggedInUser.name}`;
+          
+          if (loggedInUser.role === 'SUPER_ADMIN') {
+            document.getElementById('superAdminToolbar').style.display = 'flex';
+          }
+          
+          simulateRole(loggedInUser.role);
+        } else {
+          alert(result.message);
+        }
+      } catch (error) {
+        alert("Lỗi kết nối Server API!");
+      } finally {
+        showLoading(false);
       }
-
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('dashboardScreen').style.display = 'block';
-      document.getElementById('userInfo').innerText = `Xin chào, ${loggedInUser.name}`;
-
-      // Xử lý bật tắt Thanh công cụ Super Admin
-      if (loggedInUser.role === 'SUPER_ADMIN') {
-        document.getElementById('superAdminToolbar').style.display = 'flex';
-      }
-
-      // Render giao diện mặc định
-      simulateRole(loggedInUser.role);
     }
 
-    // HÀM CHUYỂN ĐỔI GÓC NHÌN (IMPERSONATION)
-    function simulateRole(role) {
+    // 2. API LOAD DỮ LIỆU BẢNG ĐIỀU KHIỂN
+    async function simulateRole(role) {
       currentViewRole = role;
-      renderTableByRole(role);
+      showLoading(true);
+      
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ action: "getDashboardData", role: currentViewRole, departments: loggedInUser.managedDepartments })
+        });
+        const result = await response.json();
+        
+        if(result.success) {
+          globalData = result.data;
+          renderTableByRole(currentViewRole);
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Không thể tải dữ liệu từ máy chủ.");
+      } finally {
+        showLoading(false);
+      }
     }
 
-    // HÀM RENDER CẤU TRÚC BẢNG TÙY THEO GÓC NHÌN
+    // 3. RENDER BẢNG DỮ LIỆU
     function renderTableByRole(role) {
       const thead = document.getElementById('tableHeader');
       const tbody = document.getElementById('tableBody');
       const bldActions = document.getElementById('bldActions');
       
-      let theadHTML = `
-        <th>Mã Phiếu</th>
-        <th>Phòng Ban</th>
-        <th>Dự Án / Chiến Dịch</th>
-        <th>Ngân Sách Đề Xuất</th>
-      `;
-
-      // Cấu trúc bảng phụ thuộc vào góc nhìn
+      let theadHTML = `<th>Mã Phiếu</th><th>Phòng Ban</th><th>Dự Án</th><th>Ngân Sách Đề Xuất</th>`;
       if (role === 'BLD' || role === 'SUPER_ADMIN') {
-        theadHTML += `
-          <th>BLĐ Duyệt Thực Tế</th>
-          <th>Thao Tác / Ghi Chú</th>
-        `;
+        theadHTML += `<th>BLĐ Duyệt Thực Tế</th><th>Ghi Chú</th>`;
         bldActions.style.display = 'flex'; 
       } else {
         theadHTML += `<th>Trạng Thái</th><th>Hành Động</th>`;
         bldActions.style.display = 'none';
       }
-      
       thead.innerHTML = theadHTML;
 
-      // Giả lập Dữ liệu (Mock Data)
-      let mockData = [
-        { id: "DX-001", room: "Phòng KD 1", project: "Đua Top Thái Lan", budget: 30000000, status: "PENDING_GDKD" }
-      ];
-
       let tbodyHTML = '';
-      mockData.forEach(item => {
-        tbodyHTML += `<tr>
-          <td><span class="badge">${item.id}</span></td>
-          <td>${item.room}</td>
-          <td style="font-weight: 600; color: var(--primary-blue);">${item.project}</td>
-          <td>${item.budget.toLocaleString()} VNĐ</td>
+      if(globalData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="padding:30px; color:#888;">Không có dữ liệu chờ duyệt.</td></tr>`;
+        return;
+      }
+
+      globalData.forEach(phieu => {
+        // Chỉ lấy dòng dự án đầu tiên để hiển thị cho gọn (có thể vòng lặp thêm nếu 1 phiếu có nhiều dự án)
+        const chiTiet = phieu.chiTiet[0]; 
+        
+        tbodyHTML += `<tr data-id-phieu="${phieu.idPhieu}" data-id-dong="${chiTiet.idDong}">
+          <td><span class="badge">${phieu.idPhieu}</span></td>
+          <td>${phieu.phongKD}</td>
+          <td style="font-weight: 600; color: var(--primary-blue);">${chiTiet.tenDuAn}</td>
+          <td>${Number(chiTiet.nganSachDeXuat).toLocaleString()} VNĐ</td>
         `;
 
         if (role === 'BLD' || role === 'SUPER_ADMIN') {
-          // Góc nhìn BLĐ: Cho phép nhập số tiền
           tbodyHTML += `
-            <td><input type="number" class="input-budget" value="${item.budget}"></td>
-            <td><input type="text" class="form-control" style="width: 80%; display: inline-block; padding: 8px;" placeholder="Ghi chú điều chỉnh..."></td>
+            <td><input type="number" class="input-budget bld-budget" value="${chiTiet.nganSachDuyet}"></td>
+            <td><input type="text" class="form-control bld-note" style="padding: 8px;" placeholder="Ghi chú..." value="${chiTiet.ghiChuBLD}"></td>
           `;
         } else {
-          // Góc nhìn quản lý cấp trung (TPKD, GDKD, PTGD): Duyệt hoặc Từ chối
+          // Tính toán trạng thái tiếp theo để gắn vào nút Duyệt
+          let nextStatus = "PENDING_GDKD";
+          if(phieu.trangThai === 'PENDING_GDKD') nextStatus = "PENDING_PTGD";
+          if(phieu.trangThai === 'PENDING_PTGD') nextStatus = "PENDING_BLD";
+
           tbodyHTML += `
-            <td><span style="color: #f39c12; font-weight: 600;">Đang chờ duyệt</span></td>
+            <td><span style="color: #f39c12; font-weight: 600;">${phieu.trangThai}</span></td>
             <td>
-              <button class="btn-sm btn-approve" onclick="alert('Đã duyệt qua bước tiếp theo')">Duyệt</button>
-              <button class="btn-sm btn-reject" onclick="alert('Đã từ chối phiếu')">Từ Chối</button>
+              <button class="btn-sm btn-approve" onclick="updateStatus('${phieu.idPhieu}', '${nextStatus}')">Duyệt</button>
+              <button class="btn-sm btn-reject" onclick="updateStatus('${phieu.idPhieu}', 'REJECTED')">Từ Chối</button>
             </td>
           `;
         }
@@ -244,6 +269,53 @@
       });
 
       tbody.innerHTML = tbodyHTML;
+    }
+
+    // 4. API DUYỆT BƯỚC TRUNG GIAN (TPKD, GDKD, PTGD)
+    async function updateStatus(idPhieu, newStatus) {
+      if(!confirm("Xác nhận thao tác phê duyệt này?")) return;
+      showLoading(true);
+      
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ action: "updateStatus", data: { idPhieu: idPhieu, newStatus: newStatus } })
+        });
+        const result = await response.json();
+        if(result.success) {
+          alert("Thành công!");
+          simulateRole(currentViewRole); // Tải lại bảng
+        }
+      } catch(e) { alert("Lỗi mạng!"); } finally { showLoading(false); }
+    }
+
+    // 5. API CHỐT SỐ CỦA BAN LÃNH ĐẠO
+    async function submitBldApproval(isFinal) {
+      if(isFinal && !confirm("Xác nhận chốt số? Hệ thống sẽ xuất file cuối cùng.")) return;
+      showLoading(true);
+
+      const itemsData = [];
+      document.querySelectorAll('#tableBody tr').forEach(row => {
+        itemsData.push({
+          idDong: row.getAttribute('data-id-dong'),
+          nganSachDuyet: row.querySelector('.bld-budget').value,
+          ghiChuBLD: row.querySelector('.bld-note').value
+        });
+      });
+
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ action: "bldApprove", data: { isFinalApprove: isFinal, items: itemsData } })
+        });
+        const result = await response.json();
+        if(result.success) {
+          alert(result.message);
+          simulateRole(currentViewRole); // Tải lại bảng
+        }
+      } catch(e) { alert("Lỗi mạng!"); } finally { showLoading(false); }
     }
   </script>
 </body>
