@@ -407,33 +407,41 @@
       loadDepartments();
     });
 
-    // 3. TẢI DATA PHÒNG BAN TỪ GOOGLE SHEET
-    async function loadDepartments() {
-      document.getElementById('loadingDepts').style.display = 'inline';
-      try {
-        const response = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ action: "getDepartments" })
-        });
-        const result = await response.json();
-        if (result.success) {
-          departmentsData = result.data;
-          const deptSelect = document.getElementById('department');
-          deptSelect.innerHTML = '<option value="" disabled selected>Chọn phòng ban</option>';
-          departmentsData.forEach(item => {
-            const opt = document.createElement('option');
-            opt.value = item.phong;
-            opt.innerText = item.phong;
-            deptSelect.appendChild(opt);
-          });
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        document.getElementById('loadingDepts').style.display = 'none';
-      }
+    // 3. TẢI DATA PHÒNG BAN TỪ GOOGLE SHEET (Đã bổ sung bắt lỗi)
+async function loadDepartments() {
+  document.getElementById('loadingDepts').style.display = 'inline';
+  const deptSelect = document.getElementById('department');
+  
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action: "getDepartments" })
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      departmentsData = result.data;
+      deptSelect.innerHTML = '<option value="" disabled selected>Chọn phòng ban</option>';
+      departmentsData.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item.phong;
+        opt.innerText = item.phong;
+        deptSelect.appendChild(opt);
+      });
+    } else {
+      // Nếu server từ chối lệnh (do chưa update phiên bản deploy)
+      deptSelect.innerHTML = '<option value="" disabled selected>Lỗi: Chưa tải được</option>';
+      alert("Lỗi tải danh sách: " + result.message + "\n👉 Vui lòng vào Apps Script Deploy Phiên bản mới!");
     }
+  } catch (err) {
+    console.error(err);
+    deptSelect.innerHTML = '<option value="" disabled selected>Lỗi mạng / Không kết nối được API</option>';
+  } finally {
+    document.getElementById('loadingDepts').style.display = 'none';
+  }
+}
 
     // 4. LẮNG NGHE SỰ KIỆN KHI SALE CHỌN PHÒNG KINH DOANH -> TỰ ĐỘNG NHẢY KHỐI
     document.getElementById('department').addEventListener('change', function(e) {
