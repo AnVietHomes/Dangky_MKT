@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng Ký Chiến Dịch Marketing - An Việt Homes</title>
+  
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary-blue: #004d99;
+      --secondary-blue: #e6f0fa;
+      --text-main: #333;
+      --border-color: #ddd;
+      --bg-color: #f4f7f6;
+    }
+    
+    body { font-family: 'Manrope', sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; }
+    .container { max-width: 1100px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 5px solid var(--primary-blue); }
+    
+    /* Logo */
+    .brand-logo { max-width: 180px; height: auto; display: block; margin: 0 auto 20px auto; }
+    
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 25px; }
+    .tab { padding: 12px 25px; cursor: pointer; font-weight: 700; color: #777; transition: 0.3s; }
+    .tab.active { color: var(--primary-blue); border-bottom: 3px solid var(--primary-blue); margin-bottom: -2px; }
+    .tab:hover:not(.active) { color: var(--primary-blue); }
+    
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    
+    /* Form Styles */
+    .section-title { background-color: var(--secondary-blue); padding: 12px; font-weight: 700; color: var(--primary-blue); margin: 20px 0 15px 0; border-radius: 4px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; }
+    .form-control { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; box-sizing: border-box; font-family: 'Manrope', sans-serif; transition: border 0.3s; }
+    .form-control:focus { border-color: var(--primary-blue); outline: none; }
+    
+    /* Table */
+    .table-responsive { overflow-x: auto; margin-top: 10px; }
+    table { width: 100%; border-collapse: collapse; min-width: 900px; }
+    th, td { border: 1px solid var(--border-color); padding: 10px; text-align: center; vertical-align: middle; }
+    th { background-color: var(--primary-blue); color: white; font-weight: 600; white-space: nowrap; }
+    td .form-control { padding: 8px; border: 1px solid transparent; background: #f9f9f9; }
+    td .form-control:focus, td .form-control:hover { border: 1px solid var(--border-color); background: #fff; }
+    
+    /* Buttons */
+    .btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: 700; font-family: 'Manrope', sans-serif; transition: 0.2s; }
+    .btn-add { background-color: #28a745; color: white; margin-bottom: 10px; }
+    .btn-add:hover { background-color: #218838; }
+    .btn-remove { background-color: #dc3545; color: white; padding: 8px 12px; }
+    .btn-remove:hover { background-color: #c82333; }
+    .btn-submit { background-color: var(--primary-blue); color: white; width: 100%; font-size: 16px; margin-top: 30px; padding: 15px; text-transform: uppercase; }
+    .btn-submit:hover { background-color: #003d7a; }
+    
+    #loading { display: none; text-align: center; margin-top: 20px; font-weight: 700; color: var(--primary-blue); }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <img src="logo.svg" alt="An Việt Homes" class="brand-logo">
+  
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('dangky', this)">ĐĂNG KÝ CHIẾN DỊCH</div>
+    <div class="tab" onclick="switchTab('tracuu', this)">TRA CỨU TIẾN ĐỘ</div>
+  </div>
+
+  <div id="dangky" class="tab-content active">
+    <form id="marketingForm">
+      <div class="section-title">1. THÔNG TIN CHUNG</div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Tên Nhóm / Team:</label>
+          <input type="text" id="teamName" class="form-control" required placeholder="VD: Team King">
+        </div>
+        <div class="form-group">
+          <label>Tên Trưởng Nhóm:</label>
+          <input type="text" id="memberName" class="form-control" required placeholder="Họ và tên">
+        </div>
+        <div class="form-group">
+          <label>Phòng Kinh Doanh:</label>
+          <select id="department" class="form-control" required>
+            <option value="">-- Chọn Phòng Ban --</option>
+            <option value="Phòng KD 1">Phòng KD 1</option>
+            <option value="Phòng KD 2">Phòng KD 2</option>
+            <option value="Phòng KD 3">Phòng KD 3</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Email nhận kết quả phê duyệt:</label>
+          <input type="email" id="emailContact" class="form-control" required placeholder="email@anviethomes.vn">
+        </div>
+      </div>
+
+      <div class="section-title">2. CHI TIẾT NGÂN SÁCH ĐỀ XUẤT</div>
+      <button type="button" class="btn btn-add" onclick="addRow()">+ Thêm dự án</button>
+      
+      <div class="table-responsive">
+        <table id="campaignTable">
+          <thead>
+            <tr>
+              <th width="20%">Dự án / Chiến dịch</th>
+              <th width="15%">Ngân sách (VNĐ)</th>
+              <th width="15%">KPI Cam kết</th>
+              <th width="10%">Kênh chạy</th>
+              <th width="12%">SĐT Đăng ký</th>
+              <th width="12%">Tài khoản ĐK</th>
+              <th width="10%">Phương án</th>
+              <th width="6%">Xóa</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr>
+              <td><input type="text" class="form-control item-project" required placeholder="Đua Top 20 Tỷ đi Thái Lan"></td>
+              <td><input type="number" class="form-control item-budget" required placeholder="30000000"></td>
+              <td><input type="text" class="form-control item-kpi" required placeholder="50 Data Net"></td>
+              <td>
+                <select class="form-control item-channel">
+                  <option value="Facebook">Facebook</option>
+                  <option value="Google Ads">Google Ads</option>
+                  <option value="Zalo">Zalo</option>
+                  <option value="Tiktok">Tiktok</option>
+                </select>
+              </td>
+              <td><input type="text" class="form-control item-phone" required></td>
+              <td><input type="text" class="form-control item-account" required></td>
+              <td>
+                <select class="form-control item-method">
+                  <option value="Tự chạy">Tự chạy</option>
+                  <option value="P.MKT chạy">P.MKT chạy</option>
+                </select>
+              </td>
+              <td><button type="button" class="btn btn-remove" onclick="removeRow(this)">✕</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <button type="submit" class="btn btn-submit">GỬI ĐỀ XUẤT TRÌNH DUYỆT</button>
+      <div id="loading">Hệ thống đang xử lý, vui lòng chờ...</div>
+    </form>
+  </div>
+
+  <div id="tracuu" class="tab-content">
+    <div class="form-group" style="max-width: 400px; margin: 0 auto; text-align: center;">
+      <label>Nhập mã phiếu đề xuất (VD: DX-1718...)</label>
+      <input type="text" class="form-control" placeholder="Mã phiếu..." style="margin-bottom: 10px;">
+      <button class="btn btn-submit" style="margin-top: 0;">TRA CỨU</button>
+    </div>
+    </div>
+
+</div>
+
+<script>
+  // ĐIỀN LINK WEB APP CỦA BẠN VÀO ĐÂY SAU KHI DEPLOY GAS
+  const API_URL = "YOUR_WEB_APP_URL"; 
+
+  function switchTab(tabId, element) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    element.classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+  }
+
+  function addRow() {
+    const tbody = document.getElementById('tableBody');
+    const newRow = document.createElement('tr');
+    newRow.innerHTML = `
+      <td><input type="text" class="form-control item-project" required placeholder="Tên dự án..."></td>
+      <td><input type="number" class="form-control item-budget" required placeholder="Ngân sách..."></td>
+      <td><input type="text" class="form-control item-kpi" required placeholder="KPI..."></td>
+      <td>
+        <select class="form-control item-channel">
+          <option value="Facebook">Facebook</option>
+          <option value="Google Ads">Google Ads</option>
+          <option value="Zalo">Zalo</option>
+          <option value="Tiktok">Tiktok</option>
+        </select>
+      </td>
+      <td><input type="text" class="form-control item-phone" required></td>
+      <td><input type="text" class="form-control item-account" required></td>
+      <td>
+        <select class="form-control item-method">
+          <option value="Tự chạy">Tự chạy</option>
+          <option value="P.MKT chạy">P.MKT chạy</option>
+        </select>
+      </td>
+      <td><button type="button" class="btn btn-remove" onclick="removeRow(this)">✕</button></td>
+    `;
+    tbody.appendChild(newRow);
+  }
+
+  function removeRow(btn) {
+    const row = btn.parentNode.parentNode;
+    if (document.getElementById('tableBody').rows.length > 1) {
+      row.parentNode.removeChild(row);
+    } else {
+      alert("Phải có ít nhất 1 dự án đề xuất!");
+    }
+  }
+
+  document.getElementById('marketingForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    document.getElementById('loading').style.display = 'block';
+    document.querySelector('.btn-submit').style.display = 'none';
+
+    const payload = {
+      action: "submitForm",
+      data: {
+        teamName: document.getElementById('teamName').value,
+        memberName: document.getElementById('memberName').value,
+        department: document.getElementById('department').value,
+        emailContact: document.getElementById('emailContact').value,
+        items: []
+      }
+    };
+
+    document.querySelectorAll('#tableBody tr').forEach(row => {
+      payload.data.items.push({
+        projectName: row.querySelector('.item-project').value,
+        proposedBudget: row.querySelector('.item-budget').value,
+        kpi: row.querySelector('.item-kpi').value,
+        channel: row.querySelector('.item-channel').value,
+        phoneNumber: row.querySelector('.item-phone').value,
+        accountInfo: row.querySelector('.item-account').value,
+        runMethod: row.querySelector('.item-method').value
+      });
+    });
+
+    try {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      });
+      const result = await response.json();
+      
+      if(result.success) {
+        alert("Gửi đề xuất thành công! Hệ thống sẽ phản hồi qua email.");
+        document.getElementById('marketingForm').reset();
+      } else {
+        alert("Lỗi: " + result.message);
+      }
+    } catch (error) {
+      alert("Lỗi kết nối máy chủ. Vui lòng thử lại sau.");
+    } finally {
+      document.getElementById('loading').style.display = 'none';
+      document.querySelector('.btn-submit').style.display = 'block';
+    }
+  });
+</script>
+
+</body>
+</html>
