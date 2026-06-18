@@ -115,17 +115,20 @@
       <hr>
     </div>
 
+    <!-- VIEW 1: FORM ĐĂNG KÝ -->
     <form id="marketingForm">
       <div class="info-section">
         <div class="info-row">
           <div class="info-group">
             <span class="info-label" style="min-width: 100px;">Thành viên:</span>
+            <!-- Chỉ bắt buộc nhập Thành viên 1 -->
             <input type="text" class="pill-input" id="tv1" placeholder="Nguyễn Văn A" required>
             <input type="text" class="pill-input" id="tv2" placeholder="Nguyễn Văn B">
             <input type="text" class="pill-input" id="tv3" placeholder="Nguyễn Văn C">
           </div>
           <div class="info-group" style="flex: 0 0 auto;">
             <span class="info-label" style="min-width: 100px;">Mã nhân viên:</span>
+            <!-- Bắt buộc nhập Mã 1, mã 2 và 3 sẽ tự động kích hoạt Required bằng JS -->
             <input type="text" class="pill-input small" id="mnv1" placeholder="AVH001" required>
             <input type="text" class="pill-input small" id="mnv2" placeholder="AVH002">
             <input type="text" class="pill-input small" id="mnv3" placeholder="AVH003">
@@ -230,6 +233,7 @@
       </div>
     </form>
 
+    <!-- VIEW 3: KẾT QUẢ TRA CỨU -->
     <div id="resultView">
       <div class="info-section">
         <div class="info-row">
@@ -329,6 +333,7 @@
         </tfoot>
       </table>
 
+      <!-- 5 NÚT TRẠNG THÁI -->
       <div class="status-area">
         <div class="status-col">
           <div class="status-label">Ban Lãnh Đạo</div>
@@ -355,6 +360,7 @@
 
   </main>
 
+  <!-- MODAL SEARCH (VIEW 2) -->
   <div class="modal-overlay" id="searchModal">
     <div class="modal-card">
       <button class="btn-close-modal" onclick="closeModal()">×</button>
@@ -380,21 +386,24 @@
   </div>
 
   <script>
+    // 0. LOGIC RÀNG BUỘC ĐỘNG THÀNH VIÊN VÀ MÃ NHÂN VIÊN
+    document.getElementById('tv2').addEventListener('input', function() {
+      document.getElementById('mnv2').required = this.value.trim() !== '';
+    });
+    document.getElementById('tv3').addEventListener('input', function() {
+      document.getElementById('mnv3').required = this.value.trim() !== '';
+    });
+
     // 1. LINK API CHÍNH THỨC
     const API_URL = "https://script.google.com/macros/s/AKfycbwFgszaVmJmOhs_GOMlcomv-RTcFJ2SXU4nbrGDRRqS8mZcFOR59YnBEl5boKmTeBFa/exec";
-
-    // Mảng lưu dữ liệu phòng - khối tải về
     let departmentsData = [];
 
     // 2. CHẠY KHI VỪA MỞ WEB
     document.addEventListener("DOMContentLoaded", function() {
-      // Tự động nhảy Tháng / Năm
       const today = new Date();
       const month = String(today.getMonth() + 1).padStart(2, '0');
       const year = today.getFullYear();
       document.getElementById('timeRealtime').innerText = `Tháng ${month} Năm ${year}`;
-
-      // Tải danh sách phòng ban
       loadDepartments();
     });
 
@@ -512,7 +521,6 @@
           teamName: document.getElementById('teamName').value,
           memberName: mems,
           emailContact: document.getElementById('emailContact').value,
-          // Gộp Phòng - Khối
           department: document.getElementById('department').value + " - " + document.getElementById('division').value,
           items: items
         }
@@ -529,7 +537,7 @@
         if (result.success) {
           alert("Gửi đề xuất thành công! Mã phiếu: " + result.id);
           document.getElementById('marketingForm').reset();
-          document.getElementById('division').value = ''; // Xóa Khối
+          document.getElementById('division').value = ''; 
           calculateTotal(); 
         } else {
           alert("Lỗi: " + result.message);
