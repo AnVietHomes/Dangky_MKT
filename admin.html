@@ -72,7 +72,7 @@
     .btn-close { position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; background: none; border: none; color: #888; }
     .modal-header { font-size: 22px; font-weight: 800; color: var(--primary-blue); text-align: center; margin-bottom: 20px; text-transform: uppercase;}
 
-    /* FIX: Giữ ở tọa độ 0,0 để thư viện chụp được ảnh, nhưng đưa xuống lớp âm và làm tàng hình */
+    /* BẢN FIX CUỐI: Giữ ở tọa độ (0,0) để chụp chuẩn, nhưng chìm xuống dưới và tàng hình */
     #pdfPrintArea { position: absolute; top: 0; left: 0; width: 1122px; background: #fff; font-family: 'Manrope', sans-serif !important; color:#333; z-index:-100; visibility:hidden; pointer-events: none; }
     #pdfPrintArea * { font-family: 'Manrope', sans-serif !important; }
 
@@ -140,8 +140,8 @@
       <table class="summary-table" id="summaryTable"></table>
     </div>
 
-    <div id="exportBlock">
-      <b>Link Google Sheet Theo Dõi (Tab tự động theo tháng):</b>
+    <div id="exportBlock" style="display: none; background: #e8f4fc; padding: 15px; border-radius: 8px; margin-bottom: 20px; align-items: center; gap: 15px; flex-shrink: 0;">
+      <b>Link Google Sheet Theo Dõi (Sẽ lưu vào Tab Tháng Hiện Tại):</b>
       <input type="text" id="trackingUrl" class="form-control" style="flex:1; margin:0;" placeholder="Dán đường link Google Sheet vào đây...">
       <button class="btn-action btn-approve" style="padding: 12px 25px;" onclick="exportToTracking()">Đồng bộ Dữ liệu</button>
     </div>
@@ -173,7 +173,6 @@
     </div>
   </div>
 
-  <!-- BẢN VẼ TẠM ĐỂ XUẤT PDF -->
   <div id="pdfPrintArea"></div>
 
   <script>
@@ -412,7 +411,7 @@
       sendNext();
     }
 
-    // ĐÃ FIX: CHỤP ẢNH CHÍNH XÁC HTML TRONG TẦM MẮT RỒI LÀM TÀNG HÌNH NÓ
+    // ĐÃ FIX: CHUYỂN QUA HIỂN THỊ TRỰC TIẾP RỒI CHỤP, ĐẢM BẢO FONT VÀ NỘI DUNG 100%
     function downloadPDFs() {
       const monthVal = document.getElementById('pdfMonth').value;
       if(!monthVal) { alert("Vui lòng chọn Tháng/Năm để tải!"); return; }
@@ -421,14 +420,15 @@
       if(filteredData.length === 0) { alert("Không có phiếu nào được duyệt trong tháng này!"); return; }
       
       showLoading(true, "Đang trích xuất File PDF, vui lòng chờ...");
-      let htmlPages = ``;
+      
+      let htmlContainerString = `<div style="font-family: 'Manrope', sans-serif; color: #222; background:#fff; width: 1122px; padding: 40px; box-sizing: border-box;">`;
       
       filteredData.forEach(phieu => {
         let tongTien = 0; let rowsHtml = '';
         phieu.chiTiet.forEach((ct, index) => {
           tongTien += Number(ct.nganSachDuyet);
           let mThang = monthVal.split('-')[1];
-          rowsHtml += `<tr style="font-family: 'Manrope', sans-serif;">
+          rowsHtml += `<tr>
             <td style="border:1px solid #000; padding:10px; text-align:center;">${index+1}</td>
             <td style="border:1px solid #000; padding:10px; text-align:center;"><b>${ct.tenDuAn}</b></td>
             <td style="border:1px solid #000; padding:10px; text-align:center; color:#c00000; font-weight:bold;">${formatNumber(ct.nganSachDuyet)}</td>
@@ -438,69 +438,48 @@
             <td style="border:1px solid #000; padding:10px; text-align:center;">${ct.channel || ''}</td>
             <td style="border:1px solid #000; padding:10px; text-align:center;">${ct.phone || ''}</td>
             <td style="border:1px solid #000; padding:10px; text-align:center;">${ct.account || ''}</td>
-            <td style="border:1px solid #000; padding:10px; background:#f5f5f5;"></td>
+            <td style="border:1px solid #000; padding:10px;"></td>
           </tr>`;
         });
 
-        htmlPages += `
-          <div style="page-break-after: always; padding: 30px; box-sizing:border-box; font-family: 'Manrope', sans-serif; background:#fff; width: 1122px; min-height:790px;">
-            <h2 style="text-align:center; color:#0b1f8c; font-size:24px; font-weight:800; text-transform:uppercase; margin-bottom:5px;">KẾT QUẢ BẢN DUYỆT ĐỀ XUẤT MARKETING</h2>
-            <p style="text-align:center; color:#555; margin-bottom:30px;">Mã số phiếu: <b>${phieu.idPhieu}</b></p>
-            
-            <table style="width:100%; border:none; font-size:14px; margin-bottom:20px; line-height:1.6; font-family: 'Manrope', sans-serif;">
-              <tr>
-                <td><b>Thành viên:</b><br>${phieu.thanhVien.replace(/,/g, '<br>')}</td>
-                <td style="text-align:right; vertical-align:top;"><b>Tên nhóm:</b> ${phieu.tenNhom}<br><b>Phòng ban:</b> ${phieu.phongKD}</td>
-              </tr>
+        htmlContainerString += `
+          <div style="page-break-after: always; margin-bottom: 50px;">
+            <h2 style="text-align:center; color:#0b1f8c; font-size:24px; font-weight:800; text-transform:uppercase;">KẾT QUẢ BẢN DUYỆT ĐỀ XUẤT MARKETING</h2>
+            <p style="text-align:center; color:#555;">Mã số phiếu: <b>${phieu.idPhieu}</b></p>
+            <table style="width:100%; margin-bottom:20px; font-size:14px;">
+              <tr><td><b>Thành viên:</b> ${phieu.thanhVien.replace(/,/g, ', ')}</td><td style="text-align:right;"><b>Phòng ban:</b> ${phieu.phongKD}</td></tr>
             </table>
-
-            <table style="width:100%; border-collapse:collapse; margin-bottom:30px; font-family: 'Manrope', sans-serif;">
-              <thead>
-                <tr style="background-color:#0b1f8c; color:#fff; font-size:13px;">
-                  <th style="border:1px solid #000; padding:10px;">STT</th><th style="border:1px solid #000; padding:10px;">Dự án</th><th style="border:1px solid #000; padding:10px;">Ngân sách (Duyệt)</th><th style="border:1px solid #000; padding:10px;">Bắt đầu</th><th style="border:1px solid #000; padding:10px;">Kết thúc</th><th style="border:1px solid #000; padding:10px;">KPI</th><th style="border:1px solid #000; padding:10px;">Kênh chạy</th><th style="border:1px solid #000; padding:10px;">SĐT</th><th style="border:1px solid #000; padding:10px;">Tài khoản</th><th style="border:1px solid #000; padding:10px;">BLĐ Duyệt</th>
-                </tr>
-              </thead>
-              <tbody>${rowsHtml}</tbody>
-              <tfoot>
-                <tr style="background:#f4f6f8; font-weight:bold;">
-                  <td colspan="2" style="border:1px solid #000; padding:10px; text-align:right;">TỔNG CỘNG PHÊ DUYỆT</td>
-                  <td style="border:1px solid #000; padding:10px; text-align:center; color:#fff; background:#0b1f8c; font-size:14px;">${formatNumber(tongTien)}</td>
-                  <td colspan="7" style="border:1px solid #000;"></td>
-                </tr>
-              </tfoot>
-            </table>
-
-            <table style="width:100%; text-align:center; font-size:12px; margin-top:50px; font-weight:bold; line-height:2; font-family: 'Manrope', sans-serif;">
-              <tr>
-                <td>Ban Lãnh Đạo<br><span style="display:inline-block; border-radius:20px; padding:4px 15px; color:#fff; background:#0b1f8c; font-size:11px; margin-top:5px;">Đã xác nhận</span></td>
-                <td>Phòng MKT<br><span style="display:inline-block; border-radius:20px; padding:4px 15px; color:#fff; background:#0b1f8c; font-size:11px; margin-top:5px;">Đã xác nhận</span></td>
-                <td>Phó TGĐ/GĐCN<br><span style="display:inline-block; border-radius:20px; padding:4px 15px; color:#fff; background:#0b1f8c; font-size:11px; margin-top:5px;">Đã xác nhận</span></td>
-                <td>Giám Đốc Khối<br><span style="display:inline-block; border-radius:20px; padding:4px 15px; color:#fff; background:#0b1f8c; font-size:11px; margin-top:5px;">Đã xác nhận</span></td>
-                <td>TP Kinh Doanh<br><span style="display:inline-block; border-radius:20px; padding:4px 15px; color:#fff; background:#0b1f8c; font-size:11px; margin-top:5px;">Đã xác nhận</span></td>
+            <table style="width:100%; border-collapse:collapse;">
+              <tr style="background-color:#0b1f8c; color:#fff;">
+                <th style="border:1px solid #000; padding:10px;">STT</th><th style="border:1px solid #000; padding:10px;">Dự án</th><th style="border:1px solid #000; padding:10px;">Ngân sách</th><th style="border:1px solid #000; padding:10px;">Bắt đầu</th><th style="border:1px solid #000; padding:10px;">Kết thúc</th><th style="border:1px solid #000; padding:10px;">KPI</th><th style="border:1px solid #000; padding:10px;">Kênh</th><th style="border:1px solid #000; padding:10px;">SĐT</th><th style="border:1px solid #000; padding:10px;">Tài khoản</th><th style="border:1px solid #000; padding:10px;">BLĐ Duyệt</th>
               </tr>
+              ${rowsHtml}
+              <tr><td colspan="2" style="border:1px solid #000; padding:10px; text-align:right; font-weight:bold;">TỔNG CỘNG</td><td style="border:1px solid #000; padding:10px; text-align:center; font-weight:bold; background:#0b1f8c; color:#fff;">${formatNumber(tongTien)}</td><td colspan="7" style="border:1px solid #000;"></td></tr>
             </table>
           </div>`;
       });
+      htmlContainerString += `</div>`;
 
       const printArea = document.getElementById('pdfPrintArea');
-      printArea.innerHTML = htmlPages;
-      printArea.style.visibility = 'visible'; // Hiện ra để chụp ảnh
+      printArea.innerHTML = htmlContainerString;
+      
+      // Cho hiển thị ra DOM nhưng bị giấu xuống lớp -100 để thu viện chụp ảnh
+      printArea.style.visibility = 'visible'; 
       
       var opt = { 
         margin: 10, 
         filename: 'Bao_Cao_MKT_' + monthVal + '.pdf', 
         image: { type: 'jpeg', quality: 0.98 }, 
-        html2canvas: { scale: 2, useCORS: true, letterRendering: true }, 
+        html2canvas: { scale: 2, useCORS: true }, 
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } 
       };
       
       html2pdf().set(opt).from(printArea).save().then(() => { 
-        printArea.style.visibility = 'hidden'; // Ẩn đi sau khi chụp xong
+        printArea.style.visibility = 'hidden'; 
         showLoading(false); 
       }).catch(err => {
         printArea.style.visibility = 'hidden'; 
-        showLoading(false);
-        alert("Lỗi tạo PDF!");
+        showLoading(false); alert("Lỗi tạo PDF!");
       });
     }
 
