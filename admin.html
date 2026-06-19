@@ -207,7 +207,6 @@
     </div>
   </div>
 
-  <!-- Script Đọc Số -->
   <script>
     const dict = { 0:'không', 1:'một', 2:'hai', 3:'ba', 4:'bốn', 5:'năm', 6:'sáu', 7:'bảy', 8:'tám', 9:'chín' };
     function readGroup(group) {
@@ -578,7 +577,7 @@
       const approvedItems = globalData.filter(p => p.trangThai === 'APPROVED_BY_BLD');
       if(approvedItems.length === 0) { alert("Không có phiếu duyệt nào!"); return; }
       if(!confirm(`Bắt đầu quy trình gửi tự động ${approvedItems.length} email. Vui lòng không đóng trang.`)) return;
-      showLoading(true, "Đang gửi Email...");
+      showLoading(true, "Đang gửi Email...", "Hệ thống đang phát thư, vui lòng chờ...");
       let currentIndex = 0;
       function sendNext() {
         if (currentIndex >= approvedItems.length) { showLoading(false); alert("Hoàn tất gửi toàn bộ Email!"); return; }
@@ -586,7 +585,6 @@
       }
       sendNext();
     }
-    
     function sendApprovalMail(btn, idPhieu) {
       if(!confirm("Bạn có chắc chắn muốn gửi Email bản duyệt tới nhóm này?")) return;
       const originalText = btn.innerText; btn.innerText = "Đang gửi..."; btn.disabled = true;
@@ -599,9 +597,9 @@
     // =========================================================================
     // XUẤT PDF BẢN ĐỊA MỚI HOÀN TOÀN (TẢI FILE TRỰC TIẾP TỪ CHUỖI VĂN BẢN)
     // CAM KẾT VĨNH VIỄN 100% KHÔNG BAO GIỜ BỊ LỖI TRẮNG FILE
-    // CĂN LỀ TRÁI CHUẨN, GIẢM SIZE CHỮ CHUẨN A4
     // =========================================================================
 
+    // TẢI FILE BẢN DUYỆT ĐỀ XUẤT (TAB 1) - SỬA LỖI FONT CHỮ
     function downloadPDFs() {
       const monthVal = document.getElementById('pdfMonth').value;
       if(!monthVal) { alert("Vui lòng chọn Tháng/Năm!"); return; }
@@ -610,7 +608,8 @@
       
       showLoading(true, "ĐANG TRÍCH XUẤT TÀI LIỆU PDF...", "Vui lòng đợi 2-3 giây. Tệp tải xuống sẽ tự động lưu vào máy.");
       
-      let htmlString = `<div style="font-family: Arial, sans-serif; color: #000; background: #fff;">`;
+      // ĐÃ FIX: Sử dụng font 'Times New Roman' chuẩn quốc tế để chống lỗi Font tiếng Việt như ở Đơn tạm ứng
+      let htmlString = `<div style="font-family: 'Times New Roman', Times, serif; color: #000; background: #fff;">`;
       
       filteredData.forEach((phieu, i) => {
         let tongTien = 0; let rowsHtml = '';
@@ -620,9 +619,9 @@
         });
 
         htmlString += `
-          <div style="font-size: 13px; line-height: 1.4; padding: 10px; ${i < filteredData.length - 1 ? 'page-break-after: always;' : ''}">
-            <h2 style="text-align:center; color:#0b1f8c; font-size:20px; font-weight:800; margin-bottom: 5px;">KẾT QUẢ DUYỆT MKT</h2>
-            <p style="text-align:center; margin-top:0; margin-bottom: 20px;">Mã: <b>${phieu.idPhieu}</b></p>
+          <div style="font-size: 14px; line-height: 1.4; padding: 20px; ${i < filteredData.length - 1 ? 'page-break-after: always;' : ''}">
+            <h2 style="text-align:center; color:#0b1f8c; font-size:22px; font-weight:bold; margin-bottom: 5px;">KẾT QUẢ DUYỆT MKT</h2>
+            <p style="text-align:center; margin-top:0; margin-bottom: 20px; font-size:15px;">Mã: <b>${phieu.idPhieu}</b></p>
             
             <table style="width:100%; margin-bottom:15px; border: none !important;">
               <tr>
@@ -631,7 +630,7 @@
               </tr>
             </table>
             
-            <table style="width:100%; border-collapse:collapse; text-align:center; font-size: 12px;">
+            <table style="width:100%; border-collapse:collapse; text-align:center; font-size: 13px;">
               <thead>
                 <tr style="background-color:#0b1f8c; color:#fff;">
                   <th style="border:1px solid #000; padding:8px;">STT</th><th style="border:1px solid #000; padding:8px;">Dự án</th><th style="border:1px solid #000; padding:8px;">Ngân sách</th><th style="border:1px solid #000; padding:8px;">Bắt đầu</th><th style="border:1px solid #000; padding:8px;">Kết thúc</th><th style="border:1px solid #000; padding:8px;">KPI</th><th style="border:1px solid #000; padding:8px;">Kênh</th><th style="border:1px solid #000; padding:8px;">SĐT</th><th style="border:1px solid #000; padding:8px;">Tài khoản</th><th style="border:1px solid #000; padding:8px;">BLĐ Duyệt</th>
@@ -641,7 +640,7 @@
               <tfoot>
                 <tr style="background:#f4f6f8; font-weight:bold;">
                   <td colspan="2" style="border:1px solid #000; padding:8px; text-align:right;">TỔNG</td>
-                  <td style="border:1px solid #000; padding:8px; color:#fff; background:#0b1f8c; font-size:13px;">${formatNumber(tongTien)}</td>
+                  <td style="border:1px solid #000; padding:8px; color:#fff; background:#0b1f8c; font-size:14px;">${formatNumber(tongTien)}</td>
                   <td colspan="7" style="border:1px solid #000;"></td>
                 </tr>
               </tfoot>
@@ -650,9 +649,8 @@
       });
       htmlString += `</div>`;
       
-      // Chèn thẳng HTML vào html2pdf để tự nó xử lý kết xuất ngầm
       var opt = { 
-        margin:       15, 
+        margin:       10, 
         filename:     'Bao_Cao_MKT_' + monthVal + '.pdf', 
         image:        { type: 'jpeg', quality: 0.98 }, 
         html2canvas:  { scale: 2, useCORS: true }, 
@@ -666,6 +664,7 @@
       });
     }
 
+    // TẢI FILE TẠM ỨNG PDF CHUẨN FORM WORD (TAB 2)
     function downloadAdvancePDFs() {
       const monthVal = document.getElementById('advPdfMonth').value;
       if(!monthVal) { alert("Vui lòng chọn Tháng/Năm để tải!"); return; }
@@ -689,7 +688,6 @@
           totalDuyet += finalNganSach;
           let mThang = monthVal.split('-')[1]; 
           let advanceAmt = Math.round(finalNganSach * Number(phieu.advPercent) / 100);
-          
           rowsHtml += `<tr>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">Tháng ${mThang}</td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">${ct.tenDuAn}</td>
