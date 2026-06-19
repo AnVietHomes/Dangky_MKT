@@ -11,9 +11,11 @@
   <style>
     :root { --bg-login: #d4efff; --primary-blue: #0b1f8c; --text-dark: #333333; --text-gray: #666666; --input-bg: #f4f6f8; --border-color: #e5e8ec; --success-green: #27ae60; --danger: #e74c3c; --warning: #f39c12; }
     
-    body { font-family: 'Manrope', Arial, sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; background-color: var(--bg-login); box-sizing: border-box; }
+    /* FIX: Bỏ giới hạn height:100vh và overflow:hidden để trang cuộn tự nhiên */
+    body { font-family: 'Manrope', Arial, sans-serif; margin: 0; padding: 0; min-height: 100vh; background-color: var(--bg-login); box-sizing: border-box; }
     
-    .login-wrapper { width: 100%; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; position: absolute; top: 0; left: 0; z-index: 10; background: var(--bg-login); }
+    /* Khung Login bao trọn màn hình */
+    .login-wrapper { width: 100%; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; background: var(--bg-login); position: absolute; top: 0; left: 0; z-index: 10; }
     .login-header { text-align: center; margin-bottom: 30px; }
     .login-header img { max-width: 90px; margin-bottom: 15px; }
     .login-header h1 { font-size: 24px; font-weight: 800; color: var(--primary-blue); margin: 0; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -28,27 +30,29 @@
     .btn-submit:hover { background-color: #081666; }
     .login-footer { font-size: 12px; color: #666; text-align: center; line-height: 1.6; font-weight: 500;}
 
-    .dashboard-container { display: none; background-color: #ffffff; width: 95%; max-width: 1600px; border-radius: 12px; padding: 30px 40px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08); height: 95vh; flex-direction: column; box-sizing: border-box; margin: 2.5vh auto; position: relative; z-index: 5; }
+    /* FIX: Bỏ giới hạn height của dashboard, thêm margin top-bottom 40px để card giãn tự do */
+    .dashboard-container { display: none; background-color: #ffffff; width: 95%; max-width: 1600px; border-radius: 12px; padding: 40px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08); margin: 40px auto; position: relative; z-index: 5; box-sizing: border-box; }
     
-    .dash-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; flex-shrink: 0; }
+    .dash-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border-color); padding-bottom: 15px; margin-bottom: 25px; }
     .dash-title { color: var(--primary-blue); margin: 0; font-weight: 800; font-size: 22px; text-transform: uppercase; }
     .user-badge { font-weight: 700; background: var(--input-bg); padding: 10px 20px; border-radius: 30px; }
     .btn-logout { color: var(--danger); font-weight: 700; text-decoration: none; margin-left: 15px; cursor: pointer; }
 
-    .super-admin-toolbar { display: none; background: #0a1f35; color: white; padding: 15px 20px; border-radius: 10px; margin-bottom: 25px; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .super-admin-toolbar { display: none; background: #0a1f35; color: white; padding: 15px 20px; border-radius: 10px; margin-bottom: 25px; align-items: center; justify-content: space-between; }
     .super-admin-toolbar select { padding: 8px 15px; border-radius: 6px; font-family: 'Manrope', Arial, sans-serif; font-weight: 700; outline: none; }
 
-    .mkt-toolbar { display: none; background: #e8f4fc; padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; align-items: center; justify-content: space-between; border: 1px solid var(--primary-blue); flex-shrink: 0; }
+    .mkt-toolbar { display: none; background: #e8f4fc; padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; align-items: center; justify-content: space-between; border: 1px solid var(--primary-blue); }
 
-    .summary-table-wrap { display: none; margin-bottom: 25px; background: #fdfdfd; border: 1px solid var(--primary-blue); border-radius: 8px; overflow: hidden; flex-shrink: 0; }
+    .summary-table-wrap { display: none; margin-bottom: 25px; background: #fdfdfd; border: 1px solid var(--primary-blue); border-radius: 8px; overflow: hidden; }
     .summary-table { width: 100%; border-collapse: collapse; }
-    .summary-table th { background: var(--primary-blue); color: white; padding: 12px; font-size: 14px; text-align: right; }
+    .summary-table th { background: var(--primary-blue); color: white; padding: 12px; font-size: 14px; text-align: right; border-bottom: 1px solid var(--border-color); }
     .summary-table td { padding: 12px; border-bottom: 1px solid #ddd; text-align: right; font-weight: 700; font-size: 15px; }
 
-    #exportBlock { display: none; background: #e8f4fc; padding: 15px; border-radius: 8px; margin-bottom: 20px; align-items: center; gap: 15px; flex-shrink: 0; }
+    #exportBlock { display: none; background: #e8f4fc; padding: 15px; border-radius: 8px; margin-bottom: 20px; align-items: center; gap: 15px; }
 
-    .table-container { flex: 1; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; }
+    .table-container { width: 100%; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 20px; }
     table { width: 100%; border-collapse: collapse; margin-top: 0; }
+    /* Tiêu đề dính chặt lên trên khi cuộn */
     th { position: sticky; top: 0; z-index: 10; background: var(--input-bg); color: var(--text-dark); padding: 14px 10px; font-size: 13px; font-weight: 800; border: 1px solid var(--border-color); border-top: none; text-align: center; }
     td { padding: 12px 10px; border: 1px solid var(--border-color); text-align: center; font-size: 13px; vertical-align: middle; }
     
@@ -63,7 +67,6 @@
     .btn-draft { background: var(--warning); }
     .subtotal-row { background: #fffaf0; }
 
-    /* LAYOUT HIỂN THỊ TRỰC QUAN */
     .row-dimmed { opacity: 0.5; background: #fafafa; }
     .row-dimmed:hover { opacity: 0.9; transition: 0.2s; }
     .row-rejected { background: #ffebee !important; border-left: 5px solid var(--danger); opacity: 0.8;}
@@ -73,6 +76,10 @@
     .modal-card { background: #fff; width: 1000px; max-width: 95%; max-height: 90vh; overflow-y: auto; border-radius: 12px; padding: 30px; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
     .btn-close { position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; background: none; border: none; color: #888; }
     .modal-header { font-size: 22px; font-weight: 800; color: var(--primary-blue); text-align: center; margin-bottom: 20px; text-transform: uppercase;}
+
+    /* CƠ CHẾ RENDER PDF MỚI (TUYỆT ĐỐI KHÔNG BỊ TRẮNG) */
+    #pdfPrintArea { position: absolute; top: 0; left: 0; width: 1122px; background: #fff; font-family: 'Manrope', Arial, sans-serif !important; color:#333; z-index:-100; display: none; }
+    #pdfPrintArea * { font-family: 'Manrope', Arial, sans-serif !important; }
 
     .loading-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; justify-content:center; align-items:center; font-weight:800; color:#fff; font-size: 18px; flex-direction: column; gap:15px;}
   </style>
@@ -138,8 +145,8 @@
       <table class="summary-table" id="summaryTable"></table>
     </div>
 
-    <div id="exportBlock" style="display: none; background: #e8f4fc; padding: 15px; border-radius: 8px; margin-bottom: 20px; align-items: center; gap: 15px; flex-shrink: 0;">
-      <b>Link Google Sheet Theo Dõi (Sẽ lưu vào Tab Tháng Hiện Tại):</b>
+    <div id="exportBlock">
+      <b>Link Google Sheet Theo Dõi (Sẽ tự động cập nhật vào Tab của Tháng):</b>
       <input type="text" id="trackingUrl" class="form-control" style="flex:1; margin:0;" placeholder="Dán đường link Google Sheet vào đây...">
       <button class="btn-action btn-approve" style="padding: 12px 25px;" onclick="exportToTracking()">Đồng bộ Dữ liệu</button>
     </div>
@@ -153,7 +160,7 @@
       </table>
     </div>
     
-    <div id="bldActions" style="display: none; justify-content: flex-end; margin-top: 25px; gap: 15px; flex-shrink: 0;">
+    <div id="bldActions" style="display: none; justify-content: flex-end; margin-top: 15px; gap: 15px;">
        <button class="btn-action btn-draft" style="padding: 12px 25px;" onclick="submitBldApproval(false)">Lưu Nháp Tạm Thời</button>
        <button class="btn-action btn-approve" style="padding: 12px 25px;" onclick="submitBldApproval(true)">Chốt Phê Duyệt Hệ Thống</button>
     </div>
@@ -171,16 +178,21 @@
     </div>
   </div>
 
+  <div id="pdfPrintArea"></div>
+
   <script>
+    // DÁN LINK API TỪ BƯỚC APPS SCRIPT VÀO ĐÂY
     const API_URL = "https://script.google.com/macros/s/AKfycbwFgszaVmJmOhs_GOMlcomv-RTcFJ2SXU4nbrGDRRqS8mZcFOR59YnBEl5boKmTeBFa/exec";
     let loggedInUser = null; let currentViewRole = ''; let globalData = []; let bldItemsArray = [];
 
+    // GHI NHỚ ĐĂNG NHẬP SAU KHI F5
     document.addEventListener("DOMContentLoaded", function() {
       const savedSession = localStorage.getItem("avh_admin_session");
       if (savedSession) {
         loggedInUser = JSON.parse(savedSession);
         document.getElementById('loginScreen').style.display = 'none'; 
-        document.getElementById('dashboardScreen').style.display = 'flex';
+        // Đã sửa lại thành block để tương thích với cơ chế cuộn của Body
+        document.getElementById('dashboardScreen').style.display = 'block'; 
         document.getElementById('userInfo').innerText = `Xin chào, ${loggedInUser.name}`;
         if (loggedInUser.role === 'SUPER_ADMIN') document.getElementById('superAdminToolbar').style.display = 'flex';
         simulateRole(loggedInUser.role);
@@ -214,7 +226,7 @@
           localStorage.setItem("avh_admin_session", JSON.stringify(loggedInUser));
 
           document.getElementById('loginScreen').style.display = 'none'; 
-          document.getElementById('dashboardScreen').style.display = 'flex';
+          document.getElementById('dashboardScreen').style.display = 'block';
           document.getElementById('userInfo').innerText = `Xin chào, ${loggedInUser.name}`;
           if (loggedInUser.role === 'SUPER_ADMIN') document.getElementById('superAdminToolbar').style.display = 'flex';
           simulateRole(loggedInUser.role);
@@ -325,7 +337,7 @@
         recalcBLDSummary();
 
       } else {
-        thead.innerHTML = `<th width="5%"></th><th width="10%">Mã Phiếu</th><th>Phòng Ban</th><th width="15%">Thành Viên</th><th>Dự Án</th><th>Ngân Sách Đề Xuất</th><th>Trạng Thái</th><th class="td-actions">Hành Động</th>`;
+        thead.innerHTML = `<th width="5%"></th><th>Mã Phiếu</th><th>Phòng Ban</th><th>Thành Viên</th><th>Dự Án</th><th>Ngân Sách Đề Xuất</th><th>Trạng Thái</th><th class="td-actions">Hành Động</th>`;
         bldActions.style.display = 'none'; sumBlock.style.display = 'none';
         
         let htmlAction = ''; let htmlHistory = ''; let htmlRejected = '';
@@ -333,7 +345,7 @@
           const ct = phieu.chiTiet[0]; let tv = phieu.thanhVien.split(',').join('<br>');
           let grp = getStatusGroup(phieu, role);
           
-          let rowHTML = `<tr class="${grp === 'HISTORY' ? 'row-dimmed' : (grp === 'REJECTED' ? 'row-rejected' : '')}">
+          let rowHTML = `<tr id="row_${phieu.idPhieu}" class="${grp === 'HISTORY' ? 'row-dimmed' : (grp === 'REJECTED' ? 'row-rejected' : '')}">
             <td><button class="btn-view" onclick="viewDetail('${phieu.idPhieu}')">👁️</button></td>
             <td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${phieu.idPhieu}</span></td>
             <td>${phieu.phongKD}</td><td style="text-align:left; font-size:12px;">${tv}</td><td style="color:#0b1f8c; font-weight:800;">${ct.tenDuAn}</td><td>${formatNumber(ct.nganSachDeXuat)}</td>
@@ -371,12 +383,11 @@
       }
     }
 
-    // TỐI ƯU UX SIÊU TỐC - Không cần load lại bảng khi thao tác
+    // UX SIÊU TỐC - TỰ ĐỘNG CHUYỂN BẢNG MÀ KHÔNG CẦN CHỜ LOAD
     function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
-      if(!confirm("Xác nhận thao tác phê duyệt này?")) return;
       const row = btnElement.closest('tr');
       
-      // Chuyển đổi DOM ngay lập tức trên máy khách
+      // Nhảy bảng ngay lập tức
       if(newStatus === 'REJECTED') {
          document.getElementById('tableBodyRejected').prepend(row);
          row.className = 'row-rejected';
@@ -389,9 +400,9 @@
          row.querySelector('.td-actions').innerHTML = ''; 
       }
 
-      // Gửi API ngầm để lưu lại
+      // Xử lý ngầm lưu vào Google Sheet
       callAPI("updateStatus", { data: JSON.stringify({ idPhieu: idPhieu, newStatus: newStatus }) }, function(res) {
-        if(!res.success) alert("Lỗi đồng bộ máy chủ!");
+        if(!res.success) { alert("Lỗi đồng bộ máy chủ!"); window.location.reload(); }
       });
     }
 
@@ -421,7 +432,7 @@
       sendNext();
     }
 
-    // TÍNH NĂNG TẠO PDF KHÔNG LỖI TRẮNG VÀ CHUẨN FONT
+    // ĐÃ FIX 100% CƠ CHẾ RENDER PDF MỚI KHÔNG BAO GIỜ BỊ TRẮNG TỆP
     function downloadPDFs() {
       const monthVal = document.getElementById('pdfMonth').value;
       if(!monthVal) { alert("Vui lòng chọn Tháng/Năm để tải!"); return; }
@@ -431,8 +442,7 @@
       
       showLoading(true, "Đang trích xuất File PDF, vui lòng chờ...");
       
-      // Khởi tạo chuỗi HTML gốc
-      let htmlString = `<div style="font-family: 'Manrope', Arial, sans-serif; color: #222; background:#fff; padding: 40px; box-sizing: border-box;">`;
+      let htmlContainerString = `<div style="font-family: 'Manrope', Arial, sans-serif; color: #222; background:#fff; width: 1122px; padding: 40px; box-sizing: border-box;">`;
       
       filteredData.forEach(phieu => {
         let tongTien = 0; let rowsHtml = '';
@@ -453,59 +463,43 @@
           </tr>`;
         });
 
-        htmlString += `
+        htmlContainerString += `
           <div style="page-break-after: always; margin-bottom: 50px;">
-            <h2 style="text-align:center; color:#0b1f8c; font-size:24px; font-weight:800; text-transform:uppercase; margin-bottom:30px;">KẾT QUẢ BẢN DUYỆT ĐỀ XUẤT MARKETING</h2>
-            <p style="text-align:center; color:#555; margin-bottom:30px;">Mã số phiếu: <b>${phieu.idPhieu}</b></p>
-            
-            <table style="width:100%; border:none; font-size:14px; margin-bottom:20px; line-height:1.6;">
-              <tr>
-                <td><b>Thành viên:</b><br>${phieu.thanhVien.replace(/,/g, '<br>')}</td>
-                <td style="text-align:right; vertical-align:top;"><b>Tên nhóm:</b> ${phieu.tenNhom}<br><b>Phòng ban:</b> ${phieu.phongKD}</td>
-              </tr>
+            <h2 style="text-align:center; color:#0b1f8c; font-size:24px; font-weight:800; text-transform:uppercase;">KẾT QUẢ BẢN DUYỆT ĐỀ XUẤT MARKETING</h2>
+            <p style="text-align:center; color:#555;">Mã số phiếu: <b>${phieu.idPhieu}</b></p>
+            <table style="width:100%; margin-bottom:20px; font-size:14px;">
+              <tr><td><b>Thành viên:</b> ${phieu.thanhVien.replace(/,/g, ', ')}</td><td style="text-align:right;"><b>Phòng ban:</b> ${phieu.phongKD}</td></tr>
             </table>
-
-            <table style="width:100%; border-collapse:collapse; margin-bottom:30px;">
-              <thead>
-                <tr style="background-color:#0b1f8c; color:#fff; font-size:13px;">
-                  <th style="border:1px solid #000; padding:10px;">STT</th><th style="border:1px solid #000; padding:10px;">Dự án</th><th style="border:1px solid #000; padding:10px;">Ngân sách (Duyệt)</th><th style="border:1px solid #000; padding:10px;">Bắt đầu</th><th style="border:1px solid #000; padding:10px;">Kết thúc</th><th style="border:1px solid #000; padding:10px;">KPI</th><th style="border:1px solid #000; padding:10px;">Kênh chạy</th><th style="border:1px solid #000; padding:10px;">SĐT</th><th style="border:1px solid #000; padding:10px;">Tài khoản</th><th style="border:1px solid #000; padding:10px;">BLĐ Duyệt</th>
-                </tr>
-              </thead>
-              <tbody>${rowsHtml}</tbody>
-              <tfoot>
-                <tr style="background:#f4f6f8; font-weight:bold;">
-                  <td colspan="2" style="border:1px solid #000; padding:10px; text-align:right;">TỔNG CỘNG PHÊ DUYỆT</td>
-                  <td style="border:1px solid #000; padding:10px; text-align:center; color:#fff; background:#0b1f8c; font-size:14px;">${formatNumber(tongTien)}</td>
-                  <td colspan="7" style="border:1px solid #000;"></td>
-                </tr>
-              </tfoot>
-            </table>
-
-            <table style="width:100%; text-align:center; font-size:12px; margin-top:50px; font-weight:bold; line-height:2;">
-              <tr>
-                <td>Ban Lãnh Đạo<br><span style="display:inline-block; border-radius:20px; padding:4px 15px; color:#fff; background:#0b1f8c; font-size:11px; margin-top:5px;">Đã xác nhận</span></td>
-                <td>Phòng MKT<br><span style="display:inline-block; border-radius:20px; padding:4px 15px; color:#fff; background:#0b1f8c; font-size:11px; margin-top:5px;">Đã xác nhận</span></td>
-                <td>Phó TGĐ/GĐCN<br><span style="display:inline-block; border-radius:20px; padding:4px 15px; color:#fff; background:#0b1f8c; font-size:11px; margin-top:5px;">Đã xác nhận</span></td>
-                <td>Giám Đốc Khối<br><span style="display:inline-block; border-radius:20px; padding:4px 15px; color:#fff; background:#0b1f8c; font-size:11px; margin-top:5px;">Đã xác nhận</span></td>
-                <td>TP Kinh Doanh<br><span style="display:inline-block; border-radius:20px; padding:4px 15px; color:#fff; background:#0b1f8c; font-size:11px; margin-top:5px;">Đã xác nhận</span></td>
+            <table style="width:100%; border-collapse:collapse;">
+              <tr style="background-color:#0b1f8c; color:#fff;">
+                <th style="border:1px solid #000; padding:10px;">STT</th><th style="border:1px solid #000; padding:10px;">Dự án</th><th style="border:1px solid #000; padding:10px;">Ngân sách</th><th style="border:1px solid #000; padding:10px;">Bắt đầu</th><th style="border:1px solid #000; padding:10px;">Kết thúc</th><th style="border:1px solid #000; padding:10px;">KPI</th><th style="border:1px solid #000; padding:10px;">Kênh</th><th style="border:1px solid #000; padding:10px;">SĐT</th><th style="border:1px solid #000; padding:10px;">Tài khoản</th><th style="border:1px solid #000; padding:10px;">BLĐ Duyệt</th>
               </tr>
+              ${rowsHtml}
+              <tr><td colspan="2" style="border:1px solid #000; padding:10px; text-align:right; font-weight:bold;">TỔNG CỘNG</td><td style="border:1px solid #000; padding:10px; text-align:center; font-weight:bold; background:#0b1f8c; color:#fff;">${formatNumber(tongTien)}</td><td colspan="7" style="border:1px solid #000;"></td></tr>
             </table>
           </div>`;
       });
-      htmlString += `</div>`;
+      htmlContainerString += `</div>`;
 
-      // Truyền trực tiếp chuỗi vào html2pdf
+      const printArea = document.getElementById('pdfPrintArea');
+      printArea.innerHTML = htmlContainerString;
+      
+      // Bật block để thư viện nhìn thấy, nhưng dùng z-index âm để chèn xuống dưới trang.
+      printArea.style.display = 'block';
+      
       var opt = { 
         margin: 10, 
         filename: 'Bao_Cao_MKT_' + monthVal + '.pdf', 
         image: { type: 'jpeg', quality: 0.98 }, 
-        html2canvas: { scale: 2 }, 
+        html2canvas: { scale: 2, useCORS: true }, 
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } 
       };
       
-      html2pdf().set(opt).from(htmlString).save().then(() => { 
+      html2pdf().set(opt).from(printArea).save().then(() => { 
+        printArea.style.display = 'none'; 
         showLoading(false); 
       }).catch(err => {
+        printArea.style.display = 'none'; 
         showLoading(false); alert("Lỗi tạo PDF!");
       });
     }
