@@ -79,17 +79,15 @@
     .btn-close { position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; background: none; border: none; color: #888; }
     .modal-header { font-size: 22px; font-weight: 800; color: var(--primary-blue); text-align: center; margin-bottom: 20px; text-transform: uppercase;}
 
-    /* CƠ CHẾ PDF MỚI: Hiển thị 100% nhưng nằm ẩn ngay dưới lớp màu đen Loading */
-    #pdfPrintArea { position: absolute; top: 0; left: 50%; transform: translateX(-50%); z-index: 9998; display: none; background: #fff; }
-
+    /* BẢN FIX: Hiển thị lớp Loading với text động, che khuất công đoạn chụp PDF ở bên dưới */
     .loading-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; justify-content:center; align-items:center; font-weight:800; color:#fff; font-size: 18px; flex-direction: column; gap:15px;}
   </style>
 </head>
 <body>
 
   <div class="loading-overlay" id="loadingOverlay">
-      <div>ĐANG TRÍCH XUẤT TÀI LIỆU PDF...</div>
-      <div id="loadingSubtext" style="font-size:14px; font-weight:500;">Quá trình này mất khoảng 2-3 giây. Vui lòng không đóng trang!</div>
+      <div id="loadingMainText">ĐANG XỬ LÝ...</div>
+      <div id="loadingSubtext" style="font-size:14px; font-weight:500;">Vui lòng đợi trong giây lát</div>
   </div>
 
   <div class="login-wrapper" id="loginScreen">
@@ -208,8 +206,6 @@
     </div>
   </div>
 
-  <div id="pdfPrintArea"></div>
-
   <script>
     const dict = { 0:'không', 1:'một', 2:'hai', 3:'ba', 4:'bốn', 5:'năm', 6:'sáu', 7:'bảy', 8:'tám', 9:'chín' };
     function readGroup(group) {
@@ -275,8 +271,11 @@
       script.src = API_URL + queryString; document.body.appendChild(script);
     }
 
-    function showLoading(show, text="Vui lòng đợi trong giây lát") { 
+    // ĐÃ FIX: Hàm showLoading nhận text động để ko bị kẹt ở "Đang trích xuất"
+    function showLoading(show, mainText="ĐANG XỬ LÝ...", subText="Vui lòng đợi trong giây lát") { 
       document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none'; 
+      document.getElementById('loadingMainText').innerText = mainText;
+      document.getElementById('loadingSubtext').innerText = subText;
     }
     
     function togglePassword() { const pwd = document.getElementById('pwdInput'); const t = document.querySelector('.password-toggle'); if(pwd.type === 'password') { pwd.type = 'text'; t.textContent = 'ẨN'; } else { pwd.type = 'password'; t.textContent = 'HIỆN'; } }
@@ -355,6 +354,7 @@
       }
       html += `<tr style="background:#e8f4fc;"><td style="text-align:left; color:var(--danger);"><b>TỔNG CỘNG HỆ THỐNG</b></td><td style="color:var(--danger);"><b>${formatNumber(grandDeXuat)}</b></td><td style="color:var(--danger); font-size:18px;"><b>${formatNumber(grandDuyet)}</b></td></tr>`;
       document.getElementById('summaryTable').innerHTML = html;
+      
       renderAdvanceTableByRole(currentViewRole);
     }
 
@@ -583,7 +583,7 @@
       const approvedItems = globalData.filter(p => p.trangThai === 'APPROVED_BY_BLD');
       if(approvedItems.length === 0) { alert("Không có phiếu duyệt nào!"); return; }
       if(!confirm(`Bắt đầu quy trình gửi tự động ${approvedItems.length} email. Vui lòng không đóng trang.`)) return;
-      showLoading(true, "Đang gửi Email...");
+      showLoading(true, "Đang gửi Email...", "Hệ thống đang phát thư, vui lòng chờ...");
       let currentIndex = 0;
       function sendNext() {
         if (currentIndex >= approvedItems.length) { showLoading(false); alert("Hoàn tất gửi toàn bộ Email!"); return; }
@@ -601,45 +601,75 @@
       });
     }
 
-    // ==========================================
-    // TẢI FILE BẢN DUYỆT ĐỀ XUẤT (TAB 1) 
-    // KIẾN TRÚC MỚI KHÔNG BAO GIỜ BỊ TRẮNG PDF
-    // ==========================================
+    // =========================================================================
+    // XUẤT PDF BẢN DUYỆT (TAB 1) - CHỐNG TRẮNG BẰNG CÁCH CHỤP TRÊN MÀN HÌNH
+    // =========================================================================
+
     function downloadPDFs() {
       const monthVal = document.getElementById('pdfMonth').value;
       if(!monthVal) { alert("Vui lòng chọn Tháng/Năm!"); return; }
       const filteredData = globalData.filter(p => p.trangThai === 'APPROVED_BY_BLD' && p.ngayTao && p.ngayTao.includes(monthVal));
       if(filteredData.length === 0) { alert("Không có dữ liệu!"); return; }
       
-      showLoading(true, "Đang trích xuất PDF...");
-      let htmlString = `<div style="font-family: Arial, sans-serif; color: #222; background:#fff; width: 1122px;">`;
+      showLoading(true, "ĐANG TRÍCH XUẤT TÀI LIỆU PDF...", "Quá trình này mất khoảng 2-3 giây. Vui lòng không đóng trang!");
+      const originalScroll = window.scrollY; window.scrollTo(0, 0); // Kéo lên đỉnh để máy ảnh không bị trượt
       
-      filteredData.forEach(phieu => {
+      let htmlString = ``;
+      
+      filteredData.forEach((phieu, i) => {
         let tongTien = 0; let rowsHtml = '';
         phieu.chiTiet.forEach((ct, index) => {
           tongTien += Number(ct.nganSachDuyet); let mThang = monthVal.split('-')[1];
           rowsHtml += `<tr><td style="border:1px solid #000; padding:10px;">${index+1}</td><td style="border:1px solid #000; padding:10px;"><b>${ct.tenDuAn}</b></td><td style="border:1px solid #000; padding:10px; color:#c00000; font-weight:bold;">${formatNumber(ct.nganSachDuyet)}</td><td style="border:1px solid #000; padding:10px;">01/${mThang}</td><td style="border:1px solid #000; padding:10px;">31/${mThang}</td><td style="border:1px solid #000; padding:10px;">${ct.kpi || ''}</td><td style="border:1px solid #000; padding:10px;">${ct.channel || ''}</td><td style="border:1px solid #000; padding:10px;">${ct.phone || ''}</td><td style="border:1px solid #000; padding:10px;">${ct.account || ''}</td><td style="border:1px solid #000; padding:10px;"></td></tr>`;
         });
-        htmlString += `<div style="page-break-after: always; margin-bottom: 50px; padding: 40px; box-sizing: border-box; background: #fff;"><h2 style="text-align:center; color:#0b1f8c; font-size:24px; font-weight:800;">KẾT QUẢ DUYỆT MKT</h2><p style="text-align:center;">Mã: <b>${phieu.idPhieu}</b></p><table style="width:100%; margin-bottom:20px; font-size:14px; border:none !important;"><tr><td style="border:none !important; text-align:left;"><b>Thành viên:</b><br>${phieu.thanhVien.replace(/,/g, '<br>')}</td><td style="text-align:right; border:none !important;"><b>Nhóm:</b> ${phieu.tenNhom}<br><b>Phòng:</b> ${phieu.phongKD}</td></tr></table><table style="width:100%; border-collapse:collapse; text-align:center;"><thead><tr style="background-color:#0b1f8c; color:#fff; font-size:13px;"><th style="border:1px solid #000; padding:10px;">STT</th><th style="border:1px solid #000; padding:10px;">Dự án</th><th style="border:1px solid #000; padding:10px;">Ngân sách</th><th style="border:1px solid #000; padding:10px;">Bắt đầu</th><th style="border:1px solid #000; padding:10px;">Kết thúc</th><th style="border:1px solid #000; padding:10px;">KPI</th><th style="border:1px solid #000; padding:10px;">Kênh</th><th style="border:1px solid #000; padding:10px;">SĐT</th><th style="border:1px solid #000; padding:10px;">Tài khoản</th><th style="border:1px solid #000; padding:10px;">BLĐ Duyệt</th></tr></thead><tbody>${rowsHtml}</tbody><tfoot><tr style="background:#f4f6f8; font-weight:bold;"><td colspan="2" style="border:1px solid #000; padding:10px; text-align:right;">TỔNG</td><td style="border:1px solid #000; padding:10px; color:#fff; background:#0b1f8c; font-size:14px;">${formatNumber(tongTien)}</td><td colspan="7" style="border:1px solid #000;"></td></tr></tfoot></table></div>`;
+
+        htmlString += `
+          <div style="font-family: Arial, sans-serif; color: #000; background: #fff; width: 1122px; padding: 40px; box-sizing: border-box; line-height: 1.4; ${i < filteredData.length - 1 ? 'page-break-after: always;' : ''}">
+            <h2 style="text-align:center; color:#0b1f8c; font-size:24px; font-weight:800;">KẾT QUẢ DUYỆT MKT</h2>
+            <p style="text-align:center;">Mã: <b>${phieu.idPhieu}</b></p>
+            <table style="width:100%; margin-bottom:20px; font-size:14px; border: none !important;">
+              <tr>
+                <td style="text-align: left; border: none !important;"><b>Thành viên:</b><br>${phieu.thanhVien.replace(/,/g, '<br>')}</td>
+                <td style="text-align: right; vertical-align:top; border: none !important;"><b>Nhóm:</b> ${phieu.tenNhom}<br><b>Phòng:</b> ${phieu.phongKD}</td>
+              </tr>
+            </table>
+            <table style="width:100%; border-collapse:collapse; text-align:center; font-size: 13px;">
+              <thead>
+                <tr style="background-color:#0b1f8c; color:#fff;">
+                  <th style="border:1px solid #000; padding:10px;">STT</th><th style="border:1px solid #000; padding:10px;">Dự án</th><th style="border:1px solid #000; padding:10px;">Ngân sách</th><th style="border:1px solid #000; padding:10px;">Bắt đầu</th><th style="border:1px solid #000; padding:10px;">Kết thúc</th><th style="border:1px solid #000; padding:10px;">KPI</th><th style="border:1px solid #000; padding:10px;">Kênh</th><th style="border:1px solid #000; padding:10px;">SĐT</th><th style="border:1px solid #000; padding:10px;">Tài khoản</th><th style="border:1px solid #000; padding:10px;">BLĐ Duyệt</th>
+                </tr>
+              </thead>
+              <tbody>${rowsHtml}</tbody>
+              <tfoot>
+                <tr style="background:#f4f6f8; font-weight:bold;">
+                  <td colspan="2" style="border:1px solid #000; padding:10px; text-align:right;">TỔNG</td>
+                  <td style="border:1px solid #000; padding:10px; color:#fff; background:#0b1f8c; font-size:14px;">${formatNumber(tongTien)}</td>
+                  <td colspan="7" style="border:1px solid #000;"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>`;
       });
-      htmlString += `</div>`;
       
-      const printArea = document.getElementById('pdfPrintArea');
-      printArea.innerHTML = htmlString;
-      printArea.style.display = 'block';
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = htmlString;
+      // HIỂN THỊ CHÍNH XÁC TRÊN MÀN HÌNH NHƯNG NẰM DƯỚI LỚP MÀN ĐEN (9998 < 9999) ĐỂ MÁY ẢNH CHỤP ĐƯỢC
+      tempDiv.style.position = 'absolute'; tempDiv.style.top = '0'; tempDiv.style.left = '0'; tempDiv.style.width = '1122px'; tempDiv.style.zIndex = '9998'; tempDiv.style.background = '#fff';
+      document.body.appendChild(tempDiv);
 
       setTimeout(() => {
-        var opt = { margin: 10, filename: 'Bao_Cao_MKT_' + monthVal + '.pdf', image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 2, useCORS: true, scrollY: 0, windowWidth: 1122 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } };
-        html2pdf().set(opt).from(printArea).save().then(() => { 
-            printArea.style.display = 'none'; printArea.innerHTML = ''; showLoading(false); 
-        }).catch(err => { printArea.style.display = 'none'; showLoading(false); alert("Lỗi xuất PDF!"); });
+        var opt = { margin: 10, filename: 'Bao_Cao_MKT_' + monthVal + '.pdf', image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 2, useCORS: true, scrollY: 0 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } };
+        html2pdf().set(opt).from(tempDiv).save().then(() => { 
+          document.body.removeChild(tempDiv); window.scrollTo(0, originalScroll); showLoading(false); 
+        }).catch(err => {
+          document.body.removeChild(tempDiv); window.scrollTo(0, originalScroll); showLoading(false); alert("Lỗi tạo PDF!");
+        });
       }, 500);
     }
 
-    // ==========================================
-    // TẢI BẢN TẠM ỨNG (TAB 2) 
-    // KIẾN TRÚC MỚI KHÔNG BAO GIỜ BỊ TRẮNG PDF
-    // ==========================================
+    // =========================================================================
+    // TẢI TẠM ỨNG (TAB 2) - CẤU TRÚC 1 TRANG A4, CĂN LỀ TRÁI, KHÔNG VIỀN MỜ
+    // =========================================================================
     function downloadAdvancePDFs() {
       const monthVal = document.getElementById('advPdfMonth').value;
       if(!monthVal) { alert("Vui lòng chọn Tháng/Năm để tải!"); return; }
@@ -647,9 +677,10 @@
       const filteredData = globalData.filter(p => p.trangThaiTU === 'APPROVED_TU' && p.ngayTao && p.ngayTao.includes(monthVal));
       if(filteredData.length === 0) { alert("Không có phiếu tạm ứng nào được duyệt trong tháng này!"); return; }
       
-      showLoading(true, "Đang tạo Form Đơn Xin Tạm Ứng PDF...");
+      showLoading(true, "ĐANG TRÍCH XUẤT TÀI LIỆU PDF...", "Quá trình này mất khoảng 2-3 giây. Vui lòng không đóng trang!");
+      const originalScroll = window.scrollY; window.scrollTo(0, 0); 
       
-      let htmlString = `<div style="background:#fff; color:#000; width: 794px;">`;
+      let htmlString = ``;
       
       filteredData.forEach((phieu, i) => {
         let tv1 = phieu.thanhVien.split(',')[0].trim();
@@ -663,126 +694,140 @@
           totalDuyet += finalNganSach;
           let mThang = monthVal.split('-')[1]; 
           let advanceAmt = Math.round(finalNganSach * Number(phieu.advPercent) / 100);
-          // ÉP CHẶT CĂN LỀ TRONG CỘT TẠM ỨNG
-          rowsHtml += `<tr><td style="border: 1px solid #000; padding: 6px; text-align: center !important;">Tháng ${mThang}</td><td style="border: 1px solid #000; padding: 6px; text-align: center !important;">${ct.tenDuAn}</td><td style="border: 1px solid #000; padding: 6px; text-align: center !important;">${formatNumber(finalNganSach)}</td><td style="border: 1px solid #000; padding: 6px; text-align: center !important;">${formatNumber(advanceAmt)}</td></tr>`;
+          rowsHtml += `<tr>
+            <td style="border: 1px solid #000; padding: 6px; text-align: center !important;">Tháng ${mThang}</td>
+            <td style="border: 1px solid #000; padding: 6px; text-align: center !important;">${ct.tenDuAn}</td>
+            <td style="border: 1px solid #000; padding: 6px; text-align: center !important;">${formatNumber(finalNganSach)}</td>
+            <td style="border: 1px solid #000; padding: 6px; text-align: center !important;">${formatNumber(advanceAmt)}</td>
+          </tr>`;
         });
 
         let totalAdvance = Math.round(totalDuyet * Number(phieu.advPercent) / 100);
         let remaining = totalDuyet - totalAdvance;
         let today = new Date();
 
-        // FIX: Đóng gói chặt chẽ trong 1 trang A4 (794x1122), cấu trúc HTML thuần chống CSS can thiệp
         htmlString += `
-          <div style="page-break-after: always; width: 794px; height: 1122px; background: #fff; padding: 50px 65px; font-family: 'Times New Roman', serif !important; color: #000; box-sizing: border-box; font-size: 15px; line-height: 1.4; position: relative; margin: 0 auto; overflow: hidden;">
+          <div style="width: 794px; height: 1122px; font-family: 'Times New Roman', Times, serif; font-size: 15px; color: #000; background: #fff; padding: 50px 60px; box-sizing: border-box; line-height: 1.4; ${i < filteredData.length - 1 ? 'page-break-after: always;' : ''}">
             
-            <table style="width: 100%; margin-bottom: 25px; text-align: center; font-size: 13.5px; border-collapse: collapse;" border="0" cellspacing="0" cellpadding="0">
+            <table style="width: 100%; border: none !important; margin-bottom: 20px; font-size: 14px;" border="0" cellspacing="0" cellpadding="0">
               <tr>
-                <td style="width:40%; vertical-align:top; border: none !important; padding: 0;"><b>CÔNG TY CP PHÁT TRIỂN DỊCH VỤ<br>VÀ ĐỊA ỐC AN VIỆT HOMES</b><br>Số: ..................../NB18-AVH</td>
-                <td style="width:60%; vertical-align:top; border: none !important; padding: 0;"><b>CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập - Tự do - Hạnh Phúc</b><br><i>Hà Nội, ngày ${String(today.getDate()).padStart(2,'0')} tháng ${String(today.getMonth()+1).padStart(2,'0')} năm ${today.getFullYear()}</i></td>
+                <td style="width: 45%; text-align: center; vertical-align: top; border: none !important; padding: 0;"><b>CÔNG TY CP PHÁT TRIỂN DỊCH VỤ<br>VÀ ĐỊA ỐC AN VIỆT HOMES</b><br><span style="font-weight: normal;">Số: ..................../NB18-AVH</span></td>
+                <td style="width: 55%; text-align: center; vertical-align: top; border: none !important; padding: 0;"><b>CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập - Tự do - Hạnh Phúc</b><br><i style="font-weight: normal;">Hà Nội, ngày ${String(today.getDate()).padStart(2,'0')} tháng ${String(today.getMonth()+1).padStart(2,'0')} năm ${today.getFullYear()}</i></td>
               </tr>
             </table>
 
-            <div style="text-align: center; font-size: 19px; font-weight: bold; margin-bottom: 20px;">ĐƠN XIN TẠM ỨNG MARKETING</div>
+            <div style="text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 15px;">ĐƠN XIN TẠM ỨNG MARKETING</div>
             
-            <p style="margin: 6px 0; text-align: left !important;"><u>Kính gửi:</u> <b>Ban Lãnh Đạo Công ty Cổ phần Phát triển Dịch vụ và Địa ốc An Việt Homes</b></p>
+            <div style="margin-bottom: 8px; text-align: left !important;"><b><u>Kính gửi:</u> Ban Lãnh Đạo Công ty Cổ phần Phát triển Dịch vụ và Địa ốc An Việt Homes</b></div>
             
-            <div style="margin: 10px 0; text-align: justify; line-height: 1.5;">
+            <div style="text-align: justify; margin-bottom: 8px;">
               <span style="display:inline-block; width: 30px;"></span>Tôi tên là: <b>${tv1}</b>. Có mã nhân viên là: <b>${m1}</b><br>
               đại diện nhóm: <b>${phieu.tenNhom}</b> thuộc phòng kinh doanh: <b>${phieu.phongKD}</b> làm đơn xin tạm ứng khoản chi phí hỗ trợ Marketing (“MKT”) với các nội dung sau đây:
             </div>
             
-            <div style="display: flex; margin: 6px 0; text-align: left !important;">
-               <div style="width: 35px; flex-shrink: 0;">1.1.</div>
-               <div style="flex-grow: 1;">Tạm ứng cho cá nhân/nhóm: <b>Nhóm ${phieu.tenNhom}</b></div>
-            </div>
-            <div style="display: flex; margin: 6px 0; text-align: left !important;">
-               <div style="width: 35px; flex-shrink: 0;">1.2.</div>
-               <div style="flex-grow: 1;">Nội dung tạm ứng: <b>Tạm ứng marketing dự án ${prjNames.join(', ')}</b></div>
-            </div>
+            <table style="width: 100%; border: none !important; margin-bottom: 8px;" border="0" cellspacing="0" cellpadding="0">
+              <tr>
+                <td style="width: 40px; vertical-align: top; text-align: left !important; border: none !important; padding: 2px 0;">1.1.</td>
+                <td style="vertical-align: top; text-align: left !important; border: none !important; padding: 2px 0;">Tạm ứng cho cá nhân/nhóm: <b>Nhóm ${phieu.tenNhom}</b></td>
+              </tr>
+              <tr>
+                <td style="width: 40px; vertical-align: top; text-align: left !important; border: none !important; padding: 2px 0;">1.2.</td>
+                <td style="vertical-align: top; text-align: left !important; border: none !important; padding: 2px 0;">Nội dung tạm ứng: <b>Tạm ứng marketing dự án ${prjNames.join(', ')}</b></td>
+              </tr>
+            </table>
             
-            <table style="width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px;">
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 14px;">
               <thead>
-                <tr><th style="border: 1px solid #000; padding: 6px; text-align: center !important;">Tháng chạy MKT</th><th style="border: 1px solid #000; padding: 6px; text-align: center !important;">Dự án</th><th style="border: 1px solid #000; padding: 6px; text-align: center !important;">Ngân sách MKT</th><th style="border: 1px solid #000; padding: 6px; text-align: center !important;">Số tiền được tạm ứng</th></tr>
+                <tr>
+                  <th style="border: 1px solid #000; padding: 6px; text-align: center !important;">Tháng chạy MKT</th>
+                  <th style="border: 1px solid #000; padding: 6px; text-align: center !important;">Dự án</th>
+                  <th style="border: 1px solid #000; padding: 6px; text-align: center !important;">Ngân sách MKT</th>
+                  <th style="border: 1px solid #000; padding: 6px; text-align: center !important;">Số tiền được tạm ứng</th>
+                </tr>
               </thead>
               <tbody>
                 ${rowsHtml}
-                <tr><td colspan="3" style="border: 1px solid #000; padding: 6px; text-align: left !important;">Số tiền tạm ứng MKT lần 1 (${phieu.advPercent}%)</td><td style="border: 1px solid #000; padding: 6px; text-align: center !important; font-weight:bold;">${formatNumber(totalAdvance)}</td></tr>
-                <tr><td colspan="3" style="border: 1px solid #000; padding: 6px; text-align: left !important;">Số tiền tạm ứng MKT lần 2</td><td style="border: 1px solid #000; padding: 6px; text-align: center !important;"></td></tr>
-                <tr><td colspan="3" style="border: 1px solid #000; padding: 6px; text-align: left !important;">Số tiền còn lại</td><td style="border: 1px solid #000; padding: 6px; text-align: center !important; font-weight:bold;">${formatNumber(remaining)}</td></tr>
+                <tr>
+                  <td colspan="3" style="border: 1px solid #000; padding: 6px; text-align: left !important;">Số tiền tạm ứng MKT lần 1 (${phieu.advPercent}%)</td>
+                  <td style="border: 1px solid #000; padding: 6px; font-weight: bold; text-align: center !important;">${formatNumber(totalAdvance)}</td>
+                </tr>
+                <tr>
+                  <td colspan="3" style="border: 1px solid #000; padding: 6px; text-align: left !important;">Số tiền tạm ứng MKT lần 2</td>
+                  <td style="border: 1px solid #000; padding: 6px; text-align: center !important;"></td>
+                </tr>
+                <tr>
+                  <td colspan="3" style="border: 1px solid #000; padding: 6px; text-align: left !important;">Số tiền còn lại</td>
+                  <td style="border: 1px solid #000; padding: 6px; font-weight: bold; text-align: center !important;">${formatNumber(remaining)}</td>
+                </tr>
               </tbody>
             </table>
 
-            <div style="display: flex; margin: 8px 0; text-align: left !important;">
-               <div style="width: 35px; flex-shrink: 0;">1.3.</div>
-               <div style="flex-grow: 1;">
-                 Số tiền tạm ứng kỳ này: <b>${formatNumber(totalAdvance)} VNĐ</b><br>
-                 <i>Số tiền bằng chữ: <b>${readNumber(totalAdvance)}</b></i>
-               </div>
-            </div>
-
-            <div style="display: flex; margin: 8px 0; text-align: left !important;">
-               <div style="width: 35px; flex-shrink: 0;">1.4.</div>
-               <div style="flex-grow: 1;">
-                 Hình thức chi tạm ứng: Chuyển khoản. Thông tin số tài khoản nhận tạm ứng:
-                 <div style="margin-top: 5px; padding-left: 20px;">
-                    - Chủ tài khoản: <b>${phieu.bankOwner}</b><br>
-                    - Số tài khoản: <b>${phieu.bankAccount}</b><br>
-                    - Mở tại ngân hàng: <b>${phieu.bankName}</b>
-                 </div>
-               </div>
-            </div>
-
-            <div style="display: flex; margin: 8px 0; text-align: left !important;">
-               <div style="width: 35px; flex-shrink: 0;">1.5.</div>
-               <div style="flex-grow: 1; text-align: justify;">
-                 Tôi/chúng tôi xin cam kết chạy đủ ngân sách trong thời gian hỗ trợ, nếu số tiền tôi/chúng tôi tạm ứng vượt quá số tiền được hỗ trợ marketing, tôi/chúng đồng ý cho Công ty khấu trừ phần chênh lệch đó vào lương, Hoa hồng và Thưởng từ các Giao dịch khác mà tôi/chúng tôi có tại Công ty. Trường hợp không đủ khấu trừ, tôi/chúng tôi hoàn toàn đồng ý mọi phương án xử lý từ Ban Lãnh đạo Công ty.
-               </div>
+            <table style="width: 100%; border: none !important; margin-bottom: 8px;" border="0" cellspacing="0" cellpadding="0">
+              <tr>
+                <td style="width: 40px; vertical-align: top; text-align: left !important; border: none !important; padding: 2px 0;">1.3.</td>
+                <td style="vertical-align: top; text-align: left !important; border: none !important; padding: 2px 0;">
+                  Số tiền tạm ứng kỳ này: <b>${formatNumber(totalAdvance)} VNĐ</b><br>
+                  <i>Số tiền bằng chữ: <b>${readNumber(totalAdvance)}</b></i>
+                </td>
+              </tr>
+              <tr>
+                <td style="width: 40px; vertical-align: top; text-align: left !important; border: none !important; padding: 2px 0;">1.4.</td>
+                <td style="vertical-align: top; text-align: left !important; border: none !important; padding: 2px 0;">
+                  Hình thức chi tạm ứng: Chuyển khoản. Thông tin số tài khoản nhận tạm ứng:
+                  <div style="padding-left: 20px; margin-top: 4px;">
+                     - Chủ tài khoản: <b>${phieu.bankOwner}</b><br>
+                     - Số tài khoản: <b>${phieu.bankAccount}</b><br>
+                     - Mở tại ngân hàng: <b>${phieu.bankName}</b>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td style="width: 40px; vertical-align: top; text-align: left !important; border: none !important; padding: 2px 0;">1.5.</td>
+                <td style="vertical-align: top; text-align: justify; border: none !important; padding: 2px 0;">
+                  Tôi/chúng tôi xin cam kết chạy đủ ngân sách trong thời gian hỗ trợ, nếu số tiền tôi/chúng tôi tạm ứng vượt quá số tiền được hỗ trợ marketing, tôi/chúng đồng ý cho Công ty khấu trừ phần chênh lệch đó vào lương, Hoa hồng và Thưởng từ các Giao dịch khác mà tôi/chúng tôi có tại Công ty. Trường hợp không đủ khấu trừ, tôi/chúng tôi hoàn toàn đồng ý mọi phương án xử lý từ Ban Lãnh đạo Công ty.
+                </td>
+              </tr>
+            </table>
+            
+            <div style="margin-left: 40px; margin-bottom: 20px; text-align: left !important;">
+              Kính đề nghị Ban Lãnh đạo hỗ trợ và phê duyệt.<br>Trân trọng cảm ơn!
             </div>
             
-            <p style="margin: 15px 0 0 35px; text-align: left !important;">Kính đề nghị Ban Lãnh đạo hỗ trợ và phê duyệt.<br>Trân trọng cảm ơn!</p>
+            <table style="width: 100%; text-align: center; border: none !important; font-size: 14px;" border="0" cellspacing="0" cellpadding="0">
+              <tr>
+                <td style="width: 50%; vertical-align: top; border: none !important; padding: 0;"><b>XÁC NHẬN P.MARKETING</b><br><br><span style="display:inline-block; border-radius:15px; padding:4px 10px; color:#0b1f8c; border:1px solid #0b1f8c; font-size:11px; margin-top:15px;">Đã xác nhận<br>trên hệ thống</span></td>
+                <td style="width: 50%; vertical-align: top; border: none !important; padding: 0;"><b>NGƯỜI LÀM ĐƠN</b><br><br><span style="display:inline-block; border-radius:15px; padding:4px 10px; color:#0b1f8c; border:1px solid #0b1f8c; font-size:11px; margin-top:15px;">Đã xác nhận<br>trên hệ thống</span></td>
+              </tr>
+            </table>
             
-            <div style="display: flex; text-align: center; margin-top: 20px; font-size: 14px;">
-              <div style="flex: 1;">
-                <b>XÁC NHẬN P.MARKETING</b><br><br>
-                <span style="display:inline-block; border-radius:15px; padding:4px 10px; color:#0b1f8c; border:1px solid #0b1f8c; font-size:11px; margin-top:10px;">Đã xác nhận<br>trên hệ thống</span>
-              </div>
-              <div style="flex: 1;">
-                <b>NGƯỜI LÀM ĐƠN</b><br><br>
-                <span style="display:inline-block; border-radius:15px; padding:4px 10px; color:#0b1f8c; border:1px solid #0b1f8c; font-size:11px; margin-top:10px;">Đã xác nhận<br>trên hệ thống</span>
-              </div>
-            </div>
-
-            <div style="display: flex; text-align: center; margin-top: 35px; font-size: 14px;">
-              <div style="flex: 1;">
-                <b>BAN LÃNH ĐẠO</b><br><br>
-                <span style="display:inline-block; border-radius:15px; padding:4px 10px; color:#0b1f8c; border:1px solid #0b1f8c; font-size:11px; margin-top:15px;">Đã xác nhận<br>trên hệ thống</span>
-              </div>
-              <div style="flex: 1;"><b>XÁC NHẬN P. KẾ TOÁN</b></div>
-              <div style="flex: 1;"><b>XÁC NHẬN P. ADMIN</b></div>
-            </div>
-
+            <table style="width: 100%; text-align: center; margin-top: 30px; border: none !important; font-size: 14px;" border="0" cellspacing="0" cellpadding="0">
+              <tr>
+                <td style="width: 33.33%; vertical-align: top; border: none !important; padding: 0;"><b>BAN LÃNH ĐẠO</b><br><br><span style="display:inline-block; border-radius:15px; padding:4px 10px; color:#0b1f8c; border:1px solid #0b1f8c; font-size:11px; margin-top:20px;">Đã xác nhận<br>trên hệ thống</span></td>
+                <td style="width: 33.33%; vertical-align: top; border: none !important; padding: 0;"><b>XÁC NHẬN P. KẾ TOÁN</b></td>
+                <td style="width: 33.33%; vertical-align: top; border: none !important; padding: 0;"><b>XÁC NHẬN P. ADMIN</b></td>
+              </tr>
+            </table>
           </div>`;
       });
-      htmlString += `</div>`;
 
-      const printArea = document.getElementById('pdfPrintArea');
-      printArea.innerHTML = htmlString;
-      printArea.style.display = 'block'; 
-      
-      // TIMEOUT CHỜ TRÌNH DUYỆT RENDER CHUẨN MÀU MỰC RỒI MỚI CHỤP
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = htmlString;
+      tempDiv.style.position = 'absolute'; tempDiv.style.top = '0'; tempDiv.style.left = '0'; tempDiv.style.width = '794px'; tempDiv.style.zIndex = '9998'; tempDiv.style.background = '#fff';
+      document.body.appendChild(tempDiv);
+
       setTimeout(() => {
         var opt = { 
           margin: 0, 
           filename: 'Don_Tam_Ung_MKT_' + monthVal + '.pdf', 
           image: { type: 'jpeg', quality: 1 }, 
-          html2canvas: { scale: 2, useCORS: true, scrollY: 0, windowWidth: 794 }, 
+          html2canvas: { scale: 2, useCORS: true, scrollY: 0 }, 
           jsPDF: { unit: 'px', format: [794, 1122], orientation: 'portrait' } 
         };
         
-        html2pdf().set(opt).from(printArea).save().then(() => { 
-          printArea.style.display = 'none'; printArea.innerHTML = ''; showLoading(false); 
+        html2pdf().set(opt).from(tempDiv).save().then(() => { 
+          document.body.removeChild(tempDiv); window.scrollTo(0, originalScroll); showLoading(false); 
         }).catch(err => {
-          printArea.style.display = 'none'; showLoading(false); alert("Lỗi tạo PDF!");
+          document.body.removeChild(tempDiv); window.scrollTo(0, originalScroll); showLoading(false); alert("Lỗi tạo PDF!");
         });
       }, 500);
     }
