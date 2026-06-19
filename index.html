@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Đề Xuất & Tra Cứu Marketing - An Việt Homes</title>
+  <title>Đề Xuất & Tra Cứu gói Marketing - An Việt Homes</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
@@ -14,56 +14,55 @@
     .header-left { display: flex; align-items: center; gap: 20px; }
     .brand-logo { max-width: 85px; height: auto; }
     .company-name { font-size: 15px; font-weight: 700; color: var(--text-gray); line-height: 1.4; text-transform: uppercase; white-space: nowrap; }
-    .btn-check-status { background-color: var(--primary-blue); color: #fff; border: none; border-radius: 30px; padding: 14px 35px; font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(11, 31, 140, 0.2); transition: 0.2s; }
+    .btn-check-status { background-color: var(--primary-blue); color: #fff; border: none; border-radius: 30px; padding: 14px 35px; font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(11, 31, 140, 0.2); transition: 0.2s; white-space: nowrap; }
     .btn-check-status:hover { background-color: #081666; }
 
     .main-card { background: #ffffff; width: 95%; max-width: 1450px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.06); padding: 40px 80px 60px 80px; margin-bottom: 30px; box-sizing: border-box; position: relative; }
     .card-title-area { text-align: center; margin-bottom: 40px; position: relative; }
     .card-title-area h2 { color: var(--primary-blue); font-size: 28px; font-weight: 800; margin: 0 0 5px 0; text-transform: uppercase; }
     .card-title-area p { color: var(--text-gray); font-size: 15px; margin: 0 0 15px 0; font-style: italic; }
-    .card-title-area hr { width: 400px; border: none; border-top: 1.5px solid #ccc; margin: 0 auto; }
+    .card-title-area hr { width: 400px; max-width: 80%; border: none; border-top: 1.5px solid #ccc; margin: 0 auto; }
     .btn-back { position: absolute; left: 0; top: 0; background: none; border: none; color: var(--text-gray); font-weight: 700; cursor: pointer; font-size: 15px; display: flex; align-items: center; gap: 5px; }
     .btn-back:hover { color: var(--primary-blue); }
 
-    .info-section { margin-bottom: 30px; font-size: 15px; }
-    .info-row { display: flex; justify-content: space-between; margin-bottom: 25px; align-items: center; gap: 40px; }
+    .info-section { margin-bottom: 30px; font-size: 15px; width: 100%; box-sizing: border-box;}
+    .info-row { display: flex; justify-content: space-between; margin-bottom: 25px; align-items: center; gap: 40px; width: 100%; box-sizing: border-box;}
     .info-group { display: flex; align-items: center; gap: 10px; flex: 1; }
     .info-label { font-weight: 600; color: #333; white-space: nowrap; }
     
-    .pill-input { border: 1px solid #999; border-radius: 20px; padding: 8px 15px; font-family: 'Manrope', sans-serif; font-size: 14px; outline: none; text-align: center; color: #333; width: 140px; }
+    .pill-input { border: 1px solid #999; border-radius: 20px; padding: 8px 15px; font-family: 'Manrope', sans-serif; font-size: 14px; outline: none; text-align: center; color: #333; width: 140px; box-sizing: border-box;}
     .pill-input:focus { border-color: var(--primary-blue); box-shadow: 0 0 0 2px rgba(11,31,140,0.1); }
     .pill-input.small { width: 85px; padding: 8px 10px;}
     
     .inline-group { display: flex; align-items: flex-end; gap: 15px; flex: 1; width: 100%; }
     .inline-group .info-label { white-space: nowrap; margin: 0; line-height: 1; }
-    .inline-group .inline-input { flex: 1; min-width: 0; width: 100%; border: none; border-bottom: 1px dashed #ccc; font-family: 'Manrope', sans-serif; font-size: 15px; color: #000; outline: none; padding-bottom: 2px; }
+    .inline-group .inline-input { flex: 1; min-width: 0; width: 100%; border: none; border-bottom: 1px dashed #ccc; font-family: 'Manrope', sans-serif; font-size: 15px; color: #000; outline: none; padding-bottom: 2px; box-sizing: border-box;}
     .inline-group .inline-input:focus { border-bottom-color: var(--primary-blue); }
     .inline-group .inline-input[readonly] { background-color: transparent; color: var(--primary-blue); font-weight: 700; cursor: not-allowed; border-bottom: 1px dotted #ccc; }
 
     select.pill-input { cursor: pointer; appearance: none; text-align: left; background: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") no-repeat right 15px center; background-size: 12px; padding-right: 30px; }
 
+    .table-responsive { width: 100%; overflow-x: auto; margin-bottom: 30px; border-radius: 8px; -webkit-overflow-scrolling: touch;}
     .table-title { font-size: 15px; font-weight: 700; color: #000; margin-bottom: 15px; }
-    .data-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; table-layout: fixed; }
+    .data-table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 1050px; }
+    
     .data-table th, .data-table td { border: 1px solid var(--table-border); text-align: center; vertical-align: middle; }
     .data-table th { background-color: var(--primary-blue); color: #fff; font-weight: 600; font-size: 13px; padding: 12px 5px; }
     .data-table td { padding: 0; height: 50px; overflow: hidden; }
     .table-input { width: 100%; height: 100%; border: none; background: transparent; text-align: center; font-family: 'Manrope', sans-serif; font-size: 14px; color: #333; outline: none; box-sizing: border-box; padding: 5px; }
-    
     select.table-input { cursor: pointer; appearance: none; background: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") no-repeat right 5px center; background-size: 12px; font-weight: 600; color: var(--primary-blue); }
 
     .total-row td { border-top: 1px solid var(--table-border); font-weight: 700; font-size: 14px; }
     .total-bg-blue { background-color: var(--primary-blue); color: #fff; }
 
-    .btn-submit-container { text-align: center; margin-top: 50px; }
+    .btn-submit-container { text-align: center; margin-top: 40px; }
     .btn-submit { background-color: var(--primary-blue); color: #fff; border: none; border-radius: 30px; padding: 14px 50px; font-family: 'Manrope', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(11,31,140,0.2); transition: 0.2s; }
     .btn-submit:hover { background-color: #081666; }
     .btn-submit:disabled { background-color: #999; cursor: not-allowed; }
 
-    /* MODAL CHUNG */
+    /* MODAL CSS */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(232, 244, 252, 0.85); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1000; overflow-y: auto;}
-    .modal-card { background: #fff; width: 450px; border-radius: 12px; padding: 40px; box-shadow: 0 15px 40px rgba(0,0,0,0.1); position: relative; margin: auto;}
-    
-    /* MODAL TẠM ỨNG (To hơn chút) */
+    .modal-card { background: #fff; width: 450px; max-width: 95%; border-radius: 12px; padding: 40px; box-shadow: 0 15px 40px rgba(0,0,0,0.1); position: relative; margin: auto; box-sizing: border-box;}
     .modal-card.advance-card { width: 550px; padding: 30px 40px;}
     .modal-card.advance-card .modal-title { font-size: 20px; color: var(--danger); margin-bottom: 20px; }
 
@@ -71,20 +70,21 @@
     .modal-form-group { margin-bottom: 20px; }
     .modal-label { display: block; font-size: 13px; font-weight: 700; color: #000; margin-bottom: 8px; }
     .modal-input-wrap { border: 1px solid var(--primary-blue); border-radius: 8px; display: flex; overflow: hidden; }
-    .modal-input { border: none; padding: 12px 15px; width: 100%; font-family: 'Manrope'; font-size: 14px; outline: none; }
+    .modal-input { border: none; padding: 12px 15px; width: 100%; font-family: 'Manrope'; font-size: 14px; outline: none; box-sizing: border-box;}
     .modal-prefix { background: var(--primary-blue); color: white; padding: 12px 20px; font-weight: 700; font-size: 14px; }
-    .btn-modal-submit { background: var(--primary-blue); color: white; border: none; border-radius: 30px; padding: 14px; width: 100%; font-weight: 700; font-size: 15px; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+    .btn-modal-submit { background: var(--primary-blue); color: white; border: none; border-radius: 30px; padding: 14px; width: 100%; font-weight: 700; font-size: 15px; cursor: pointer; margin-top: 10px; transition: 0.2s; box-sizing: border-box;}
     .btn-modal-submit:hover { background-color: #081666; }
     .btn-close-modal { position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 24px; color: #999; cursor: pointer; }
 
     #resultView { display: none; width: 100%; }
-    .pill-text { border: 1px solid #ccc; border-radius: 20px; padding: 8px 15px; font-size: 14px; font-weight: 600; color: #333; display: inline-block; text-align: center; min-width: 100px; }
+    .pill-text { border: 1px solid #ccc; border-radius: 20px; padding: 8px 15px; font-size: 14px; font-weight: 600; color: #333; display: inline-block; text-align: center; min-width: 100px; box-sizing: border-box;}
     .pill-text.small { min-width: 70px; }
     .table-text { padding: 10px; font-size: 14px; font-weight: 600; color: #333; }
-    .status-area { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; padding: 0 20px; }
-    .status-col { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-    .status-label { font-size: 14px; font-weight: 700; color: #333; text-transform: uppercase; }
-    .status-badge { border-radius: 30px; padding: 10px 30px; color: #fff; font-size: 14px; font-weight: 700; text-align: center; }
+    
+    .status-area { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; padding: 0 20px; gap: 10px; flex-wrap: wrap;}
+    .status-col { display: flex; flex-direction: column; align-items: center; gap: 10px; flex: 1; min-width: 120px;}
+    .status-label { font-size: 14px; font-weight: 700; color: #333; text-transform: uppercase; text-align: center;}
+    .status-badge { border-radius: 30px; padding: 10px 20px; color: #fff; font-size: 13px; font-weight: 700; text-align: center; width: 100%; box-sizing: border-box;}
     .badge-red { background-color: var(--red-status); }
     .badge-blue { background-color: var(--primary-blue); }
     
@@ -94,9 +94,44 @@
     .carousel-wrap { display: flex; align-items: center; justify-content: center; gap: 20px; width: 100%; }
     .carousel-arrow { background: #e8f4fc; border: none; font-size: 24px; width: 50px; height: 50px; border-radius: 50%; color: var(--primary-blue); cursor: pointer; transition: 0.2s; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     .carousel-arrow:hover { background: var(--primary-blue); color: white; }
-    #carouselContent { flex: 1; overflow: hidden; }
+    #carouselContent { flex: 1; overflow: hidden; width: 100%; }
 
     .main-footer { text-align: center; padding: 20px 40px; color: var(--text-gray); font-size: 13px; line-height: 1.6; margin-bottom: 20px; max-width: 1450px; }
+
+    /* ==============================================================
+       BỘ CSS RESPONSIVE THÍCH ỨNG ĐA MÀN HÌNH CHỐNG TRÀN
+       ============================================================== */
+    @media (max-width: 1200px) {
+      .main-card { padding: 40px 50px; width: 95%; }
+    }
+    
+    @media (max-width: 992px) {
+      .info-row { flex-direction: column; align-items: stretch; gap: 20px; margin-bottom: 25px; }
+      .info-group, .inline-group { width: 100%; flex-wrap: wrap; align-items: flex-start; gap: 10px; }
+      .info-group .info-label, .inline-group .info-label { width: 100%; margin-bottom: 5px; } /* Đẩy Label lên 1 dòng riêng */
+      .pill-input, .pill-input.small, .pill-text, .pill-text.small { flex: 1 1 30%; min-width: 100px; max-width: 100%; }
+      .inline-input { width: 100%; }
+      #department { flex: 1 1 100%; max-width: 100%; }
+      .status-area { flex-wrap: wrap; }
+      .status-col { flex: 1 1 45%; margin-bottom: 15px; }
+    }
+    
+    @media (max-width: 768px) {
+      .main-card { padding: 30px 20px; width: 96%; }
+      .top-header { flex-direction: column; gap: 15px; text-align: center; padding: 15px; }
+      .header-left { flex-direction: column; gap: 10px; }
+      .btn-check-status { width: 100%; white-space: normal;}
+      .card-title-area h2 { font-size: 22px; }
+      .btn-back { position: static; margin-bottom: 15px; justify-content: center; width: 100%; }
+      
+      .pill-input, .pill-input.small, .pill-text, .pill-text.small { flex: 1 1 100%; margin-bottom: 5px;} /* Dàn hàng dọc 1 cột trên Mobile */
+      
+      .carousel-wrap { flex-direction: column; }
+      .carousel-arrow { transform: rotate(90deg); margin: 10px 0;}
+      .carousel-arrow:first-child { transform: rotate(-90deg); }
+      .status-col { flex: 1 1 100%; }
+      .btn-submit { width: 100%; padding: 14px 20px; }
+    }
   </style>
 </head>
 <body>
@@ -117,17 +152,18 @@
       <hr>
     </div>
 
+    <!-- VIEW FORM ĐĂNG KÝ -->
     <form id="marketingForm">
       <div class="info-section">
         <div class="info-row">
           <div class="info-group">
-            <span class="info-label" style="min-width: 100px;">Thành viên:</span>
+            <span class="info-label">Thành viên:</span>
             <input type="text" class="pill-input" id="tv1" placeholder="Nguyễn Văn A" required>
             <input type="text" class="pill-input" id="tv2" placeholder="Nguyễn Văn B">
             <input type="text" class="pill-input" id="tv3" placeholder="Nguyễn Văn C">
           </div>
-          <div class="info-group" style="flex: 0 0 auto;">
-            <span class="info-label" style="min-width: 100px;">Mã nhân viên:</span>
+          <div class="info-group">
+            <span class="info-label">Mã nhân viên:</span>
             <input type="text" class="pill-input small" id="mnv1" placeholder="AVH001" required>
             <input type="text" class="pill-input small" id="mnv2" placeholder="...">
             <input type="text" class="pill-input small" id="mnv3" placeholder="...">
@@ -146,9 +182,9 @@
         </div>
 
         <div class="info-row">
-          <div class="info-group" style="position: relative; flex: 1;">
-            <span class="info-label" style="min-width: 130px;">Phòng kinh doanh:</span>
-            <select class="pill-input small" id="department" required style="width: auto; min-width: 120px;">
+          <div class="info-group">
+            <span class="info-label">Phòng kinh doanh:</span>
+            <select class="pill-input small" id="department" required>
               <option value="" disabled selected>Đang tải...</option>
             </select>
             <span id="loadingDepts">⏳</span>
@@ -161,71 +197,76 @@
       </div>
 
       <div class="table-title">Nội dung đề xuất chiến dịch Marketing</div>
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th rowspan="2" width="4%">STT</th>
-            <th rowspan="2" width="15%">Dự án</th>
-            <th colspan="4">Thông tin chiến dịch Marketing đăng ký</th>
-            <th rowspan="2" width="9%">Kênh chạy</th>
-            <th rowspan="2" width="11%">Số điện thoại<br>đăng ký trên quảng cáo</th>
-            <th rowspan="2" width="13%">Tài khoản đăng ký<br>chạy quảng cáo</th>
-            <th rowspan="2" width="10%">Ban lãnh đạo<br>phê duyệt</th>
-          </tr>
-          <tr>
-            <th width="18%">Ngân sách</th><th width="7%">Bắt đầu</th><th width="7%">Kết thúc</th><th width="6%">KPI</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody">
-          <tr>
-            <td>1</td>
-            <td><select class="table-input project-select" name="project" required><option value="" disabled selected>Chọn dự án...</option></select></td>
-            <td><input type="text" class="table-input calc-budget" name="budget" placeholder="0" oninput="formatCurrency(this)" required></td>
-            <td><input type="text" class="table-input" name="start" placeholder="..." required></td>
-            <td><input type="text" class="table-input" name="end" placeholder="..." required></td>
-            <td><input type="text" class="table-input" name="kpi" placeholder="..."></td>
-            <td><input type="text" class="table-input" name="channel" placeholder="..."></td>
-            <td><input type="text" class="table-input" name="phone" placeholder="..."></td>
-            <td><input type="text" class="table-input" name="account" placeholder="..."></td>
-            <td style="background-color: #f9f9f9;" readonly></td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td><select class="table-input project-select" name="project"><option value="" disabled selected>Chọn dự án...</option></select></td>
-            <td><input type="text" class="table-input calc-budget" name="budget" placeholder="0" oninput="formatCurrency(this)"></td>
-            <td><input type="text" class="table-input" name="start" placeholder="..."></td>
-            <td><input type="text" class="table-input" name="end" placeholder="..."></td>
-            <td><input type="text" class="table-input" name="kpi" placeholder="..."></td>
-            <td><input type="text" class="table-input" name="channel" placeholder="..."></td>
-            <td><input type="text" class="table-input" name="phone" placeholder="..."></td>
-            <td><input type="text" class="table-input" name="account" placeholder="..."></td>
-            <td style="background-color: #f9f9f9;" readonly></td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td><select class="table-input project-select" name="project"><option value="" disabled selected>Chọn dự án...</option></select></td>
-            <td><input type="text" class="table-input calc-budget" name="budget" placeholder="0" oninput="formatCurrency(this)"></td>
-            <td><input type="text" class="table-input" name="start" placeholder="..."></td>
-            <td><input type="text" class="table-input" name="end" placeholder="..."></td>
-            <td><input type="text" class="table-input" name="kpi" placeholder="..."></td>
-            <td><input type="text" class="table-input" name="channel" placeholder="..."></td>
-            <td><input type="text" class="table-input" name="phone" placeholder="..."></td>
-            <td><input type="text" class="table-input" name="account" placeholder="..."></td>
-            <td style="background-color: #f9f9f9;" readonly></td>
-          </tr>
-        </tbody>
-        <tfoot>
-          <tr class="total-row">
-            <td colspan="2" style="text-align: right; padding-right: 20px;">Tổng cộng</td>
-            <td class="total-bg-blue" id="totalBudgetDisplay">0</td>
-            <td colspan="7" style="border-bottom: transparent; border-right: transparent;"></td>
-          </tr>
-        </tfoot>
-      </table>
+      
+      <!-- BỌC BẢNG TRONG TABLE-RESPONSIVE ĐỂ FIX LỖI TRÀN LỀ PHẢI -->
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th rowspan="2" width="4%">STT</th>
+              <th rowspan="2" width="15%">Dự án</th>
+              <th colspan="4">Thông tin chiến dịch Marketing đăng ký</th>
+              <th rowspan="2" width="9%">Kênh chạy</th>
+              <th rowspan="2" width="11%">Số điện thoại<br>đăng ký quảng cáo</th>
+              <th rowspan="2" width="13%">Tài khoản đăng ký<br>chạy quảng cáo</th>
+              <th rowspan="2" width="10%">Ban lãnh đạo<br>phê duyệt</th>
+            </tr>
+            <tr>
+              <th width="18%">Ngân sách</th><th width="7%">Bắt đầu</th><th width="7%">Kết thúc</th><th width="6%">KPI</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr>
+              <td>1</td>
+              <td><select class="table-input project-select" name="project" required><option value="" disabled selected>Chọn dự án...</option></select></td>
+              <td><input type="text" class="table-input calc-budget" name="budget" placeholder="0" oninput="formatCurrency(this)" required></td>
+              <td><input type="text" class="table-input" name="start" placeholder="..." required></td>
+              <td><input type="text" class="table-input" name="end" placeholder="..." required></td>
+              <td><input type="text" class="table-input" name="kpi" placeholder="..."></td>
+              <td><input type="text" class="table-input" name="channel" placeholder="..."></td>
+              <td><input type="text" class="table-input" name="phone" placeholder="..."></td>
+              <td><input type="text" class="table-input" name="account" placeholder="..."></td>
+              <td style="background-color: #f9f9f9;" readonly></td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td><select class="table-input project-select" name="project"><option value="" disabled selected>Chọn dự án...</option></select></td>
+              <td><input type="text" class="table-input calc-budget" name="budget" placeholder="0" oninput="formatCurrency(this)"></td>
+              <td><input type="text" class="table-input" name="start" placeholder="..."></td>
+              <td><input type="text" class="table-input" name="end" placeholder="..."></td>
+              <td><input type="text" class="table-input" name="kpi" placeholder="..."></td>
+              <td><input type="text" class="table-input" name="channel" placeholder="..."></td>
+              <td><input type="text" class="table-input" name="phone" placeholder="..."></td>
+              <td><input type="text" class="table-input" name="account" placeholder="..."></td>
+              <td style="background-color: #f9f9f9;" readonly></td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td><select class="table-input project-select" name="project"><option value="" disabled selected>Chọn dự án...</option></select></td>
+              <td><input type="text" class="table-input calc-budget" name="budget" placeholder="0" oninput="formatCurrency(this)"></td>
+              <td><input type="text" class="table-input" name="start" placeholder="..."></td>
+              <td><input type="text" class="table-input" name="end" placeholder="..."></td>
+              <td><input type="text" class="table-input" name="kpi" placeholder="..."></td>
+              <td><input type="text" class="table-input" name="channel" placeholder="..."></td>
+              <td><input type="text" class="table-input" name="phone" placeholder="..."></td>
+              <td><input type="text" class="table-input" name="account" placeholder="..."></td>
+              <td style="background-color: #f9f9f9;" readonly></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="2" style="text-align: right; padding-right: 20px;">Tổng cộng</td>
+              <td class="total-bg-blue" id="totalBudgetDisplay">0</td>
+              <td colspan="7" style="border-bottom: transparent; border-right: transparent;"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
       
       <div class="btn-submit-container"><button type="button" id="btnOpenAdvance" class="btn-submit" onclick="openAdvanceModal()">Tiếp tục (Điền đơn Tạm Ứng)</button></div>
     </form>
 
+    <!-- VIEW KẾT QUẢ TRA CỨU ĐỘNG (DẠNG SLIDER CAROUSEL) -->
     <div id="resultView">
       <div id="searchSummaryText" style="text-align:center; font-size:18px; color:var(--primary-blue); font-weight:800; margin-bottom: 25px;"></div>
       
@@ -408,14 +449,19 @@
       if(st === 'PENDING_BLD' || st === 'BLD_DRAFTING' || st === 'APPROVED_BY_BLD') { sPtgd = 'blue'; tPtgd = 'Đã xác nhận'; sMkt = 'blue'; tMkt = 'Đã xác nhận';}
       if(st === 'APPROVED_BY_BLD') { sBld = 'blue'; tBld = 'Đã xác nhận'; }
 
+      // Gói Bảng trong Table Responsive
       document.getElementById('carouselContent').innerHTML = `<div class="result-block">
         <div class="phieu-id-title">MÃ PHIẾU: ${phieu.idPhieu}</div>
         <div class="info-section">
-          <div class="info-row"><div class="info-group"><span class="info-label" style="min-width: 100px;">Thành viên:</span><span class="pill-text">${tv1}</span><span class="pill-text">${tv2}</span><span class="pill-text">${tv3}</span></div><div class="info-group" style="flex: 0 0 auto;"><span class="info-label" style="min-width: 100px;">Mã nhân viên:</span><span class="pill-text small">${m1}</span><span class="pill-text small">${m2}</span><span class="pill-text small">${m3}</span></div></div>
+          <div class="info-row"><div class="info-group"><span class="info-label">Thành viên:</span><span class="pill-text">${tv1}</span><span class="pill-text">${tv2}</span><span class="pill-text">${tv3}</span></div><div class="info-group"><span class="info-label">Mã nhân viên:</span><span class="pill-text small">${m1}</span><span class="pill-text small">${m2}</span><span class="pill-text small">${m3}</span></div></div>
           <div class="info-row"><div class="inline-group"><span class="info-label">Tên nhóm:</span><div class="inline-input">${phieu.tenNhom}</div></div><div class="inline-group"><span class="info-label">Email liên hệ:</span><div class="inline-input">${phieu.email}</div></div></div>
-          <div class="info-row"><div class="info-group" style="flex: 1;"><span class="info-label" style="min-width: 130px;">Phòng kinh doanh:</span><span class="pill-text small" style="width: auto; min-width: 90px;">${phieu.phongKD}</span></div><div class="inline-group"><span class="info-label">Khối kinh doanh:</span><div class="inline-input">${khoi}</div></div></div>
+          <div class="info-row"><div class="info-group"><span class="info-label">Phòng KD:</span><span class="pill-text small" style="width: auto;">${phieu.phongKD}</span></div><div class="inline-group"><span class="info-label">Khối KD:</span><div class="inline-input">${khoi}</div></div></div>
         </div>
-        <table class="data-table"><thead><tr><th rowspan="2" width="4%">STT</th><th rowspan="2" width="16%">Dự án</th><th colspan="4">Thông tin chiến dịch Marketing đăng ký</th><th rowspan="2" width="10%">Kênh chạy</th><th rowspan="2" width="12%">Số điện thoại</th><th rowspan="2" width="14%">Tài khoản</th><th rowspan="2" width="12%">Ban lãnh đạo phê duyệt</th></tr><tr><th width="15%">Ngân sách</th><th width="7%">Bắt đầu</th><th width="7%">Kết thúc</th><th width="7%">KPI</th></tr></thead><tbody>${rowsHtml}</tbody><tfoot><tr class="total-row"><td colspan="2" style="text-align: right; padding-right: 20px;">Tổng cộng</td><td class="total-bg-blue">${formatNumber(phieu.tongTien)}</td><td colspan="7" style="border-bottom: transparent; border-right: transparent;"></td></tr></tfoot></table>
+        
+        <div class="table-responsive">
+          <table class="data-table"><thead><tr><th rowspan="2" width="4%">STT</th><th rowspan="2" width="15%">Dự án</th><th colspan="4">Thông tin chiến dịch Marketing đăng ký</th><th rowspan="2" width="9%">Kênh chạy</th><th rowspan="2" width="11%">Số điện thoại</th><th rowspan="2" width="13%">Tài khoản</th><th rowspan="2" width="10%">Ban lãnh đạo phê duyệt</th></tr><tr><th width="18%">Ngân sách</th><th width="7%">Bắt đầu</th><th width="7%">Kết thúc</th><th width="6%">KPI</th></tr></thead><tbody>${rowsHtml}</tbody><tfoot><tr class="total-row"><td colspan="2" style="text-align: right; padding-right: 20px;">Tổng cộng</td><td class="total-bg-blue">${formatNumber(phieu.tongTien)}</td><td colspan="7" style="border-bottom: transparent; border-right: transparent;"></td></tr></tfoot></table>
+        </div>
+
         <div class="status-area">
           <div class="status-col"><div class="status-label">Ban Lãnh Đạo</div><div class="status-badge badge-${sBld}">${tBld}</div></div>
           <div class="status-col"><div class="status-label">Xác nhận P. MKT</div><div class="status-badge badge-${sMkt}">${tMkt}</div></div>
@@ -430,15 +476,11 @@
       document.getElementById('resultView').style.display = 'none'; document.getElementById('marketingForm').style.display = 'block'; document.getElementById('mainTitle').innerText = "ĐỀ XUẤT CHIẾN DỊCH MARKETING"; document.getElementById('btnBack').style.display = 'none';
     }
 
-    // LUỒNG NỘP ĐƠN MỚI: MỞ POPUP TẠM ỨNG
     function openAdvanceModal() {
-      // 1. Kiểm tra Validate chuẩn HTML5 của toàn bộ form trước
       const form = document.getElementById('marketingForm');
       if(!form.checkValidity()) { form.reportValidity(); return; }
 
-      // 2. Kiểm tra xem đã điền ít nhất 1 Dự án có tiền chưa
-      let hasItem = false;
-      let projectNames = [];
+      let hasItem = false; let projectNames = [];
       document.querySelectorAll('#tableBody tr').forEach(row => {
         const p = row.querySelector('select[name="project"]').value;
         if (p && p.trim() !== "") { hasItem = true; projectNames.push(p); }
@@ -446,15 +488,11 @@
 
       if(!hasItem) { alert("Vui lòng chọn ít nhất 1 dự án và điền đầy đủ số tiền!"); return; }
 
-      // 3. Trích xuất thông tin tự động điền vào Popup
       document.getElementById('advTeamNameDisplay').innerText = document.getElementById('teamName').value;
       document.getElementById('advContentDisplay').innerText = "Tạm ứng Marketing dự án " + projectNames.join(', ');
-
-      // Mở Popup
       document.getElementById('advanceModal').style.display = 'flex';
     }
 
-    // NỘP TOÀN BỘ DATA (ĐỀ XUẤT + TẠM ỨNG) LÊN SERVER
     function submitEntireProposal() {
       const btn = document.getElementById('btnFinalSubmit'); btn.disabled = true; btn.innerText = "ĐANG XỬ LÝ...";
 
@@ -479,11 +517,7 @@
       const payload = {
         teamName: document.getElementById('teamName').value, memberName: mems, memberIds: ids, emailContact: document.getElementById('emailContact').value,
         department: document.getElementById('department').value + " - " + document.getElementById('division').value, items: items,
-        // CÁC TRƯỜNG DỮ LIỆU TẠM ỨNG MỚI
-        advPercent: document.getElementById('advPercent').value,
-        bankOwner: document.getElementById('bankOwner').value,
-        bankAccount: document.getElementById('bankAccount').value,
-        bankName: document.getElementById('bankName').value
+        advPercent: document.getElementById('advPercent').value, bankOwner: document.getElementById('bankOwner').value, bankAccount: document.getElementById('bankAccount').value, bankName: document.getElementById('bankName').value
       };
 
       callAPI("submitForm", { data: JSON.stringify(payload) }, function(res) {
