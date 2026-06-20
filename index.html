@@ -76,15 +76,9 @@
     .btn-modal-submit:hover { background-color: #081666; }
     .btn-close-modal { position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 24px; color: #999; cursor: pointer; }
 
-    /* ĐÃ FIX: LOẠI BỎ MŨI TÊN KÉO TĂNG GIẢM TRONG Ô NHẬP SỐ */
     input[type="number"]::-webkit-outer-spin-button,
-    input[type="number"]::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-    input[type="number"] {
-      -moz-appearance: textfield;
-    }
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type="number"] { -moz-appearance: textfield; }
 
     #resultView { display: none; width: 100%; }
     .pill-text { border: 1px solid #ccc; border-radius: 20px; padding: 8px 15px; font-size: 14px; font-weight: 600; color: #333; display: inline-block; text-align: center; min-width: 100px; box-sizing: border-box;}
@@ -406,7 +400,6 @@
 
     function formatNumber(num) { return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
 
-    // HÀM ĐỔ DỮ LIỆU TỪ LOCALSTORAGE VÀO DATALIST GỢI Ý
     function populateDatalists() {
         let suggestions = JSON.parse(localStorage.getItem('avh_table_suggestions') || '{"kpi":[],"channel":[],"phone":[],"account":[]}');
         const fillList = (id, arr) => {
@@ -425,7 +418,6 @@
         fillList('list-phone', suggestions.phone);
         fillList('list-account', suggestions.account);
 
-        // ĐỔ DỮ LIỆU GỢI Ý CHO THÔNG TIN NGÂN HÀNG (TẠM ỨNG)
         let bankSuggestions = JSON.parse(localStorage.getItem('avh_bank_suggestions') || '{"owner":[],"account":[],"name":[]}');
         fillList('list-bankOwner', bankSuggestions.owner);
         fillList('list-bankAccount', bankSuggestions.account);
@@ -438,6 +430,26 @@
       
       const currentMonthVal = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
       document.getElementById('searchMonth').value = currentMonthVal;
+
+      // ĐÃ FIX: TỰ ĐỘNG BẬT POPUP NẾU URL CÓ CHỨA ?search=DX-xxxx
+      const urlParams = new URLSearchParams(window.location.search);
+      const searchIdFromUrl = urlParams.get('search');
+      if (searchIdFromUrl) {
+        setTimeout(() => {
+          openModal();
+          // Cắt chữ DX- để điền vừa khớp vào ô tìm kiếm
+          document.getElementById('searchProposalId').value = searchIdFromUrl.replace(/DX-/i, '').trim();
+          
+          // Lục lại bộ nhớ để lấy Mã nhân viên điền sẵn luôn
+          const savedData = localStorage.getItem('avh_sale_info');
+          if(savedData) {
+             const info = JSON.parse(savedData);
+             if(info.mnv1) {
+                 document.getElementById('searchId').value = info.mnv1.replace(/AVH/i, '').trim();
+             }
+          }
+        }, 300);
+      }
 
       document.getElementById('loadingDepts').style.display = 'inline';
       
@@ -454,7 +466,6 @@
              projs.forEach(p => { sel.innerHTML += `<option value="${p}">${p}</option>`; });
           });
 
-          // KHÔI PHỤC DỮ LIỆU THÔNG TIN CÁ NHÂN ĐÃ NHẬP GẦN NHẤT
           const savedData = localStorage.getItem('avh_sale_info');
           if(savedData) {
             const info = JSON.parse(savedData);
@@ -479,7 +490,6 @@
             }, 300);
           }
           
-          // TỰ ĐỘNG ĐIỀN NGÀY THÁNG THÔNG MINH KHI LOAD TRANG
           let targetMonth = today.getMonth() + 1;
           let targetYear = today.getFullYear();
           if (today.getDate() >= 25) {
@@ -590,7 +600,7 @@
         </div>
         
         <div class="table-responsive">
-          <table class="data-table"><thead><tr><th rowspan="2" width="4%">STT</th><th rowspan="2" width="15%">Dự án</th><th colspan="4">Thông chiến dịch Marketing đăng ký</th><th rowspan="2" width="9%">Kênh chạy</th><th rowspan="2" width="11%">Số điện thoại</th><th rowspan="2" width="13%">Tài khoản</th><th rowspan="2" width="10%">Ban lãnh đạo phê duyệt</th></tr><tr><th width="18%">Ngân sách</th><th width="7%">Bắt đầu</th><th width="7%">Kết thúc</th><th width="6%">KPI</th></tr></thead><tbody>${rowsHtml}</tbody><tfoot><tr class="total-row"><td colspan="2" style="text-align: right; padding-right: 20px;">Tổng cộng</td><td class="total-bg-blue">${formatNumber(phieu.tongTien)}</td><td colspan="7" style="border-bottom: transparent; border-right: transparent;"></td></tr></tfoot></table>
+          <table class="data-table"><thead><tr><th rowspan="2" width="4%">STT</th><th rowspan="2" width="15%">Dự án</th><th colspan="4">Thông tin chiến dịch Marketing đăng ký</th><th rowspan="2" width="9%">Kênh chạy</th><th rowspan="2" width="11%">Số điện thoại</th><th rowspan="2" width="13%">Tài khoản</th><th rowspan="2" width="10%">Ban lãnh đạo phê duyệt</th></tr><tr><th width="18%">Ngân sách</th><th width="7%">Bắt đầu</th><th width="7%">Kết thúc</th><th width="6%">KPI</th></tr></thead><tbody>${rowsHtml}</tbody><tfoot><tr class="total-row"><td colspan="2" style="text-align: right; padding-right: 20px;">Tổng cộng</td><td class="total-bg-blue">${formatNumber(phieu.tongTien)}</td><td colspan="7" style="border-bottom: transparent; border-right: transparent;"></td></tr></tfoot></table>
         </div>
 
         <div class="status-area">
@@ -664,7 +674,6 @@
       };
       localStorage.setItem('avh_sale_info', JSON.stringify(userInfoToSave));
 
-      // LƯU GỢI Ý NGÂN HÀNG (TẠM ỨNG)
       let bankSuggestions = JSON.parse(localStorage.getItem('avh_bank_suggestions') || '{"owner":[],"account":[],"name":[]}');
       let bOwner = document.getElementById('bankOwner').value.trim();
       let bAccount = document.getElementById('bankAccount').value.trim();
@@ -675,7 +684,6 @@
       if(bName && !bankSuggestions.name.includes(bName)) bankSuggestions.name.push(bName);
       localStorage.setItem('avh_bank_suggestions', JSON.stringify(bankSuggestions));
 
-      // LƯU GỢI Ý BẢNG MARKETING
       let suggestions = JSON.parse(localStorage.getItem('avh_table_suggestions') || '{"kpi":[],"channel":[],"phone":[],"account":[]}');
       document.querySelectorAll('#tableBody tr').forEach(row => {
           const p = row.querySelector('select[name="project"]').value;
@@ -697,13 +705,11 @@
 
       callAPI("submitForm", { data: JSON.stringify(payload) }, function(res) {
         if (res.success) {
-          // ĐÃ FIX LỖI POPUP KHÔNG ĐÓNG: Xóa trắng form chuẩn xác
           alert("Gửi đề xuất chiến dịch và Đơn xin tạm ứng thành công!\nMã số phiếu của bạn là: " + res.id + "\n(Vui lòng lưu lại Mã này hoặc kiểm tra Email để tra cứu)");
           
           document.querySelectorAll('#tableBody tr').forEach(row => {
               row.querySelector('select[name="project"]').value = '';
               row.querySelector('input[name="budget"]').value = '';
-              // KHÔNG XÓA DỮ LIỆU START/END ĐỂ SALE TIỆN GIỮ CHO THÁNG SAU
               row.querySelector('input[name="kpi"]').value = '';
               row.querySelector('input[name="channel"]').value = '';
               row.querySelector('input[name="phone"]').value = '';
