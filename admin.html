@@ -802,8 +802,7 @@
       
       showLoading(true, "ĐANG TRÍCH XUẤT TÀI LIỆU PDF...", "Vui lòng đợi 2-3 giây. Tệp tải xuống sẽ tự động lưu vào máy.");
       
-      // ĐÃ FIX: Sử dụng font 'Times New Roman' chuẩn quốc tế để chống lỗi Font tiếng Việt như ở Đơn tạm ứng
-      // ĐÃ FIX LỀ PHẢI: Khóa cứng chiều ngang A4 ngang (1122px) và dùng box-sizing
+      // Khóa cứng width chuẩn A4 ngang
       let htmlString = `<div style="font-family: 'Times New Roman', Times, serif; color: #000; background: #fff; width: 1122px; box-sizing: border-box;">`;
       
       filteredData.forEach((phieu, i) => {
@@ -813,9 +812,9 @@
           rowsHtml += `<tr><td style="border:1px solid #000; padding:8px; text-align:center;">${index+1}</td><td style="border:1px solid #000; padding:8px; text-align:center;"><b>${ct.tenDuAn}</b></td><td style="border:1px solid #000; padding:8px; text-align:center; color:#c00000; font-weight:bold;">${formatNumber(ct.nganSachDuyet)}</td><td style="border:1px solid #000; padding:8px; text-align:center;">01/${mThang}</td><td style="border:1px solid #000; padding:8px; text-align:center;">31/${mThang}</td><td style="border:1px solid #000; padding:8px; text-align:center;">${ct.kpi || ''}</td><td style="border:1px solid #000; padding:8px; text-align:center;">${ct.channel || ''}</td><td style="border:1px solid #000; padding:8px; text-align:center;">${ct.phone || ''}</td><td style="border:1px solid #000; padding:8px; text-align:center;">${ct.account || ''}</td><td style="border:1px solid #000; padding:8px; text-align:center;"></td></tr>`;
         });
 
-        // ĐÃ FIX LỀ TRÊN: Giảm padding-top về 0 để phần margin của thư viện hoạt động đúng
+        // ĐÃ FIX: Ép padding CSS chuẩn Milimet (Top 8mm) và Khóa cứng Height 794px để không bị nhảy lề
         htmlString += `
-          <div style="font-size: 14px; line-height: 1.4; padding: 0px 20px 20px 20px; box-sizing: border-box; ${i < filteredData.length - 1 ? 'page-break-after: always;' : ''}">
+          <div style="width: 1122px; height: 794px; padding: 8mm 15mm 15mm 15mm; box-sizing: border-box; font-size: 14px; line-height: 1.4; ${i < filteredData.length - 1 ? 'page-break-after: always;' : ''}">
             <h2 style="text-align:center; color:#0b1f8c; font-size:22px; font-weight:bold; margin-top: 0; margin-bottom: 5px;">KẾT QUẢ DUYỆT MKT</h2>
             <p style="text-align:center; margin-top:0; margin-bottom: 20px; font-size:15px;">Mã: <b>${phieu.idPhieu}</b></p>
             
@@ -845,20 +844,27 @@
       });
       htmlString += `</div>`;
       
-      // ĐÃ FIX LỀ: Đặt margin-top thành 8mm và dùng windowWidth: 1122
-      var opt = { 
-        margin:       [8, 10, 10, 10], 
-        filename:     'Bao_Cao_MKT_' + monthVal + '.pdf', 
-        image:        { type: 'jpeg', quality: 0.98 }, 
-        html2canvas:  { scale: 2, useCORS: true, windowWidth: 1122 }, 
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' } 
-      };
-      
-      html2pdf().set(opt).from(htmlString).save().then(() => { 
-        showLoading(false); 
-      }).catch(err => {
-        showLoading(false); alert("Lỗi tạo PDF!");
-      });
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = htmlString;
+      tempDiv.style.position = 'absolute'; tempDiv.style.top = '0'; tempDiv.style.left = '0'; tempDiv.style.width = '1122px'; tempDiv.style.zIndex = '9998'; tempDiv.style.background = '#fff';
+      document.body.appendChild(tempDiv);
+
+      // ĐÃ FIX: Margin của thư viện = 0. Để CSS tự lo khoảng cách. Hết cắt viền!
+      setTimeout(() => {
+        var opt = { 
+          margin:       0, 
+          filename:     'Bao_Cao_MKT_' + monthVal + '.pdf', 
+          image:        { type: 'jpeg', quality: 1 }, 
+          html2canvas:  { scale: 2, useCORS: true, scrollY: 0, windowWidth: 1122 }, 
+          jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' } 
+        };
+        
+        html2pdf().set(opt).from(tempDiv).save().then(() => { 
+          document.body.removeChild(tempDiv); showLoading(false); 
+        }).catch(err => {
+          document.body.removeChild(tempDiv); showLoading(false); alert("Lỗi tạo PDF!");
+        });
+      }, 500);
     }
 
     // TẢI FILE TẠM ỨNG PDF CHUẨN FORM WORD (TAB 2)
@@ -871,7 +877,6 @@
       
       showLoading(true, "ĐANG TRÍCH XUẤT TÀI LIỆU PDF...", "Vui lòng đợi 2-3 giây. Tệp tải xuống sẽ tự động lưu vào máy.");
       
-      // ĐÃ FIX KHÔNG CẮT LỀ PHẢI: Khóa cứng width chuẩn A4 dọc (794px)
       let htmlString = `<div style="font-family: 'Times New Roman', Times, serif; color: #000; background: #fff; width: 794px; box-sizing: border-box;">`;
       
       filteredData.forEach((phieu, i) => {
@@ -886,6 +891,7 @@
           totalDuyet += finalNganSach;
           let mThang = monthVal.split('-')[1]; 
           let advanceAmt = Math.round(finalNganSach * Number(phieu.advPercent) / 100);
+          
           rowsHtml += `<tr>
             <td style="border: 1px solid #000; padding: 4px; text-align: center;">Tháng ${mThang}</td>
             <td style="border: 1px solid #000; padding: 4px; text-align: center;">${ct.tenDuAn}</td>
@@ -898,9 +904,9 @@
         let remaining = totalDuyet - totalAdvance;
         let today = new Date();
 
-        // ĐÃ FIX CO GỌN: Giảm padding tổng, giảm margin-bottom để đảm bảo nằm gọn trong 1 trang
+        // ĐÃ FIX: Khóa Height = 1122px, Overflow hidden, Padding CSS chuẩn (Top 8mm) để gọn đúng 1 trang A4
         htmlString += `
-          <div style="font-size: 13px; line-height: 1.25; padding: 0 15px; box-sizing: border-box; ${i < filteredData.length - 1 ? 'page-break-after: always;' : ''}">
+          <div style="width: 794px; height: 1122px; overflow: hidden; padding: 8mm 15mm 15mm 15mm; box-sizing: border-box; font-size: 13px; line-height: 1.25; ${i < filteredData.length - 1 ? 'page-break-after: always;' : ''}">
             
             <table style="width: 100%; border: none !important; margin-bottom: 12px; border-collapse: collapse;">
               <tr>
@@ -982,7 +988,7 @@
               </tr>
               <tr>
                 <td style="width: 30px; vertical-align: top; text-align: left; border: none !important; padding: 1px 0;">1.5.</td>
-                <td style="vertical-align: top; text-align: justify; border: none !important; padding: 1px 0; line-height: 1.3;">
+                <td style="vertical-align: top; text-align: justify; border: none !important; padding: 1px 0; line-height: 1.25;">
                   Tôi/chúng tôi xin cam kết chạy đủ ngân sách trong thời gian hỗ trợ, nếu số tiền tôi/chúng tôi tạm ứng vượt quá số tiền được hỗ trợ marketing, tôi/chúng đồng ý cho Công ty khấu trừ phần chênh lệch đó vào lương, Hoa hồng và Thưởng từ các Giao dịch khác mà tôi/chúng tôi có tại Công ty. Trường hợp không đủ khấu trừ, tôi/chúng tôi hoàn toàn đồng ý mọi phương án xử lý từ Ban Lãnh đạo Công ty.
                 </td>
               </tr>
@@ -1020,20 +1026,27 @@
       });
       htmlString += `</div>`;
 
-      // ĐÃ FIX LỀ TRÊN: Đặt margin-top thành 8mm, windowWidth ép kích thước in là 794px
-      var opt = { 
-        margin:       [8, 15, 8, 15], 
-        filename:     'Don_Tam_Ung_MKT_' + monthVal + '.pdf', 
-        image:        { type: 'jpeg', quality: 0.98 }, 
-        html2canvas:  { scale: 2, useCORS: true, windowWidth: 794 }, 
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' } 
-      };
-      
-      html2pdf().set(opt).from(htmlString).save().then(() => { 
-        showLoading(false); 
-      }).catch(err => {
-        showLoading(false); alert("Lỗi tạo PDF!");
-      });
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = htmlString;
+      tempDiv.style.position = 'absolute'; tempDiv.style.top = '0'; tempDiv.style.left = '0'; tempDiv.style.width = '794px'; tempDiv.style.zIndex = '9998'; tempDiv.style.background = '#fff';
+      document.body.appendChild(tempDiv);
+
+      // ĐÃ FIX: Đặt Margin = 0. Hệ thống phụ thuộc 100% vào CSS.
+      setTimeout(() => {
+        var opt = { 
+          margin:       0, 
+          filename:     'Don_Tam_Ung_MKT_' + monthVal + '.pdf', 
+          image:        { type: 'jpeg', quality: 1 }, 
+          html2canvas:  { scale: 2, useCORS: true, scrollY: 0, windowWidth: 794 }, 
+          jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' } 
+        };
+        
+        html2pdf().set(opt).from(tempDiv).save().then(() => { 
+          document.body.removeChild(tempDiv); showLoading(false); 
+        }).catch(err => {
+          document.body.removeChild(tempDiv); showLoading(false); alert("Lỗi tạo PDF!");
+        });
+      }, 500);
     }
     
     function submitBldApproval(isFinal) {
