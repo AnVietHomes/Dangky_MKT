@@ -278,7 +278,6 @@
     Yêu cầu chạy đủ tối thiểu 100% ngân sách BLĐ phê duyệt. Ngân sách thực chạy ghi nhận không bao gồm các chi phí mua tool (xây dựng content, website, quay chụp,...) và không bao gồm VAT hoặc phí nền tảng.
   </footer>
 
-  <!-- ĐÃ FIX: TRƯỜNG THÔNG TIN MÃ ĐƠN ĐỀ XUẤT -->
   <div class="modal-overlay" id="searchModal">
     <div class="modal-card">
       <button class="btn-close-modal" onclick="closeModal()">×</button>
@@ -401,7 +400,7 @@
       const today = new Date();
       document.getElementById('timeRealtime').innerText = `Tháng ${String(today.getMonth() + 1).padStart(2, '0')} Năm ${today.getFullYear()}`;
       
-      // ĐÃ FIX: TỰ ĐỘNG GỢI Ý ĐIỀN THÁNG HIỆN TẠI VÀO Ô TÌM KIẾM
+      // AUTO FILL THÁNG TRA CỨU MẶC ĐỊNH
       const currentMonthVal = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
       document.getElementById('searchMonth').value = currentMonthVal;
 
@@ -444,6 +443,20 @@
             }, 300);
           }
           
+          // TỰ ĐỘNG ĐIỀN NGÀY THÁNG THÔNG MINH KHI LOAD TRANG
+          let targetMonth = today.getMonth() + 1;
+          let targetYear = today.getFullYear();
+          if (today.getDate() >= 25) {
+              targetMonth += 1;
+              if (targetMonth > 12) { targetMonth = 1; targetYear += 1; }
+          }
+          const lastDay = new Date(targetYear, targetMonth, 0).getDate();
+          const startStr = `01/${String(targetMonth).padStart(2, '0')}`;
+          const endStr = `${String(lastDay).padStart(2, '0')}/${String(targetMonth).padStart(2, '0')}`;
+          
+          document.querySelectorAll('input[name="start"]').forEach(inp => { if(!inp.value) inp.value = startStr; });
+          document.querySelectorAll('input[name="end"]').forEach(inp => { if(!inp.value) inp.value = endStr; });
+
           populateDatalists();
         }
       });
@@ -472,7 +485,6 @@
     function closeModal() { document.getElementById('searchModal').style.display = 'none'; }
     function closeAdvanceModal() { document.getElementById('advanceModal').style.display = 'none'; }
 
-    // ĐÃ FIX: HÀM TRA CỨU MỚI (BẮT BUỘC NHẬP MÃ ĐƠN)
     function executeSearch() {
       const sProposalId = document.getElementById('searchProposalId').value.trim();
       const sId = document.getElementById('searchId').value.trim();
@@ -521,6 +533,7 @@
       let khoi = departmentsData.find(d => d.phong === phieu.phongKD)?.khoi || '...';
 
       let rowsHtml = '';
+      // HIỂN THỊ ĐÚNG CỘT START (INDEX 11) VÀ END (INDEX 12)
       phieu.chiTiet.forEach((ct, i) => { rowsHtml += `<tr><td>${i+1}</td><td class="table-text" style="color:var(--primary-blue);">${ct.tenDuAn}</td><td class="table-text">${formatNumber(ct.nganSach)}</td><td class="table-text">${ct.start||'...'}</td><td class="table-text">${ct.end||'...'}</td><td class="table-text">${ct.kpi}</td><td class="table-text">${ct.channel}</td><td class="table-text">${ct.phone}</td><td class="table-text">${ct.account}</td><td style="background-color: #f9f9f9;"></td></tr>`; });
       for(let j = phieu.chiTiet.length + 1; j <= 3; j++) { rowsHtml += `<tr><td>${j}</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td style="background-color: #f9f9f9;"></td></tr>`; }
 
@@ -636,14 +649,12 @@
 
       callAPI("submitForm", { data: JSON.stringify(payload) }, function(res) {
         if (res.success) {
-          // ĐÃ FIX: ALERT BÁO THÀNH CÔNG RÕ RÀNG VÀ TẮT POPUP
           alert("Gửi đề xuất chiến dịch và Đơn xin tạm ứng thành công!\nMã số phiếu của bạn là: " + res.id + "\n(Vui lòng lưu lại Mã này hoặc kiểm tra Email để tra cứu)");
           
           document.querySelectorAll('#tableBody tr').forEach(row => {
               row.querySelector('select[name="project"]').value = '';
               row.querySelector('input[name="budget"]').value = '';
-              row.querySelector('input[name="start"]').value = '';
-              row.querySelector('input[name="end"]').value = '';
+              // KHÔNG XÓA DỮ LIỆU START/END ĐỂ SALE TIỆN GIỮ CHO THÁNG SAU
               row.querySelector('input[name="kpi"]').value = '';
               row.querySelector('input[name="channel"]').value = '';
               row.querySelector('input[name="phone"]').value = '';
@@ -652,7 +663,6 @@
           document.getElementById('advanceForm').reset(); 
           calculateTotal();
           
-          // Trả về màn hình chính
           closeAdvanceModal();
           showFormView();
         } else { alert("Lỗi: " + res.message); }
