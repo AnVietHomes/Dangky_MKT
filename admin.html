@@ -803,7 +803,8 @@
       showLoading(true, "ĐANG TRÍCH XUẤT TÀI LIỆU PDF...", "Vui lòng đợi 2-3 giây. Tệp tải xuống sẽ tự động lưu vào máy.");
       
       // ĐÃ FIX: Sử dụng font 'Times New Roman' chuẩn quốc tế để chống lỗi Font tiếng Việt như ở Đơn tạm ứng
-      let htmlString = `<div style="font-family: 'Times New Roman', Times, serif; color: #000; background: #fff;">`;
+      // ĐÃ FIX: Khóa cứng width để chuẩn form in
+      let htmlString = `<div style="font-family: 'Times New Roman', Times, serif; color: #000; background: #fff; width: 1050px;">`;
       
       filteredData.forEach((phieu, i) => {
         let tongTien = 0; let rowsHtml = '';
@@ -812,9 +813,10 @@
           rowsHtml += `<tr><td style="border:1px solid #000; padding:8px; text-align:center;">${index+1}</td><td style="border:1px solid #000; padding:8px; text-align:center;"><b>${ct.tenDuAn}</b></td><td style="border:1px solid #000; padding:8px; text-align:center; color:#c00000; font-weight:bold;">${formatNumber(ct.nganSachDuyet)}</td><td style="border:1px solid #000; padding:8px; text-align:center;">01/${mThang}</td><td style="border:1px solid #000; padding:8px; text-align:center;">31/${mThang}</td><td style="border:1px solid #000; padding:8px; text-align:center;">${ct.kpi || ''}</td><td style="border:1px solid #000; padding:8px; text-align:center;">${ct.channel || ''}</td><td style="border:1px solid #000; padding:8px; text-align:center;">${ct.phone || ''}</td><td style="border:1px solid #000; padding:8px; text-align:center;">${ct.account || ''}</td><td style="border:1px solid #000; padding:8px; text-align:center;"></td></tr>`;
         });
 
+        // ĐÃ FIX LỀ TRÊN: Ép padding-top xuống còn 5px
         htmlString += `
-          <div style="font-size: 14px; line-height: 1.4; padding: 20px; ${i < filteredData.length - 1 ? 'page-break-after: always;' : ''}">
-            <h2 style="text-align:center; color:#0b1f8c; font-size:22px; font-weight:bold; margin-bottom: 5px;">KẾT QUẢ DUYỆT MKT</h2>
+          <div style="font-size: 14px; line-height: 1.4; padding: 5px 20px 20px 20px; ${i < filteredData.length - 1 ? 'page-break-after: always;' : ''}">
+            <h2 style="text-align:center; color:#0b1f8c; font-size:22px; font-weight:bold; margin-top: 0; margin-bottom: 5px;">KẾT QUẢ DUYỆT MKT</h2>
             <p style="text-align:center; margin-top:0; margin-bottom: 20px; font-size:15px;">Mã: <b>${phieu.idPhieu}</b></p>
             
             <table style="width:100%; margin-bottom:15px; border: none !important;">
@@ -843,8 +845,9 @@
       });
       htmlString += `</div>`;
       
+      // ĐÃ FIX LỀ TRÊN: margin = [top, right, bottom, left]. Top kéo lên 5mm.
       var opt = { 
-        margin:       10, 
+        margin:       [5, 10, 10, 10], 
         filename:     'Bao_Cao_MKT_' + monthVal + '.pdf', 
         image:        { type: 'jpeg', quality: 0.98 }, 
         html2canvas:  { scale: 2, useCORS: true }, 
@@ -868,7 +871,8 @@
       
       showLoading(true, "ĐANG TRÍCH XUẤT TÀI LIỆU PDF...", "Vui lòng đợi 2-3 giây. Tệp tải xuống sẽ tự động lưu vào máy.");
       
-      let htmlString = `<div style="font-family: 'Times New Roman', Times, serif; color: #000; background: #fff;">`;
+      // ĐÃ FIX: Giới hạn chiều rộng ở 750px để ôm khít form A4
+      let htmlString = `<div style="font-family: 'Times New Roman', Times, serif; color: #000; background: #fff; width: 750px;">`;
       
       filteredData.forEach((phieu, i) => {
         let tv1 = phieu.thanhVien.split(',')[0].trim();
@@ -883,10 +887,10 @@
           let mThang = monthVal.split('-')[1]; 
           let advanceAmt = Math.round(finalNganSach * Number(phieu.advPercent) / 100);
           rowsHtml += `<tr>
-            <td style="border: 1px solid #000; padding: 6px; text-align: center;">Tháng ${mThang}</td>
-            <td style="border: 1px solid #000; padding: 6px; text-align: center;">${ct.tenDuAn}</td>
-            <td style="border: 1px solid #000; padding: 6px; text-align: center;">${formatNumber(finalNganSach)}</td>
-            <td style="border: 1px solid #000; padding: 6px; text-align: center;">${formatNumber(advanceAmt)}</td>
+            <td style="border: 1px solid #000; padding: 4px; text-align: center;">Tháng ${mThang}</td>
+            <td style="border: 1px solid #000; padding: 4px; text-align: center;">${ct.tenDuAn}</td>
+            <td style="border: 1px solid #000; padding: 4px; text-align: center;">${formatNumber(finalNganSach)}</td>
+            <td style="border: 1px solid #000; padding: 4px; text-align: center;">${formatNumber(advanceAmt)}</td>
           </tr>`;
         });
 
@@ -894,10 +898,11 @@
         let remaining = totalDuyet - totalAdvance;
         let today = new Date();
 
+        // ĐÃ FIX CO GỌN 1 TRANG: Giảm kích cỡ font, kéo giãn lề trên/dưới.
         htmlString += `
-          <div style="font-size: 13px; line-height: 1.4; padding: 10px; ${i < filteredData.length - 1 ? 'page-break-after: always;' : ''}">
+          <div style="font-size: 12.5px; line-height: 1.3; padding: 5px 10px; ${i < filteredData.length - 1 ? 'page-break-after: always;' : ''}">
             
-            <table style="width: 100%; border: none !important; margin-bottom: 15px; border-collapse: collapse;">
+            <table style="width: 100%; border: none !important; margin-bottom: 10px; border-collapse: collapse;">
               <tr>
                 <td style="width: 45%; text-align: center; vertical-align: top; border: none !important; font-weight: bold; font-size: 12px; padding: 0;">
                   CÔNG TY CP PHÁT TRIỂN DỊCH VỤ<br>VÀ ĐỊA ỐC AN VIỆT HOMES<br>
@@ -910,7 +915,7 @@
               </tr>
             </table>
 
-            <div style="text-align: center; font-size: 16px; font-weight: bold; margin-bottom: 15px;">ĐƠN XIN TẠM ỨNG MARKETING</div>
+            <div style="text-align: center; font-size: 16px; font-weight: bold; margin-bottom: 10px;">ĐƠN XIN TẠM ỨNG MARKETING</div>
             
             <div style="margin-bottom: 5px;"><u>Kính gửi:</u> <b>Ban Lãnh Đạo Công ty Cổ phần Phát triển Dịch vụ và Địa ốc An Việt Homes</b></div>
             
@@ -930,28 +935,28 @@
               </tr>
             </table>
             
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 12px;">
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 5px; font-size: 12px;">
               <thead>
                 <tr>
-                  <th style="border: 1px solid #000; padding: 6px; text-align: center;">Tháng chạy MKT</th>
-                  <th style="border: 1px solid #000; padding: 6px; text-align: center;">Dự án</th>
-                  <th style="border: 1px solid #000; padding: 6px; text-align: center;">Ngân sách MKT</th>
-                  <th style="border: 1px solid #000; padding: 6px; text-align: center;">Số tiền được tạm ứng</th>
+                  <th style="border: 1px solid #000; padding: 4px; text-align: center;">Tháng chạy MKT</th>
+                  <th style="border: 1px solid #000; padding: 4px; text-align: center;">Dự án</th>
+                  <th style="border: 1px solid #000; padding: 4px; text-align: center;">Ngân sách MKT</th>
+                  <th style="border: 1px solid #000; padding: 4px; text-align: center;">Số tiền được tạm ứng</th>
                 </tr>
               </thead>
               <tbody>
                 ${rowsHtml}
                 <tr>
-                  <td colspan="3" style="border: 1px solid #000; padding: 6px; text-align: left;">Số tiền tạm ứng MKT lần 1 (${phieu.advPercent}%)</td>
-                  <td style="border: 1px solid #000; padding: 6px; font-weight: bold; text-align: center;">${formatNumber(totalAdvance)}</td>
+                  <td colspan="3" style="border: 1px solid #000; padding: 4px; text-align: left;">Số tiền tạm ứng MKT lần 1 (${phieu.advPercent}%)</td>
+                  <td style="border: 1px solid #000; padding: 4px; font-weight: bold; text-align: center;">${formatNumber(totalAdvance)}</td>
                 </tr>
                 <tr>
-                  <td colspan="3" style="border: 1px solid #000; padding: 6px; text-align: left;">Số tiền tạm ứng MKT lần 2</td>
-                  <td style="border: 1px solid #000; padding: 6px; text-align: center;"></td>
+                  <td colspan="3" style="border: 1px solid #000; padding: 4px; text-align: left;">Số tiền tạm ứng MKT lần 2</td>
+                  <td style="border: 1px solid #000; padding: 4px; text-align: center;"></td>
                 </tr>
                 <tr>
-                  <td colspan="3" style="border: 1px solid #000; padding: 6px; text-align: left;">Số tiền còn lại</td>
-                  <td style="border: 1px solid #000; padding: 6px; font-weight: bold; text-align: center;">${formatNumber(remaining)}</td>
+                  <td colspan="3" style="border: 1px solid #000; padding: 4px; text-align: left;">Số tiền còn lại</td>
+                  <td style="border: 1px solid #000; padding: 4px; font-weight: bold; text-align: center;">${formatNumber(remaining)}</td>
                 </tr>
               </tbody>
             </table>
@@ -983,11 +988,11 @@
               </tr>
             </table>
             
-            <div style="margin-left: 30px; margin-bottom: 15px; text-align: left;">
+            <div style="margin-left: 30px; margin-bottom: 10px; text-align: left;">
               Kính đề nghị Ban Lãnh đạo hỗ trợ và phê duyệt.<br>Trân trọng cảm ơn!
             </div>
             
-            <table style="width: 100%; text-align: center; border: none !important; font-size: 12px; margin-bottom: 20px; border-collapse: collapse;">
+            <table style="width: 100%; text-align: center; border: none !important; font-size: 12px; margin-bottom: 15px; border-collapse: collapse;">
               <tr>
                 <td style="width: 50%; vertical-align: top; border: none !important; padding: 0;">
                   <b>XÁC NHẬN P.MARKETING</b><br><br><br>
@@ -1015,8 +1020,9 @@
       });
       htmlString += `</div>`;
 
+      // ĐÃ FIX LỀ TRÊN VÀ CO GỌN: Điều chỉnh lề top là 5mm, lề bottom là 5mm.
       var opt = { 
-        margin:       [15, 20, 15, 20], 
+        margin:       [5, 15, 5, 15], 
         filename:     'Don_Tam_Ung_MKT_' + monthVal + '.pdf', 
         image:        { type: 'jpeg', quality: 0.98 }, 
         html2canvas:  { scale: 2, useCORS: true }, 
