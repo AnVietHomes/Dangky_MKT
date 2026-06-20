@@ -8,7 +8,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <style>
-    /* ĐÃ FIX: Đổi màu nền thành #d4efff */
     :root { --bg-light-blue: #d4efff; --primary-blue: #0b1f8c; --text-dark: #222222; --text-gray: #666666; --red-status: #c00000; --table-border: #222222; }
     body { font-family: 'Manrope', sans-serif; margin: 0; padding: 0; background-color: var(--bg-light-blue); color: var(--text-dark); min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
     .top-header { width: 100%; max-width: 1600px; display: flex; justify-content: space-between; align-items: center; padding: 20px 50px; margin-top: 10px; box-sizing: border-box; }
@@ -128,6 +127,11 @@
 </head>
 <body>
 
+  <datalist id="list-kpi"></datalist>
+  <datalist id="list-channel"></datalist>
+  <datalist id="list-phone"></datalist>
+  <datalist id="list-account"></datalist>
+
   <header class="top-header">
     <div class="header-left">
       <img src="logo.svg" alt="An Việt Homes" class="brand-logo" onerror="this.src='https://placehold.co/120x60/d4efff/0b1f8c?text=LOGO'">
@@ -148,13 +152,13 @@
       <div class="info-section">
         <div class="info-row">
           <div class="info-group">
-            <span class="info-label">Thành viên:</span>
+            <span class="info-label" style="min-width: 100px;">Thành viên:</span>
             <input type="text" class="pill-input" id="tv1" placeholder="Nguyễn Văn A" required>
             <input type="text" class="pill-input" id="tv2" placeholder="Nguyễn Văn B">
             <input type="text" class="pill-input" id="tv3" placeholder="Nguyễn Văn C">
           </div>
-          <div class="info-group">
-            <span class="info-label">Mã nhân viên:</span>
+          <div class="info-group" style="flex: 0 0 auto;">
+            <span class="info-label" style="min-width: 100px;">Mã nhân viên:</span>
             <input type="text" class="pill-input small" id="mnv1" placeholder="AVH001" required>
             <input type="text" class="pill-input small" id="mnv2" placeholder="...">
             <input type="text" class="pill-input small" id="mnv3" placeholder="...">
@@ -174,7 +178,7 @@
 
         <div class="info-row">
           <div class="info-group" style="position: relative; flex: 1;">
-            <span class="info-label">Phòng kinh doanh:</span>
+            <span class="info-label" style="min-width: 130px;">Phòng kinh doanh:</span>
             <select class="pill-input" id="department" required style="width: auto; min-width: 160px;">
               <option value="" disabled selected>Đang tải...</option>
             </select>
@@ -212,10 +216,10 @@
               <td><input type="text" class="table-input calc-budget" name="budget" placeholder="0" oninput="formatCurrency(this)" required></td>
               <td><input type="text" class="table-input date-format" name="start" placeholder="DD/MM" maxlength="5" required></td>
               <td><input type="text" class="table-input date-format" name="end" placeholder="DD/MM" maxlength="5" required></td>
-              <td><input type="text" class="table-input" name="kpi" placeholder="..."></td>
-              <td><input type="text" class="table-input" name="channel" placeholder="..."></td>
-              <td><input type="text" class="table-input" name="phone" placeholder="..."></td>
-              <td><input type="text" class="table-input" name="account" placeholder="..."></td>
+              <td><input type="text" class="table-input" name="kpi" placeholder="..." list="list-kpi"></td>
+              <td><input type="text" class="table-input" name="channel" placeholder="..." list="list-channel" required></td>
+              <td><input type="text" class="table-input" name="phone" placeholder="..." list="list-phone"></td>
+              <td><input type="text" class="table-input" name="account" placeholder="..." list="list-account"></td>
               <td style="background-color: #f9f9f9;" readonly></td>
             </tr>
             <tr>
@@ -224,10 +228,10 @@
               <td><input type="text" class="table-input calc-budget" name="budget" placeholder="0" oninput="formatCurrency(this)"></td>
               <td><input type="text" class="table-input date-format" name="start" placeholder="DD/MM" maxlength="5"></td>
               <td><input type="text" class="table-input date-format" name="end" placeholder="DD/MM" maxlength="5"></td>
-              <td><input type="text" class="table-input" name="kpi" placeholder="..."></td>
-              <td><input type="text" class="table-input" name="channel" placeholder="..."></td>
-              <td><input type="text" class="table-input" name="phone" placeholder="..."></td>
-              <td><input type="text" class="table-input" name="account" placeholder="..."></td>
+              <td><input type="text" class="table-input" name="kpi" placeholder="..." list="list-kpi"></td>
+              <td><input type="text" class="table-input" name="channel" placeholder="..." list="list-channel"></td>
+              <td><input type="text" class="table-input" name="phone" placeholder="..." list="list-phone"></td>
+              <td><input type="text" class="table-input" name="account" placeholder="..." list="list-account"></td>
               <td style="background-color: #f9f9f9;" readonly></td>
             </tr>
             <tr>
@@ -236,10 +240,10 @@
               <td><input type="text" class="table-input calc-budget" name="budget" placeholder="0" oninput="formatCurrency(this)"></td>
               <td><input type="text" class="table-input date-format" name="start" placeholder="DD/MM" maxlength="5"></td>
               <td><input type="text" class="table-input date-format" name="end" placeholder="DD/MM" maxlength="5"></td>
-              <td><input type="text" class="table-input" name="kpi" placeholder="..."></td>
-              <td><input type="text" class="table-input" name="channel" placeholder="..."></td>
-              <td><input type="text" class="table-input" name="phone" placeholder="..."></td>
-              <td><input type="text" class="table-input" name="account" placeholder="..."></td>
+              <td><input type="text" class="table-input" name="kpi" placeholder="..." list="list-kpi"></td>
+              <td><input type="text" class="table-input" name="channel" placeholder="..." list="list-channel"></td>
+              <td><input type="text" class="table-input" name="phone" placeholder="..." list="list-phone"></td>
+              <td><input type="text" class="table-input" name="account" placeholder="..." list="list-account"></td>
               <td style="background-color: #f9f9f9;" readonly></td>
             </tr>
           </tbody>
@@ -274,13 +278,34 @@
     Yêu cầu chạy đủ tối thiểu 100% ngân sách BLĐ phê duyệt. Ngân sách thực chạy ghi nhận không bao gồm các chi phí mua tool (xây dựng content, website, quay chụp,...) và không bao gồm VAT hoặc phí nền tảng.
   </footer>
 
+  <!-- ĐÃ FIX: TRƯỜNG THÔNG TIN MÃ ĐƠN ĐỀ XUẤT -->
   <div class="modal-overlay" id="searchModal">
     <div class="modal-card">
       <button class="btn-close-modal" onclick="closeModal()">×</button>
       <h2 class="modal-title">TRA CỨU LỊCH SỬ/ TRẠNG THÁI</h2>
-      <div class="modal-form-group"><label class="modal-label">Tên nhân viên</label><div class="modal-input-wrap"><input type="text" class="modal-input" id="searchName" placeholder="Nhập tên nhân viên..."></div></div>
-      <div class="modal-form-group"><label class="modal-label">Mã nhân viên</label><div class="modal-input-wrap"><span class="modal-prefix">AVH</span><input type="text" class="modal-input" id="searchId" placeholder="Nhập phần số (Tùy chọn)"></div></div>
-      <div class="modal-form-group"><label class="modal-label">Tháng nộp đăng ký</label><div class="modal-input-wrap"><input type="month" class="modal-input" id="searchMonth"></div></div>
+      
+      <div class="modal-form-group">
+        <label class="modal-label">Mã đơn đề xuất</label>
+        <div class="modal-input-wrap">
+          <span class="modal-prefix">DX-</span>
+          <input type="text" class="modal-input" id="searchProposalId" placeholder="Nhập 6 số cuối của mã đơn (Bắt buộc)">
+        </div>
+      </div>
+      
+      <div class="modal-form-group">
+        <label class="modal-label">Mã nhân viên</label>
+        <div class="modal-input-wrap">
+          <span class="modal-prefix">AVH</span>
+          <input type="text" class="modal-input" id="searchId" placeholder="Nhập phần số (Bắt buộc)">
+        </div>
+      </div>
+      
+      <div class="modal-form-group">
+        <label class="modal-label">Tháng nộp đăng ký</label>
+        <div class="modal-input-wrap">
+          <input type="month" class="modal-input" id="searchMonth">
+        </div>
+      </div>
       <button class="btn-modal-submit" id="btnRunSearch" onclick="executeSearch()">KIỂM TRA</button>
     </div>
   </div>
@@ -317,7 +342,17 @@
     document.getElementById('tv2').addEventListener('input', function() { document.getElementById('mnv2').required = this.value.trim() !== ''; });
     document.getElementById('tv3').addEventListener('input', function() { document.getElementById('mnv3').required = this.value.trim() !== ''; });
 
-    // FORMAT DD/MM CHO CỘT BẮT ĐẦU VÀ KẾT THÚC
+    document.querySelectorAll('.project-select').forEach(sel => {
+        sel.addEventListener('change', function() {
+            const row = this.closest('tr');
+            const isReq = this.value !== "";
+            row.querySelector('input[name="budget"]').required = isReq;
+            row.querySelector('input[name="start"]').required = isReq;
+            row.querySelector('input[name="end"]').required = isReq;
+            row.querySelector('input[name="channel"]').required = isReq;
+        });
+    });
+
     document.querySelectorAll('.date-format').forEach(input => {
       input.addEventListener('input', function(e) {
         if(e.inputType === 'deleteContentBackward') return;
@@ -343,9 +378,33 @@
 
     function formatNumber(num) { return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
 
+    function populateDatalists() {
+        let suggestions = JSON.parse(localStorage.getItem('avh_table_suggestions') || '{"kpi":[],"channel":[],"phone":[],"account":[]}');
+        const fillList = (id, arr) => {
+            const dl = document.getElementById(id);
+            if(dl) {
+                dl.innerHTML = '';
+                arr.forEach(val => {
+                    const opt = document.createElement('option');
+                    opt.value = val;
+                    dl.appendChild(opt);
+                });
+            }
+        };
+        fillList('list-kpi', suggestions.kpi);
+        fillList('list-channel', suggestions.channel);
+        fillList('list-phone', suggestions.phone);
+        fillList('list-account', suggestions.account);
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
       const today = new Date();
       document.getElementById('timeRealtime').innerText = `Tháng ${String(today.getMonth() + 1).padStart(2, '0')} Năm ${today.getFullYear()}`;
+      
+      // ĐÃ FIX: TỰ ĐỘNG GỢI Ý ĐIỀN THÁNG HIỆN TẠI VÀO Ô TÌM KIẾM
+      const currentMonthVal = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
+      document.getElementById('searchMonth').value = currentMonthVal;
+
       document.getElementById('loadingDepts').style.display = 'inline';
       
       callAPI("getInitialData", {}, function(result) {
@@ -361,14 +420,22 @@
              projs.forEach(p => { sel.innerHTML += `<option value="${p}">${p}</option>`; });
           });
 
-          // TÍNH NĂNG GHI NHỚ NGƯỜI DÙNG TỪ LOCALSTORAGE
           const savedData = localStorage.getItem('avh_sale_info');
           if(savedData) {
             const info = JSON.parse(savedData);
             document.getElementById('tv1').value = info.tv1 || '';
+            document.getElementById('tv2').value = info.tv2 || '';
+            document.getElementById('tv3').value = info.tv3 || '';
             document.getElementById('mnv1').value = info.mnv1 || '';
+            document.getElementById('mnv2').value = info.mnv2 || '';
+            document.getElementById('mnv3').value = info.mnv3 || '';
+            
+            if(info.tv2) document.getElementById('mnv2').required = true;
+            if(info.tv3) document.getElementById('mnv3').required = true;
+
             document.getElementById('teamName').value = info.teamName || '';
             document.getElementById('emailContact').value = info.emailContact || '';
+            
             setTimeout(() => {
               if (info.dept) {
                 document.getElementById('department').value = info.dept;
@@ -376,6 +443,8 @@
               }
             }, 300);
           }
+          
+          populateDatalists();
         }
       });
     });
@@ -403,29 +472,29 @@
     function closeModal() { document.getElementById('searchModal').style.display = 'none'; }
     function closeAdvanceModal() { document.getElementById('advanceModal').style.display = 'none'; }
 
+    // ĐÃ FIX: HÀM TRA CỨU MỚI (BẮT BUỘC NHẬP MÃ ĐƠN)
     function executeSearch() {
-      const sName = document.getElementById('searchName').value.trim();
+      const sProposalId = document.getElementById('searchProposalId').value.trim();
       const sId = document.getElementById('searchId').value.trim();
       const sMonth = document.getElementById('searchMonth').value;
 
-      if(!sName && !sId && !sMonth) { alert("Vui lòng nhập thông tin để tra cứu (VD: Chọn tháng/Tên)!"); return; }
+      if(!sProposalId || !sId || !sMonth) { alert("Vui lòng điền ĐẦY ĐỦ Mã đơn đề xuất, Mã nhân viên và Tháng để đảm bảo bảo mật!"); return; }
 
       const btn = document.getElementById('btnRunSearch');
       btn.innerText = "ĐANG TÌM KIẾM..."; btn.disabled = true;
 
-      callAPI("searchProposals", { data: JSON.stringify({name: sName, mnv: sId, month: sMonth}) }, function(res) {
+      callAPI("searchProposals", { data: JSON.stringify({proposalId: sProposalId, mnv: sId, month: sMonth}) }, function(res) {
         btn.innerText = "KIỂM TRA"; btn.disabled = false;
         if(res.success) {
           currentSearchResults = res.data; currentSearchIndex = 0;
           let displayMonth = sMonth ? sMonth.split('-')[1] + "/" + sMonth.split('-')[0] : '...';
-          let displayName = sName ? sName : (sId ? 'AVH' + sId : 'Nhóm của bạn');
           
           if(currentSearchResults.length === 0) {
-             document.getElementById('searchSummaryText').innerHTML = `Không tìm thấy phiếu đăng ký nào của <span style="color:#c00000;">${displayName}</span> trong <span style="color:#c00000;">${displayMonth}</span>.`;
+             document.getElementById('searchSummaryText').innerHTML = `Không tìm thấy phiếu hợp lệ nào. Vui lòng kiểm tra lại Mã đơn hoặc Mã nhân viên.`;
              document.getElementById('carouselContent').innerHTML = "";
              document.getElementById('btnPrevSlide').style.display = 'none'; document.getElementById('btnNextSlide').style.display = 'none'; document.getElementById('carouselPageIndicator').innerText = "";
           } else {
-             document.getElementById('searchSummaryText').innerHTML = `Nhân sự <span style="color:#e74c3c;">${displayName}</span> có <span style="color:#e74c3c;">${currentSearchResults.length}</span> phiếu đăng ký trong <span style="color:#e74c3c;">${displayMonth}</span>`;
+             document.getElementById('searchSummaryText').innerHTML = `Đã tìm thấy <span style="color:#e74c3c;">${currentSearchResults.length}</span> phiếu đăng ký khớp với thông tin bảo mật trong <span style="color:#e74c3c;">${displayMonth}</span>`;
              if(currentSearchResults.length > 1) { document.getElementById('btnPrevSlide').style.display = 'block'; document.getElementById('btnNextSlide').style.display = 'block'; } 
              else { document.getElementById('btnPrevSlide').style.display = 'none'; document.getElementById('btnNextSlide').style.display = 'none'; }
              renderSlide(currentSearchIndex);
@@ -534,23 +603,58 @@
         advPercent: document.getElementById('advPercent').value, bankOwner: document.getElementById('bankOwner').value, bankAccount: document.getElementById('bankAccount').value, bankName: document.getElementById('bankName').value
       };
 
-      // LƯU THÔNG TIN NGƯỜI DÙNG VÀO TRÌNH DUYỆT
       const userInfoToSave = {
         tv1: document.getElementById('tv1').value,
+        tv2: document.getElementById('tv2').value,
+        tv3: document.getElementById('tv3').value,
         mnv1: document.getElementById('mnv1').value,
+        mnv2: document.getElementById('mnv2').value,
+        mnv3: document.getElementById('mnv3').value,
         teamName: document.getElementById('teamName').value,
         emailContact: document.getElementById('emailContact').value,
         dept: document.getElementById('department').value
       };
       localStorage.setItem('avh_sale_info', JSON.stringify(userInfoToSave));
 
+      let suggestions = JSON.parse(localStorage.getItem('avh_table_suggestions') || '{"kpi":[],"channel":[],"phone":[],"account":[]}');
+      document.querySelectorAll('#tableBody tr').forEach(row => {
+          const p = row.querySelector('select[name="project"]').value;
+          if(p) {
+              let kpi = row.querySelector('input[name="kpi"]').value.trim();
+              let channel = row.querySelector('input[name="channel"]').value.trim();
+              let phone = row.querySelector('input[name="phone"]').value.trim();
+              let account = row.querySelector('input[name="account"]').value.trim();
+              
+              if(kpi && !suggestions.kpi.includes(kpi)) suggestions.kpi.push(kpi);
+              if(channel && !suggestions.channel.includes(channel)) suggestions.channel.push(channel);
+              if(phone && !suggestions.phone.includes(phone)) suggestions.phone.push(phone);
+              if(account && !suggestions.account.includes(account)) suggestions.account.push(account);
+          }
+      });
+      localStorage.setItem('avh_table_suggestions', JSON.stringify(suggestions));
+      populateDatalists(); 
+
       callAPI("submitForm", { data: JSON.stringify(payload) }, function(res) {
         if (res.success) {
-          alert("Gửi đề xuất chiến dịch và Đơn xin tạm ứng thành công! Mã số phiếu: " + res.id);
-          // KHÔNG RESET TOÀN BỘ FORM NỮA, CHỈ RESET BẢNG DỮ LIỆU ĐỂ GIỮ LẠI TÊN
-          document.querySelectorAll('.table-input').forEach(inp => input.value = '');
-          document.getElementById('advanceForm').reset(); calculateTotal();
+          // ĐÃ FIX: ALERT BÁO THÀNH CÔNG RÕ RÀNG VÀ TẮT POPUP
+          alert("Gửi đề xuất chiến dịch và Đơn xin tạm ứng thành công!\nMã số phiếu của bạn là: " + res.id + "\n(Vui lòng lưu lại Mã này hoặc kiểm tra Email để tra cứu)");
+          
+          document.querySelectorAll('#tableBody tr').forEach(row => {
+              row.querySelector('select[name="project"]').value = '';
+              row.querySelector('input[name="budget"]').value = '';
+              row.querySelector('input[name="start"]').value = '';
+              row.querySelector('input[name="end"]').value = '';
+              row.querySelector('input[name="kpi"]').value = '';
+              row.querySelector('input[name="channel"]').value = '';
+              row.querySelector('input[name="phone"]').value = '';
+              row.querySelector('input[name="account"]').value = '';
+          });
+          document.getElementById('advanceForm').reset(); 
+          calculateTotal();
+          
+          // Trả về màn hình chính
           closeAdvanceModal();
+          showFormView();
         } else { alert("Lỗi: " + res.message); }
         btn.disabled = false; btn.innerText = "NỘP TOÀN BỘ ĐỀ XUẤT";
       });
