@@ -215,7 +215,7 @@
               <th style="background:#34495e; color:white;">Mã Phiếu</th>
               <th style="background:#34495e; color:white;">Tên Nhóm</th>
               <th style="background:#34495e; color:white;">Thành Viên / Mã NV</th>
-              <th style="background:#34495e; color:white;">Phòng Ban</th>
+              <th style="background:#34495e; color:white;">Phòng / Khối</th>
               <th style="background:#34495e; color:white;">Dự Án</th>
               <th style="background:#34495e; color:white;">Ngân Sách (BLĐ Duyệt)</th>
               <th style="background:#34495e; color:white;">Tạm Ứng Đầu Kỳ</th>
@@ -298,7 +298,7 @@
       }
     });
 
-    // BỔ SUNG CƠ CHẾ CHỐNG TREO MÁY NẾU MẤT KẾT NỐI API
+    // ĐÃ KHẮC PHỤC TREO MÁY BẰNG CƠ CHẾ TIMEOUT
     function callAPI(action, params, successCallback) {
       const callbackName = "cb_" + action + "_" + new Date().getTime();
       let isTimeout = false;
@@ -306,7 +306,7 @@
       const timeoutId = setTimeout(() => {
           isTimeout = true;
           showLoading(false);
-          alert("Lỗi: Máy chủ Google không phản hồi. Vui lòng tải lại trang hoặc kiểm tra lại bước Triển khai Code.gs!");
+          alert("Lỗi: Máy chủ Google Apps Script không phản hồi. Vui lòng kiểm tra lại kết nối mạng hoặc phiên bản triển khai Code.gs!");
           if (document.getElementById(scriptId)) document.getElementById(scriptId).remove();
           delete window[callbackName];
       }, 15000); 
@@ -327,7 +327,7 @@
           if (isTimeout) return;
           clearTimeout(timeoutId);
           showLoading(false);
-          alert("Lỗi mạng hoặc sai Link API. Không thể kết nối tới máy chủ.");
+          alert("Lỗi mạng! Không thể tải dữ liệu từ hệ thống.");
           document.getElementById(scriptId).remove();
           delete window[callbackName];
       };
@@ -929,8 +929,8 @@
             </table>
           </div>`;
       });
-      // Margin: top 8mm, right 12mm, bottom 12mm, left 12mm
-      printHTMLNative(htmlString, 'landscape', 'Bao_Cao_MKT_' + monthVal, '8mm 12mm 12mm 12mm');
+      // Margin: top 8mm, right 15mm, bottom 15mm, left 15mm
+      printHTMLNative(htmlString, 'landscape', 'Bao_Cao_MKT_' + monthVal, '8mm 15mm 15mm 15mm');
     }
 
     // TẢI ĐƠN TẠM ỨNG (TAB 2) - IN DỌC, LỀ TRÊN 18MM, ÉP KHÍT VÀO 1 TRANG
@@ -957,10 +957,10 @@
           let mThang = monthVal.split('-')[1]; 
           let advanceAmt = Math.round(finalNganSach * Number(phieu.advPercent) / 100);
           rowsHtml += `<tr>
-            <td style="padding: 6px !important; text-align: center !important;">Tháng ${mThang}</td>
-            <td style="padding: 6px !important; text-align: center !important;">${ct.tenDuAn}</td>
-            <td style="padding: 6px !important; text-align: center !important;">${formatNumber(finalNganSach)}</td>
-            <td style="padding: 6px !important; text-align: center !important;">${formatNumber(advanceAmt)}</td>
+            <td style="padding: 4px !important; text-align: center !important;">Tháng ${mThang}</td>
+            <td style="padding: 4px !important; text-align: center !important;">${ct.tenDuAn}</td>
+            <td style="padding: 4px !important; text-align: center !important;">${formatNumber(finalNganSach)}</td>
+            <td style="padding: 4px !important; text-align: center !important;">${formatNumber(advanceAmt)}</td>
           </tr>`;
         });
 
