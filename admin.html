@@ -190,7 +190,7 @@
       <div class="table-container">
         <table>
           <thead>
-            <tr><th width="4%"></th><th>Mã Phiếu</th><th>Tên nhóm</th><th>Phòng / Khối</th><th>Dự án Tạm ứng</th><th>Ngân Sách (Được Duyệt)</th><th>Tỷ lệ xin T.Ư</th><th>Số tiền T.Ư lần 1</th><th>Trạng Thái Tạm Ứng</th><th class="td-actions">Hành Động</th></tr>
+            <tr><th width="4%"></th><th>Mã Phiếu</th><th>Thành Viên</th><th>Phòng / Khối</th><th>Dự án Tạm ứng</th><th>Ngân Sách (Được Duyệt)</th><th>Tỷ lệ xin T.Ư</th><th>Số tiền T.Ư lần 1</th><th>Trạng Thái Tạm Ứng</th><th class="td-actions">Hành Động</th></tr>
           </thead>
           <tbody id="tableAdvanceBody"></tbody>
         </table>
@@ -327,8 +327,8 @@
           if (isTimeout) return;
           clearTimeout(timeoutId);
           showLoading(false);
-          alert("Lỗi mạng! Không thể tải dữ liệu từ hệ thống.");
-          document.getElementById(scriptId).remove();
+          alert("Lỗi mạng! Không thể kết nối đến hệ thống máy chủ.");
+          if (document.getElementById(scriptId)) document.getElementById(scriptId).remove();
           delete window[callbackName];
       };
 
@@ -441,9 +441,6 @@
       });
     }
 
-    // =========================================================================
-    // RENDER WEB TAB 3: Đổi Text, Đổi màu cảnh báo, Tổng Tạm ứng Chỉ tính cái đã duyệt
-    // =========================================================================
     function renderReport() {
       let month = document.getElementById('reportMonth').value;
       if(!month) return;
@@ -479,7 +476,6 @@
           if(!projectTotals[ct.tenDuAn]) projectTotals[ct.tenDuAn] = { nganSach: 0, tamUng: 0 };
           projectTotals[ct.tenDuAn].nganSach += finalBudget;
 
-          // Chỉ cộng dồn Tạm ứng nếu phiếu ĐÃ DUYỆT TẠM ỨNG
           if (phieu.trangThaiTU === 'APPROVED_TU') {
              totalAdvance += itemAdvance;
              projectTotals[ct.tenDuAn].tamUng += itemAdvance;
@@ -570,10 +566,6 @@
       applyGlobalSearch(); 
     }
 
-    // =========================================================================
-    // XUẤT EXCEL CHUẨN FORM: MỚI HOÀN TOÀN - CÓ STT - TÁCH DỰ ÁN TỪNG BẢNG
-    // Đã phân loại Đã duyệt/Bị từ chối và Tô đỏ
-    // =========================================================================
     function downloadExcelReport() {
       let month = document.getElementById('reportMonth').value;
       if(!month) { alert("Vui lòng chọn tháng muốn tải báo cáo!"); return; }
@@ -613,7 +605,6 @@
           projectSummary[prj].nganSach += finalBudget;
           totalBudget += finalBudget;
 
-          // Chốt số tổng tạm ứng dựa trên phiếu Đã duyệt
           if (phieu.trangThaiTU === 'APPROVED_TU') {
             projectSummary[prj].tamUng += itemAdvance;
             totalAdvance += itemAdvance;
@@ -853,12 +844,14 @@
           let btnUpdate = '';
           if(item.trangThai === 'APPROVED_BY_BLD') { btnUpdate = `<button class="btn-action btn-draft" onclick="saveSingleRow(this, '${item.idDong}')">Cập nhật</button>`; }
 
+          let cleanNote = (item.ghiChu || '').toString().replace(/"/g, '&quot;');
+
           html += `<tr data-id-dong="${item.idDong}" class="${rowClass}">
             <td><button class="btn-view" onclick="viewDetail('${item.idPhieu}')">👁️</button></td>
             <td><b>${item.idPhieu}</b></td><td style="color:#0b1f8c; font-weight:800;">${item.tenDuAn}</td><td>${item.khoi}</td><td>${item.phong}</td><td style="text-align:left; font-size:12px; line-height:1.5;">${item.thanhVien}</td>
             <td>${formatNumber(item.nsDeXuat)}</td>
             <td><input type="text" class="input-budget bld-budget" data-id-dong="${item.idDong}" data-project="${item.tenDuAn}" value="${formatNumber(item.nsDuyet)}" oninput="formatCurrencyAdmin(this)"></td>
-            <td><input type="text" class="input-note bld-note" value="${item.ghiChu}"></td>
+            <td><input type="text" class="input-note bld-note" value="${cleanNote}"></td>
             <td class="td-actions">${btnUpdate}</td>
           </tr>`;
         });
@@ -988,7 +981,7 @@
          row.querySelector('.td-status').innerHTML = `<span style="color:var(--primary-blue); font-weight:700;">${newStatus}</span>`;
          row.querySelector('.td-actions').innerHTML = ''; 
       }
-      // ĐỒNG BỘ BỘ NHỚ LOCAL ĐỂ TAB KHÁC NHẬN NGAY
+      
       let targetPhieu = globalData.find(p => p.idPhieu === idPhieu);
       if (targetPhieu) targetPhieu.trangThai = newStatus;
 
@@ -1007,11 +1000,17 @@
          row.querySelector('.td-actions-tu').innerHTML = ''; 
       }
       
-      // ĐỒNG BỘ BỘ NHỚ LOCAL ĐỂ TAB 3 NHẬN KẾT QUẢ NGAY LẬP TỨC
       let targetPhieu = globalData.find(p => p.idPhieu === idPhieu);
       if (targetPhieu) targetPhieu.trangThaiTU = newStatus;
 
       callAPI("updateStatusTU", { data: JSON.stringify({ idPhieu: idPhieu, newStatus: newStatus }) }, function(res) { if(!res.success) alert("Lỗi đồng bộ Tạm Ứng!"); });
+    }
+
+    function exportToTracking() {
+      const url = document.getElementById('trackingUrl').value.trim();
+      if(!url) { alert("Vui lòng dán link Google Sheet để đồng bộ!"); return; }
+      showLoading(true, "Đang đồng bộ dữ liệu...");
+      callAPI("exportTracking", { data: JSON.stringify({ url: url, items: bldItemsArray }) }, function(res) { showLoading(false); alert(res.message); });
     }
   </script>
 </body>
