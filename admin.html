@@ -190,7 +190,7 @@
       <div class="table-container">
         <table>
           <thead>
-            <tr><th width="4%"></th><th>Mã Phiếu</th><th>Tên nhóm</th><th>Phòng / Khối</th><th>Dự án Tạm ứng</th><th>Ngân Sách (Được Duyệt)</th><th>Tỷ lệ xin T.Ư</th><th>Số tiền T.Ư lần 1</th><th>Trạng Thái Tạm Ứng</th><th class="td-actions">Hành Động</th></tr>
+            <tr><th width="4%"></th><th>Mã Phiếu</th><th>Thành Viên</th><th>Phòng / Khối</th><th>Dự án Tạm ứng</th><th>Ngân Sách (Được Duyệt)</th><th>Tỷ lệ xin T.Ư</th><th>Số tiền T.Ư lần 1</th><th>Trạng Thái Tạm Ứng</th><th class="td-actions">Hành Động</th></tr>
           </thead>
           <tbody id="tableAdvanceBody"></tbody>
         </table>
@@ -215,7 +215,7 @@
             <tr>
               <th style="background:#34495e; color:white;">Mã Phiếu</th>
               <th style="background:#34495e; color:white;">Tên Nhóm</th>
-              <th style="background:#34495e; color:white;">Thành Viên / Mã NV</th>
+              <th style="background:#34495e; color:white;">Thành Viên</th>
               <th style="background:#34495e; color:white;">Phòng / Khối</th>
               <th style="background:#34495e; color:white;">Dự Án</th>
               <th style="background:#34495e; color:white;">Ngân Sách (BLĐ Duyệt)</th>
@@ -327,8 +327,8 @@
           if (isTimeout) return;
           clearTimeout(timeoutId);
           showLoading(false);
-          alert("Lỗi mạng! Không thể tải dữ liệu từ hệ thống.");
-          document.getElementById(scriptId).remove();
+          alert("Lỗi mạng! Không thể kết nối đến hệ thống máy chủ.");
+          if (document.getElementById(scriptId)) document.getElementById(scriptId).remove();
           delete window[callbackName];
       };
 
@@ -441,6 +441,9 @@
       });
     }
 
+    // =========================================================================
+    // RENDER WEB TAB 3: Đổi Text, Đổi màu cảnh báo, Tổng Tạm ứng Chỉ tính cái đã duyệt
+    // =========================================================================
     function renderReport() {
       let month = document.getElementById('reportMonth').value;
       if(!month) return;
@@ -472,9 +475,15 @@
           });
 
           totalBudget += finalBudget;
-          if (phieu.trangThaiTU === 'APPROVED_TU') totalAdvance += itemAdvance;
-          if(!projectTotals[ct.tenDuAn]) projectTotals[ct.tenDuAn] = 0;
-          projectTotals[ct.tenDuAn] += finalBudget;
+          
+          if(!projectTotals[ct.tenDuAn]) projectTotals[ct.tenDuAn] = { nganSach: 0, tamUng: 0 };
+          projectTotals[ct.tenDuAn].nganSach += finalBudget;
+
+          // Chỉ cộng dồn Tạm ứng nếu phiếu ĐÃ DUYỆT TẠM ỨNG
+          if (phieu.trangThaiTU === 'APPROVED_TU') {
+             totalAdvance += itemAdvance;
+             projectTotals[ct.tenDuAn].tamUng += itemAdvance;
+          }
         });
       });
 
@@ -502,11 +511,15 @@
                    </tr>`;
         }
 
-        khoiBudget += item.nganSach; khoiAdvance += item.tamUng;
+        khoiBudget += item.nganSach; 
+        let isApprovedTU = (item.trangThaiTU === 'APPROVED_TU');
+        if (isApprovedTU) { khoiAdvance += item.tamUng; }
 
-        let advStatusText = item.trangThaiTU === 'APPROVED_TU'
-          ? `<span style="color:var(--success-green); font-weight:bold;">${formatNumber(item.tamUng)} đ<br>(Đã chi)</span>`
-          : `<span style="color:var(--warning); font-weight:bold;">${formatNumber(item.tamUng)} đ<br>(Chưa chi)</span>`;
+        let advStatusText = isApprovedTU
+          ? `<span style="color:var(--success-green); font-weight:bold;">Đã duyệt Tạm ứng</span>`
+          : `<span style="color:var(--danger); font-weight:bold;">Chưa duyệt tạm ứng</span>`;
+
+        let bgStyle = isApprovedTU ? '' : 'background-color: #ffebee;';
 
         html += `<tr class="row-approved">
           <td><b>${item.idPhieu}</b></td>
@@ -515,8 +528,8 @@
           <td><b>Phòng:</b> ${item.phong}</td>
           <td style="color:var(--primary-blue); font-weight:bold;">${item.tenDuAn}</td>
           <td style="color:var(--danger); font-weight:bold; font-size:15px;">${formatNumber(item.nganSach)}</td>
-          <td>${advStatusText}</td>
-          <td><span style="background:var(--success-green); color:white; padding:4px 10px; border-radius:20px; font-weight:bold; font-size: 11px;">ĐÃ DUYỆT MKT</span></td>
+          <td style="${bgStyle} color:var(--danger); font-weight:bold; font-size:14px;">${formatNumber(item.tamUng)}</td>
+          <td style="${bgStyle}">${advStatusText}</td>
         </tr>`;
       });
 
@@ -546,7 +559,7 @@
       cardsHtml += `<table class="summary-table" style="margin-top:20px;"><tr><th style="text-align:left; background:#34495e; width:60%;">Thống kê ngân sách theo Dự Án</th><th style="background:#34495e;">Tổng Tiền Được Duyệt</th></tr>`;
       let countPrj = 0;
       for(let prj in projectTotals) {
-          cardsHtml += `<tr><td style="text-align:left;"><b>${prj}</b></td><td style="color:var(--danger); font-size:16px;">${formatNumber(projectTotals[prj])}</td></tr>`;
+          cardsHtml += `<tr><td style="text-align:left;"><b>${prj}</b></td><td style="color:var(--danger); font-size:16px;">${formatNumber(projectTotals[prj].nganSach)}</td></tr>`;
           countPrj++;
       }
       if(countPrj === 0) cardsHtml += `<tr><td colspan="2" style="text-align:center; font-weight:normal; color:#999;">Không có dữ liệu trong tháng này</td></tr>`;
@@ -558,6 +571,7 @@
 
     // =========================================================================
     // XUẤT EXCEL CHUẨN FORM: MỚI HOÀN TOÀN - CÓ STT - TÁCH DỰ ÁN TỪNG BẢNG
+    // Chỉ tính tổng Tạm ứng các dòng Đã duyệt.
     // =========================================================================
     function downloadExcelReport() {
       let month = document.getElementById('reportMonth').value;
@@ -596,10 +610,13 @@
 
           if(!projectSummary[prj]) projectSummary[prj] = { nganSach: 0, tamUng: 0 };
           projectSummary[prj].nganSach += finalBudget;
-          projectSummary[prj].tamUng += itemAdvance;
-
           totalBudget += finalBudget;
-          if (phieu.trangThaiTU === 'APPROVED_TU') totalAdvance += itemAdvance;
+
+          // Chốt số tổng tạm ứng dựa trên phiếu Đã duyệt
+          if (phieu.trangThaiTU === 'APPROVED_TU') {
+            projectSummary[prj].tamUng += itemAdvance;
+            totalAdvance += itemAdvance;
+          }
         });
       });
 
@@ -612,7 +629,7 @@
           th, td { font-size: 14pt; font-family: 'Times New Roman', serif; vertical-align: middle; padding: 5px; border: 0.5pt solid #000000; }
           .bg-head { background-color: #0b1f8c; color: #ffffff; font-weight: bold; text-align: center; }
           .bg-total { background-color: #e8f4fc; font-weight: bold; color: #c00000; text-align: right; }
-          .bg-prj { background-color: #d4efff; font-weight: bold; color: #0b1f8c; text-align: left; font-size: 15pt; }
+          .bg-prj { background-color: #d4efff; font-weight: bold; color: #0b1f8c; text-align: left; font-size: 15pt; border: none; }
           .num { text-align: right; }
           .center { text-align: center; }
           .left { text-align: left; }
@@ -628,12 +645,12 @@
         </table>
         <br>
         
-        <h3>BẢNG TỔNG HỢP NGÂN SÁCH THEO DỰ ÁN</h3>
-        <table>
+        <table style="width: auto;">
           <thead>
+            <tr><td colspan="4" class="bold left no-border" style="font-size: 15pt;">BẢNG TỔNG HỢP NGÂN SÁCH THEO DỰ ÁN</td></tr>
             <tr>
               <th class="bg-head" style="width: 50px;">STT</th>
-              <th class="bg-head" style="width: 200px;">Dự Án</th>
+              <th class="bg-head" style="width: 250px;">Dự Án</th>
               <th class="bg-head" style="width: 200px;">Tổng Ngân Sách</th>
               <th class="bg-head" style="width: 200px;">Tổng Tạm Ứng</th>
             </tr>
@@ -656,14 +673,14 @@
 
       excelHtml += `
             <tr>
-              <td colspan="2" class="bg-total">TỔNG CỘNG</td>
+              <td colspan="2" class="bg-total center">TỔNG CỘNG</td>
               <td class="bg-total num">${formatNumber(totalBudget)}</td>
               <td class="bg-total num">${formatNumber(totalAdvance)}</td>
             </tr>
           </tbody>
         </table>
         <br>
-        <h3>CHI TIẾT ĐĂNG KÝ THEO TỪNG DỰ ÁN</h3>
+        <div class="bold left" style="font-size: 15pt; margin-bottom: 5px;">CHI TIẾT ĐĂNG KÝ THEO TỪNG DỰ ÁN</div>
       `;
 
       sortedProjects.forEach(prj => {
@@ -679,7 +696,7 @@
         <table>
           <thead>
             <tr>
-              <td colspan="10" class="bg-prj">DỰ ÁN: ${prj.toUpperCase()}</td>
+              <td colspan="10" class="bg-prj no-border">DỰ ÁN: ${prj.toUpperCase()}</td>
             </tr>
             <tr>
               <th class="bg-head">STT</th>
@@ -703,10 +720,13 @@
 
         items.forEach(item => {
           sumPrjNganSach += item.nganSach;
-          sumPrjTamUng += item.tamUng;
+          let isAppr = (item.trangThaiTU === 'APPROVED_TU');
+          
+          if (isAppr) sumPrjTamUng += item.tamUng;
           
           let excelMembers = item.thanhVien.replace(/,/g, '<br style="mso-data-placement:same-cell;">');
-          let trangThaiText = item.trangThaiTU === 'APPROVED_TU' ? 'Đã chi' : 'Chưa chi';
+          let trangThaiText = isAppr ? 'Đã duyệt Tạm ứng' : 'Chưa duyệt tạm ứng';
+          let bgClass = isAppr ? '' : ' style="background-color: #ffebee;"';
 
           excelHtml += `<tr>
             <td class="center">${itemStt++}</td>
@@ -717,14 +737,14 @@
             <td class="center">${item.khoi}</td>
             <td class="center bold">${item.tenDuAn}</td>
             <td class="num">${formatNumber(item.nganSach)}</td>
-            <td class="num">${formatNumber(item.tamUng)}</td>
-            <td class="center">${trangThaiText}</td>
+            <td class="num"${bgClass}>${formatNumber(item.tamUng)}</td>
+            <td class="center bold"${bgClass}>${trangThaiText}</td>
           </tr>`;
         });
 
         excelHtml += `
             <tr>
-              <td colspan="7" class="bg-total">TỔNG CỘNG ${prj.toUpperCase()}</td>
+              <td colspan="7" class="bg-total center">TỔNG CỘNG ${prj.toUpperCase()}</td>
               <td class="bg-total num">${formatNumber(sumPrjNganSach)}</td>
               <td class="bg-total num">${formatNumber(sumPrjTamUng)}</td>
               <td class="bg-total"></td>
@@ -981,47 +1001,41 @@
       callAPI("updateStatusTU", { data: JSON.stringify({ idPhieu: idPhieu, newStatus: newStatus }) }, function(res) { if(!res.success) alert("Lỗi đồng bộ Tạm Ứng!"); });
     }
 
-    // ĐÃ FIX BỌC TRY CATCH CHỐNG TREO MÁY TRONG QUÁ TRÌNH LƯU BLĐ
-    function submitBldApproval(isFinal) {
+    function saveSingleRow(btn, idDong) {
       try {
-        if(isFinal && !confirm("Xác nhận chốt số? Hệ thống sẽ ghi nhận dữ liệu cuối cùng.")) return; 
-        showLoading(true);
-        const itemsData = [];
-        const inputs = document.querySelectorAll('.bld-budget');
-        
-        for (let i = 0; i < inputs.length; i++) {
-            let input = inputs[i];
-            let noteEl = input.closest('tr').querySelector('.bld-note');
-            itemsData.push({ 
-               idDong: input.getAttribute('data-id-dong'), 
-               nganSachDuyet: parseNumber(input.value), 
-               ghiChuBLD: noteEl ? noteEl.value : ""
-            });
-        }
-
-        if (itemsData.length === 0) {
-            showLoading(false);
-            alert("Chưa có dữ liệu nào trên màn hình để lưu!");
-            return;
-        }
-
-        let payload = JSON.stringify({ isFinalApprove: isFinal, items: itemsData });
-        
-        if (payload.length > 5000) {
-            showLoading(false);
-            alert("Lỗi: Số lượng phiếu duyệt cùng lúc quá lớn. Vui lòng thử duyệt từng đơn hoặc báo với hệ thống.");
-            return;
-        }
-
-        callAPI("bldApprove", { data: payload }, function(res) { 
-            showLoading(false); 
-            alert(res.message); 
-            simulateRole(currentViewRole); 
+        let tr = btn.closest('tr');
+        let budget = parseNumber(tr.querySelector('.bld-budget').value);
+        let note = tr.querySelector('.bld-note').value;
+        btn.innerText = 'Đang lưu...'; btn.disabled = true;
+        callAPI("bldApprove", { data: JSON.stringify({ isFinalApprove: true, items: [{idDong: idDong, nganSachDuyet: budget, ghiChuBLD: note}] }) }, function(res) { 
+          btn.innerText = 'Cập nhật'; btn.disabled = false;
         });
-      } catch (err) {
-        showLoading(false);
-        alert("Có lỗi cục bộ khi lưu. Vui lòng tải lại trang: " + err.message);
+      } catch (e) {
+        alert("Có lỗi cục bộ khi cập nhật: " + e.message);
+        btn.innerText = 'Cập nhật'; btn.disabled = false;
       }
+    }
+
+    function sendAllApprovalMails() {
+      const approvedItems = globalData.filter(p => p.trangThai === 'APPROVED_BY_BLD');
+      if(approvedItems.length === 0) { alert("Không có phiếu duyệt nào!"); return; }
+      if(!confirm(`Bắt đầu quy trình gửi tự động ${approvedItems.length} email. Vui lòng không đóng trang.`)) return;
+      showLoading(true, "Đang gửi Email...", "Hệ thống đang phát thư, vui lòng chờ...");
+      let currentIndex = 0;
+      function sendNext() {
+        if (currentIndex >= approvedItems.length) { showLoading(false); alert("Hoàn tất gửi toàn bộ Email!"); return; }
+        callAPI("sendPdfEmail", { idPhieu: approvedItems[currentIndex].idPhieu }, function(res) { currentIndex++; sendNext(); });
+      }
+      sendNext();
+    }
+    
+    function sendApprovalMail(btn, idPhieu) {
+      if(!confirm("Bạn có chắc chắn muốn gửi Email bản duyệt tới nhóm này?")) return;
+      const originalText = btn.innerText; btn.innerText = "Đang gửi..."; btn.disabled = true;
+      callAPI("sendPdfEmail", { idPhieu: idPhieu }, function(res) {
+        btn.disabled = false; btn.innerText = originalText;
+        if(res.success) { btn.style.background = "#27ae60"; btn.innerText = "Đã gửi ✔"; } else alert("Lỗi: " + res.message);
+      });
     }
 
     // =========================================================================
@@ -1228,6 +1242,13 @@
           </div>`;
       });
       printHTMLNative(htmlString, 'portrait', 'Don_Tam_Ung_MKT_' + monthVal);
+    }
+
+    function exportToTracking() {
+      const url = document.getElementById('trackingUrl').value.trim();
+      if(!url) { alert("Vui lòng dán link Google Sheet để đồng bộ!"); return; }
+      showLoading(true, "Đang đồng bộ dữ liệu...");
+      callAPI("exportTracking", { data: JSON.stringify({ url: url, items: bldItemsArray }) }, function(res) { showLoading(false); alert(res.message); });
     }
   </script>
 </body>
