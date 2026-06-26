@@ -6,7 +6,6 @@
   <title>Cổng Quản Trị - An Việt Homes</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   
   <style>
     :root { --bg-login: #d4efff; --primary-blue: #0b1f8c; --text-dark: #333333; --text-gray: #666666; --input-bg: #f4f6f8; --border-color: #e5e8ec; --success-green: #27ae60; --danger: #e74c3c; --warning: #f39c12; }
@@ -148,7 +147,7 @@
         <div style="display: flex; gap: 10px; align-items: center;">
           <label>Lọc xuất PDF:</label>
           <input type="month" id="pdfMonth" class="form-control" style="width: auto; padding: 8px;">
-          <button class="btn-action btn-approve" style="padding: 10px 20px;" onclick="downloadPDFs()">Tải File PDF Tổng Hợp</button>
+          <button class="btn-action btn-approve" style="padding: 10px 20px;" onclick="downloadPDFs()">Xuất Bản In PDF</button>
           <button class="btn-action btn-sendmail" style="padding: 10px 20px;" onclick="sendAllApprovalMails()">Gửi Email Hàng Loạt</button>
         </div>
       </div>
@@ -183,7 +182,7 @@
         <div style="display: flex; gap: 10px; align-items: center;">
           <label>Lọc tải bản Tạm ứng PDF:</label>
           <input type="month" id="advPdfMonth" class="form-control" style="width: auto; padding: 8px;">
-          <button class="btn-action btn-approve" style="padding: 10px 20px;" onclick="downloadAdvancePDFs()">Tải PDF Đơn Tạm Ứng</button>
+          <button class="btn-action btn-approve" style="padding: 10px 20px;" onclick="downloadAdvancePDFs()">Xuất Bản In Tạm Ứng</button>
         </div>
       </div>
 
@@ -299,6 +298,7 @@
       }
     });
 
+    // CƠ CHẾ GỌI API CHỐNG TREO MÁY
     function callAPI(action, params, successCallback) {
       const callbackName = "cb_" + action + "_" + new Date().getTime();
       let isDone = false;
@@ -307,9 +307,11 @@
           if (isDone) return;
           isDone = true;
           showLoading(false);
-          alert("Lỗi: Máy chủ Google Apps Script không phản hồi. Vui lòng kiểm tra lại kết nối mạng hoặc phiên bản triển khai Code.gs!");
+          alert("Lỗi: Máy chủ Google Apps Script phản hồi quá chậm hoặc bị gián đoạn kết nối.");
           if (document.getElementById(scriptId)) document.getElementById(scriptId).remove();
           delete window[callbackName];
+          // Trả về false để nhả các nút bấm
+          try { successCallback({ success: false, message: "Lỗi kết nối Timeout" }); } catch(e) {}
       }, 15000); 
 
       window[callbackName] = function(response) {
@@ -333,6 +335,7 @@
           alert("Lỗi mạng! Không thể kết nối đến máy chủ.");
           if (document.getElementById(scriptId)) document.getElementById(scriptId).remove();
           delete window[callbackName];
+          try { successCallback({ success: false, message: "Lỗi mạng" }); } catch(e) {}
       };
 
       let queryString = `?action=${action}&callback=${callbackName}`;
@@ -354,20 +357,24 @@
     function parseNumber(str) { return parseFloat(str.replace(/\./g, '')) || 0; }
 
     function handleLogin() {
-      showLoading(true);
-      callAPI("login", { username: document.getElementById('username').value, password: document.getElementById('pwdInput').value }, function(result) {
+      try {
+        showLoading(true);
+        callAPI("login", { username: document.getElementById('username').value, password: document.getElementById('pwdInput').value }, function(result) {
+          showLoading(false);
+          if (result && result.success) {
+            loggedInUser = result.user;
+            localStorage.setItem("avh_admin_session", JSON.stringify(loggedInUser));
+            document.getElementById('loginScreen').style.display = 'none'; 
+            document.getElementById('dashboardScreen').style.display = 'flex';
+            let displayTitle = ROLE_TITLES[loggedInUser.role] || loggedInUser.role;
+            document.getElementById('userInfo').innerText = `Xin chào, ${loggedInUser.name} - ${displayTitle}`;
+            if (loggedInUser.role === 'SUPER_ADMIN') document.getElementById('superAdminToolbar').style.display = 'flex';
+            simulateRole(loggedInUser.role);
+          } else { alert(result ? result.message : "Lỗi đăng nhập"); }
+        });
+      } catch(e) {
         showLoading(false);
-        if (result && result.success) {
-          loggedInUser = result.user;
-          localStorage.setItem("avh_admin_session", JSON.stringify(loggedInUser));
-          document.getElementById('loginScreen').style.display = 'none'; 
-          document.getElementById('dashboardScreen').style.display = 'flex';
-          let displayTitle = ROLE_TITLES[loggedInUser.role] || loggedInUser.role;
-          document.getElementById('userInfo').innerText = `Xin chào, ${loggedInUser.name} - ${displayTitle}`;
-          if (loggedInUser.role === 'SUPER_ADMIN') document.getElementById('superAdminToolbar').style.display = 'flex';
-          simulateRole(loggedInUser.role);
-        } else { alert(result ? result.message : "Lỗi đăng nhập"); }
-      });
+      }
     }
 
     function logout() { localStorage.removeItem("avh_admin_session"); window.location.reload(); }
@@ -389,38 +396,40 @@
     }
 
     function simulateRole(role) {
-      currentViewRole = role; showLoading(true);
-      
-      let isHighLevel = (role === 'MKT' || role === 'TPMKT' || role === 'BLD' || role === 'SUPER_ADMIN');
-
-      if(isHighLevel) {
-        document.getElementById('tabBtnAdvance').style.display = 'inline-block';
-        document.getElementById('tabBtnReport').style.display = 'inline-block';
-        document.getElementById('globalSearchContainer').style.display = 'block';
+      try {
+        currentViewRole = role; showLoading(true);
         
-        if (role === 'MKT' || role === 'TPMKT') document.getElementById('advMktToolbar').style.display = 'flex';
-        else document.getElementById('advMktToolbar').style.display = 'none';
-      } else {
-        document.getElementById('tabBtnAdvance').style.display = 'none';
-        document.getElementById('tabBtnReport').style.display = 'none';
-        document.getElementById('globalSearchContainer').style.display = 'none';
-        switchTab('proposal'); 
-      }
+        let isHighLevel = (role === 'MKT' || role === 'TPMKT' || role === 'BLD' || role === 'SUPER_ADMIN');
 
-      let today = new Date();
-      let m = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
-      document.getElementById('reportMonth').value = m;
-
-      const deptsString = JSON.stringify(loggedInUser.managedDepartments);
-      callAPI("getDashboardData", { role: currentViewRole, departments: deptsString }, function(result) {
-        showLoading(false);
-        if (result && result.success) { 
-          globalData = result.data; 
-          renderTableByRole(currentViewRole); 
-          renderAdvanceTableByRole(currentViewRole);
-          if (isHighLevel) renderReport(); 
+        if(isHighLevel) {
+          document.getElementById('tabBtnAdvance').style.display = 'inline-block';
+          document.getElementById('tabBtnReport').style.display = 'inline-block';
+          document.getElementById('globalSearchContainer').style.display = 'block';
+          
+          if (role === 'MKT' || role === 'TPMKT') document.getElementById('advMktToolbar').style.display = 'flex';
+          else document.getElementById('advMktToolbar').style.display = 'none';
+        } else {
+          document.getElementById('tabBtnAdvance').style.display = 'none';
+          document.getElementById('tabBtnReport').style.display = 'none';
+          document.getElementById('globalSearchContainer').style.display = 'none';
+          switchTab('proposal'); 
         }
-      });
+
+        let today = new Date();
+        let m = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
+        document.getElementById('reportMonth').value = m;
+
+        const deptsString = JSON.stringify(loggedInUser.managedDepartments);
+        callAPI("getDashboardData", { role: currentViewRole, departments: deptsString }, function(result) {
+          showLoading(false);
+          if (result && result.success) { 
+            globalData = result.data; 
+            renderTableByRole(currentViewRole); 
+            renderAdvanceTableByRole(currentViewRole);
+            if (isHighLevel) renderReport(); 
+          }
+        });
+      } catch(e) { showLoading(false); }
     }
 
     function applyGlobalSearch() {
@@ -570,203 +579,207 @@
     }
 
     function downloadExcelReport() {
-      let month = document.getElementById('reportMonth').value;
-      if(!month) { alert("Vui lòng chọn tháng muốn tải báo cáo!"); return; }
-      
-      let mDisplay = month.split('-')[1] + '/' + month.split('-')[0];
-      
-      let totalBudget = 0; let totalAdvance = 0; 
-      let projectSummary = {}; 
-      let itemsByProject = {}; 
+      try {
+        let month = document.getElementById('reportMonth').value;
+        if(!month) { alert("Vui lòng chọn tháng muốn tải báo cáo!"); return; }
+        
+        let mDisplay = month.split('-')[1] + '/' + month.split('-')[0];
+        
+        let totalBudget = 0; let totalAdvance = 0; 
+        let projectSummary = {}; 
+        let itemsByProject = {}; 
 
-      globalData.forEach(phieu => {
-        if (!phieu.ngayTao || !phieu.ngayTao.includes(month)) return;
-        if (phieu.trangThai !== 'APPROVED_BY_BLD') return;
+        globalData.forEach(phieu => {
+          if (!phieu.ngayTao || !phieu.ngayTao.includes(month)) return;
+          if (phieu.trangThai !== 'APPROVED_BY_BLD') return;
 
-        let tk = phieu.phongKD.split('-');
-        let phong = tk[0] ? tk[0].trim() : '';
-        let khoi = tk[1] ? tk[1].trim() : 'Chưa phân khối';
+          let tk = phieu.phongKD.split('-');
+          let phong = tk[0] ? tk[0].trim() : '';
+          let khoi = tk[1] ? tk[1].trim() : 'Chưa phân khối';
 
-        phieu.chiTiet.forEach(ct => {
-          let liveInput = document.querySelector(`.bld-budget[data-id-dong="${ct.idDong}"]`);
-          let finalBudget = (liveInput) ? parseNumber(liveInput.value) : (Number(ct.nganSachDuyet) || 0);
+          phieu.chiTiet.forEach(ct => {
+            let liveInput = document.querySelector(`.bld-budget[data-id-dong="${ct.idDong}"]`);
+            let finalBudget = (liveInput) ? parseNumber(liveInput.value) : (Number(ct.nganSachDuyet) || 0);
 
-          if (finalBudget <= 0) return;
-          let itemAdvance = Math.round(finalBudget * Number(phieu.advPercent) / 100);
-          
-          let prj = ct.tenDuAn.trim();
+            if (finalBudget <= 0) return;
+            let itemAdvance = Math.round(finalBudget * Number(phieu.advPercent) / 100);
+            
+            let prj = ct.tenDuAn.trim();
 
-          let itemObj = {
-            idPhieu: phieu.idPhieu, tenNhom: phieu.tenNhom, thanhVien: phieu.thanhVien || "", 
-            phong: phong, khoi: khoi, tenDuAn: prj, nganSach: finalBudget, tamUng: itemAdvance, trangThaiTU: phieu.trangThaiTU
-          };
+            let itemObj = {
+              idPhieu: phieu.idPhieu, tenNhom: phieu.tenNhom, thanhVien: phieu.thanhVien, 
+              phong: phong, khoi: khoi, tenDuAn: prj, nganSach: finalBudget, tamUng: itemAdvance, trangThaiTU: phieu.trangThaiTU
+            };
 
-          if(!itemsByProject[prj]) itemsByProject[prj] = [];
-          itemsByProject[prj].push(itemObj);
+            if(!itemsByProject[prj]) itemsByProject[prj] = [];
+            itemsByProject[prj].push(itemObj);
 
-          if(!projectSummary[prj]) projectSummary[prj] = { nganSach: 0, tamUng: 0 };
-          projectSummary[prj].nganSach += finalBudget;
-          totalBudget += finalBudget;
+            if(!projectSummary[prj]) projectSummary[prj] = { nganSach: 0, tamUng: 0 };
+            projectSummary[prj].nganSach += finalBudget;
+            totalBudget += finalBudget;
 
-          if (phieu.trangThaiTU === 'APPROVED_TU') {
-            projectSummary[prj].tamUng += itemAdvance;
-            totalAdvance += itemAdvance;
-          }
+            if (phieu.trangThaiTU === 'APPROVED_TU') {
+              projectSummary[prj].tamUng += itemAdvance;
+              totalAdvance += itemAdvance;
+            }
+          });
         });
-      });
 
-      let excelHtml = `
-      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-      <head>
-        <meta charset="utf-8">
-        <style>
-          table { border-collapse: collapse; }
-          th, td { font-size: 14pt; font-family: 'Times New Roman', serif; vertical-align: middle; padding: 5px; border: 0.5pt solid #000000; }
-          .bg-head { background-color: #0b1f8c; color: #ffffff; font-weight: bold; text-align: center; }
-          .bg-total { background-color: #e8f4fc; font-weight: bold; color: #c00000; text-align: right; }
-          .bg-prj { background-color: #d4efff; font-weight: bold; color: #0b1f8c; text-align: left; font-size: 15pt; border: none; }
-          .num { text-align: right; }
-          .center { text-align: center; }
-          .left { text-align: left; }
-          .bold { font-weight: bold; }
-          .no-border { border: none !important; }
-        </style>
-      </head>
-      <body>
-        <h2>BÁO CÁO TỔNG HỢP CHIẾN DỊCH MARKETING THÁNG ${mDisplay}</h2>
-        <table style="border:none;">
-          <tr><td colspan="4" class="bold left no-border">Tổng ngân sách được duyệt:</td><td colspan="6" class="num bold no-border">${formatNumber(totalBudget)} VNĐ</td></tr>
-          <tr><td colspan="4" class="bold left no-border">Tổng tiền đã tạm ứng đầu kỳ:</td><td colspan="6" class="num bold no-border">${formatNumber(totalAdvance)} VNĐ</td></tr>
-        </table>
-        <br>
-        
-        <table style="width: auto;">
-          <thead>
-            <tr><td colspan="4" class="bold left no-border" style="font-size: 15pt;">BẢNG TỔNG HỢP NGÂN SÁCH THEO DỰ ÁN</td></tr>
-            <tr>
-              <th class="bg-head" style="width: 50px;">STT</th>
-              <th class="bg-head" style="width: 250px;">Dự Án</th>
-              <th class="bg-head" style="width: 200px;">Tổng Ngân Sách</th>
-              <th class="bg-head" style="width: 200px;">Tổng Tạm Ứng</th>
-            </tr>
-          </thead>
-          <tbody>
-      `;
+        let excelHtml = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+          <meta charset="utf-8">
+          <style>
+            table { border-collapse: collapse; }
+            th, td { font-size: 14pt; font-family: 'Times New Roman', serif; vertical-align: middle; padding: 5px; border: 0.5pt solid #000000; }
+            .bg-head { background-color: #0b1f8c; color: #ffffff; font-weight: bold; text-align: center; }
+            .bg-total { background-color: #e8f4fc; font-weight: bold; color: #c00000; text-align: right; }
+            .bg-prj { background-color: #d4efff; font-weight: bold; color: #0b1f8c; text-align: left; font-size: 15pt; border: none; }
+            .num { text-align: right; }
+            .center { text-align: center; }
+            .left { text-align: left; }
+            .bold { font-weight: bold; }
+            .no-border { border: none !important; }
+          </style>
+        </head>
+        <body>
+          <h2>BÁO CÁO TỔNG HỢP CHIẾN DỊCH MARKETING THÁNG ${mDisplay}</h2>
+          <table style="border:none;">
+            <tr><td colspan="4" class="bold left no-border">Tổng ngân sách được duyệt:</td><td colspan="6" class="num bold no-border">${formatNumber(totalBudget)} VNĐ</td></tr>
+            <tr><td colspan="4" class="bold left no-border">Tổng tiền đã tạm ứng đầu kỳ:</td><td colspan="6" class="num bold no-border">${formatNumber(totalAdvance)} VNĐ</td></tr>
+          </table>
+          <br>
+          
+          <table style="width: auto;">
+            <thead>
+              <tr><td colspan="4" class="bold left no-border" style="font-size: 15pt;">BẢNG TỔNG HỢP NGÂN SÁCH THEO DỰ ÁN</td></tr>
+              <tr>
+                <th class="bg-head" style="width: 50px;">STT</th>
+                <th class="bg-head" style="width: 250px;">Dự Án</th>
+                <th class="bg-head" style="width: 200px;">Tổng Ngân Sách</th>
+                <th class="bg-head" style="width: 200px;">Tổng Tạm Ứng</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
 
-      let prjStt = 1;
-      let sortedProjects = Object.keys(projectSummary).sort();
-      sortedProjects.forEach(prj => {
-         excelHtml += `
-            <tr>
-              <td class="center">${prjStt++}</td>
-              <td class="bold left">${prj}</td>
-              <td class="num">${formatNumber(projectSummary[prj].nganSach)}</td>
-              <td class="num">${formatNumber(projectSummary[prj].tamUng)}</td>
-            </tr>
-         `;
-      });
-
-      excelHtml += `
-            <tr>
-              <td colspan="2" class="bg-total center">TỔNG CỘNG</td>
-              <td class="bg-total num">${formatNumber(totalBudget)}</td>
-              <td class="bg-total num">${formatNumber(totalAdvance)}</td>
-            </tr>
-          </tbody>
-        </table>
-        <br>
-        <div class="bold left" style="font-size: 15pt; margin-bottom: 5px;">CHI TIẾT ĐĂNG KÝ THEO TỪNG DỰ ÁN</div>
-      `;
-
-      sortedProjects.forEach(prj => {
-        let items = itemsByProject[prj];
-        
-        items.sort((a, b) => {
-          if (a.khoi !== b.khoi) return a.khoi.localeCompare(b.khoi);
-          if (a.phong !== b.phong) return a.phong.localeCompare(b.phong);
-          return a.tenNhom.localeCompare(b.tenNhom);
+        let prjStt = 1;
+        let sortedProjects = Object.keys(projectSummary).sort();
+        sortedProjects.forEach(prj => {
+           excelHtml += `
+              <tr>
+                <td class="center">${prjStt++}</td>
+                <td class="bold left">${prj}</td>
+                <td class="num">${formatNumber(projectSummary[prj].nganSach)}</td>
+                <td class="num">${formatNumber(projectSummary[prj].tamUng)}</td>
+              </tr>
+           `;
         });
 
         excelHtml += `
-        <table>
-          <thead>
-            <tr>
-              <td colspan="10" class="bg-prj no-border">DỰ ÁN: ${prj.toUpperCase()}</td>
-            </tr>
-            <tr>
-              <th class="bg-head">STT</th>
-              <th class="bg-head">Mã Phiếu</th>
-              <th class="bg-head">Tên Nhóm</th>
-              <th class="bg-head">Thành Viên</th>
-              <th class="bg-head">Phòng</th>
-              <th class="bg-head">Khối</th>
-              <th class="bg-head">Dự Án</th>
-              <th class="bg-head">Ngân Sách (BLĐ Duyệt)</th>
-              <th class="bg-head">Tạm Ứng Đầu Kỳ</th>
-              <th class="bg-head">Trạng Thái</th>
-            </tr>
-          </thead>
-          <tbody>
+              <tr>
+                <td colspan="2" class="bg-total center">TỔNG CỘNG</td>
+                <td class="bg-total num">${formatNumber(totalBudget)}</td>
+                <td class="bg-total num">${formatNumber(totalAdvance)}</td>
+              </tr>
+            </tbody>
+          </table>
+          <br>
+          <div class="bold left" style="font-size: 15pt; margin-bottom: 5px;">CHI TIẾT ĐĂNG KÝ THEO TỪNG DỰ ÁN</div>
         `;
 
-        let itemStt = 1;
-        let sumPrjNganSach = 0;
-        let sumPrjTamUng = 0;
-
-        items.forEach(item => {
-          sumPrjNganSach += item.nganSach;
-          let isAppr = (item.trangThaiTU === 'APPROVED_TU');
+        sortedProjects.forEach(prj => {
+          let items = itemsByProject[prj];
           
-          if (isAppr) sumPrjTamUng += item.tamUng;
-          
-          let excelMembers = (item.thanhVien || "").replace(/,/g, '<br style="mso-data-placement:same-cell;">');
+          items.sort((a, b) => {
+            if (a.khoi !== b.khoi) return a.khoi.localeCompare(b.khoi);
+            if (a.phong !== b.phong) return a.phong.localeCompare(b.phong);
+            return (a.tenNhom||"").localeCompare(b.tenNhom||"");
+          });
 
-          let trangThaiText = '';
-          if (isAppr) trangThaiText = 'Đã duyệt Tạm ứng';
-          else if (item.trangThaiTU === 'REJECTED_TU') trangThaiText = 'Tạm ứng bị từ chối';
-          else trangThaiText = 'Chưa duyệt tạm ứng';
+          excelHtml += `
+          <table>
+            <thead>
+              <tr>
+                <td colspan="10" class="bg-prj no-border">DỰ ÁN: ${prj.toUpperCase()}</td>
+              </tr>
+              <tr>
+                <th class="bg-head">STT</th>
+                <th class="bg-head">Mã Phiếu</th>
+                <th class="bg-head">Tên Nhóm</th>
+                <th class="bg-head">Thành Viên</th>
+                <th class="bg-head">Phòng</th>
+                <th class="bg-head">Khối</th>
+                <th class="bg-head">Dự Án</th>
+                <th class="bg-head">Ngân Sách (BLĐ Duyệt)</th>
+                <th class="bg-head">Tạm Ứng Đầu Kỳ</th>
+                <th class="bg-head">Trạng Thái</th>
+              </tr>
+            </thead>
+            <tbody>
+          `;
 
-          let bgClass = isAppr ? '' : ' style="background-color: #ffebee;"';
+          let itemStt = 1;
+          let sumPrjNganSach = 0;
+          let sumPrjTamUng = 0;
 
-          excelHtml += `<tr>
-            <td class="center">${itemStt++}</td>
-            <td class="center bold">${item.idPhieu}</td>
-            <td class="center bold">${item.tenNhom}</td>
-            <td class="left">${excelMembers}</td>
-            <td class="center">${item.phong}</td>
-            <td class="center">${item.khoi}</td>
-            <td class="center bold">${item.tenDuAn}</td>
-            <td class="num">${formatNumber(item.nganSach)}</td>
-            <td class="num"${bgClass}>${formatNumber(item.tamUng)}</td>
-            <td class="center bold"${bgClass}>${trangThaiText}</td>
-          </tr>`;
+          items.forEach(item => {
+            sumPrjNganSach += item.nganSach;
+            let isAppr = (item.trangThaiTU === 'APPROVED_TU');
+            
+            if (isAppr) sumPrjTamUng += item.tamUng;
+            
+            let excelMembers = (item.thanhVien || "").replace(/,/g, '<br style="mso-data-placement:same-cell;">');
+
+            let trangThaiText = '';
+            if (isAppr) trangThaiText = 'Đã duyệt Tạm ứng';
+            else if (item.trangThaiTU === 'REJECTED_TU') trangThaiText = 'Tạm ứng bị từ chối';
+            else trangThaiText = 'Chưa duyệt tạm ứng';
+
+            let bgClass = isAppr ? '' : ' style="background-color: #ffebee;"';
+
+            excelHtml += `<tr>
+              <td class="center">${itemStt++}</td>
+              <td class="center bold">${item.idPhieu}</td>
+              <td class="center bold">${item.tenNhom}</td>
+              <td class="left">${excelMembers}</td>
+              <td class="center">${item.phong}</td>
+              <td class="center">${item.khoi}</td>
+              <td class="center bold">${item.tenDuAn}</td>
+              <td class="num">${formatNumber(item.nganSach)}</td>
+              <td class="num"${bgClass}>${formatNumber(item.tamUng)}</td>
+              <td class="center bold"${bgClass}>${trangThaiText}</td>
+            </tr>`;
+          });
+
+          excelHtml += `
+              <tr>
+                <td colspan="7" class="bg-total center">TỔNG CỘNG ${prj.toUpperCase()}</td>
+                <td class="bg-total num">${formatNumber(sumPrjNganSach)}</td>
+                <td class="bg-total num">${formatNumber(sumPrjTamUng)}</td>
+                <td class="bg-total"></td>
+              </tr>
+            </tbody>
+          </table>
+          <br>
+          `;
         });
 
         excelHtml += `
-            <tr>
-              <td colspan="7" class="bg-total center">TỔNG CỘNG ${prj.toUpperCase()}</td>
-              <td class="bg-total num">${formatNumber(sumPrjNganSach)}</td>
-              <td class="bg-total num">${formatNumber(sumPrjTamUng)}</td>
-              <td class="bg-total"></td>
-            </tr>
-          </tbody>
-        </table>
-        <br>
-        `;
-      });
+        </body>
+        </html>`;
 
-      excelHtml += `
-      </body>
-      </html>`;
-
-      let blob = new Blob(["\uFEFF" + excelHtml], { type: "application/vnd.ms-excel;charset=utf-8" });
-      let url = URL.createObjectURL(blob);
-      let a = document.createElement("a");
-      a.href = url;
-      a.download = "Bao_Cao_MKT_AnVietHomes_" + mDisplay.replace('/','_') + ".xls";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+        let blob = new Blob(["\uFEFF" + excelHtml], { type: "application/vnd.ms-excel;charset=utf-8" });
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement("a");
+        a.href = url;
+        a.download = "Bao_Cao_MKT_AnVietHomes_" + mDisplay.replace('/','_') + ".xls";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } catch(e) {
+        alert("Có lỗi khi xuất Excel: " + e.message);
+      }
     }
 
     function recalcBLDSummary() {
@@ -796,8 +809,7 @@
 
     function viewDetail(idPhieu) {
       const phieu = globalData.find(p => p.idPhieu === idPhieu); if(!phieu) return;
-      let cleanTV = (phieu.thanhVien||"").replace(/,/g, '<br>');
-      document.getElementById('modalInfoGrid').innerHTML = `<div><b>Mã phiếu:</b> ${phieu.idPhieu}</div><div><b>Phòng ban:</b> ${phieu.phongKD}</div><div><b>Tên nhóm:</b> ${phieu.tenNhom}</div><div><b>Thành viên:</b><br>${cleanTV}</div>`;
+      document.getElementById('modalInfoGrid').innerHTML = `<div><b>Mã phiếu:</b> ${phieu.idPhieu}</div><div><b>Phòng ban:</b> ${phieu.phongKD}</div><div><b>Tên nhóm:</b> ${phieu.tenNhom}</div><div><b>Thành viên:</b><br>${(phieu.thanhVien||"").replace(/,/g, '<br>')}</div>`;
       let tBody = '';
       phieu.chiTiet.forEach(ct => { tBody += `<tr><td style="text-align:center; padding:8px; border:1px solid #ccc;">${ct.tenDuAn}</td><td style="text-align:center; border:1px solid #ccc; font-weight:bold;">${formatNumber(ct.nganSachDeXuat)}</td><td style="text-align:center; border:1px solid #ccc;">${ct.kpi}</td><td style="text-align:center; border:1px solid #ccc;">${ct.channel}</td></tr>`; });
       document.getElementById('modalTableBody').innerHTML = tBody; document.getElementById('viewFormModal').style.display = 'flex';
@@ -975,295 +987,315 @@
     }
 
     function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
-      const row = btnElement.closest('tr');
-      if(newStatus === 'REJECTED') {
-         document.getElementById('tableBodyRejected').prepend(row); row.className = 'row-rejected';
-         row.querySelector('.td-status').innerHTML = `<span style="color:var(--danger); font-weight:700;">REJECTED</span>`;
-         row.querySelector('.td-actions').innerHTML = `<button class="btn-action btn-draft" onclick="updateStatusOptimistic('${idPhieu}', '${revertStatus}', this, '${revertStatus}')">Phê Duyệt Lại</button>`;
-      } else {
-         document.getElementById('tableBodyHistory').prepend(row); row.className = 'row-approved';
-         row.querySelector('.td-status').innerHTML = `<span style="color:var(--primary-blue); font-weight:700;">${newStatus}</span>`;
-         row.querySelector('.td-actions').innerHTML = ''; 
-      }
-      
-      let targetPhieu = globalData.find(p => p.idPhieu === idPhieu);
-      if (targetPhieu) targetPhieu.trangThai = newStatus;
+      try {
+        const row = btnElement.closest('tr');
+        if(newStatus === 'REJECTED') {
+           document.getElementById('tableBodyRejected').prepend(row); row.className = 'row-rejected';
+           row.querySelector('.td-status').innerHTML = `<span style="color:var(--danger); font-weight:700;">REJECTED</span>`;
+           row.querySelector('.td-actions').innerHTML = `<button class="btn-action btn-draft" onclick="updateStatusOptimistic('${idPhieu}', '${revertStatus}', this, '${revertStatus}')">Phê Duyệt Lại</button>`;
+        } else {
+           document.getElementById('tableBodyHistory').prepend(row); row.className = 'row-approved';
+           row.querySelector('.td-status').innerHTML = `<span style="color:var(--primary-blue); font-weight:700;">${newStatus}</span>`;
+           row.querySelector('.td-actions').innerHTML = ''; 
+        }
+        
+        let targetPhieu = globalData.find(p => p.idPhieu === idPhieu);
+        if (targetPhieu) targetPhieu.trangThai = newStatus;
 
-      callAPI("updateStatus", { data: JSON.stringify({ idPhieu: idPhieu, newStatus: newStatus }) }, function(res) { 
-        if(!res || !res.success) alert("Lỗi đồng bộ máy chủ!"); 
-      });
+        callAPI("updateStatus", { data: JSON.stringify({ idPhieu: idPhieu, newStatus: newStatus }) }, function(res) { 
+          if(!res || !res.success) alert("Lỗi đồng bộ máy chủ!"); 
+        });
+      } catch(e) { alert("Lỗi: " + e.message); }
     }
 
     function updateStatusTUOptimistic(idPhieu, newStatus, btnElement) {
-      const row = btnElement.closest('tr');
-      if(newStatus === 'REJECTED_TU') {
-         row.className = 'row-rejected';
-         row.querySelector('.td-status-tu').innerHTML = `<span style="color:var(--danger); font-weight:700;">REJECTED_TU</span>`;
-         row.querySelector('.td-actions-tu').innerHTML = `<button class="btn-action btn-draft" onclick="updateStatusTUOptimistic('${idPhieu}', '${newStatus === 'REJECTED_TU' && currentViewRole==='TPMKT' ? 'PENDING_BLD_TU' : 'APPROVED_TU'}', this)">Phê Duyệt Lại</button>`;
-      } else {
-         row.className = 'row-approved';
-         row.querySelector('.td-status-tu').innerHTML = `<span style="color:var(--primary-blue); font-weight:700;">${newStatus}</span>`;
-         row.querySelector('.td-actions-tu').innerHTML = ''; 
-      }
-      
-      let targetPhieu = globalData.find(p => p.idPhieu === idPhieu);
-      if (targetPhieu) targetPhieu.trangThaiTU = newStatus;
+      try {
+        const row = btnElement.closest('tr');
+        if(newStatus === 'REJECTED_TU') {
+           row.className = 'row-rejected';
+           row.querySelector('.td-status-tu').innerHTML = `<span style="color:var(--danger); font-weight:700;">REJECTED_TU</span>`;
+           row.querySelector('.td-actions-tu').innerHTML = `<button class="btn-action btn-draft" onclick="updateStatusTUOptimistic('${idPhieu}', '${newStatus === 'REJECTED_TU' && currentViewRole==='TPMKT' ? 'PENDING_BLD_TU' : 'APPROVED_TU'}', this)">Phê Duyệt Lại</button>`;
+        } else {
+           row.className = 'row-approved';
+           row.querySelector('.td-status-tu').innerHTML = `<span style="color:var(--primary-blue); font-weight:700;">${newStatus}</span>`;
+           row.querySelector('.td-actions-tu').innerHTML = ''; 
+        }
+        
+        let targetPhieu = globalData.find(p => p.idPhieu === idPhieu);
+        if (targetPhieu) targetPhieu.trangThaiTU = newStatus;
 
-      callAPI("updateStatusTU", { data: JSON.stringify({ idPhieu: idPhieu, newStatus: newStatus }) }, function(res) { 
-        if(!res || !res.success) alert("Lỗi đồng bộ Tạm Ứng!"); 
-      });
+        callAPI("updateStatusTU", { data: JSON.stringify({ idPhieu: idPhieu, newStatus: newStatus }) }, function(res) { 
+          if(!res || !res.success) alert("Lỗi đồng bộ Tạm Ứng!"); 
+        });
+      } catch(e) { alert("Lỗi: " + e.message); }
     }
 
     // =========================================================================
-    // XUẤT FILE PHẲNG VECTOR BẰNG HTML2PDF - TRỰC TIẾP TẢI VỀ
-    // Đã thay thế cách in của trình duyệt thành html2pdf chuẩn kích thước giấy
+    // HỆ THỐNG XUẤT FILE VECTOR TẢI VỀ MÁY (SỬ DỤNG LẠI HTML2PDF CHUẨN)
+    // CAM KẾT KHÔNG BỊ CẮT LỀ, LỀ TRÊN CHUẨN 8MM/18MM VÀ ÉP GỌN GÀNG TRONG 1 TRANG
     // =========================================================================
 
     function downloadPDFs() {
-      const monthVal = document.getElementById('pdfMonth').value;
-      if(!monthVal) { alert("Vui lòng chọn Tháng/Năm!"); return; }
-      const filteredData = globalData.filter(p => p.trangThai === 'APPROVED_BY_BLD' && p.ngayTao && p.ngayTao.includes(monthVal));
-      if(filteredData.length === 0) { alert("Không có dữ liệu!"); return; }
-      
-      showLoading(true, "ĐANG TRÍCH XUẤT TÀI LIỆU PDF...", "Vui lòng đợi vài giây, tệp sẽ tự động lưu về máy tính của bạn.");
-      
-      let htmlString = `<div style="font-family: 'Times New Roman', Times, serif; color: #000; background: #fff; width: 1122px; box-sizing: border-box;">`;
-      
-      filteredData.forEach((phieu, i) => {
-        let tongTien = 0; let rowsHtml = '';
-        phieu.chiTiet.forEach((ct, index) => {
-          tongTien += Number(ct.nganSachDuyet); let mThang = monthVal.split('-')[1];
-          rowsHtml += `<tr><td style="border:1px solid #000; padding:8px; text-align:center;">${index+1}</td><td style="border:1px solid #000; padding:8px; text-align:center;"><b>${ct.tenDuAn}</b></td><td style="border:1px solid #000; padding:8px; text-align:center; color:#c00000; font-weight:bold;">${formatNumber(ct.nganSachDuyet)}</td><td style="border:1px solid #000; padding:8px; text-align:center;">01/${mThang}</td><td style="border:1px solid #000; padding:8px; text-align:center;">31/${mThang}</td><td style="border:1px solid #000; padding:8px; text-align:center;">${ct.kpi || ''}</td><td style="border:1px solid #000; padding:8px; text-align:center;">${ct.channel || ''}</td><td style="border:1px solid #000; padding:8px; text-align:center;">${ct.phone || ''}</td><td style="border:1px solid #000; padding:8px; text-align:center;">${ct.account || ''}</td><td style="border:1px solid #000; padding:8px; text-align:center;"></td></tr>`;
-        });
+      try {
+        const monthVal = document.getElementById('pdfMonth').value;
+        if(!monthVal) { alert("Vui lòng chọn Tháng/Năm!"); return; }
+        const filteredData = globalData.filter(p => p.trangThai === 'APPROVED_BY_BLD' && p.ngayTao && p.ngayTao.includes(monthVal));
+        if(filteredData.length === 0) { alert("Không có dữ liệu!"); return; }
+        
+        showLoading(true, "ĐANG TRÍCH XUẤT TÀI LIỆU PDF...", "Vui lòng đợi vài giây, tệp sẽ tự động lưu về máy tính của bạn.");
+        
+        let htmlString = `<div style="font-family: 'Times New Roman', Times, serif; color: #000; background: #fff; width: 1122px; box-sizing: border-box;">`;
+        
+        filteredData.forEach((phieu, i) => {
+          let tongTien = 0; let rowsHtml = '';
+          phieu.chiTiet.forEach((ct, index) => {
+            tongTien += Number(ct.nganSachDuyet); let mThang = monthVal.split('-')[1];
+            rowsHtml += `<tr><td style="border:1px solid #000; padding:8px; text-align:center;">${index+1}</td><td style="border:1px solid #000; padding:8px; text-align:center;"><b>${ct.tenDuAn}</b></td><td style="border:1px solid #000; padding:8px; text-align:center; color:#c00000; font-weight:bold;">${formatNumber(ct.nganSachDuyet)}</td><td style="border:1px solid #000; padding:8px; text-align:center;">01/${mThang}</td><td style="border:1px solid #000; padding:8px; text-align:center;">31/${mThang}</td><td style="border:1px solid #000; padding:8px; text-align:center;">${ct.kpi || ''}</td><td style="border:1px solid #000; padding:8px; text-align:center;">${ct.channel || ''}</td><td style="border:1px solid #000; padding:8px; text-align:center;">${ct.phone || ''}</td><td style="border:1px solid #000; padding:8px; text-align:center;">${ct.account || ''}</td><td style="border:1px solid #000; padding:8px; text-align:center;"></td></tr>`;
+          });
 
-        htmlString += `
-          <div style="font-size: 14px; line-height: 1.4; padding: 0 0 10px 0; width: 100%; box-sizing: border-box; ${i < filteredData.length - 1 ? 'page-break-after: always;' : ''}">
-            <h2 style="text-align:center; color:#0b1f8c; font-size:22px; font-weight:bold; margin-top: 0; margin-bottom: 5px;">KẾT QUẢ DUYỆT MKT</h2>
-            <p style="text-align:center; margin-top:0; margin-bottom: 20px; font-size:15px;">Mã: <b>${phieu.idPhieu}</b></p>
-            
-            <table style="width:100%; margin-bottom:15px; border: none !important;">
-              <tr>
-                <td style="text-align: left; vertical-align: top; border: none !important; padding: 0;"><b>Thành viên:</b><br>${(phieu.thanhVien||"").replace(/,/g, '<br>')}</td>
-                <td style="text-align: right; vertical-align: top; border: none !important; padding: 0;"><b>Nhóm:</b> ${phieu.tenNhom}<br><b>Phòng:</b> ${phieu.phongKD}</td>
-              </tr>
-            </table>
-            
-            <table style="width:100%; border-collapse:collapse; text-align:center; font-size: 13px;">
-              <thead>
-                <tr style="background-color:#0b1f8c; color:#fff;">
-                  <th style="border:1px solid #000; padding:8px;">STT</th><th style="border:1px solid #000; padding:8px;">Dự án</th><th style="border:1px solid #000; padding:8px;">Ngân sách</th><th style="border:1px solid #000; padding:8px;">Bắt đầu</th><th style="border:1px solid #000; padding:8px;">Kết thúc</th><th style="border:1px solid #000; padding:8px;">KPI</th><th style="border:1px solid #000; padding:8px;">Kênh</th><th style="border:1px solid #000; padding:8px;">SĐT</th><th style="border:1px solid #000; padding:8px;">Tài khoản</th><th style="border:1px solid #000; padding:8px;">BLĐ Duyệt</th>
+          htmlString += `
+            <div style="font-size: 14px; line-height: 1.4; padding: 0 0 10px 0; width: 100%; box-sizing: border-box; ${i < filteredData.length - 1 ? 'page-break-after: always;' : ''}">
+              <h2 style="text-align:center; color:#0b1f8c; font-size:22px; font-weight:bold; margin-top: 0; margin-bottom: 5px;">KẾT QUẢ DUYỆT MKT</h2>
+              <p style="text-align:center; margin-top:0; margin-bottom: 20px; font-size:15px;">Mã: <b>${phieu.idPhieu}</b></p>
+              
+              <table style="width:100%; margin-bottom:15px; border: none !important;">
+                <tr>
+                  <td style="text-align: left; vertical-align: top; border: none !important; padding: 0;"><b>Thành viên:</b><br>${(phieu.thanhVien||"").replace(/,/g, '<br>')}</td>
+                  <td style="text-align: right; vertical-align: top; border: none !important; padding: 0;"><b>Nhóm:</b> ${phieu.tenNhom}<br><b>Phòng:</b> ${phieu.phongKD}</td>
                 </tr>
-              </thead>
-              <tbody>${rowsHtml}</tbody>
-              <tfoot>
-                <tr style="background:#f4f6f8; font-weight:bold;">
-                  <td colspan="2" style="border:1px solid #000; padding:8px; text-align:right;">TỔNG</td>
-                  <td style="border:1px solid #000; padding:8px; color:#fff; background:#0b1f8c; font-size:14px;">${formatNumber(tongTien)}</td>
-                  <td colspan="7" style="border:1px solid #000;"></td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>`;
-      });
-      htmlString += `</div>`;
-      
-      const printElement = document.createElement('div');
-      printElement.innerHTML = htmlString;
-      
-      var opt = { 
-        margin:       [8, 15, 12, 15], 
-        filename:     'Bao_Cao_MKT_' + monthVal + '.pdf', 
-        image:        { type: 'jpeg', quality: 1 }, 
-        html2canvas:  { scale: 2, useCORS: true, windowWidth: 1122 }, 
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' } 
-      };
-      
-      html2pdf().set(opt).from(printElement).save().then(() => { 
-        showLoading(false); 
-      }).catch(err => {
-        showLoading(false); alert("Lỗi tạo PDF: " + err.message);
-      });
+              </table>
+              
+              <table style="width:100%; border-collapse:collapse; text-align:center; font-size: 13px;">
+                <thead>
+                  <tr style="background-color:#0b1f8c; color:#fff;">
+                    <th style="border:1px solid #000; padding:8px;">STT</th><th style="border:1px solid #000; padding:8px;">Dự án</th><th style="border:1px solid #000; padding:8px;">Ngân sách</th><th style="border:1px solid #000; padding:8px;">Bắt đầu</th><th style="border:1px solid #000; padding:8px;">Kết thúc</th><th style="border:1px solid #000; padding:8px;">KPI</th><th style="border:1px solid #000; padding:8px;">Kênh</th><th style="border:1px solid #000; padding:8px;">SĐT</th><th style="border:1px solid #000; padding:8px;">Tài khoản</th><th style="border:1px solid #000; padding:8px;">BLĐ Duyệt</th>
+                  </tr>
+                </thead>
+                <tbody>${rowsHtml}</tbody>
+                <tfoot>
+                  <tr style="background:#f4f6f8; font-weight:bold;">
+                    <td colspan="2" style="border:1px solid #000; padding:8px; text-align:right;">TỔNG</td>
+                    <td style="border:1px solid #000; padding:8px; color:#fff; background:#0b1f8c; font-size:14px;">${formatNumber(tongTien)}</td>
+                    <td colspan="7" style="border:1px solid #000;"></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>`;
+        });
+        htmlString += `</div>`;
+        
+        const printElement = document.createElement('div');
+        printElement.innerHTML = htmlString;
+        
+        var opt = { 
+          margin:       [8, 15, 12, 15], 
+          filename:     'Bao_Cao_MKT_' + monthVal + '.pdf', 
+          image:        { type: 'jpeg', quality: 1 }, 
+          html2canvas:  { scale: 2, useCORS: true, windowWidth: 1122 }, 
+          jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' } 
+        };
+        
+        html2pdf().set(opt).from(printElement).save().then(() => { 
+          showLoading(false); 
+        }).catch(err => {
+          showLoading(false); alert("Lỗi tạo PDF: " + err.message);
+        });
+      } catch(e) {
+        showLoading(false); alert("Lỗi chuẩn bị dữ liệu: " + e.message);
+      }
     }
 
     function downloadAdvancePDFs() {
-      const monthVal = document.getElementById('advPdfMonth').value;
-      if(!monthVal) { alert("Vui lòng chọn Tháng/Năm để tải!"); return; }
-      
-      const filteredData = globalData.filter(p => p.trangThaiTU === 'APPROVED_TU' && p.ngayTao && p.ngayTao.includes(monthVal));
-      if(filteredData.length === 0) { alert("Không có phiếu tạm ứng nào được duyệt trong tháng này!"); return; }
-      
-      showLoading(true, "ĐANG TRÍCH XUẤT ĐƠN TẠM ỨNG...", "Vui lòng đợi vài giây, tệp sẽ tự động lưu về máy tính của bạn.");
-      
-      let htmlString = `<div style="font-family: 'Times New Roman', Times, serif; color: #000; background: #fff; width: 794px; box-sizing: border-box;">`;
-      
-      filteredData.forEach((phieu, i) => {
-        let tv1 = (phieu.thanhVien||"").split(',')[0].trim();
-        let m1 = (phieu.maNhanVien || ".......").split(',')[0].trim();
-        let prjNames = []; let totalDuyet = 0; let rowsHtml = '';
+      try {
+        const monthVal = document.getElementById('advPdfMonth').value;
+        if(!monthVal) { alert("Vui lòng chọn Tháng/Năm để tải!"); return; }
         
-        phieu.chiTiet.forEach(ct => {
-          prjNames.push(ct.tenDuAn); 
-          let liveInput = document.querySelector(`.bld-budget[data-id-dong="${ct.idDong}"]`);
-          let finalNganSach = (currentViewRole === 'BLD' && liveInput) ? parseNumber(liveInput.value) : Number(ct.nganSachDuyet);
-          totalDuyet += finalNganSach;
-          let mThang = monthVal.split('-')[1]; 
-          let advanceAmt = Math.round(finalNganSach * Number(phieu.advPercent) / 100);
-          rowsHtml += `<tr>
-            <td style="border: 1px solid #000; padding: 4px; text-align: center;">Tháng ${mThang}</td>
-            <td style="border: 1px solid #000; padding: 4px; text-align: center;">${ct.tenDuAn}</td>
-            <td style="border: 1px solid #000; padding: 4px; text-align: center;">${formatNumber(finalNganSach)}</td>
-            <td style="border: 1px solid #000; padding: 4px; text-align: center;">${formatNumber(advanceAmt)}</td>
-          </tr>`;
+        const filteredData = globalData.filter(p => p.trangThaiTU === 'APPROVED_TU' && p.ngayTao && p.ngayTao.includes(monthVal));
+        if(filteredData.length === 0) { alert("Không có phiếu tạm ứng nào được duyệt trong tháng này!"); return; }
+        
+        showLoading(true, "ĐANG TRÍCH XUẤT ĐƠN TẠM ỨNG...", "Vui lòng đợi vài giây, tệp sẽ tự động lưu về máy tính của bạn.");
+        
+        let htmlString = `<div style="font-family: 'Times New Roman', Times, serif; color: #000; background: #fff; width: 794px; box-sizing: border-box;">`;
+        
+        filteredData.forEach((phieu, i) => {
+          let tv1 = (phieu.thanhVien||"").split(',')[0].trim();
+          let m1 = (phieu.maNhanVien || ".......").split(',')[0].trim();
+          let prjNames = []; let totalDuyet = 0; let rowsHtml = '';
+          
+          phieu.chiTiet.forEach(ct => {
+            prjNames.push(ct.tenDuAn); 
+            let liveInput = document.querySelector(`.bld-budget[data-id-dong="${ct.idDong}"]`);
+            let finalNganSach = (currentViewRole === 'BLD' && liveInput) ? parseNumber(liveInput.value) : Number(ct.nganSachDuyet);
+            totalDuyet += finalNganSach;
+            let mThang = monthVal.split('-')[1]; 
+            let advanceAmt = Math.round(finalNganSach * Number(phieu.advPercent) / 100);
+            rowsHtml += `<tr>
+              <td style="border: 1px solid #000; padding: 4px; text-align: center;">Tháng ${mThang}</td>
+              <td style="border: 1px solid #000; padding: 4px; text-align: center;">${ct.tenDuAn}</td>
+              <td style="border: 1px solid #000; padding: 4px; text-align: center;">${formatNumber(finalNganSach)}</td>
+              <td style="border: 1px solid #000; padding: 4px; text-align: center;">${formatNumber(advanceAmt)}</td>
+            </tr>`;
+          });
+
+          let totalAdvance = Math.round(totalDuyet * Number(phieu.advPercent) / 100);
+          let remaining = totalDuyet - totalAdvance;
+          let today = new Date();
+
+          htmlString += `
+            <div style="font-size: 13.5px; line-height: 1.25; width: 100%; box-sizing: border-box; padding: 0; ${i < filteredData.length - 1 ? 'page-break-after: always;' : ''}">
+              
+              <table style="width: 100%; border: none !important; margin-bottom: 10px; border-collapse: collapse;">
+                <tr>
+                  <td style="width: 45%; text-align: center; vertical-align: top; border: none !important; font-weight: bold; font-size: 12.5px; padding: 0; line-height: 1.2;">
+                    CÔNG TY CP PHÁT TRIỂN DỊCH VỤ<br>VÀ ĐỊA ỐC AN VIỆT HOMES<br>
+                    <span style="font-weight: normal; font-size: 11px;">Số: ..................../NB18-AVH</span>
+                  </td>
+                  <td style="width: 55%; text-align: center; vertical-align: top; border: none !important; font-weight: bold; font-size: 12.5px; padding: 0; line-height: 1.2;">
+                    CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập - Tự do - Hạnh Phúc<br>
+                    <i style="font-weight: normal; font-size: 11px;">Hà Nội, ngày ${String(today.getDate()).padStart(2,'0')} tháng ${String(today.getMonth()+1).padStart(2,'0')} năm ${today.getFullYear()}</i>
+                  </td>
+                </tr>
+              </table>
+
+              <div style="text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 10px;">ĐƠN XIN TẠM ỨNG MARKETING</div>
+              
+              <div style="margin-bottom: 5px; text-align: left;"><u>Kính gửi:</u> <b>Ban Lãnh Đạo Công ty Cổ phần Phát triển Dịch vụ và Địa ốc An Việt Homes</b></div>
+              
+              <div style="text-align: justify; margin-bottom: 6px;">
+                <span style="display:inline-block; width: 30px;"></span>Tôi tên là: <b>${tv1}</b>. Có mã nhân viên là: <b>${m1}</b><br>
+                đại diện nhóm: <b>${phieu.tenNhom}</b> thuộc phòng kinh doanh: <b>${phieu.phongKD}</b> làm đơn xin tạm ứng khoản chi phí hỗ trợ Marketing (“MKT”) với các nội dung sau đây:
+              </div>
+              
+              <table style="width: 100%; border: none !important; margin-bottom: 5px; border-collapse: collapse;">
+                <tr>
+                  <td style="width: 30px; vertical-align: top; text-align: left; border: none !important; padding: 1px 0;">1.1.</td>
+                  <td style="vertical-align: top; text-align: left; border: none !important; padding: 1px 0;">Tạm ứng cho cá nhân/nhóm: <b>Nhóm ${phieu.tenNhom}</b></td>
+                </tr>
+                <tr>
+                  <td style="width: 30px; vertical-align: top; text-align: left; border: none !important; padding: 1px 0;">1.2.</td>
+                  <td style="vertical-align: top; text-align: left; border: none !important; padding: 1px 0;">Nội dung tạm ứng: <b>Tạm ứng marketing dự án ${prjNames.join(', ')}</b></td>
+                </tr>
+              </table>
+              
+              <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 13px;">
+                <thead>
+                  <tr>
+                    <th style="border: 1px solid #000; padding: 4px; text-align: center;">Tháng chạy MKT</th>
+                    <th style="border: 1px solid #000; padding: 4px; text-align: center;">Dự án</th>
+                    <th style="border: 1px solid #000; padding: 4px; text-align: center;">Ngân sách MKT</th>
+                    <th style="border: 1px solid #000; padding: 4px; text-align: center;">Số tiền được tạm ứng</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${rowsHtml}
+                  <tr>
+                    <td colspan="3" style="border: 1px solid #000; padding: 4px; text-align: left;">Số tiền tạm ứng MKT lần 1 (${phieu.advPercent}%)</td>
+                    <td style="border: 1px solid #000; padding: 4px; font-weight: bold; text-align: center;">${formatNumber(totalAdvance)}</td>
+                  </tr>
+                  <tr>
+                    <td colspan="3" style="border: 1px solid #000; padding: 4px; text-align: left;">Số tiền tạm ứng MKT lần 2</td>
+                    <td style="border: 1px solid #000; padding: 4px; text-align: center;"></td>
+                  </tr>
+                  <tr>
+                    <td colspan="3" style="border: 1px solid #000; padding: 4px; text-align: left;">Số tiền còn lại</td>
+                    <td style="border: 1px solid #000; padding: 4px; font-weight: bold; text-align: center;">${formatNumber(remaining)}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <table style="width: 100%; border: none !important; margin-bottom: 4px; border-collapse: collapse;">
+                <tr>
+                  <td style="width: 30px; vertical-align: top; text-align: left; border: none !important; padding: 1px 0;">1.3.</td>
+                  <td style="vertical-align: top; text-align: left; border: none !important; padding: 1px 0;">
+                    Số tiền tạm ứng kỳ này: <b>${formatNumber(totalAdvance)} VNĐ</b><br>
+                    <i>Số tiền bằng chữ: <b>${readNumber(totalAdvance)}</b></i>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="width: 30px; vertical-align: top; text-align: left; border: none !important; padding: 1px 0;">1.4.</td>
+                  <td style="vertical-align: top; text-align: left; border: none !important; padding: 1px 0;">
+                    Hình thức chi tạm ứng: Chuyển khoản. Thông tin số tài khoản nhận tạm ứng:
+                    <div style="padding-left: 15px; margin-top: 2px;">
+                       - Chủ tài khoản: <b>${phieu.bankOwner}</b><br>
+                       - Số tài khoản: <b>${phieu.bankAccount}</b><br>
+                       - Mở tại ngân hàng: <b>${phieu.bankName}</b>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="width: 30px; vertical-align: top; text-align: left; border: none !important; padding: 1px 0;">1.5.</td>
+                  <td style="vertical-align: top; text-align: justify; border: none !important; padding: 1px 0; line-height: 1.25;">
+                    Tôi/chúng tôi xin cam kết chạy đủ ngân sách trong thời gian hỗ trợ, nếu số tiền tôi/chúng tôi tạm ứng vượt quá số tiền được hỗ trợ marketing, tôi/chúng đồng ý cho Công ty khấu trừ phần chênh lệch đó vào lương, Hoa hồng và Thưởng từ các Giao dịch khác mà tôi/chúng tôi có tại Công ty. Trường hợp không đủ khấu trừ, tôi/chúng tôi hoàn toàn đồng ý mọi phương án xử lý từ Ban Lãnh đạo Công ty.
+                  </td>
+                </tr>
+              </table>
+              
+              <div style="margin-left: 30px; margin-bottom: 8px; text-align: left;">
+                Kính đề nghị Ban Lãnh đạo hỗ trợ và phê duyệt.<br>Trân trọng cảm ơn!
+              </div>
+              
+              <table style="width: 100%; text-align: center; border: none !important; font-size: 11px; margin-bottom: 12px; border-collapse: collapse;">
+                <tr>
+                  <td style="width: 50%; vertical-align: top; border: none !important; padding: 0;">
+                    <b>XÁC NHẬN P.MARKETING</b><br><br><br>
+                    <span style="display:inline-block; border-radius:12px; padding:2px 8px; color:#0b1f8c; border:1px solid #0b1f8c; font-size:10px;">Đã xác nhận<br>trên hệ thống</span>
+                  </td>
+                  <td style="width: 50%; vertical-align: top; border: none !important; padding: 0;">
+                    <b>NGƯỜI LÀM ĐƠN</b><br><br><br>
+                    <span style="display:inline-block; border-radius:12px; padding:2px 8px; color:#0b1f8c; border:1px solid #0b1f8c; font-size:10px;">Đã xác nhận<br>trên hệ thống</span>
+                  </td>
+                </tr>
+              </table>
+              
+              <table style="width: 100%; text-align: center; border: none !important; font-size: 11px; border-collapse: collapse;">
+                <tr>
+                  <td style="width: 33.33%; vertical-align: top; border: none !important; padding: 0;">
+                    <b>BAN LÃNH ĐẠO</b><br><br><br>
+                    <span style="display:inline-block; border-radius:12px; padding:2px 8px; color:#0b1f8c; border:1px solid #0b1f8c; font-size:10px;">Đã xác nhận<br>trên hệ thống</span>
+                  </td>
+                  <td style="width: 33.33%; vertical-align: top; border: none !important; padding: 0;"><b>XÁC NHẬN P. KẾ TOÁN</b></td>
+                  <td style="width: 33.33%; vertical-align: top; border: none !important; padding: 0;"><b>XÁC NHẬN P. ADMIN</b></td>
+                </tr>
+              </table>
+
+            </div>`;
         });
+        htmlString += `</div>`;
 
-        let totalAdvance = Math.round(totalDuyet * Number(phieu.advPercent) / 100);
-        let remaining = totalDuyet - totalAdvance;
-        let today = new Date();
+        const printElement = document.createElement('div');
+        printElement.innerHTML = htmlString;
 
-        htmlString += `
-          <div style="font-size: 13.5px; line-height: 1.25; width: 100%; box-sizing: border-box; padding: 0; ${i < filteredData.length - 1 ? 'page-break-after: always;' : ''}">
-            
-            <table style="width: 100%; border: none !important; margin-bottom: 10px; border-collapse: collapse;">
-              <tr>
-                <td style="width: 45%; text-align: center; vertical-align: top; border: none !important; font-weight: bold; font-size: 12.5px; padding: 0; line-height: 1.2;">
-                  CÔNG TY CP PHÁT TRIỂN DỊCH VỤ<br>VÀ ĐỊA ỐC AN VIỆT HOMES<br>
-                  <span style="font-weight: normal; font-size: 11px;">Số: ..................../NB18-AVH</span>
-                </td>
-                <td style="width: 55%; text-align: center; vertical-align: top; border: none !important; font-weight: bold; font-size: 12.5px; padding: 0; line-height: 1.2;">
-                  CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập - Tự do - Hạnh Phúc<br>
-                  <i style="font-weight: normal; font-size: 11px;">Hà Nội, ngày ${String(today.getDate()).padStart(2,'0')} tháng ${String(today.getMonth()+1).padStart(2,'0')} năm ${today.getFullYear()}</i>
-                </td>
-              </tr>
-            </table>
-
-            <div style="text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 10px;">ĐƠN XIN TẠM ỨNG MARKETING</div>
-            
-            <div style="margin-bottom: 5px; text-align: left;"><u>Kính gửi:</u> <b>Ban Lãnh Đạo Công ty Cổ phần Phát triển Dịch vụ và Địa ốc An Việt Homes</b></div>
-            
-            <div style="text-align: justify; margin-bottom: 6px;">
-              <span style="display:inline-block; width: 30px;"></span>Tôi tên là: <b>${tv1}</b>. Có mã nhân viên là: <b>${m1}</b><br>
-              đại diện nhóm: <b>${phieu.tenNhom}</b> thuộc phòng kinh doanh: <b>${phieu.phongKD}</b> làm đơn xin tạm ứng khoản chi phí hỗ trợ Marketing (“MKT”) với các nội dung sau đây:
-            </div>
-            
-            <table style="width: 100%; border: none !important; margin-bottom: 5px; border-collapse: collapse;">
-              <tr>
-                <td style="width: 30px; vertical-align: top; text-align: left; border: none !important; padding: 1px 0;">1.1.</td>
-                <td style="vertical-align: top; text-align: left; border: none !important; padding: 1px 0;">Tạm ứng cho cá nhân/nhóm: <b>Nhóm ${phieu.tenNhom}</b></td>
-              </tr>
-              <tr>
-                <td style="width: 30px; vertical-align: top; text-align: left; border: none !important; padding: 1px 0;">1.2.</td>
-                <td style="vertical-align: top; text-align: left; border: none !important; padding: 1px 0;">Nội dung tạm ứng: <b>Tạm ứng marketing dự án ${prjNames.join(', ')}</b></td>
-              </tr>
-            </table>
-            
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 13px;">
-              <thead>
-                <tr>
-                  <th style="border: 1px solid #000; padding: 4px; text-align: center;">Tháng chạy MKT</th>
-                  <th style="border: 1px solid #000; padding: 4px; text-align: center;">Dự án</th>
-                  <th style="border: 1px solid #000; padding: 4px; text-align: center;">Ngân sách MKT</th>
-                  <th style="border: 1px solid #000; padding: 4px; text-align: center;">Số tiền được tạm ứng</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${rowsHtml}
-                <tr>
-                  <td colspan="3" style="border: 1px solid #000; padding: 4px; text-align: left;">Số tiền tạm ứng MKT lần 1 (${phieu.advPercent}%)</td>
-                  <td style="border: 1px solid #000; padding: 4px; font-weight: bold; text-align: center;">${formatNumber(totalAdvance)}</td>
-                </tr>
-                <tr>
-                  <td colspan="3" style="border: 1px solid #000; padding: 4px; text-align: left;">Số tiền tạm ứng MKT lần 2</td>
-                  <td style="border: 1px solid #000; padding: 4px; text-align: center;"></td>
-                </tr>
-                <tr>
-                  <td colspan="3" style="border: 1px solid #000; padding: 4px; text-align: left;">Số tiền còn lại</td>
-                  <td style="border: 1px solid #000; padding: 4px; font-weight: bold; text-align: center;">${formatNumber(remaining)}</td>
-                </tr>
-              </tbody>
-            </table>
-
-            <table style="width: 100%; border: none !important; margin-bottom: 5px; border-collapse: collapse;">
-              <tr>
-                <td style="width: 30px; vertical-align: top; text-align: left; border: none !important; padding: 1px 0;">1.3.</td>
-                <td style="vertical-align: top; text-align: left; border: none !important; padding: 1px 0;">
-                  Số tiền tạm ứng kỳ này: <b>${formatNumber(totalAdvance)} VNĐ</b><br>
-                  <i>Số tiền bằng chữ: <b>${readNumber(totalAdvance)}</b></i>
-                </td>
-              </tr>
-              <tr>
-                <td style="width: 30px; vertical-align: top; text-align: left; border: none !important; padding: 1px 0;">1.4.</td>
-                <td style="vertical-align: top; text-align: left; border: none !important; padding: 1px 0;">
-                  Hình thức chi tạm ứng: Chuyển khoản. Thông tin số tài khoản nhận tạm ứng:
-                  <div style="padding-left: 15px; margin-top: 4px;">
-                     - Chủ tài khoản: <b>${phieu.bankOwner}</b><br>
-                     - Số tài khoản: <b>${phieu.bankAccount}</b><br>
-                     - Mở tại ngân hàng: <b>${phieu.bankName}</b>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td style="width: 30px; vertical-align: top; text-align: left; border: none !important; padding: 1px 0;">1.5.</td>
-                <td style="vertical-align: top; text-align: justify; border: none !important; padding: 1px 0;">
-                  Tôi/chúng tôi xin cam kết chạy đủ ngân sách trong thời gian hỗ trợ, nếu số tiền tôi/chúng tôi tạm ứng vượt quá số tiền được hỗ trợ marketing, tôi/chúng đồng ý cho Công ty khấu trừ phần chênh lệch đó vào lương, Hoa hồng và Thưởng từ các Giao dịch khác mà tôi/chúng tôi có tại Công ty. Trường hợp không đủ khấu trừ, tôi/chúng tôi hoàn toàn đồng ý mọi phương án xử lý từ Ban Lãnh đạo Công ty.
-                </td>
-              </tr>
-            </table>
-            
-            <div style="margin-left: 30px; margin-bottom: 10px; text-align: left;">
-              Kính đề nghị Ban Lãnh đạo hỗ trợ và phê duyệt.<br>Trân trọng cảm ơn!
-            </div>
-            
-            <table style="width: 100%; text-align: center; border: none !important; font-size: 11px; margin-bottom: 15px; border-collapse: collapse;">
-              <tr>
-                <td style="width: 50%; vertical-align: top; border: none !important; padding: 0;">
-                  <b>XÁC NHẬN P.MARKETING</b><br><br><br>
-                  <span style="display:inline-block; border-radius:15px; padding:3px 10px; color:#0b1f8c; border:1px solid #0b1f8c; font-size:10px; font-weight:bold;">Đã xác nhận<br>trên hệ thống</span>
-                </td>
-                <td style="width: 50%; vertical-align: top; border: none !important; padding: 0;">
-                  <b>NGƯỜI LÀM ĐƠN</b><br><br><br>
-                  <span style="display:inline-block; border-radius:15px; padding:3px 10px; color:#0b1f8c; border:1px solid #0b1f8c; font-size:10px; font-weight:bold;">Đã xác nhận<br>trên hệ thống</span>
-                </td>
-              </tr>
-            </table>
-            
-            <table style="width: 100%; text-align: center; border: none !important; font-size: 11px; border-collapse: collapse;">
-              <tr>
-                <td style="width: 33.33%; vertical-align: top; border: none !important; padding: 0;">
-                  <b>BAN LÃNH ĐẠO</b><br><br><br>
-                  <span style="display:inline-block; border-radius:15px; padding:3px 10px; color:#0b1f8c; border:1px solid #0b1f8c; font-size:10px; font-weight:bold;">Đã xác nhận<br>trên hệ thống</span>
-                </td>
-                <td style="width: 33.33%; vertical-align: top; border: none !important; padding: 0;"><b>XÁC NHẬN P. KẾ TOÁN</b></td>
-                <td style="width: 33.33%; vertical-align: top; border: none !important; padding: 0;"><b>XÁC NHẬN P. ADMIN</b></td>
-              </tr>
-            </table>
-
-          </div>`;
-      });
-      htmlString += `</div>`;
-
-      const printElement = document.createElement('div');
-      printElement.innerHTML = htmlString;
-
-      var opt = { 
-        margin:       [18, 18, 15, 18], 
-        filename:     'Don_Tam_Ung_MKT_' + monthVal + '.pdf', 
-        image:        { type: 'jpeg', quality: 1 }, 
-        html2canvas:  { scale: 2, useCORS: true, windowWidth: 794 }, 
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' } 
-      };
-      
-      html2pdf().set(opt).from(printElement).save().then(() => { 
-        showLoading(false); 
-      }).catch(err => {
-        showLoading(false); alert("Lỗi tạo PDF: " + err.message);
-      });
+        // MARGIN: Lề trên 18mm như yêu cầu, T/P 18mm
+        var opt = { 
+          margin:       [18, 18, 15, 18], 
+          filename:     'Don_Tam_Ung_MKT_' + monthVal + '.pdf', 
+          image:        { type: 'jpeg', quality: 1 }, 
+          html2canvas:  { scale: 2, useCORS: true, windowWidth: 794 }, 
+          jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' } 
+        };
+        
+        html2pdf().set(opt).from(printElement).save().then(() => { 
+          showLoading(false); 
+        }).catch(err => {
+          showLoading(false); alert("Lỗi tạo PDF: " + err.message);
+        });
+      } catch(e) {
+        showLoading(false); alert("Lỗi chuẩn bị dữ liệu Tạm Ứng: " + e.message);
+      }
     }
 
     function exportToTracking() {
-      const url = document.getElementById('trackingUrl').value.trim();
-      if(!url) { alert("Vui lòng dán link Google Sheet để đồng bộ!"); return; }
-      showLoading(true, "Đang đồng bộ dữ liệu...");
-      callAPI("exportTracking", { data: JSON.stringify({ url: url, items: bldItemsArray }) }, function(res) { showLoading(false); alert(res ? res.message : "Mất kết nối máy chủ"); });
+      try {
+        const url = document.getElementById('trackingUrl').value.trim();
+        if(!url) { alert("Vui lòng dán link Google Sheet để đồng bộ!"); return; }
+        showLoading(true, "Đang đồng bộ dữ liệu...");
+        callAPI("exportTracking", { data: JSON.stringify({ url: url, items: bldItemsArray }) }, function(res) { 
+            showLoading(false); 
+            alert(res ? res.message : "Mất kết nối máy chủ Google"); 
+        });
+      } catch(e) {
+        showLoading(false); alert("Lỗi đồng bộ: " + e.message);
+      }
     }
   </script>
 </body>
