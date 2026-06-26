@@ -141,6 +141,7 @@
       <button class="tab-btn" onclick="switchTab('report')" id="tabBtnReport" style="display:none;">3. TỔNG HỢP & BÁO CÁO</button>
     </div>
 
+    <!-- ================== TAB 1: ĐỀ XUẤT ================== -->
     <div class="tab-content active" id="tabProposal">
       <div class="mkt-toolbar" id="mktToolbar" style="display:none;">
         <div><b style="color: var(--primary-blue); font-size:16px;">CÔNG CỤ PHÒNG MARKETING</b></div>
@@ -177,6 +178,7 @@
       </div>
     </div>
 
+    <!-- ================== TAB 2: TẠM ỨNG ================== -->
     <div class="tab-content" id="tabAdvance">
       <div class="mkt-toolbar" id="advMktToolbar" style="display:none; justify-content:flex-end;">
         <div style="display: flex; gap: 10px; align-items: center;">
@@ -196,6 +198,7 @@
       </div>
     </div>
 
+    <!-- ================== TAB 3: TỔNG HỢP & BÁO CÁO ================== -->
     <div class="tab-content" id="tabReport">
       <div class="mkt-toolbar" style="justify-content: space-between; gap: 20px; background: #fffaf0; border-color: #f39c12;">
         <div style="display: flex; gap: 15px; align-items: center;">
@@ -270,7 +273,6 @@
   </script>
 
   <script>
-    // BẠN HÃY ĐẢM BẢO LINK API DƯỚI ĐÂY ĐÃ LÀ BẢN TRIỂN KHAI MỚI NHẤT
     const API_URL = "https://script.google.com/macros/s/AKfycbwFgszaVmJmOhs_GOMlcomv-RTcFJ2SXU4nbrGDRRqS8mZcFOR59YnBEl5boKmTeBFa/exec";
     let loggedInUser = null; let currentViewRole = ''; let globalData = []; let bldItemsArray = [];
 
@@ -310,7 +312,6 @@
           alert("Lỗi: Máy chủ Google Apps Script không phản hồi (Quá 15 giây). Vui lòng kiểm tra kết nối mạng hoặc thử lại.");
           if (document.getElementById(scriptId)) document.getElementById(scriptId).remove();
           delete window[callbackName];
-          // Bắt buộc nhả trạng thái của nút
           try { successCallback({ success: false, message: "Lỗi kết nối Timeout" }); } catch(e) {}
       }, 15000); 
 
@@ -453,9 +454,6 @@
       });
     }
 
-    // ===================================================================================
-    // TÍNH NĂNG TỔNG HỢP & BÁO CÁO
-    // ===================================================================================
     function renderReport() {
       let month = document.getElementById('reportMonth').value;
       if(!month) return;
@@ -581,9 +579,6 @@
       applyGlobalSearch(); 
     }
 
-    // =========================================================================
-    // XUẤT EXCEL CHUẨN FORM CÓ HIỂN THỊ VIỀN LƯỚI
-    // =========================================================================
     function downloadExcelReport() {
       try {
         let month = document.getElementById('reportMonth').value;
@@ -1037,10 +1032,110 @@
       } catch(e) { alert("Lỗi: " + e.message); }
     }
 
-    // =========================================================================
-    // XUẤT FILE PHẲNG VECTOR BẢN ĐỊA MỚI HOÀN TOÀN: NATIVE BROWSER PRINT
-    // CAM KẾT KHÔNG BỊ CẮT LỀ, LỀ TRÊN CHUẨN 8MM VÀ ÉP GỌN GÀNG TRONG 1 TRANG
-    // =========================================================================
+    // ĐÃ FIX BỌC TRY CATCH CHỐNG TREO MÁY TRONG QUÁ TRÌNH LƯU BLĐ
+    function saveSingleRow(btn, idDong) {
+      try {
+        let tr = btn.closest('tr');
+        let budget = parseNumber(tr.querySelector('.bld-budget').value);
+        let note = tr.querySelector('.bld-note').value;
+        btn.innerText = 'Đang lưu...'; btn.disabled = true;
+        callAPI("bldApprove", { data: JSON.stringify({ isFinalApprove: true, items: [{idDong: idDong, nganSachDuyet: budget, ghiChuBLD: note}] }) }, function(res) { 
+          btn.innerText = 'Cập nhật'; btn.disabled = false;
+          if (res && !res.success) alert(res.message);
+        });
+      } catch (e) {
+        alert("Có lỗi cục bộ khi cập nhật: " + e.message);
+        btn.innerText = 'Cập nhật'; btn.disabled = false;
+      }
+    }
+
+    function submitBldApproval(isFinal) {
+      try {
+        if(isFinal && !confirm("Xác nhận chốt số? Hệ thống sẽ ghi nhận dữ liệu cuối cùng.")) return; 
+        showLoading(true);
+        const itemsData = [];
+        const inputs = document.querySelectorAll('.bld-budget');
+        
+        for (let i = 0; i < inputs.length; i++) {
+            let input = inputs[i];
+            let noteEl = input.closest('tr').querySelector('.bld-note');
+            itemsData.push({ 
+               idDong: input.getAttribute('data-id-dong'), 
+               nganSachDuyet: parseNumber(input.value), 
+               ghiChuBLD: noteEl ? noteEl.value : ""
+            });
+        }
+
+        if (itemsData.length === 0) {
+            showLoading(false);
+            alert("Chưa có dữ liệu nào trên màn hình để lưu!");
+            return;
+        }
+
+        let payload = JSON.stringify({ isFinalApprove: isFinal, items: itemsData });
+        
+        if (payload.length > 5000) {
+            showLoading(false);
+            alert("Lỗi: Số lượng phiếu duyệt cùng lúc quá lớn. Vui lòng thử duyệt từng đơn hoặc báo với hệ thống.");
+            return;
+        }
+
+        callAPI("bldApprove", { data: payload }, function(res) { 
+            showLoading(false); 
+            if (res && res.success) {
+                alert(res.message); 
+                simulateRole(currentViewRole); 
+            } else {
+                alert("Lỗi từ máy chủ: " + (res ? res.message : "Chưa phản hồi"));
+            }
+        });
+      } catch (err) {
+        showLoading(false);
+        alert("Có lỗi cục bộ khi lưu. Vui lòng tải lại trang: " + err.message);
+      }
+    }
+
+    function sendApprovalMail(btn, idPhieu) {
+      if(!confirm("Bạn có chắc chắn muốn gửi Email bản duyệt tới nhóm này?")) return;
+      const originalText = btn.innerText; 
+      btn.innerText = "Đang gửi..."; 
+      btn.disabled = true;
+      
+      callAPI("sendPdfEmail", { idPhieu: idPhieu }, function(res) {
+        if(res && res.success) { 
+           btn.style.background = "#27ae60"; 
+           btn.innerText = "Đã gửi ✔"; 
+        } else { 
+           btn.disabled = false; 
+           btn.innerText = originalText;
+           alert("Lỗi: " + (res ? res.message : "Mất kết nối máy chủ Google"));
+        }
+      });
+    }
+
+    function sendAllApprovalMails() {
+      const approvedItems = globalData.filter(p => p.trangThai === 'APPROVED_BY_BLD');
+      if(approvedItems.length === 0) { alert("Không có phiếu duyệt nào!"); return; }
+      if(!confirm(`Bắt đầu quy trình gửi tự động ${approvedItems.length} email. Vui lòng không đóng trang.`)) return;
+      
+      showLoading(true, "Đang gửi Email...", "Hệ thống đang phát thư, vui lòng chờ...");
+      let currentIndex = 0;
+      let successCount = 0;
+      
+      function sendNext() {
+        if (currentIndex >= approvedItems.length) { 
+            showLoading(false); 
+            alert(`Hoàn tất! Đã gửi thành công ${successCount}/${approvedItems.length} Email.`); 
+            return; 
+        }
+        callAPI("sendPdfEmail", { idPhieu: approvedItems[currentIndex].idPhieu }, function(res) { 
+            if (res && res.success) successCount++;
+            currentIndex++; 
+            sendNext(); 
+        });
+      }
+      sendNext();
+    }
 
     function printHTMLNative(htmlContent, orientation, title) {
       try {
@@ -1051,7 +1146,6 @@
         
         const doc = iframe.contentWindow.document;
         doc.open();
-        // Margin trên 8mm (ngang) và 18mm (dọc)
         doc.write(`
           <!DOCTYPE html>
           <html lang="vi">
@@ -1082,7 +1176,6 @@
       }
     }
 
-    // TẢI BẢN ĐỀ XUẤT (TAB 1)
     function downloadPDFs() {
       try {
         const monthVal = document.getElementById('pdfMonth').value;
@@ -1131,7 +1224,6 @@
       }
     }
 
-    // TẢI BẢN TẠM ỨNG (TAB 2)
     function downloadAdvancePDFs() {
       try {
         const monthVal = document.getElementById('advPdfMonth').value;
@@ -1255,7 +1347,6 @@
       }
     }
 
-    // CƠ CHẾ GỬI API XUẤT SHEET
     function exportToTracking() {
       try {
         const url = document.getElementById('trackingUrl').value.trim();
