@@ -174,7 +174,7 @@
       
       <div id="bldActions" style="display: none; justify-content: flex-end; margin-top: 15px; gap: 15px;">
         <button class="btn-action btn-draft" style="padding: 12px 25px;" onclick="submitBldApproval(false)">Lưu Nháp Tạm Thời</button>
-        <button class="btn-action btn-approve" style="padding: 12px 25px;" onclick="submitBldApproval(true)">Chốt Phê Duyệt Hệ Thống</button>
+        <button class="btn-action btn-approve" style="padding: 12px 25px;" onclick="submitBldApproval(true)">Chốt Phê Duyệt Toàn Hệ Thống</button>
       </div>
     </div>
 
@@ -302,6 +302,7 @@
       }
     });
 
+    // CƠ CHẾ GỌI API CHỐNG TREO MÁY
     function callAPI(action, params, successCallback) {
       const callbackName = "cb_" + action + "_" + new Date().getTime();
       let isDone = false;
@@ -310,10 +311,10 @@
           if (isDone) return;
           isDone = true;
           showLoading(false);
-          alert("Lỗi: Máy chủ Google Apps Script không phản hồi. Vui lòng thử lại!");
+          alert("Lỗi mạng: Máy chủ Google không phản hồi. Vui lòng tải lại trang hoặc thử lại!");
           if (document.getElementById(scriptId)) document.getElementById(scriptId).remove();
           delete window[callbackName];
-          try { successCallback({ success: false, message: "Lỗi kết nối Timeout" }); } catch(e) {}
+          try { successCallback({ success: false, message: "Timeout" }); } catch(e) {}
       }, 15000); 
 
       window[callbackName] = function(response) {
@@ -334,7 +335,7 @@
           isDone = true;
           clearTimeout(timeoutId);
           showLoading(false);
-          alert("Lỗi mạng! Không thể kết nối đến máy chủ.");
+          alert("Lỗi kết nối máy chủ Google!");
           if (document.getElementById(scriptId)) document.getElementById(scriptId).remove();
           delete window[callbackName];
           try { successCallback({ success: false, message: "Lỗi mạng" }); } catch(e) {}
@@ -374,9 +375,7 @@
             simulateRole(loggedInUser.role);
           } else { alert(result ? result.message : "Lỗi đăng nhập"); }
         });
-      } catch(e) {
-        showLoading(false);
-      }
+      } catch(e) { showLoading(false); }
     }
 
     function logout() { localStorage.removeItem("avh_admin_session"); window.location.reload(); }
@@ -455,6 +454,7 @@
       });
     }
 
+    // TỔNG HỢP & BÁO CÁO
     function renderReport() {
       let month = document.getElementById('reportMonth').value;
       if(!month) return;
@@ -844,6 +844,13 @@
       globalData.forEach(phieu => {
         let tk = phieu.phongKD.split('-'); let phong = tk[0] ? tk[0].trim() : ''; let khoi = tk[1] ? tk[1].trim() : '';
         let tv = (phieu.thanhVien||"").split(',').join('<br>');
+        
+        // TÍNH NĂNG TỰ XÓA 15 NGÀY VỚI MKT/BLD TẠI TAB 1
+        let diffDays = (new Date() - new Date(phieu.ngayCapNhat)) / (1000 * 60 * 60 * 24);
+        if ((role === 'MKT' || role === 'TPMKT' || role === 'BLD' || role === 'SUPER_ADMIN') && diffDays > 15) {
+            if (phieu.trangThai === 'APPROVED_BY_BLD' || phieu.trangThai === 'REJECTED') return;
+        }
+
         phieu.chiTiet.forEach(ct => { bldItemsArray.push({ idPhieu: phieu.idPhieu, phong: phong, khoi: khoi, thanhVien: tv, tenDuAn: ct.tenDuAn, nsDeXuat: Number(ct.nganSachDeXuat), nsDuyet: Number(ct.nganSachDuyet), ghiChu: ct.ghiChuBLD, idDong: ct.idDong, trangThai: phieu.trangThai }); });
       });
       bldItemsArray.sort((a,b) => { if(a.tenDuAn !== b.tenDuAn) return a.tenDuAn.localeCompare(b.tenDuAn); if(a.khoi !== b.khoi) return a.khoi.localeCompare(b.khoi); return a.phong.localeCompare(b.phong); });
@@ -860,12 +867,17 @@
           }
           projectSubDeXuat += item.nsDeXuat;
           let rowClass = item.trangThai === 'APPROVED_BY_BLD' ? 'row-approved' : (item.trangThai === 'REJECTED' ? 'row-rejected' : '');
-          let btnUpdate = '';
-          if(item.trangThai === 'APPROVED_BY_BLD') { btnUpdate = `<button class="btn-action btn-draft" onclick="saveSingleRow(this, '${item.idDong}')">Cập nhật</button>`; }
+          
+          let btnUpdate = `<button class="btn-action btn-draft" onclick="saveSingleRow(this, '${item.idDong}')">Cập nhật</button>`; 
+          
+          // NÚT DUYỆT RIÊNG LẺ CHO BLĐ
+          if(item.trangThai !== 'APPROVED_BY_BLD') { 
+              btnUpdate += `<button class="btn-action btn-approve" style="background:#8e44ad;" onclick="approveSingleBLD(this, '${item.idPhieu}')">Duyệt Đơn</button>`; 
+          }
 
           let cleanNote = (item.ghiChu || '').toString().replace(/'/g, '&#39;').replace(/"/g, '&quot;');
 
-          html += `<tr data-id-dong="${item.idDong}" class="${rowClass}">
+          html += `<tr data-id-dong="${item.idDong}" data-id-phieu="${item.idPhieu}" class="${rowClass}">
             <td><button class="btn-view" onclick="viewDetail('${item.idPhieu}')">👁️</button></td>
             <td><b>${item.idPhieu}</b></td><td style="color:#0b1f8c; font-weight:800;">${item.tenDuAn}</td><td>${item.khoi}</td><td>${item.phong}</td><td style="text-align:left; font-size:12px; line-height:1.5;">${item.thanhVien}</td>
             <td>${formatNumber(item.nsDeXuat)}</td>
@@ -884,6 +896,12 @@
         
         let htmlAction = ''; let htmlHistory = ''; let htmlRejected = '';
         globalData.forEach(phieu => {
+          // Lọc 15 ngày
+          let diffDays = (new Date() - new Date(phieu.ngayCapNhat)) / (1000 * 60 * 60 * 24);
+          if ((role === 'MKT' || role === 'TPMKT' || role === 'BLD' || role === 'SUPER_ADMIN') && diffDays > 15) {
+              if (phieu.trangThai === 'APPROVED_BY_BLD' || phieu.trangThai === 'REJECTED') return;
+          }
+
           const ct = phieu.chiTiet[0]; let tv = (phieu.thanhVien||"").split(',').join('<br>');
           let grp = getStatusGroup(phieu, role);
           let rowClass = grp === 'HISTORY' ? 'row-approved' : (grp === 'REJECTED' ? 'row-rejected' : '');
@@ -942,6 +960,12 @@
 
       globalData.forEach(phieu => {
         if (!allowedDXStatuses.includes(phieu.trangThai)) return;
+
+        // TÍNH NĂNG TỰ XÓA 15 NGÀY VỚI MKT/BLD TẠI TAB 2
+        let diffDays = (new Date() - new Date(phieu.ngayCapNhat)) / (1000 * 60 * 60 * 24);
+        if ((role === 'MKT' || role === 'TPMKT' || role === 'BLD' || role === 'SUPER_ADMIN') && diffDays > 15) {
+            if (phieu.trangThaiTU === 'APPROVED_TU' || phieu.trangThaiTU === 'REJECTED_TU') return;
+        }
 
         let isViewable = false;
         if(role === 'MKT' || role === 'SUPER_ADMIN') isViewable = true;
@@ -1033,14 +1057,42 @@
       } catch(e) { alert("Lỗi: " + e.message); }
     }
 
-    // ĐÃ FIX BỌC TRY CATCH CHỐNG TREO MÁY TRONG QUÁ TRÌNH LƯU BLĐ
+    // TÍNH NĂNG DUYỆT ĐƠN LẺ CỦA BLĐ
+    function approveSingleBLD(btn, idPhieu) {
+      try {
+        if(!confirm("Xác nhận chốt phê duyệt Đề xuất cho đơn " + idPhieu + "?")) return;
+        showLoading(true, "ĐANG LƯU...", "Hệ thống đang duyệt đơn này...");
+        
+        const itemsData = [];
+        const inputs = document.querySelectorAll(`tr[data-id-phieu="${idPhieu}"] .bld-budget`);
+        
+        for (let i = 0; i < inputs.length; i++) {
+            let input = inputs[i];
+            let noteEl = input.closest('tr').querySelector('.bld-note');
+            itemsData.push({ 
+               idDong: input.getAttribute('data-id-dong'), 
+               nganSachDuyet: parseNumber(input.value), 
+               ghiChuBLD: noteEl ? noteEl.value : ""
+            });
+        }
+
+        callAPI("bldApprove", { data: JSON.stringify({ isFinalApprove: true, targetIdPhieu: idPhieu, items: itemsData }) }, function(res) { 
+          showLoading(false); 
+          if (res && res.success) { alert(res.message); simulateRole(currentViewRole); } 
+          else { alert("Lỗi từ máy chủ: " + (res ? res.message : "Chưa phản hồi")); }
+        });
+      } catch (e) {
+        showLoading(false); alert("Có lỗi cục bộ khi cập nhật: " + e.message);
+      }
+    }
+
     function saveSingleRow(btn, idDong) {
       try {
         let tr = btn.closest('tr');
         let budget = parseNumber(tr.querySelector('.bld-budget').value);
         let note = tr.querySelector('.bld-note').value;
         btn.innerText = 'Đang lưu...'; btn.disabled = true;
-        callAPI("bldApprove", { data: JSON.stringify({ isFinalApprove: true, items: [{idDong: idDong, nganSachDuyet: budget, ghiChuBLD: note}] }) }, function(res) { 
+        callAPI("bldApprove", { data: JSON.stringify({ isFinalApprove: false, items: [{idDong: idDong, nganSachDuyet: budget, ghiChuBLD: note}] }) }, function(res) { 
           btn.innerText = 'Cập nhật'; btn.disabled = false;
           if (res && !res.success) alert(res.message);
         });
@@ -1052,7 +1104,7 @@
 
     function submitBldApproval(isFinal) {
       try {
-        if(isFinal && !confirm("Xác nhận chốt số? Hệ thống sẽ ghi nhận dữ liệu cuối cùng.")) return; 
+        if(isFinal && !confirm("Xác nhận chốt số? Hệ thống sẽ duyệt TẤT CẢ các đơn đang hiển thị.")) return; 
         showLoading(true);
         const itemsData = [];
         const inputs = document.querySelectorAll('.bld-budget');
@@ -1068,35 +1120,25 @@
         }
 
         if (itemsData.length === 0) {
-            showLoading(false);
-            alert("Chưa có dữ liệu nào trên màn hình để lưu!");
-            return;
+            showLoading(false); alert("Chưa có dữ liệu nào trên màn hình để lưu!"); return;
         }
 
         let payload = JSON.stringify({ isFinalApprove: isFinal, items: itemsData });
         
         if (payload.length > 5000) {
-            showLoading(false);
-            alert("Lỗi: Số lượng phiếu duyệt cùng lúc quá lớn. Vui lòng thử duyệt từng đơn hoặc báo với hệ thống.");
-            return;
+            showLoading(false); alert("Lỗi: Số lượng phiếu duyệt cùng lúc quá lớn. Vui lòng thử duyệt từng đơn hoặc báo với hệ thống."); return;
         }
 
         callAPI("bldApprove", { data: payload }, function(res) { 
             showLoading(false); 
-            if (res && res.success) {
-                alert(res.message); 
-                simulateRole(currentViewRole); 
-            } else {
-                alert("Lỗi từ máy chủ: " + (res ? res.message : "Chưa phản hồi"));
-            }
+            if (res && res.success) { alert(res.message); simulateRole(currentViewRole); } 
+            else { alert("Lỗi từ máy chủ: " + (res ? res.message : "Chưa phản hồi")); }
         });
       } catch (err) {
-        showLoading(false);
-        alert("Có lỗi cục bộ khi lưu. Vui lòng tải lại trang: " + err.message);
+        showLoading(false); alert("Có lỗi cục bộ khi lưu. Vui lòng tải lại trang: " + err.message);
       }
     }
 
-    // ĐÃ FIX: CHỐNG TREO LÚC GỬI EMAIL
     function sendApprovalMail(btn, idPhieu) {
       if(!confirm("Bạn có chắc chắn muốn gửi Email bản duyệt tới nhóm này?")) return;
       const originalText = btn.innerText; 
@@ -1140,10 +1182,8 @@
     }
 
     // =========================================================================
-    // HỆ THỐNG XUẤT FILE PHẲNG BẢN ĐỊA MỚI HOÀN TOÀN: NATIVE BROWSER PRINT
-    // CAM KẾT KHÔNG BỊ CẮT LỀ, LỀ TRÊN CHUẨN 8MM VÀ ÉP GỌN GÀNG TRONG 1 TRANG
+    // IN ẤN BẢN ĐỊA BẰNG BROWSER NATIVE - KHÔNG SỬ DỤNG BẤT KỲ THƯ VIỆN NGOÀI
     // =========================================================================
-
     function printHTMLNative(htmlContent, orientation, title) {
       try {
         showLoading(false); 
@@ -1163,9 +1203,10 @@
               @page { size: A4 ${orientation}; margin: ${orientation === 'landscape' ? '8mm 12mm 12mm 12mm' : '18mm 15mm 15mm 15mm'}; }
               body { font-family: 'Times New Roman', Times, serif !important; color: #000 !important; margin: 0; padding: 0; box-sizing: border-box; }
               table { width: 100% !important; border-collapse: collapse !important; border: none !important; table-layout: fixed !important; word-wrap: break-word !important; }
-              th, td { border: 1px solid #000 !important; padding: 4px !important; font-size: ${orientation === 'landscape' ? '10.5pt' : '11.5pt'} !important; text-align: center !important; vertical-align: middle !important; line-height: 1.3 !important; }
+              th, td { border: 1px solid #000 !important; padding: 6px !important; font-size: ${orientation === 'landscape' ? '10.5pt' : '11.5pt'} !important; text-align: center !important; vertical-align: middle !important; line-height: 1.3 !important; }
               .no-border td, .no-border th { border: none !important; padding: 2px 0 !important; text-align: unset !important; }
               .page-break { page-break-after: always !important; }
+              .pill { border: 1px solid #ccc; padding: 3px 8px; border-radius: 15px; display: inline-block; margin-bottom: 3px; font-size: 10.5pt;}
               * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; box-sizing: border-box !important; }
             </style>
           </head>
@@ -1183,7 +1224,7 @@
       }
     }
 
-    // TẢI BẢN ĐỀ XUẤT (TAB 1) - ĐÃ ĐỔI SANG THIẾT KẾ MỚI
+    // TẢI BẢN ĐỀ XUẤT (TAB 1) - ĐÃ CẬP NHẬT FORM GIAO DIỆN
     function downloadPDFs() {
       try {
         const monthVal = document.getElementById('pdfMonth').value;
@@ -1196,22 +1237,30 @@
         let htmlString = '';
         filteredData.forEach((phieu, i) => {
           let tongTien = 0; let rowsHtml = '';
+          
+          let tk = phieu.phongKD.split('-');
+          let phong = tk[0] ? tk[0].trim() : '';
+          let khoi = tk[1] ? tk[1].trim() : '';
+
           phieu.chiTiet.forEach((ct, index) => {
-            tongTien += Number(ct.nganSachDuyet); let mThang = monthVal.split('-')[1];
-            rowsHtml += `<tr><td style="width:4%; text-align:center;">${index+1}</td><td style="width:16%; font-weight:bold; text-align:center;">${ct.tenDuAn}</td><td style="width:12%; color:#c00000; font-weight:bold; text-align:center;">${formatNumber(ct.nganSachDuyet)}</td><td style="width:8%; text-align:center;">01/${mThang}</td><td style="width:8%; text-align:center;">31/${mThang}</td><td style="width:10%; text-align:center;">${ct.kpi || ''}</td><td style="width:10%; text-align:center;">${ct.channel || ''}</td><td style="width:11%; text-align:center;">${ct.phone || ''}</td><td style="width:13%; text-align:center;">${ct.account || ''}</td><td style="width:8%; text-align:center;"></td></tr>`;
+            tongTien += Number(ct.nganSachDuyet); 
+            rowsHtml += `<tr><td style="width:4%; text-align:center;">${index+1}</td><td style="width:16%; font-weight:bold; text-align:center;">${ct.tenDuAn}</td><td style="width:12%; color:#c00000; font-weight:bold; text-align:center;">${formatNumber(ct.nganSachDuyet)}</td><td style="width:8%; text-align:center;">${ct.start||''}</td><td style="width:8%; text-align:center;">${ct.end||''}</td><td style="width:10%; text-align:center;">${ct.kpi || ''}</td><td style="width:10%; text-align:center;">${ct.channel || ''}</td><td style="width:11%; text-align:center;">${ct.phone || ''}</td><td style="width:13%; text-align:center;">${ct.account || ''}</td><td style="width:8%; text-align:center;"></td></tr>`;
           });
+
+          let htmlMembers = (phieu.thanhVien||"").split(',').map(n => `<span class="pill">${n.trim()}</span>`).join(' ');
+          let htmlMnv = (phieu.maNhanVien||"...").split(',').map(n => `<span class="pill">${n.trim()}</span>`).join(' ');
 
           htmlString += `
             <div class="${i < filteredData.length - 1 ? 'page-break' : ''}">
               
               <table class="no-border" style="width: 100%; margin-bottom: 15px;">
                 <tr>
-                  <td style="width: 50%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11.5pt;">
+                  <td style="width: 40%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11.5pt; color: #0b1f8c;">
+                    CÔNG TY CP PHÁT TRIỂN DỊCH VỤ<br>VÀ ĐỊA ỐC AN VIỆT HOMES
+                  </td>
+                  <td style="width: 60%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11.5pt;">
                     CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập - Tự do - Hạnh Phúc
                     <hr style="width: 40%; border-top: 1px solid #000; margin: 4px auto;">
-                  </td>
-                  <td style="width: 50%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11.5pt; color: #0b1f8c;">
-                    CÔNG TY CP PHÁT TRIỂN DỊCH VỤ<br>VÀ ĐỊA ỐC AN VIỆT HOMES
                   </td>
                 </tr>
               </table>
@@ -1221,26 +1270,37 @@
               
               <table class="no-border" style="width:100%; margin-bottom:15px; font-size:11pt;">
                 <tr>
-                  <td style="width: 50%; text-align: left !important; vertical-align: top;"><b>Thành viên:</b><br>${(phieu.thanhVien||"").replace(/,/g, '<br>')}</td>
-                  <td style="width: 50%; text-align: right !important; vertical-align: top;"><b>Nhóm:</b> ${phieu.tenNhom}<br><b>Phòng:</b> ${phieu.phongKD}</td>
+                  <td style="width: 50%; text-align: left !important; vertical-align: top;">
+                    Thành viên: ${htmlMembers}<br><br>
+                    Tên nhóm: <b>${phieu.tenNhom}</b><br><br>
+                    Phòng kinh doanh: <b>${phong}</b>
+                  </td>
+                  <td style="width: 50%; text-align: right !important; vertical-align: top;">
+                    Mã nhân viên: ${htmlMnv}<br><br>
+                    Khối kinh doanh: <b>${khoi}</b>
+                  </td>
                 </tr>
               </table>
               
+              <div style="font-weight: bold; font-size: 11pt; margin-bottom: 5px; text-align: left;">Nội dung đề xuất chiến dịch Marketing</div>
               <table style="width:100%; text-align:center;">
                 <thead>
                   <tr style="background-color:#0b1f8c; color:#fff; font-weight:bold;">
-                    <th>STT</th><th>Dự án</th><th>Ngân sách</th><th>Bắt đầu</th><th>Kết thúc</th><th>KPI</th><th>Kênh</th><th>SĐT</th><th>Tài khoản</th><th>BLĐ Duyệt</th>
+                    <th rowspan="2">STT</th><th rowspan="2">Dự án</th><th colspan="4">Thông tin chiến dịch Marketing đăng ký</th><th rowspan="2">Kênh chạy</th><th rowspan="2">Số điện thoại<br>đăng ký</th><th rowspan="2">Tài khoản<br>chạy QC</th><th rowspan="2">BLĐ<br>Duyệt</th>
+                  </tr>
+                  <tr style="background-color:#0b1f8c; color:#fff; font-weight:bold;">
+                    <th>Ngân sách</th><th>Bắt đầu</th><th>Kết thúc</th><th>KPI</th>
                   </tr>
                 </thead>
                 <tbody>${rowsHtml}</tbody>
                 <tr style="background:#f4f6f8; font-weight:bold;">
-                  <td colspan="2" style="text-align:right !important;">TỔNG</td>
+                  <td colspan="2" style="text-align:right !important;">TỔNG CỘNG</td>
                   <td style="color:#fff; background:#0b1f8c;">${formatNumber(tongTien)}</td>
                   <td colspan="7"></td>
                 </tr>
               </table>
 
-              <table class="no-border" style="width: 100%; text-align: center !important; margin-top: 25px;">
+              <table class="no-border" style="width: 100%; text-align: center !important; margin-top: 30px;">
                 <tr style="font-weight:bold; font-size: 10.5pt;">
                   <td style="width: 20%; text-align:center !important;">NGƯỜI LÀM ĐƠN</td>
                   <td style="width: 20%; text-align:center !important;">TRƯỞNG PHÒNG KD</td>
@@ -1265,6 +1325,7 @@
       }
     }
 
+    // TẢI BẢN TẠM ỨNG (TAB 2)
     function downloadAdvancePDFs() {
       try {
         const monthVal = document.getElementById('advPdfMonth').value;
