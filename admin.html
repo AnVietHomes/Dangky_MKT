@@ -244,6 +244,7 @@
     </div>
   </div>
 
+  <!-- Script Đọc Số Thành Chữ Tiếng Việt -->
   <script>
     const dict = { 0:'không', 1:'một', 2:'hai', 3:'ba', 4:'bốn', 5:'năm', 6:'sáu', 7:'bảy', 8:'tám', 9:'chín' };
     function readGroup(group) {
@@ -1175,7 +1176,7 @@
     }
 
     // =========================================================================
-    // IN ẤN BẢN ĐỊA NATIVE BROWSER - FORM CHUẨN (Bo góc, Dấu chấm, Lề rộng)
+    // IN ẤN BẢN ĐỊA BẰNG BROWSER NATIVE - THIẾT KẾ CĂN CỨ THEO YÊU CẦU MỚI
     // =========================================================================
     function printHTMLNative(htmlContent, orientation, title) {
       try {
@@ -1193,22 +1194,22 @@
             <meta charset="UTF-8">
             <title>${title}</title>
             <style>
-              @page { size: A4 ${orientation}; margin: ${orientation === 'landscape' ? '25mm 15mm 15mm 15mm' : '25mm 15mm 15mm 15mm'}; }
-              body { font-family: 'Times New Roman', Times, serif !important; font-size: 13pt; padding: 0; margin: 0; color: #000 !important; }
+              @page { size: A4 ${orientation}; margin: ${orientation === 'landscape' ? '12mm 15mm 15mm 15mm' : '12mm 15mm 15mm 15mm'}; }
+              body { font-family: 'Times New Roman', Times, serif !important; font-size: 12pt; padding: 0; margin: 0; color: #000 !important; }
               .rounded-wrapper { border: 1.5px solid #000; border-radius: 12px; overflow: hidden; margin-bottom: 25px; }
-              .styled-table { width: 100%; border-collapse: collapse; font-size: 13pt; }
-              .styled-table th, .styled-table td { border: 1px solid #000; padding: 8px; text-align: center; vertical-align: middle; }
+              .styled-table { width: 100%; border-collapse: collapse; font-size: 12pt; }
+              .styled-table th, .styled-table td { border: 1px solid #000; padding: 6px; text-align: center; vertical-align: middle; line-height: 1.3; }
               .styled-table tr:first-child th { border-top: none; }
               .styled-table tr:last-child td { border-bottom: none; }
               .styled-table tr th:first-child, .styled-table tr td:first-child { border-left: none; }
               .styled-table tr th:last-child, .styled-table tr td:last-child { border-right: none; }
               .no-border td { border: none !important; padding: 2px; text-align: center; }
               .signature { display: inline-block; border-radius: 12px; padding: 4px 8px; color: #0b1f8c; border: 1px solid #0b1f8c; font-size: 10pt; font-weight: bold; margin-top: 15px; }
-              .pill { border: 1px solid #ccc; padding: 2px 8px; border-radius: 12px; display: inline-block; margin-bottom: 3px; background: #fff; font-size: 12pt;}
-              .form-table { width: 100%; font-size: 13pt; border-collapse: separate; border-spacing: 0 10px; margin-bottom: 20px; }
+              .form-table { width: 100%; font-size: 12pt; border-collapse: separate; border-spacing: 0 10px; margin-bottom: 20px; }
               .form-table td { padding: 0; vertical-align: bottom; }
               .form-label { white-space: nowrap; font-weight: bold; text-align: left; }
-              .form-dots { border-bottom: 2px dotted #333; text-align: center; padding: 0 10px; }
+              .form-dots { border-bottom: 2px dotted #000; text-align: center; padding: 0 10px; font-weight: normal; }
+              .page-break { page-break-after: always !important; }
               * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; box-sizing: border-box !important; }
             </style>
           </head>
@@ -1226,7 +1227,7 @@
       }
     }
 
-    // TẢI BẢN ĐỀ XUẤT (TAB 1)
+    // TẢI BẢN ĐỀ XUẤT (TAB 1) - ĐÃ CẬP NHẬT FORM GIAO DIỆN MỚI NHẤT
     function downloadPDFs() {
       try {
         const monthVal = document.getElementById('pdfMonth').value;
@@ -1252,28 +1253,29 @@
             rowsHtml += `<tr><td>${index+1}</td><td><b>${ct.tenDuAn}</b></td><td style="color:#c00000; font-weight:bold;">${formatNumber(ct.nganSachDuyet)}</td><td>${ct.start||''}</td><td>${ct.end||''}</td><td>${ct.kpi || ''}</td><td>${ct.channel || ''}</td><td>${ct.phone || ''}</td><td>${ct.account || ''}</td><td></td></tr>`;
           });
 
-          let htmlMembers = (phieu.thanhVien||"").split(',').map(n => `<span class="pill">${n.trim()}</span>`).join(' ');
-          let htmlMnv = (phieu.maNhanVien||"...").split(',').map(n => `<span class="pill">${n.trim()}</span>`).join(' ');
+          // Làm sạch chuỗi thành viên
+          let htmlMembers = (phieu.thanhVien||"").split(',').map(n => n.trim()).join(', ');
+          let htmlMnv = (phieu.maNhanVien||"...").split(',').map(n => n.trim()).join(', ');
 
           htmlString += `
-            <div style="width: 100%; box-sizing: border-box; ${i < filteredData.length - 1 ? 'page-break-after: always;' : ''}">
+            <div class="${i < filteredData.length - 1 ? 'page-break' : ''}" style="width: 100%;">
               
               <table class="no-border" style="width: 100%; margin-bottom: 5px;">
                 <tr>
-                  <td style="width: 45%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 12pt; color: #0b1f8c;">
+                  <td style="width: 45%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11.5pt; color: #0b1f8c;">
                     CÔNG TY CP PHÁT TRIỂN DỊCH VỤ<br>VÀ ĐỊA ỐC AN VIỆT HOMES
                   </td>
-                  <td style="width: 55%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 12pt;">
+                  <td style="width: 55%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11.5pt;">
                     CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập - Tự do - Hạnh Phúc
                     <hr style="width: 50%; border-top: 1.5px solid #000; margin: 4px auto;">
                   </td>
                 </tr>
               </table>
               
-              <div style="text-align: right; font-style: italic; font-size: 13pt; margin-bottom: 20px;">${dateStr}</div>
+              <div style="text-align: right; font-style: italic; font-size: 12pt; margin-bottom: 15px; margin-right: 15px;">${dateStr}</div>
               
-              <div style="text-align:center; font-size: 20pt; font-weight: bold; margin-bottom: 5px; color:#0b1f8c;">ĐỀ XUẤT CHIẾN DỊCH MARKETING</div>
-              <p style="text-align:center; font-size: 13pt; font-style: italic; margin-top: 0; margin-bottom: 25px;">Mã phiếu: <b>${phieu.idPhieu}</b></p>
+              <div style="text-align:center; font-size: 18pt; font-weight: bold; margin-bottom: 5px; color:#0b1f8c;">ĐỀ XUẤT CHIẾN DỊCH MARKETING</div>
+              <p style="text-align:center; font-size: 12pt; font-style: italic; margin-top: 0; margin-bottom: 25px;">Mã phiếu: <b>${phieu.idPhieu}</b></p>
               
               <table class="form-table">
                 <tr>
@@ -1286,7 +1288,7 @@
                   <td class="form-label">Tên nhóm:</td>
                   <td class="form-dots"><b>${phieu.tenNhom}</b></td>
                   <td class="form-label" style="padding-left: 20px;">Email liên hệ:</td>
-                  <td class="form-dots"><b>${phieu.email}</b></td>
+                  <td class="form-dots">${phieu.email}</td>
                 </tr>
                 <tr>
                   <td class="form-label">Phòng kinh doanh:</td>
@@ -1296,7 +1298,7 @@
                 </tr>
               </table>
               
-              <div style="font-weight: bold; font-size: 13pt; margin-bottom: 8px; text-align: left;">Nội dung đề xuất chiến dịch Marketing</div>
+              <div style="font-weight: bold; font-size: 12pt; margin-bottom: 8px; text-align: left;">Nội dung đề xuất chiến dịch Marketing</div>
               
               <div class="rounded-wrapper">
                 <table class="styled-table">
@@ -1382,40 +1384,40 @@
           let totalAdvance = Math.round(totalDuyet * Number(phieu.advPercent) / 100);
           let remaining = totalDuyet - totalAdvance;
           
-          let htmlMembers = (phieu.thanhVien||"").split(',').map(n => `<span class="pill">${n.trim()}</span>`).join(' ');
-          let htmlMnv = (phieu.maNhanVien||"...").split(',').map(n => `<span class="pill">${n.trim()}</span>`).join(' ');
+          let htmlMembers = (phieu.thanhVien||"").split(',').map(n => n.trim()).join(', ');
+          let htmlMnv = (phieu.maNhanVien||"...").split(',').map(n => n.trim()).join(', ');
 
           htmlString += `
-            <div style="width: 100%; box-sizing: border-box; ${i < filteredData.length - 1 ? 'page-break-after: always;' : ''}">
+            <div class="${i < filteredData.length - 1 ? 'page-break' : ''}" style="width: 100%; box-sizing: border-box; line-height: 1.25;">
               
               <table class="no-border" style="width: 100%; margin-bottom: 5px;">
                 <tr>
-                  <td style="width: 45%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 12pt; color: #0b1f8c;">
+                  <td style="width: 45%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11.5pt; color: #0b1f8c;">
                     CÔNG TY CP PHÁT TRIỂN DỊCH VỤ<br>VÀ ĐỊA ỐC AN VIỆT HOMES
                   </td>
-                  <td style="width: 55%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 12pt;">
+                  <td style="width: 55%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11.5pt;">
                     CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập - Tự do - Hạnh Phúc
                     <hr style="width: 50%; border-top: 1.5px solid #000; margin: 4px auto;">
                   </td>
                 </tr>
               </table>
 
-              <div style="text-align: right; font-style: italic; font-size: 13pt; margin-bottom: 20px;">${dateStr}</div>
+              <div style="text-align: right; font-style: italic; font-size: 12pt; margin-bottom: 15px; margin-right: 15px;">${dateStr}</div>
 
-              <div style="text-align: center; font-size: 20pt; font-weight: bold; margin-bottom: 10px; color:#0b1f8c;">ĐƠN XIN TẠM ỨNG MARKETING</div>
+              <div style="text-align: center; font-size: 18pt; font-weight: bold; margin-bottom: 10px; color:#0b1f8c;">ĐƠN XIN TẠM ỨNG MARKETING</div>
               
-              <p style="margin: 5px 0; text-align: left !important; font-size: 13pt;"><u>Kính gửi:</u> <b>Ban Lãnh Đạo Công ty Cổ phần Phát triển Dịch vụ và Địa ốc An Việt Homes</b></p>
+              <p style="margin: 5px 0; text-align: left !important; font-size: 12pt;"><u>Kính gửi:</u> <b>Ban Lãnh Đạo Công ty Cổ phần Phát triển Dịch vụ và Địa ốc An Việt Homes</b></p>
               
-              <div style="text-align: justify; margin: 10px 0; font-size: 13pt; line-height: 1.5;">
-                <span style="display:inline-block; width: 30px;"></span>Tôi tên là: <b>${(phieu.thanhVien||"").split(',')[0].trim()}</b>. Có mã nhân viên là: <b>${(phieu.maNhanVien||"...").split(',')[0].trim()}</b>, đại diện nhóm: <b>${phieu.tenNhom}</b> thuộc phòng kinh doanh: <b>${phong}</b> làm đơn xin tạm ứng khoản chi phí hỗ trợ Marketing (“MKT”) với các nội dung sau đây:
+              <div style="text-align: justify; margin: 10px 0; font-size: 12pt; line-height: 1.4;">
+                <span style="display:inline-block; width: 30px;"></span>Tôi tên là: <b>${(phieu.thanhVien||"").split(',')[0].trim()}</b>. Có mã nhân viên là: <b>${(phieu.maNhanVien||"...").split(',')[0].trim()}</b>,<br>đại diện nhóm: <b>${phieu.tenNhom}</b> thuộc phòng kinh doanh: <b>${phong}</b> làm đơn xin tạm ứng khoản chi phí hỗ trợ Marketing (“MKT”) với các nội dung sau đây:
               </div>
               
-              <table class="no-border" style="width: 100%; margin-bottom: 15px; font-size:13pt;">
+              <table class="no-border" style="width: 100%; margin-bottom: 15px; font-size:12pt;">
                 <tr><td style="width: 40px; vertical-align: top; text-align: left !important;">1.1.</td><td style="text-align: left !important;">Tạm ứng cho cá nhân/nhóm: <b>Nhóm ${phieu.tenNhom}</b></td></tr>
                 <tr><td style="width: 40px; vertical-align: top; text-align: left !important;">1.2.</td><td style="text-align: left !important;">Nội dung tạm ứng: <b>Tạm ứng marketing dự án ${prjNames.join(', ')}</b></td></tr>
               </table>
               
-              <div class="rounded-wrapper">
+              <div class="rounded-wrapper" style="margin-bottom: 15px;">
                 <table class="styled-table">
                   <thead>
                     <tr style="background-color:#0b1f8c; color:#fff; font-weight:bold;">
@@ -1431,8 +1433,8 @@
                 </table>
               </div>
 
-              <table class="no-border" style="width: 100%; margin-bottom: 15px; font-size:13pt; margin-top: 15px;">
-                <tr><td style="width: 40px; vertical-align: top; text-align: left !important;">1.3.</td><td style="text-align: left !important;">Số tiền tạm ứng kỳ này: <b>${formatNumber(totalAdvance)} VNĐ</b><br><i style="font-size: 12pt;">Số tiền bằng chữ: <b>${readNumber(totalAdvance)}</b></i></td></tr>
+              <table class="no-border" style="width: 100%; margin-bottom: 15px; font-size:12pt;">
+                <tr><td style="width: 40px; vertical-align: top; text-align: left !important;">1.3.</td><td style="text-align: left !important;">Số tiền tạm ứng kỳ này: <b>${formatNumber(totalAdvance)} VNĐ</b><br><i style="font-size: 11.5pt;">Số tiền bằng chữ: <b>${readNumber(totalAdvance)}</b></i></td></tr>
                 <tr><td style="width: 40px; vertical-align: top; text-align: left !important; padding-top: 10px !important;">1.4.</td><td style="text-align: left !important; padding-top: 10px !important;">Hình thức chi tạm ứng: Chuyển khoản. Thông tin số tài khoản nhận tạm ứng:
                     <div style="padding-left: 15px; margin-top: 8px;">
                        - Chủ tài khoản: <b>${phieu.bankOwner}</b><br>
@@ -1443,7 +1445,7 @@
                 <tr><td style="width: 40px; vertical-align: top; text-align: left !important; padding-top: 10px !important;">1.5.</td><td style="text-align: justify !important; padding-top: 10px !important; line-height: 1.4;">Tôi/chúng tôi xin cam kết chạy đủ ngân sách trong thời gian hỗ trợ, nếu số tiền tôi/chúng tôi tạm ứng vượt quá số tiền được hỗ trợ marketing, tôi/chúng đồng ý cho Công ty khấu trừ phần chênh lệch đó vào lương, Hoa hồng và Thưởng từ các Giao dịch khác mà tôi/chúng tôi có tại Công ty. Trường hợp không đủ khấu trừ, tôi/chúng tôi hoàn toàn đồng ý mọi phương án xử lý từ Ban Lãnh đạo Công ty.</td></tr>
               </table>
               
-              <p style="margin: 0 0 20px 40px; text-align: left !important; font-size:13pt;">Kính đề nghị Ban Lãnh đạo hỗ trợ và phê duyệt.<br>Trân trọng cảm ơn!</p>
+              <p style="margin: 0 0 20px 40px; text-align: left !important; font-size:12pt;">Kính đề nghị Ban Lãnh đạo hỗ trợ và phê duyệt.<br>Trân trọng cảm ơn!</p>
               
               <table class="no-border" style="width: 100%; text-align: center !important; margin-top: 10px;">
                 <tr style="font-weight:bold; font-size: 11pt;">
@@ -1456,7 +1458,7 @@
                 </tr>
               </table>
               
-              <table class="no-border" style="width: 100%; text-align: center !important; margin-top: 30px;">
+              <table class="no-border" style="width: 100%; text-align: center !important; margin-top: 25px;">
                 <tr style="font-weight:bold; font-size: 11pt;">
                   <td style="width: 33.33%; text-align:center !important;">BAN LÃNH ĐẠO</td>
                   <td style="width: 33.33%; text-align:center !important;">XÁC NHẬN P. KẾ TOÁN</td>
