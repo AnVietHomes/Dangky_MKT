@@ -244,6 +244,7 @@
     </div>
   </div>
 
+  <!-- Script Đọc Số Thành Chữ Tiếng Việt -->
   <script>
     const dict = { 0:'không', 1:'một', 2:'hai', 3:'ba', 4:'bốn', 5:'năm', 6:'sáu', 7:'bảy', 8:'tám', 9:'chín' };
     function readGroup(group) {
@@ -309,7 +310,7 @@
           if (isDone) return;
           isDone = true;
           showLoading(false);
-          alert("Lỗi: Máy chủ Google Apps Script không phản hồi (Quá 15 giây). Vui lòng kiểm tra kết nối mạng hoặc thử lại.");
+          alert("Lỗi: Máy chủ Google Apps Script không phản hồi. Vui lòng thử lại!");
           if (document.getElementById(scriptId)) document.getElementById(scriptId).remove();
           delete window[callbackName];
           try { successCallback({ success: false, message: "Lỗi kết nối Timeout" }); } catch(e) {}
@@ -1095,6 +1096,7 @@
       }
     }
 
+    // ĐÃ FIX: CHỐNG TREO LÚC GỬI EMAIL
     function sendApprovalMail(btn, idPhieu) {
       if(!confirm("Bạn có chắc chắn muốn gửi Email bản duyệt tới nhóm này?")) return;
       const originalText = btn.innerText; 
@@ -1137,6 +1139,11 @@
       sendNext();
     }
 
+    // =========================================================================
+    // HỆ THỐNG XUẤT FILE PHẲNG BẢN ĐỊA MỚI HOÀN TOÀN: NATIVE BROWSER PRINT
+    // CAM KẾT KHÔNG BỊ CẮT LỀ, LỀ TRÊN CHUẨN 8MM VÀ ÉP GỌN GÀNG TRONG 1 TRANG
+    // =========================================================================
+
     function printHTMLNative(htmlContent, orientation, title) {
       try {
         showLoading(false); 
@@ -1176,6 +1183,7 @@
       }
     }
 
+    // TẢI BẢN ĐỀ XUẤT (TAB 1) - ĐÃ ĐỔI SANG THIẾT KẾ MỚI
     function downloadPDFs() {
       try {
         const monthVal = document.getElementById('pdfMonth').value;
@@ -1195,14 +1203,29 @@
 
           htmlString += `
             <div class="${i < filteredData.length - 1 ? 'page-break' : ''}">
-              <h2 style="text-align:center; color:#0b1f8c; font-size:20pt; font-weight:bold; margin: 0 0 5px 0;">KẾT QUẢ DUYỆT MKT</h2>
-              <p style="text-align:center; margin-top:0; margin-bottom:15px; font-size:12pt;">Mã: <b>${phieu.idPhieu}</b></p>
-              <table class="no-border" style="width:100%; margin-bottom:12px; font-size:11pt;">
+              
+              <table class="no-border" style="width: 100%; margin-bottom: 15px;">
+                <tr>
+                  <td style="width: 50%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11.5pt;">
+                    CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập - Tự do - Hạnh Phúc
+                    <hr style="width: 40%; border-top: 1px solid #000; margin: 4px auto;">
+                  </td>
+                  <td style="width: 50%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11.5pt; color: #0b1f8c;">
+                    CÔNG TY CP PHÁT TRIỂN DỊCH VỤ<br>VÀ ĐỊA ỐC AN VIỆT HOMES
+                  </td>
+                </tr>
+              </table>
+              
+              <h2 style="text-align:center; color:#0b1f8c; font-size:18pt; font-weight:bold; margin: 0 0 5px 0;">ĐỀ XUẤT CHIẾN DỊCH MARKETING</h2>
+              <p style="text-align:center; margin-top:0; margin-bottom:15px; font-size:11pt; font-style: italic;">Mã phiếu: <b>${phieu.idPhieu}</b></p>
+              
+              <table class="no-border" style="width:100%; margin-bottom:15px; font-size:11pt;">
                 <tr>
                   <td style="width: 50%; text-align: left !important; vertical-align: top;"><b>Thành viên:</b><br>${(phieu.thanhVien||"").replace(/,/g, '<br>')}</td>
                   <td style="width: 50%; text-align: right !important; vertical-align: top;"><b>Nhóm:</b> ${phieu.tenNhom}<br><b>Phòng:</b> ${phieu.phongKD}</td>
                 </tr>
               </table>
+              
               <table style="width:100%; text-align:center;">
                 <thead>
                   <tr style="background-color:#0b1f8c; color:#fff; font-weight:bold;">
@@ -1216,6 +1239,24 @@
                   <td colspan="7"></td>
                 </tr>
               </table>
+
+              <table class="no-border" style="width: 100%; text-align: center !important; margin-top: 25px;">
+                <tr style="font-weight:bold; font-size: 10.5pt;">
+                  <td style="width: 20%; text-align:center !important;">NGƯỜI LÀM ĐƠN</td>
+                  <td style="width: 20%; text-align:center !important;">TRƯỞNG PHÒNG KD</td>
+                  <td style="width: 20%; text-align:center !important;">GIÁM ĐỐC KD</td>
+                  <td style="width: 20%; text-align:center !important;">P. MARKETING</td>
+                  <td style="width: 20%; text-align:center !important;">BAN LÃNH ĐẠO</td>
+                </tr>
+                <tr>
+                  <td style="text-align:center !important; padding-top: 15px !important;"><span style="display:inline-block; border-radius:15px; padding:3px 8px; color:#0b1f8c; border:1px solid #0b1f8c; font-size:9pt; font-weight:bold;">Đã xác nhận<br>trên hệ thống</span></td>
+                  <td style="text-align:center !important; padding-top: 15px !important;"><span style="display:inline-block; border-radius:15px; padding:3px 8px; color:#0b1f8c; border:1px solid #0b1f8c; font-size:9pt; font-weight:bold;">Đã xác nhận<br>trên hệ thống</span></td>
+                  <td style="text-align:center !important; padding-top: 15px !important;"><span style="display:inline-block; border-radius:15px; padding:3px 8px; color:#0b1f8c; border:1px solid #0b1f8c; font-size:9pt; font-weight:bold;">Đã xác nhận<br>trên hệ thống</span></td>
+                  <td style="text-align:center !important; padding-top: 15px !important;"><span style="display:inline-block; border-radius:15px; padding:3px 8px; color:#0b1f8c; border:1px solid #0b1f8c; font-size:9pt; font-weight:bold;">Đã xác nhận<br>trên hệ thống</span></td>
+                  <td style="text-align:center !important; padding-top: 15px !important;"><span style="display:inline-block; border-radius:15px; padding:3px 8px; color:#0b1f8c; border:1px solid #0b1f8c; font-size:9pt; font-weight:bold;">Đã xác nhận<br>trên hệ thống</span></td>
+                </tr>
+              </table>
+
             </div>`;
         });
         printHTMLNative(htmlString, 'landscape', 'Bao_Cao_MKT_' + monthVal);
