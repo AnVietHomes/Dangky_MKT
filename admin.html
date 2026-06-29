@@ -46,11 +46,6 @@
 
     .mkt-toolbar { display: flex; background: #e8f4fc; padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; align-items: center; justify-content: space-between; border: 1px solid var(--primary-blue); width: 100%; box-sizing: border-box; }
 
-    .summary-table-wrap { display: none; margin-bottom: 25px; background: #fdfdfd; border: 1px solid var(--primary-blue); border-radius: 8px; overflow: hidden; width: 100%; }
-    .summary-table { width: 100%; border-collapse: collapse; }
-    .summary-table th { background: var(--primary-blue); color: white; padding: 12px; font-size: 14px; text-align: right; border-bottom: 1px solid var(--border-color); }
-    .summary-table td { padding: 12px; border-bottom: 1px solid #ddd; text-align: right; font-weight: 700; font-size: 15px; }
-
     #exportBlock { display: none; background: #e8f4fc; padding: 15px; border-radius: 8px; margin-bottom: 20px; align-items: center; gap: 15px; width: 100%; box-sizing: border-box; }
 
     .table-container { width: 100%; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 20px; overflow-x: auto; }
@@ -67,7 +62,6 @@
     .btn-sendmail { background: #8e44ad; }
     .btn-view { background: #3498db; font-size: 14px; border-radius: 50%; width: 32px; height: 32px; padding: 0; color: white; cursor: pointer;}
     .btn-draft { background: #2980b9; } 
-    .subtotal-row { background: #fffaf0; }
 
     .row-approved { background-color: #eafaf1; border-left: 5px solid #27ae60; }
     .row-rejected { background-color: #ffebee; border-left: 5px solid var(--danger); opacity: 0.8;}
@@ -153,10 +147,6 @@
         </div>
       </div>
 
-      <div class="summary-table-wrap" id="summaryBlock">
-        <table class="summary-table" id="summaryTable"></table>
-      </div>
-
       <div id="exportBlock">
         <b>Link Google Sheet Theo Dõi:</b>
         <input type="text" id="trackingUrl" class="form-control" style="flex:1; margin:0;" placeholder="Dán đường link Google Sheet vào đây...">
@@ -167,8 +157,6 @@
         <table id="dataTable">
           <thead><tr id="tableHeader"></tr></thead>
           <tbody id="tableBodyAction"></tbody>
-          <tbody id="tableBodyHistory"></tbody>
-          <tbody id="tableBodyRejected"></tbody>
         </table>
       </div>
       
@@ -792,23 +780,35 @@
         }
     }
 
+    // ĐÃ UPDATE THEO HIERARCHICAL VIEW
     function recalcBLDSummary() {
-      let totals = {}; let grandDeXuat = 0; let grandDuyet = 0;
+      let sumDuyetKhoi = {}, sumDuyetPhong = {}, sumDuyetDuAn = {};
+      let grandDuyet = 0;
+
       document.querySelectorAll('.bld-budget').forEach(input => {
-        let prj = input.getAttribute('data-project'); let val = parseNumber(input.value);
-        if(!totals[prj]) totals[prj] = { deXuat: 0, duyet: 0 }; totals[prj].duyet += val; grandDuyet += val;
+        let kId = input.getAttribute('data-khoi');
+        let pId = input.getAttribute('data-phong');
+        let dId = input.getAttribute('data-duan');
+        let val = parseNumber(input.value);
+
+        sumDuyetKhoi[kId] = (sumDuyetKhoi[kId] || 0) + val;
+        sumDuyetPhong[pId] = (sumDuyetPhong[pId] || 0) + val;
+        sumDuyetDuAn[dId] = (sumDuyetDuAn[dId] || 0) + val;
+        grandDuyet += val;
       });
+
+      for(let k in sumDuyetKhoi) { let el = document.getElementById('sum_duyet_khoi_' + k); if(el) el.innerText = formatNumber(sumDuyetKhoi[k]); }
+      for(let p in sumDuyetPhong) { let el = document.getElementById('sum_duyet_phong_' + p); if(el) el.innerText = formatNumber(sumDuyetPhong[p]); }
+      for(let d in sumDuyetDuAn) { let el = document.getElementById('sum_duyet_duan_' + d); if(el) el.innerText = formatNumber(sumDuyetDuAn[d]); }
+      
+      let grandEl = document.getElementById('sum_duyet_grand');
+      if(grandEl) grandEl.innerText = formatNumber(grandDuyet);
+      
       bldItemsArray.forEach(item => {
-        if(!totals[item.tenDuAn]) totals[item.tenDuAn] = { deXuat: 0, duyet: 0 };
-        totals[item.tenDuAn].deXuat += item.nsDeXuat; grandDeXuat += item.nsDeXuat;
+        let input = document.querySelector(`.bld-budget[data-id-dong="${item.idDong}"]`);
+        if (input) item.nsDuyet = parseNumber(input.value);
       });
-      let html = `<tr><th style="text-align:left;">Dự án</th><th>Tổng Đề Xuất</th><th>Tổng Phê Duyệt</th></tr>`;
-      for(let p in totals) {
-        html += `<tr><td style="text-align:left;">${p}</td><td>${formatNumber(totals[p].deXuat)}</td><td style="color:#0b1f8c;">${formatNumber(totals[p].duyet)}</td></tr>`;
-        let subInput = document.getElementById('subtotal_' + p); if(subInput) subInput.value = formatNumber(totals[p].duyet);
-      }
-      html += `<tr style="background:#e8f4fc;"><td style="text-align:left; color:var(--danger);"><b>TỔNG CỘNG HỆ THỐNG</b></td><td style="color:var(--danger);"><b>${formatNumber(grandDeXuat)}</b></td><td style="color:var(--danger); font-size:18px;"><b>${formatNumber(grandDuyet)}</b></td></tr>`;
-      document.getElementById('summaryTable').innerHTML = html;
+
       renderAdvanceTableByRole(currentViewRole);
     }
 
@@ -826,31 +826,31 @@
       document.getElementById('modalTableBody').innerHTML = tBody; document.getElementById('viewFormModal').style.display = 'flex';
     }
 
-    function getStatusGroup(phieu, role) {
-      if (phieu.trangThai === 'REJECTED') return 'REJECTED';
-      if (role === 'TPKD' && phieu.trangThai === 'PENDING_TPKD') return 'ACTION';
-      if (role === 'GDKD' && phieu.trangThai === 'PENDING_GDKD') return 'ACTION';
-      if (role === 'GDKD_KIEM_TPKD' && (phieu.trangThai === 'PENDING_TPKD' || phieu.trangThai === 'PENDING_GDKD')) return 'ACTION';
-      if ((role === 'PTGD' || role === 'GDCN') && phieu.trangThai === 'PENDING_PTGD') return 'ACTION';
-      if (role === 'TPMKT' && phieu.trangThai === 'PENDING_BLD') return 'ACTION'; 
+    function getStatusGroup(phieuObj, role) {
+      if (phieuObj.trangThai === 'REJECTED') return 'REJECTED';
+      if (role === 'TPKD' && phieuObj.trangThai === 'PENDING_TPKD') return 'ACTION';
+      if (role === 'GDKD' && phieuObj.trangThai === 'PENDING_GDKD') return 'ACTION';
+      if (role === 'GDKD_KIEM_TPKD' && (phieuObj.trangThai === 'PENDING_TPKD' || phieuObj.trangThai === 'PENDING_GDKD')) return 'ACTION';
+      if ((role === 'PTGD' || role === 'GDCN') && phieuObj.trangThai === 'PENDING_PTGD') return 'ACTION';
+      if (role === 'TPMKT' && phieuObj.trangThai === 'PENDING_BLD') return 'ACTION'; 
       return 'HISTORY';
     }
 
+    // BẢNG DUYỆT ĐỀ XUẤT (TAB 1) - HIERARCHICAL TREE THEO YÊU CẦU MỚI
     function renderTableByRole(role) {
       const thead = document.getElementById('tableHeader'); 
       const tbAction = document.getElementById('tableBodyAction'); 
-      const tbHistory = document.getElementById('tableBodyHistory'); 
-      const tbRejected = document.getElementById('tableBodyRejected'); 
       const bldActions = document.getElementById('bldActions');
-      const sumBlock = document.getElementById('summaryBlock'); const expBlock = document.getElementById('exportBlock'); const mktBlock = document.getElementById('mktToolbar');
+      const expBlock = document.getElementById('exportBlock'); 
+      const mktBlock = document.getElementById('mktToolbar');
       
-      tbAction.innerHTML = ''; tbHistory.innerHTML = ''; tbRejected.innerHTML = '';
+      tbAction.innerHTML = '';
       if (role === 'MKT' || role === 'TPMKT') { mktBlock.style.display = 'flex'; } else { mktBlock.style.display = 'none'; }
       if (role === 'MKT' || role === 'TPMKT' || role === 'BLD' || role === 'SUPER_ADMIN') { expBlock.style.display = 'flex'; } else { expBlock.style.display = 'none'; }
 
-      bldItemsArray = [];
+      let flatItems = [];
       globalData.forEach(phieu => {
-        let tk = phieu.phongKD.split('-'); let phong = tk[0] ? tk[0].trim() : ''; let khoi = tk[1] ? tk[1].trim() : '';
+        let tk = phieu.phongKD.split('-'); let phong = tk[0] ? tk[0].trim() : 'Chưa phân phòng'; let khoi = tk[1] ? tk[1].trim() : 'Chưa phân khối';
         let tv = (phieu.thanhVien||"").split(',').join('<br>');
         
         let diffDays = (new Date() - new Date(phieu.ngayCapNhat)) / (1000 * 60 * 60 * 24);
@@ -858,104 +858,151 @@
             if (phieu.trangThai === 'APPROVED_BY_BLD' || phieu.trangThai === 'REJECTED') return;
         }
 
-        phieu.chiTiet.forEach(ct => { bldItemsArray.push({ idPhieu: phieu.idPhieu, phong: phong, khoi: khoi, thanhVien: tv, tenDuAn: ct.tenDuAn, nsDeXuat: Number(ct.nganSachDeXuat), nsDuyet: Number(ct.nganSachDuyet), ghiChu: ct.ghiChuBLD, idDong: ct.idDong, trangThai: phieu.trangThai }); });
+        phieu.chiTiet.forEach(ct => { 
+            flatItems.push({ 
+                idPhieu: phieu.idPhieu, phong: phong, khoi: khoi, thanhVien: tv, 
+                tenDuAn: ct.tenDuAn, nsDeXuat: Number(ct.nganSachDeXuat), nsDuyet: Number(ct.nganSachDuyet), 
+                ghiChu: ct.ghiChuBLD || "", idDong: ct.idDong, trangThai: phieu.trangThai, phieuObj: phieu
+            }); 
+        });
       });
-      bldItemsArray.sort((a,b) => { if(a.tenDuAn !== b.tenDuAn) return a.tenDuAn.localeCompare(b.tenDuAn); if(a.khoi !== b.khoi) return a.khoi.localeCompare(b.khoi); return a.phong.localeCompare(b.phong); });
 
-      if (role === 'BLD' || role === 'SUPER_ADMIN') {
-        thead.innerHTML = `<th width="4%"></th><th>Mã Phiếu</th><th>Dự Án</th><th>Khối</th><th>Phòng</th><th>Thành Viên</th><th>Ngân Sách Đề Xuất</th><th>BLĐ Duyệt Thực Tế</th><th>Ghi Chú Điều Chỉnh</th><th class="td-actions">Hành Động</th>`;
-        bldActions.style.display = 'flex'; sumBlock.style.display = 'block'; 
+      flatItems.sort((a,b) => { 
+          if(a.khoi !== b.khoi) return a.khoi.localeCompare(b.khoi); 
+          if(a.phong !== b.phong) return a.phong.localeCompare(b.phong); 
+          return a.tenDuAn.localeCompare(b.tenDuAn); 
+      });
+
+      thead.innerHTML = `<th width="4%"></th><th>Mã Phiếu</th><th>Thành Viên</th><th>Trạng Thái</th><th>Ngân Sách Đề Xuất</th><th>BLĐ Duyệt Thực Tế</th><th>Ghi Chú</th><th class="td-actions">Hành Động</th>`;
+      bldActions.style.display = (role === 'BLD' || role === 'SUPER_ADMIN') ? 'flex' : 'none'; 
+      
+      let sumDxKhoi = {}, sumDxPhong = {}, sumDxDuAn = {};
+      let sumDuyetKhoi = {}, sumDuyetPhong = {}, sumDuyetDuAn = {};
+      let grandDeXuat = 0, grandDuyet = 0;
+
+      let safeId = str => btoa(unescape(encodeURIComponent(str))).replace(/[^a-zA-Z0-9]/g, '');
+
+      flatItems.forEach(item => {
+        let kId = safeId(item.khoi); let pId = safeId(item.khoi + '|' + item.phong); let dId = safeId(item.khoi + '|' + item.phong + '|' + item.tenDuAn);
+        sumDxKhoi[kId] = (sumDxKhoi[kId] || 0) + item.nsDeXuat;
+        sumDxPhong[pId] = (sumDxPhong[pId] || 0) + item.nsDeXuat;
+        sumDxDuAn[dId] = (sumDxDuAn[dId] || 0) + item.nsDeXuat;
         
-        let currentProject = ''; let projectSubDeXuat = 0; let html = '';
-        bldItemsArray.forEach((item, index) => {
-          if(item.tenDuAn !== currentProject) {
-            if(currentProject !== '') html += `<tr class="subtotal-row"><td colspan="6" style="text-align:right;"><b>Tổng cộng ${currentProject}</b></td><td style="color:#0b1f8c;"><b>${formatNumber(projectSubDeXuat)}</b></td><td><input type="text" readonly class="input-budget" id="subtotal_${currentProject}" style="border:none; background:transparent;"></td><td></td><td></td></tr>`;
-            currentProject = item.tenDuAn; projectSubDeXuat = 0;
-          }
-          projectSubDeXuat += item.nsDeXuat;
-          let rowClass = item.trangThai === 'APPROVED_BY_BLD' ? 'row-approved' : (item.trangThai === 'REJECTED' ? 'row-rejected' : '');
-          
-          let btnUpdate = `<button class="btn-action btn-draft" onclick="saveSingleRow(this, '${item.idDong}')">Cập nhật</button>`; 
-          
-          if(item.trangThai !== 'APPROVED_BY_BLD') { 
-              btnUpdate += `<button class="btn-action btn-approve" style="background:#8e44ad;" onclick="approveSingleBLD(this, '${item.idPhieu}')">Duyệt Đơn</button>`; 
-          }
+        sumDuyetKhoi[kId] = (sumDuyetKhoi[kId] || 0) + item.nsDuyet;
+        sumDuyetPhong[pId] = (sumDuyetPhong[pId] || 0) + item.nsDuyet;
+        sumDuyetDuAn[dId] = (sumDuyetDuAn[dId] || 0) + item.nsDuyet;
+        
+        grandDeXuat += item.nsDeXuat;
+        grandDuyet += item.nsDuyet;
+      });
 
-          let cleanNote = (item.ghiChu || '').toString().replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+      let currentKhoi = null; let currentPhong = null; let currentDuAn = null; let html = '';
+      
+      flatItems.forEach((item, index) => {
+        let kId = safeId(item.khoi); let pId = safeId(item.khoi + '|' + item.phong); let dId = safeId(item.khoi + '|' + item.phong + '|' + item.tenDuAn);
 
-          html += `<tr data-id-dong="${item.idDong}" data-id-phieu="${item.idPhieu}" class="${rowClass}">
+        if (currentKhoi !== kId) {
+            html += `<tr style="background:#0b1f8c; color:white; font-weight:bold; font-size: 14px; text-transform: uppercase;">
+                <td colspan="4" style="text-align:left; padding-left: 15px;">🏢 KHỐI: ${item.khoi}</td>
+                <td style="color:#f39c12;">${formatNumber(sumDxKhoi[kId])}</td>
+                <td id="sum_duyet_khoi_${kId}" style="color:#2ecc71;">${formatNumber(sumDuyetKhoi[kId])}</td>
+                <td colspan="2"></td>
+            </tr>`;
+            currentKhoi = kId;
+        }
+        if (currentPhong !== pId) {
+            html += `<tr style="background:#d4efff; font-weight:bold; font-size: 13px;">
+                <td colspan="4" style="text-align:left; padding-left: 30px; color:#0b1f8c;">🏷️ PHÒNG: ${item.phong}</td>
+                <td style="color:#e74c3c;">${formatNumber(sumDxPhong[pId])}</td>
+                <td id="sum_duyet_phong_${pId}" style="color:#0b1f8c;">${formatNumber(sumDuyetPhong[pId])}</td>
+                <td colspan="2"></td>
+            </tr>`;
+            currentPhong = pId;
+        }
+        if (currentDuAn !== dId) {
+            html += `<tr style="background:#f9f9f9; font-weight:bold; font-size: 13px;">
+                <td colspan="4" style="text-align:left; padding-left: 45px; color:#333;">📌 Dự án: ${item.tenDuAn}</td>
+                <td>${formatNumber(sumDxDuAn[dId])}</td>
+                <td id="sum_duyet_duan_${dId}" style="color:#333;">${formatNumber(sumDuyetDuAn[dId])}</td>
+                <td colspan="2"></td>
+            </tr>`;
+            currentDuAn = dId;
+        }
+
+        let rowClass = item.trangThai === 'APPROVED_BY_BLD' ? 'row-approved' : (item.trangThai === 'REJECTED' ? 'row-rejected' : '');
+        let isEditable = (role === 'BLD' || role === 'SUPER_ADMIN');
+        
+        let nsDuyetHtml = isEditable 
+            ? `<input type="text" class="input-budget bld-budget" data-id-dong="${item.idDong}" data-khoi="${kId}" data-phong="${pId}" data-duan="${dId}" value="${formatNumber(item.nsDuyet)}" oninput="formatCurrencyAdmin(this)">`
+            : `<span style="color:var(--danger); font-weight:bold;">${formatNumber(item.nsDuyet)}</span>`;
+            
+        let ghiChuHtml = isEditable
+            ? `<input type="text" class="input-note bld-note" value="${item.ghiChu.replace(/"/g, '&quot;')}">`
+            : `<span style="font-size:12px;">${item.ghiChu}</span>`;
+
+        let btnHtml = '';
+        if (isEditable) {
+            btnHtml += `<button class="btn-action btn-draft" onclick="saveSingleRow(this, '${item.idDong}')">Cập nhật</button>`;
+            if (item.trangThai !== 'APPROVED_BY_BLD') {
+                btnHtml += `<button class="btn-action btn-approve" style="background:#8e44ad;" onclick="approveSingleBLD(this, '${item.idPhieu}')">Duyệt Đơn</button>`;
+            }
+        } else {
+            let grp = getStatusGroup(item.phieuObj, role);
+            if (role === 'MKT') {
+                if (item.trangThai === 'APPROVED_BY_BLD') btnHtml += `<button class="btn-action btn-sendmail" onclick="sendApprovalMail(this, '${item.idPhieu}')">Gửi File Duyệt</button>`;
+            } else if (role === 'TPMKT') {
+                if (item.trangThai === 'APPROVED_BY_BLD') {
+                    btnHtml += `<button class="btn-action btn-sendmail" onclick="sendApprovalMail(this, '${item.idPhieu}')">Gửi File Duyệt</button>`;
+                } else if (grp === 'ACTION') {
+                    btnHtml += `<button class="btn-action btn-approve" onclick="updateStatusOptimistic('${item.idPhieu}', 'PENDING_BLD', this, 'PENDING_BLD')">Duyệt</button>
+                               <button class="btn-action btn-reject" onclick="updateStatusOptimistic('${item.idPhieu}', 'REJECTED', this, 'PENDING_BLD')">Từ Chối</button>`;
+                } else if (grp === 'REJECTED') {
+                    btnHtml += `<button class="btn-action btn-draft" onclick="updateStatusOptimistic('${item.idPhieu}', 'PENDING_BLD', this, 'PENDING_BLD')">Duyệt Lại</button>`;
+                }
+            } else {
+                let nextStatus = '';
+                if (role === 'TPKD') nextStatus = 'PENDING_GDKD';
+                else if (role === 'GDKD' || role === 'GDKD_KIEM_TPKD') nextStatus = 'PENDING_PTGD';
+                else if (role === 'PTGD' || role === 'GDCN') nextStatus = 'PENDING_BLD';
+
+                if (grp === 'ACTION') {
+                    btnHtml += `<button class="btn-action btn-approve" onclick="updateStatusOptimistic('${item.idPhieu}', '${nextStatus}', this, '${nextStatus}')">Duyệt</button>
+                                <button class="btn-action btn-reject" onclick="updateStatusOptimistic('${item.idPhieu}', 'REJECTED', this, '${nextStatus}')">Từ Chối</button>`;
+                } else if (grp === 'REJECTED') {
+                    btnHtml += `<button class="btn-action btn-draft" onclick="updateStatusOptimistic('${item.idPhieu}', '${nextStatus}', this, '${nextStatus}')">Duyệt Lại</button>`;
+                }
+            }
+        }
+
+        let statusText = `<span style="color:var(--warning); font-weight:700;" id="status_${item.idPhieu}">${item.trangThai}</span>`;
+        if (item.trangThai === 'APPROVED_BY_BLD') statusText = `<span style="color:var(--success-green); font-weight:700;" id="status_${item.idPhieu}">ĐÃ DUYỆT</span>`;
+        if (item.trangThai === 'REJECTED') statusText = `<span style="color:var(--danger); font-weight:700;" id="status_${item.idPhieu}">TỪ CHỐI</span>`;
+
+        html += `<tr data-id-dong="${item.idDong}" data-id-phieu="${item.idPhieu}" class="${rowClass}">
             <td><button class="btn-view" onclick="viewDetail('${item.idPhieu}')">👁️</button></td>
-            <td><b>${item.idPhieu}</b></td><td style="color:#0b1f8c; font-weight:800;">${item.tenDuAn}</td><td>${item.khoi}</td><td>${item.phong}</td><td style="text-align:left; font-size:12px; line-height:1.5;">${item.thanhVien}</td>
+            <td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${item.idPhieu}</span></td>
+            <td style="text-align:left; font-size:12px; line-height:1.5;">${item.thanhVien}</td>
+            <td>${statusText}</td>
             <td>${formatNumber(item.nsDeXuat)}</td>
-            <td><input type="text" class="input-budget bld-budget" data-id-dong="${item.idDong}" data-project="${item.tenDuAn}" value="${formatNumber(item.nsDuyet)}" oninput="formatCurrencyAdmin(this)"></td>
-            <td><input type="text" class="input-note bld-note" value="${cleanNote}"></td>
-            <td class="td-actions">${btnUpdate}</td>
+            <td>${nsDuyetHtml}</td>
+            <td>${ghiChuHtml}</td>
+            <td class="td-actions">${btnHtml}</td>
+        </tr>`;
+      });
+
+      if (flatItems.length > 0) {
+          html += `<tr style="background:#333; color:white; font-weight:bold; font-size: 16px;">
+              <td colspan="4" style="text-align:right; padding-right: 20px;">TỔNG CỘNG HỆ THỐNG</td>
+              <td style="color:#f39c12;">${formatNumber(grandDeXuat)}</td>
+              <td id="sum_duyet_grand" style="color:#2ecc71;">${formatNumber(grandDuyet)}</td>
+              <td colspan="2"></td>
           </tr>`;
-        });
-        if(currentProject !== '') html += `<tr class="subtotal-row"><td colspan="6" style="text-align:right;"><b>Tổng cộng ${currentProject}</b></td><td style="color:#0b1f8c;"><b>${formatNumber(projectSubDeXuat)}</b></td><td><input type="text" readonly class="input-budget" id="subtotal_${currentProject}" style="border:none; background:transparent;"></td><td></td><td></td></tr>`;
-        tbAction.innerHTML = html;
-        recalcBLDSummary();
-
       } else {
-        thead.innerHTML = `<th width="5%"></th><th>Mã Phiếu</th><th>Phòng Ban</th><th>Thành Viên</th><th>Dự Án</th><th>Ngân Sách (Được Duyệt)</th><th>Trạng Thái</th><th class="td-actions">Hành Động</th>`;
-        bldActions.style.display = 'none'; sumBlock.style.display = 'none';
-        
-        let htmlAction = ''; let htmlHistory = ''; let htmlRejected = '';
-        globalData.forEach(phieu => {
-          let diffDays = (new Date() - new Date(phieu.ngayCapNhat)) / (1000 * 60 * 60 * 24);
-          if ((role === 'MKT' || role === 'TPMKT' || role === 'BLD' || role === 'SUPER_ADMIN') && diffDays > 15) {
-              if (phieu.trangThai === 'APPROVED_BY_BLD' || phieu.trangThai === 'REJECTED') return;
-          }
-
-          const ct = phieu.chiTiet[0]; let tv = (phieu.thanhVien||"").split(',').join('<br>');
-          let grp = getStatusGroup(phieu, role);
-          let rowClass = grp === 'HISTORY' ? 'row-approved' : (grp === 'REJECTED' ? 'row-rejected' : '');
-          
-          let nsDisplay = formatNumber(ct.nganSachDuyet);
-          if (ct.nganSachDeXuat != ct.nganSachDuyet && ct.nganSachDuyet > 0) {
-            nsDisplay = `<span style="text-decoration:line-through; color:#999; font-size:11px;">${formatNumber(ct.nganSachDeXuat)}</span><br><span style="color:var(--danger); font-weight:800;">${formatNumber(ct.nganSachDuyet)}</span>`;
-          }
-
-          let rowHTML = `<tr id="row_${phieu.idPhieu}" class="${rowClass}">
-            <td><button class="btn-view" onclick="viewDetail('${phieu.idPhieu}')">👁️</button></td>
-            <td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${phieu.idPhieu}</span></td>
-            <td>${phieu.phongKD}</td><td style="text-align:left; font-size:12px;">${tv}</td><td style="color:#0b1f8c; font-weight:800;">${ct.tenDuAn}</td>
-            <td>${nsDisplay}</td>
-            <td class="td-status"><span style="color:var(--warning); font-weight:700;" id="status_${phieu.idPhieu}">${phieu.trangThai}</span></td>
-            <td class="td-actions">`;
-          
-          if (role === 'MKT') {
-            if (phieu.trangThai === 'APPROVED_BY_BLD') rowHTML += `<button class="btn-action btn-sendmail" onclick="sendApprovalMail(this, '${phieu.idPhieu}')">Gửi File Duyệt</button>`;
-          } else if (role === 'TPMKT') {
-            if (phieu.trangThai === 'APPROVED_BY_BLD') {
-              rowHTML += `<button class="btn-action btn-sendmail" onclick="sendApprovalMail(this, '${phieu.idPhieu}')">Gửi File Duyệt</button>`;
-            } else if (grp === 'ACTION') {
-               rowHTML += `<button class="btn-action btn-approve" onclick="updateStatusOptimistic('${phieu.idPhieu}', 'PENDING_BLD', this, 'PENDING_BLD')">Duyệt Lên BLĐ</button>
-                           <button class="btn-action btn-reject" onclick="updateStatusOptimistic('${phieu.idPhieu}', 'REJECTED', this, 'PENDING_BLD')">Từ Chối</button>`;
-            } else if (grp === 'REJECTED') {
-               rowHTML += `<button class="btn-action btn-draft" onclick="updateStatusOptimistic('${phieu.idPhieu}', 'PENDING_BLD', this, 'PENDING_BLD')">Phê Duyệt Lại</button>`;
-            }
-          } else {
-            let nextStatus = '';
-            if (role === 'TPKD') nextStatus = 'PENDING_GDKD';
-            else if (role === 'GDKD' || role === 'GDKD_KIEM_TPKD') nextStatus = 'PENDING_PTGD';
-            else if (role === 'PTGD' || role === 'GDCN') nextStatus = 'PENDING_BLD';
-
-            if (grp === 'ACTION') {
-              rowHTML += `<button class="btn-action btn-approve" onclick="updateStatusOptimistic('${phieu.idPhieu}', '${nextStatus}', this, '${nextStatus}')">Duyệt</button>
-                          <button class="btn-action btn-reject" onclick="updateStatusOptimistic('${phieu.idPhieu}', 'REJECTED', this, '${nextStatus}')">Từ Chối</button>`;
-            } else if (grp === 'REJECTED') {
-              rowHTML += `<button class="btn-action btn-draft" onclick="updateStatusOptimistic('${phieu.idPhieu}', '${nextStatus}', this, '${nextStatus}')">Phê Duyệt Lại</button>`;
-            }
-          }
-          rowHTML += `</td></tr>`;
-
-          if(grp === 'ACTION') htmlAction += rowHTML;
-          else if(grp === 'HISTORY') htmlHistory += rowHTML;
-          else if(grp === 'REJECTED') htmlRejected += rowHTML;
-        });
-        tbAction.innerHTML = htmlAction; tbHistory.innerHTML = htmlHistory; tbRejected.innerHTML = htmlRejected;
+          html += `<tr><td colspan="8">Không có dữ liệu hiển thị</td></tr>`;
       }
+
+      tbAction.innerHTML = html;
+      bldItemsArray = flatItems; 
     }
 
     function renderAdvanceTableByRole(role) {
@@ -1028,21 +1075,13 @@
       tb.innerHTML = html;
     }
 
+    // ĐÃ UPDATE LOGIC RELOAD BẢNG KHI DUYỆT ĐỂ KHÔNG MẤT NẾP CÂY PHÂN CẤP
     function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
       try {
-        const row = btnElement.closest('tr');
-        if(newStatus === 'REJECTED') {
-           document.getElementById('tableBodyRejected').prepend(row); row.className = 'row-rejected';
-           row.querySelector('.td-status').innerHTML = `<span style="color:var(--danger); font-weight:700;">REJECTED</span>`;
-           row.querySelector('.td-actions').innerHTML = `<button class="btn-action btn-draft" onclick="updateStatusOptimistic('${idPhieu}', '${revertStatus}', this, '${revertStatus}')">Phê Duyệt Lại</button>`;
-        } else {
-           document.getElementById('tableBodyHistory').prepend(row); row.className = 'row-approved';
-           row.querySelector('.td-status').innerHTML = `<span style="color:var(--primary-blue); font-weight:700;">${newStatus}</span>`;
-           row.querySelector('.td-actions').innerHTML = ''; 
-        }
-        
         let targetPhieu = globalData.find(p => p.idPhieu === idPhieu);
         if (targetPhieu) targetPhieu.trangThai = newStatus;
+
+        renderTableByRole(currentViewRole);
 
         callAPI("updateStatus", { data: JSON.stringify({ idPhieu: idPhieu, newStatus: newStatus }) }, function(res) { 
           if(!res || !res.success) alert("Lỗi đồng bộ máy chủ!"); 
@@ -1057,21 +1096,13 @@
         let advPercent = percentInput ? parseFloat(percentInput.value) : null;
         if (isNaN(advPercent)) advPercent = 0;
 
-        if(newStatus === 'REJECTED_TU') {
-           row.className = 'row-rejected';
-           row.querySelector('.td-status-tu').innerHTML = `<span style="color:var(--danger); font-weight:700;">REJECTED_TU</span>`;
-           row.querySelector('.td-actions-tu').innerHTML = `<button class="btn-action btn-draft" onclick="updateStatusTUOptimistic('${idPhieu}', '${newStatus === 'REJECTED_TU' && currentViewRole==='TPMKT' ? 'PENDING_BLD_TU' : 'APPROVED_TU'}', this)">Phê Duyệt Lại</button>`;
-        } else {
-           row.className = 'row-approved';
-           row.querySelector('.td-status-tu').innerHTML = `<span style="color:var(--primary-blue); font-weight:700;">${newStatus}</span>`;
-           row.querySelector('.td-actions-tu').innerHTML = `<button class="btn-action btn-draft" onclick="saveAdvPercent('${idPhieu}', this)">Cập nhật %</button>`; 
-        }
-        
         let targetPhieu = globalData.find(p => p.idPhieu === idPhieu);
         if (targetPhieu) {
             targetPhieu.trangThaiTU = newStatus;
             if (percentInput) targetPhieu.advPercent = advPercent;
         }
+
+        renderAdvanceTableByRole(currentViewRole);
 
         let payload = { idPhieu: idPhieu, newStatus: newStatus };
         if (percentInput) payload.advPercent = advPercent;
@@ -1239,20 +1270,20 @@
             <title>${title}</title>
             <style>
               @page { size: A4 ${orientation}; margin: ${orientation === 'landscape' ? '12mm 15mm 15mm 15mm' : '12mm 15mm 35mm 15mm'}; }
-              body { font-family: 'Times New Roman', Times, serif !important; font-size: ${orientation === 'landscape' ? '12pt' : '11pt'}; padding: 0; margin: 0; color: #000 !important; }
-              .rounded-wrapper { border: 1.5px solid #000; border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
-              .styled-table { width: 100%; border-collapse: collapse; font-size: ${orientation === 'landscape' ? '12pt' : '11pt'}; }
-              .styled-table th, .styled-table td { border: 1px solid #000; padding: 4px; text-align: center; vertical-align: middle; line-height: 1.3; }
+              body { font-family: 'Times New Roman', Times, serif !important; font-size: 12pt; padding: 0; margin: 0; color: #000 !important; }
+              .rounded-wrapper { border: 1.5px solid #000; border-radius: 12px; overflow: hidden; margin-bottom: 25px; }
+              .styled-table { width: 100%; border-collapse: collapse; font-size: 12pt; }
+              .styled-table th, .styled-table td { border: 1px solid #000; padding: 6px; text-align: center; vertical-align: middle; line-height: 1.3; }
               .styled-table tr:first-child th { border-top: none; }
               .styled-table tr:last-child td { border-bottom: none; }
               .styled-table tr th:first-child, .styled-table tr td:first-child { border-left: none; }
               .styled-table tr th:last-child, .styled-table tr td:last-child { border-right: none; }
               .no-border td { border: none !important; padding: 2px; text-align: center; }
-              .signature { display: inline-block; border-radius: 12px; padding: 3px 8px; color: #0b1f8c; border: 1px solid #0b1f8c; font-size: 9pt; font-weight: bold; margin-top: 5px; }
+              .signature { display: inline-block; border-radius: 12px; padding: 4px 8px; color: #0b1f8c; border: 1px solid #0b1f8c; font-size: 10pt; font-weight: bold; margin-top: 15px; }
               .form-table { width: 100%; font-size: 12pt; border-collapse: separate; border-spacing: 0 10px; margin-bottom: 20px; }
               .form-table td { padding: 0; vertical-align: bottom; }
               .form-label { white-space: nowrap; font-weight: bold; text-align: left; }
-              .form-dots { border-bottom: 1.5px dotted #000; text-align: center; padding: 0 10px; font-weight: normal; }
+              .form-dots { border-bottom: 2px dotted #000; text-align: center; padding: 0 10px; font-weight: normal; }
               .page-break { page-break-after: always !important; }
               * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; box-sizing: border-box !important; }
             </style>
@@ -1286,6 +1317,7 @@
 
         filteredData.forEach((phieu, i) => {
           let tongTien = 0; let rowsHtml = '';
+          
           let tk = phieu.phongKD.split('-');
           let phong = tk[0] ? tk[0].trim() : '';
           let khoi = tk[1] ? tk[1].trim() : '';
