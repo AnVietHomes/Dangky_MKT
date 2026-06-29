@@ -151,20 +151,17 @@
         </div>
       </div>
 
-      <!-- BẢNG TỔNG HỢP TÁCH RIÊNG (SẼ HIỂN THỊ KHI CÓ DATA) -->
       <div id="topSummaryBlocks" style="display: none; gap: 20px; margin-bottom: 25px; flex-wrap: wrap;">
         <div style="flex: 1; min-width: 300px; background: #fff; border: 1px solid var(--primary-blue); border-radius: 8px; overflow: hidden;">
           <div style="background: var(--primary-blue); color: white; padding: 12px; font-weight: bold; text-align: center; text-transform: uppercase; font-size: 14px;">Tổng Hợp Theo Khối</div>
-          <table class="summary-table" style="margin-bottom: 0;">
-            <thead><tr><th style="text-align: left; background: #f4f6f8; color: #333;">Khối</th><th style="background: #f4f6f8; color: #333;">Đề Xuất</th><th style="background: #f4f6f8; color: #333;">Phê Duyệt</th></tr></thead>
-            <tbody id="tbodySumKhoi"></tbody>
+          <table id="tableSumKhoi" class="summary-table" style="margin-bottom: 0;">
+            <thead></thead><tbody id="tbodySumKhoi"></tbody>
           </table>
         </div>
         <div style="flex: 1; min-width: 300px; background: #fff; border: 1px solid var(--primary-blue); border-radius: 8px; overflow: hidden;">
           <div style="background: var(--primary-blue); color: white; padding: 12px; font-weight: bold; text-align: center; text-transform: uppercase; font-size: 14px;">Tổng Hợp Theo Dự Án</div>
-          <table class="summary-table" style="margin-bottom: 0;">
-            <thead><tr><th style="text-align: left; background: #f4f6f8; color: #333;">Dự Án</th><th style="background: #f4f6f8; color: #333;">Đề Xuất</th><th style="background: #f4f6f8; color: #333;">Phê Duyệt</th></tr></thead>
-            <tbody id="tbodySumDuAn"></tbody>
+          <table id="tableSumDuAn" class="summary-table" style="margin-bottom: 0;">
+            <thead></thead><tbody id="tbodySumDuAn"></tbody>
           </table>
         </div>
       </div>
@@ -462,7 +459,6 @@
       });
     }
 
-    // TỔNG HỢP BÁO CÁO TAB 3
     function renderReport() {
       let month = document.getElementById('reportMonth').value;
       if(!month) return;
@@ -525,7 +521,7 @@
           }
           currentKhoi = item.khoi; khoiBudget = 0; khoiAdvance = 0;
           html += `<tr style="background:#0b1f8c; color:white; font-weight:bold; text-transform:uppercase;">
-                     <td colspan="8" style="text-align:left; padding:10px 15px;">🏢 KHỐI: ${currentKhoi}</td>
+                     <td colspan="8" style="text-align:center; padding:10px 15px;">🏢 KHỐI: ${currentKhoi}</td>
                    </tr>`;
         }
 
@@ -592,20 +588,16 @@
       try {
         let month = document.getElementById('reportMonth').value;
         if(!month) { alert("Vui lòng chọn tháng muốn tải báo cáo!"); return; }
-        
         let mDisplay = month.split('-')[1] + '/' + month.split('-')[0];
         
         let totalBudget = 0; let totalAdvance = 0; 
-        let projectSummary = {}; 
-        let itemsByProject = {}; 
+        let projectSummary = {}; let itemsByProject = {}; 
 
         globalData.forEach(phieu => {
           if (!phieu.ngayTao || !phieu.ngayTao.includes(month)) return;
           if (phieu.trangThai !== 'APPROVED_BY_BLD') return;
 
-          let tk = phieu.phongKD.split('-');
-          let phong = tk[0] ? tk[0].trim() : '';
-          let khoi = tk[1] ? tk[1].trim() : 'Chưa phân khối';
+          let tk = phieu.phongKD.split('-'); let phong = tk[0] ? tk[0].trim() : ''; let khoi = tk[1] ? tk[1].trim() : 'Chưa phân khối';
 
           phieu.chiTiet.forEach(ct => {
             let liveInput = document.querySelector(`.bld-budget[data-id-dong="${ct.idDong}"]`);
@@ -613,7 +605,6 @@
 
             if (finalBudget <= 0) return;
             let itemAdvance = Math.round(finalBudget * Number(phieu.advPercent) / 100);
-            
             let prj = ct.tenDuAn.trim();
 
             let itemObj = {
@@ -637,159 +628,45 @@
 
         let excelHtml = `
         <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-        <head>
-          <meta charset="utf-8">
-          <style>
-            table { border-collapse: collapse; }
-            th, td { font-size: 14pt; font-family: 'Times New Roman', serif; vertical-align: middle; padding: 5px; border: 0.5pt solid #000000; }
-            .bg-head { background-color: #0b1f8c; color: #ffffff; font-weight: bold; text-align: center; }
-            .bg-total { background-color: #e8f4fc; font-weight: bold; color: #c00000; text-align: right; }
-            .bg-prj { background-color: #d4efff; font-weight: bold; color: #0b1f8c; text-align: left; font-size: 15pt; border: none; }
-            .num { text-align: right; }
-            .center { text-align: center; }
-            .left { text-align: left; }
-            .bold { font-weight: bold; }
-            .no-border { border: none !important; }
-          </style>
-        </head>
-        <body>
-          <h2>BÁO CÁO TỔNG HỢP CHIẾN DỊCH MARKETING THÁNG ${mDisplay}</h2>
-          <table style="border:none;">
-            <tr><td colspan="4" class="bold left no-border">Tổng ngân sách được duyệt:</td><td colspan="6" class="num bold no-border">${formatNumber(totalBudget)} VNĐ</td></tr>
-            <tr><td colspan="4" class="bold left no-border">Tổng tiền đã tạm ứng đầu kỳ:</td><td colspan="6" class="num bold no-border">${formatNumber(totalAdvance)} VNĐ</td></tr>
-          </table>
-          <br>
-          
-          <table style="width: auto;">
-            <thead>
-              <tr><td colspan="4" class="bold left no-border" style="font-size: 15pt;">BẢNG TỔNG HỢP NGÂN SÁCH THEO DỰ ÁN</td></tr>
-              <tr>
-                <th class="bg-head" style="width: 50px;">STT</th>
-                <th class="bg-head" style="width: 250px;">Dự Án</th>
-                <th class="bg-head" style="width: 200px;">Tổng Ngân Sách</th>
-                <th class="bg-head" style="width: 200px;">Tổng Tạm Ứng</th>
-              </tr>
-            </thead>
-            <tbody>
+        <head><meta charset="utf-8"><style>table { border-collapse: collapse; } th, td { font-size: 14pt; font-family: 'Times New Roman', serif; vertical-align: middle; padding: 5px; border: 0.5pt solid #000000; } .bg-head { background-color: #0b1f8c; color: #ffffff; font-weight: bold; text-align: center; } .bg-total { background-color: #e8f4fc; font-weight: bold; color: #c00000; text-align: right; } .bg-prj { background-color: #d4efff; font-weight: bold; color: #0b1f8c; text-align: left; font-size: 15pt; border: none; } .num { text-align: right; } .center { text-align: center; } .left { text-align: left; } .bold { font-weight: bold; } .no-border { border: none !important; }</style></head>
+        <body><h2>BÁO CÁO TỔNG HỢP CHIẾN DỊCH MARKETING THÁNG ${mDisplay}</h2>
+          <table style="border:none;"><tr><td colspan="4" class="bold left no-border">Tổng ngân sách được duyệt:</td><td colspan="6" class="num bold no-border">${formatNumber(totalBudget)} VNĐ</td></tr><tr><td colspan="4" class="bold left no-border">Tổng tiền đã tạm ứng đầu kỳ:</td><td colspan="6" class="num bold no-border">${formatNumber(totalAdvance)} VNĐ</td></tr></table><br>
+          <table style="width: auto;"><thead><tr><td colspan="4" class="bold left no-border" style="font-size: 15pt;">BẢNG TỔNG HỢP NGÂN SÁCH THEO DỰ ÁN</td></tr><tr><th class="bg-head" style="width: 50px;">STT</th><th class="bg-head" style="width: 250px;">Dự Án</th><th class="bg-head" style="width: 200px;">Tổng Ngân Sách</th><th class="bg-head" style="width: 200px;">Tổng Tạm Ứng</th></tr></thead><tbody>
         `;
 
-        let prjStt = 1;
-        let sortedProjects = Object.keys(projectSummary).sort();
+        let prjStt = 1; let sortedProjects = Object.keys(projectSummary).sort();
         sortedProjects.forEach(prj => {
-           excelHtml += `
-              <tr>
-                <td class="center">${prjStt++}</td>
-                <td class="bold left">${prj}</td>
-                <td class="num">${formatNumber(projectSummary[prj].nganSach)}</td>
-                <td class="num">${formatNumber(projectSummary[prj].tamUng)}</td>
-              </tr>
-           `;
+           excelHtml += `<tr><td class="center">${prjStt++}</td><td class="bold left">${prj}</td><td class="num">${formatNumber(projectSummary[prj].nganSach)}</td><td class="num">${formatNumber(projectSummary[prj].tamUng)}</td></tr>`;
         });
 
-        excelHtml += `
-              <tr>
-                <td colspan="2" class="bg-total center">TỔNG CỘNG</td>
-                <td class="bg-total num">${formatNumber(totalBudget)}</td>
-                <td class="bg-total num">${formatNumber(totalAdvance)}</td>
-              </tr>
-            </tbody>
-          </table>
-          <br>
-          <div class="bold left" style="font-size: 15pt; margin-bottom: 5px;">CHI TIẾT ĐĂNG KÝ THEO TỪNG DỰ ÁN</div>
-        `;
+        excelHtml += `<tr><td colspan="2" class="bg-total center">TỔNG CỘNG</td><td class="bg-total num">${formatNumber(totalBudget)}</td><td class="bg-total num">${formatNumber(totalAdvance)}</td></tr></tbody></table><br><div class="bold left" style="font-size: 15pt; margin-bottom: 5px;">CHI TIẾT ĐĂNG KÝ THEO TỪNG DỰ ÁN</div>`;
 
         sortedProjects.forEach(prj => {
           let items = itemsByProject[prj];
-          
-          items.sort((a, b) => {
-            if (a.khoi !== b.khoi) return a.khoi.localeCompare(b.khoi);
-            if (a.phong !== b.phong) return a.phong.localeCompare(b.phong);
-            return (a.tenNhom||"").localeCompare(b.tenNhom||"");
-          });
+          items.sort((a, b) => { if (a.khoi !== b.khoi) return a.khoi.localeCompare(b.khoi); if (a.phong !== b.phong) return a.phong.localeCompare(b.phong); return (a.tenNhom||"").localeCompare(b.tenNhom||""); });
 
-          excelHtml += `
-          <table>
-            <thead>
-              <tr>
-                <td colspan="10" class="bg-prj no-border">DỰ ÁN: ${prj.toUpperCase()}</td>
-              </tr>
-              <tr>
-                <th class="bg-head">STT</th>
-                <th class="bg-head">Mã Phiếu</th>
-                <th class="bg-head">Tên Nhóm</th>
-                <th class="bg-head">Thành Viên</th>
-                <th class="bg-head">Phòng</th>
-                <th class="bg-head">Khối</th>
-                <th class="bg-head">Dự Án</th>
-                <th class="bg-head">Ngân Sách (BLĐ Duyệt)</th>
-                <th class="bg-head">Tạm Ứng Đầu Kỳ</th>
-                <th class="bg-head">Trạng Thái</th>
-              </tr>
-            </thead>
-            <tbody>
-          `;
-
-          let itemStt = 1;
-          let sumPrjNganSach = 0;
-          let sumPrjTamUng = 0;
+          excelHtml += `<table><thead><tr><td colspan="10" class="bg-prj no-border">DỰ ÁN: ${prj.toUpperCase()}</td></tr><tr><th class="bg-head">STT</th><th class="bg-head">Mã Phiếu</th><th class="bg-head">Tên Nhóm</th><th class="bg-head">Thành Viên</th><th class="bg-head">Phòng</th><th class="bg-head">Khối</th><th class="bg-head">Dự Án</th><th class="bg-head">Ngân Sách (BLĐ Duyệt)</th><th class="bg-head">Tạm Ứng Đầu Kỳ</th><th class="bg-head">Trạng Thái</th></tr></thead><tbody>`;
+          let itemStt = 1; let sumPrjNganSach = 0; let sumPrjTamUng = 0;
 
           items.forEach(item => {
             sumPrjNganSach += item.nganSach;
             let isAppr = (item.trangThaiTU === 'APPROVED_TU');
-            
             if (isAppr) sumPrjTamUng += item.tamUng;
             
             let excelMembers = (item.thanhVien || "").replace(/,/g, '<br style="mso-data-placement:same-cell;">');
-
-            let trangThaiText = '';
-            if (isAppr) trangThaiText = 'Đã duyệt Tạm ứng';
-            else if (item.trangThaiTU === 'REJECTED_TU') trangThaiText = 'Tạm ứng bị từ chối';
-            else trangThaiText = 'Chưa duyệt tạm ứng';
-
+            let trangThaiText = isAppr ? 'Đã duyệt Tạm ứng' : (item.trangThaiTU === 'REJECTED_TU' ? 'Tạm ứng bị từ chối' : 'Chưa duyệt tạm ứng');
             let bgClass = isAppr ? '' : ' style="background-color: #ffebee;"';
 
-            excelHtml += `<tr>
-              <td class="center">${itemStt++}</td>
-              <td class="center bold">${item.idPhieu}</td>
-              <td class="center bold">${item.tenNhom}</td>
-              <td class="left">${excelMembers}</td>
-              <td class="center">${item.phong}</td>
-              <td class="center">${item.khoi}</td>
-              <td class="center bold">${item.tenDuAn}</td>
-              <td class="num">${formatNumber(item.nganSach)}</td>
-              <td class="num"${bgClass}>${formatNumber(item.tamUng)}</td>
-              <td class="center bold"${bgClass}>${trangThaiText}</td>
-            </tr>`;
+            excelHtml += `<tr><td class="center">${itemStt++}</td><td class="center bold">${item.idPhieu}</td><td class="center bold">${item.tenNhom}</td><td class="left">${excelMembers}</td><td class="center">${item.phong}</td><td class="center">${item.khoi}</td><td class="center bold">${item.tenDuAn}</td><td class="num">${formatNumber(item.nganSach)}</td><td class="num"${bgClass}>${formatNumber(item.tamUng)}</td><td class="center bold"${bgClass}>${trangThaiText}</td></tr>`;
           });
-
-          excelHtml += `
-              <tr>
-                <td colspan="7" class="bg-total center">TỔNG CỘNG ${prj.toUpperCase()}</td>
-                <td class="bg-total num">${formatNumber(sumPrjNganSach)}</td>
-                <td class="bg-total num">${formatNumber(sumPrjTamUng)}</td>
-                <td class="bg-total"></td>
-              </tr>
-            </tbody>
-          </table>
-          <br>
-          `;
+          excelHtml += `<tr><td colspan="7" class="bg-total center">TỔNG CỘNG ${prj.toUpperCase()}</td><td class="bg-total num">${formatNumber(sumPrjNganSach)}</td><td class="bg-total num">${formatNumber(sumPrjTamUng)}</td><td class="bg-total"></td></tr></tbody></table><br>`;
         });
 
-        excelHtml += `
-        </body>
-        </html>`;
-
+        excelHtml += `</body></html>`;
         let blob = new Blob(["\uFEFF" + excelHtml], { type: "application/vnd.ms-excel;charset=utf-8" });
-        let url = URL.createObjectURL(blob);
-        let a = document.createElement("a");
-        a.href = url;
-        a.download = "Bao_Cao_MKT_AnVietHomes_" + mDisplay.replace('/','_') + ".xls";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      } catch(e) {
-        alert("Có lỗi khi xuất Excel: " + e.message);
-      }
+        let url = URL.createObjectURL(blob); let a = document.createElement("a"); a.href = url; a.download = "Bao_Cao_MKT_AnVietHomes_" + mDisplay.replace('/','_') + ".xls";
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      } catch(e) { alert("Có lỗi khi xuất Excel: " + e.message); }
     }
 
     function recalcAdvanceRow(input, totalDuyet) {
@@ -797,71 +674,75 @@
         let percent = parseFloat(input.value) || 0;
         let newAdvAmount = Math.round(totalDuyet * percent / 100);
         let amtCell = tr.querySelector('.td-adv-amount');
-        if (amtCell) {
-            amtCell.innerText = formatNumber(newAdvAmount);
-        }
+        if (amtCell) amtCell.innerText = formatNumber(newAdvAmount);
     }
 
-    // TÍNH TOÁN REAL-TIME CHO CÁC BẢNG TỔNG HỢP Ở TRÊN VÀ DƯỚI
+    // UPDATE BẢNG TỔNG HỢP REAL-TIME KHỚP VỚI YÊU CẦU MỚI
     function recalcBLDSummary() {
-      let sumDxKhoi = {}, sumDuyetKhoi = {}, sumDxDuAn = {}, sumDuyetDuAn = {};
+      let isBLD = (currentViewRole === 'BLD' || currentViewRole === 'SUPER_ADMIN');
+      let isMKT = (currentViewRole === 'MKT' || currentViewRole === 'TPMKT');
+      let isPTGD = (currentViewRole === 'PTGD' || currentViewRole === 'GDCN');
+      let isKD = (currentViewRole === 'TPKD' || currentViewRole === 'GDKD' || currentViewRole === 'GDKD_KIEM_TPKD');
+
+      let sumDxKhoi = {}, sumDuyetKhoi = {}, sumAdvKhoi = {};
+      let sumDxDuAn = {}, sumDuyetDuAn = {}, sumAdvDuAn = {};
       let inlineSumDuyetKhoi = {}, inlineSumDuyetPhong = {}, inlineSumDuyetDuAn = {};
-      let grandDeXuat = 0, grandDuyet = 0;
+      let grandDeXuat = 0, grandDuyet = 0, grandAdv = 0;
       let safeId = str => btoa(unescape(encodeURIComponent(str))).replace(/[^a-zA-Z0-9]/g, '');
 
       bldItemsArray.forEach(item => {
         let input = document.querySelector(`.bld-budget[data-id-dong="${item.idDong}"]`);
         if (input) item.nsDuyet = parseNumber(input.value);
 
-        let kId = safeId(item.khoi); 
-        let pId = safeId(item.khoi + '|' + item.phong); 
-        let dId = safeId(item.khoi + '|' + item.phong + '|' + item.tenDuAn);
-        let kName = item.khoi;
-        let dName = item.tenDuAn;
+        let kId = safeId(item.khoi); let pId = safeId(item.khoi + '|' + item.phong); let dId = safeId(item.khoi + '|' + item.phong + '|' + item.tenDuAn);
+        let kName = item.khoi; let dName = item.tenDuAn;
+        let advAmount = Math.round(item.nsDeXuat * (item.phieuObj.advPercent || 0) / 100);
 
-        // Cho bảng Top Summary
-        if(!sumDxKhoi[kName]) sumDxKhoi[kName] = 0;
-        if(!sumDuyetKhoi[kName]) sumDuyetKhoi[kName] = 0;
-        sumDxKhoi[kName] += item.nsDeXuat;
-        sumDuyetKhoi[kName] += item.nsDuyet;
-
-        if(!sumDxDuAn[dName]) sumDxDuAn[dName] = 0;
-        if(!sumDuyetDuAn[dName]) sumDuyetDuAn[dName] = 0;
-        sumDxDuAn[dName] += item.nsDeXuat;
-        sumDuyetDuAn[dName] += item.nsDuyet;
-
-        // Cho Inline Table
-        inlineSumDuyetKhoi[kId] = (inlineSumDuyetKhoi[kId] || 0) + item.nsDuyet;
-        inlineSumDuyetPhong[pId] = (inlineSumDuyetPhong[pId] || 0) + item.nsDuyet;
-        inlineSumDuyetDuAn[dId] = (inlineSumDuyetDuAn[dId] || 0) + item.nsDuyet;
-        grandDeXuat += item.nsDeXuat;
-        grandDuyet += item.nsDuyet;
+        sumDxKhoi[kName] = (sumDxKhoi[kName] || 0) + item.nsDeXuat; sumDuyetKhoi[kName] = (sumDuyetKhoi[kName] || 0) + item.nsDuyet; sumAdvKhoi[kName] = (sumAdvKhoi[kName] || 0) + advAmount;
+        sumDxDuAn[dName] = (sumDxDuAn[dName] || 0) + item.nsDeXuat; sumDuyetDuAn[dName] = (sumDuyetDuAn[dName] || 0) + item.nsDuyet; sumAdvDuAn[dName] = (sumAdvDuAn[dName] || 0) + advAmount;
+        
+        inlineSumDuyetKhoi[kId] = (inlineSumDuyetKhoi[kId] || 0) + item.nsDuyet; inlineSumDuyetPhong[pId] = (inlineSumDuyetPhong[pId] || 0) + item.nsDuyet; inlineSumDuyetDuAn[dId] = (inlineSumDuyetDuAn[dId] || 0) + item.nsDuyet;
+        grandDeXuat += item.nsDeXuat; grandDuyet += item.nsDuyet; grandAdv += advAmount;
       });
 
-      // Update Top Summary Khối
-      let htmlKhoi = ''; let gDxKhoi = 0, gDyKhoi = 0;
+      let col2Name = isPTGD ? "Tạm Ứng" : ((isBLD||isMKT) ? "Phê Duyệt" : "");
+      
+      let theadKhoi = `<tr><th style="text-align: left; background: #f4f6f8; color: #333;">Khối</th><th style="background: #f4f6f8; color: #333;">Đề Xuất</th>${col2Name ? `<th style="background: #f4f6f8; color: #333;">${col2Name}</th>` : ''}</tr>`;
+      let htmlKhoi = ''; let gDxKhoi = 0, gDyKhoi = 0, gAdvKhoi = 0;
       Object.keys(sumDxKhoi).sort().forEach(k => {
-         htmlKhoi += `<tr><td style="text-align:left; font-weight:bold;">${k}</td><td style="color:var(--danger);">${formatNumber(sumDxKhoi[k])}</td><td style="color:var(--primary-blue); font-weight:800;">${formatNumber(sumDuyetKhoi[k])}</td></tr>`;
-         gDxKhoi += sumDxKhoi[k]; gDyKhoi += sumDuyetKhoi[k];
+         htmlKhoi += `<tr><td style="text-align:left; font-weight:bold;">${k}</td><td style="color:var(--danger);">${formatNumber(sumDxKhoi[k])}</td>`;
+         if (isPTGD) htmlKhoi += `<td style="color:var(--success-green); font-weight:800;">${formatNumber(sumAdvKhoi[k])}</td>`;
+         else if (isBLD || isMKT) htmlKhoi += `<td style="color:var(--primary-blue); font-weight:800;">${formatNumber(sumDuyetKhoi[k])}</td>`;
+         htmlKhoi += `</tr>`;
+         gDxKhoi += sumDxKhoi[k]; gDyKhoi += sumDuyetKhoi[k]; gAdvKhoi += sumAdvKhoi[k];
       });
-      htmlKhoi += `<tr style="background:#fffaf0;"><td style="text-align:right; font-weight:bold;">TỔNG CỘNG</td><td style="color:var(--danger); font-weight:bold;">${formatNumber(gDxKhoi)}</td><td style="color:var(--primary-blue); font-weight:900;">${formatNumber(gDyKhoi)}</td></tr>`;
-      let tbK = document.getElementById('tbodySumKhoi'); if(tbK) tbK.innerHTML = htmlKhoi;
+      htmlKhoi += `<tr style="background:#fffaf0;"><td style="text-align:right; font-weight:bold;">TỔNG CỘNG</td><td style="color:var(--danger); font-weight:bold;">${formatNumber(gDxKhoi)}</td>`;
+      if (isPTGD) htmlKhoi += `<td style="color:var(--success-green); font-weight:900;">${formatNumber(gAdvKhoi)}</td>`;
+      else if (isBLD || isMKT) htmlKhoi += `<td style="color:var(--primary-blue); font-weight:900;">${formatNumber(gDyKhoi)}</td>`;
+      htmlKhoi += `</tr>`;
+      document.querySelector('#tableSumKhoi thead').innerHTML = theadKhoi; document.querySelector('#tableSumKhoi tbody').innerHTML = htmlKhoi;
 
-      // Update Top Summary Dự án
-      let htmlDuAn = ''; let gDxDa = 0, gDyDa = 0;
+      let theadDuan = `<tr><th style="text-align: left; background: #f4f6f8; color: #333;">Dự Án</th><th style="background: #f4f6f8; color: #333;">Đề Xuất</th>${col2Name ? `<th style="background: #f4f6f8; color: #333;">${col2Name}</th>` : ''}</tr>`;
+      let htmlDuAn = ''; let gDxDa = 0, gDyDa = 0, gAdvDa = 0;
       Object.keys(sumDxDuAn).sort().forEach(d => {
-         htmlDuAn += `<tr><td style="text-align:left; font-weight:bold;">${d}</td><td style="color:var(--danger);">${formatNumber(sumDxDuAn[d])}</td><td style="color:var(--primary-blue); font-weight:800;">${formatNumber(sumDuyetDuAn[d])}</td></tr>`;
-         gDxDa += sumDxDuAn[d]; gDyDa += sumDuyetDuAn[d];
+         htmlDuAn += `<tr><td style="text-align:left; font-weight:bold;">${d}</td><td style="color:var(--danger);">${formatNumber(sumDxDuAn[d])}</td>`;
+         if (isPTGD) htmlDuAn += `<td style="color:var(--success-green); font-weight:800;">${formatNumber(sumAdvDuAn[d])}</td>`;
+         else if (isBLD || isMKT) htmlDuAn += `<td style="color:var(--primary-blue); font-weight:800;">${formatNumber(sumDuyetDuAn[d])}</td>`;
+         htmlDuAn += `</tr>`;
+         gDxDa += sumDxDuAn[d]; gDyDa += sumDuyetDuAn[d]; gAdvDa += sumAdvDuAn[d];
       });
-      htmlDuAn += `<tr style="background:#fffaf0;"><td style="text-align:right; font-weight:bold;">TỔNG CỘNG</td><td style="color:var(--danger); font-weight:bold;">${formatNumber(gDxDa)}</td><td style="color:var(--primary-blue); font-weight:900;">${formatNumber(gDyDa)}</td></tr>`;
-      let tbD = document.getElementById('tbodySumDuAn'); if(tbD) tbD.innerHTML = htmlDuAn;
+      htmlDuAn += `<tr style="background:#fffaf0;"><td style="text-align:right; font-weight:bold;">TỔNG CỘNG</td><td style="color:var(--danger); font-weight:bold;">${formatNumber(gDxDa)}</td>`;
+      if (isPTGD) htmlDuAn += `<td style="color:var(--success-green); font-weight:900;">${formatNumber(gAdvDa)}</td>`;
+      else if (isBLD || isMKT) htmlDuAn += `<td style="color:var(--primary-blue); font-weight:900;">${formatNumber(gDyDa)}</td>`;
+      htmlDuAn += `</tr>`;
+      document.querySelector('#tableSumDuAn thead').innerHTML = theadDuan; document.querySelector('#tableSumDuAn tbody').innerHTML = htmlDuAn;
 
-      // Update Inline Hierarchy Text
-      for(let k in inlineSumDuyetKhoi) { let el = document.getElementById('sum_duyet_khoi_' + k); if(el) el.innerText = formatNumber(inlineSumDuyetKhoi[k]); }
-      for(let p in inlineSumDuyetPhong) { let el = document.getElementById('sum_duyet_phong_' + p); if(el) el.innerText = formatNumber(inlineSumDuyetPhong[p]); }
-      for(let d in inlineSumDuyetDuAn) { let el = document.getElementById('sum_duyet_duan_' + d); if(el) el.innerText = formatNumber(inlineSumDuyetDuAn[d]); }
-      let grandEl = document.getElementById('sum_duyet_grand'); if(grandEl) grandEl.innerText = formatNumber(grandDuyet);
-
+      if(isBLD || isMKT) {
+          for(let k in inlineSumDuyetKhoi) { let el = document.getElementById('sum_duyet_khoi_' + k); if(el) el.innerText = formatNumber(inlineSumDuyetKhoi[k]); }
+          for(let p in inlineSumDuyetPhong) { let el = document.getElementById('sum_duyet_phong_' + p); if(el) el.innerText = formatNumber(inlineSumDuyetPhong[p]); }
+          for(let d in inlineSumDuyetDuAn) { let el = document.getElementById('sum_duyet_duan_' + d); if(el) el.innerText = formatNumber(inlineSumDuyetDuAn[d]); }
+          let grandEl = document.getElementById('sum_duyet_grand'); if(grandEl) grandEl.innerText = formatNumber(grandDuyet);
+      }
       renderAdvanceTableByRole(currentViewRole);
     }
 
@@ -889,7 +770,7 @@
       return 'HISTORY';
     }
 
-    // BẢNG DUYỆT ĐỀ XUẤT (TAB 1) - HIERARCHICAL TREE VÀ THÊM CỘT PHÒNG KHỐI
+    // UPDATE BẢNG HIỂN THỊ PHÂN QUYỀN VÀ CẤU TRÚC HTML THEO CHỨC VỤ
     function renderTableByRole(role) {
       const thead = document.getElementById('tableHeader'); 
       const tbAction = document.getElementById('tableBodyAction'); 
@@ -897,11 +778,17 @@
       const expBlock = document.getElementById('exportBlock'); 
       const mktBlock = document.getElementById('mktToolbar');
       
+      let isBLD = (role === 'BLD' || role === 'SUPER_ADMIN');
+      let isMKT = (role === 'MKT' || role === 'TPMKT');
+      let isPTGD = (role === 'PTGD' || role === 'GDCN');
+      let isKD = (role === 'TPKD' || role === 'GDKD' || role === 'GDKD_KIEM_TPKD');
+      let isHighLevel = (isBLD || isMKT || isPTGD);
+
       tbAction.innerHTML = '';
-      if (role === 'MKT' || role === 'TPMKT') { mktBlock.style.display = 'flex'; } else { mktBlock.style.display = 'none'; }
-      if (role === 'MKT' || role === 'TPMKT' || role === 'BLD' || role === 'SUPER_ADMIN') { 
+      if (isMKT) { mktBlock.style.display = 'flex'; } else { mktBlock.style.display = 'none'; }
+      if (isHighLevel) { 
           expBlock.style.display = 'flex'; 
-          document.getElementById('topSummaryBlocks').style.display = 'flex'; // Hiển thị 2 bảng tổng hợp trên đầu
+          document.getElementById('topSummaryBlocks').style.display = 'flex';
       } else { 
           expBlock.style.display = 'none'; 
           document.getElementById('topSummaryBlocks').style.display = 'none';
@@ -913,7 +800,7 @@
         let tv = (phieu.thanhVien||"").split(',').join('<br>');
         
         let diffDays = (new Date() - new Date(phieu.ngayCapNhat)) / (1000 * 60 * 60 * 24);
-        if ((role === 'MKT' || role === 'TPMKT' || role === 'BLD' || role === 'SUPER_ADMIN') && diffDays > 15) {
+        if (isHighLevel && diffDays > 15) {
             if (phieu.trangThai === 'APPROVED_BY_BLD' || phieu.trangThai === 'REJECTED') return;
         }
 
@@ -932,98 +819,94 @@
           return a.tenDuAn.localeCompare(b.tenDuAn); 
       });
 
-      // Bổ sung thêm cột Phòng / Khối
-      thead.innerHTML = `<th width="4%"></th><th>Mã Phiếu</th><th>Phòng / Khối</th><th>Thành Viên</th><th>Trạng Thái</th><th>Ngân Sách Đề Xuất</th><th>BLĐ Duyệt Thực Tế</th><th>Ghi Chú</th><th class="td-actions">Hành Động</th>`;
-      bldActions.style.display = (role === 'BLD' || role === 'SUPER_ADMIN') ? 'flex' : 'none'; 
+      let thHtml = `<th width="4%"></th>`;
+      if (isKD) thHtml += `<th width="5%">Nhóm Sale Mới</th>`;
+      thHtml += `<th>Mã Phiếu</th><th>Phòng / Khối</th><th>Thành Viên</th><th>Trạng Thái</th><th>Ngân Sách Đề Xuất</th>`;
+      
+      if (isPTGD) { thHtml += `<th>Tỷ Lệ T.Ư</th><th>Tạm Ứng Đầu Kỳ</th>`; } 
+      else if (isBLD || isMKT) { thHtml += `<th>BLĐ Duyệt Thực Tế</th><th>Ghi Chú</th>`; } 
+      
+      thHtml += `<th class="td-actions">Hành Động</th>`;
+      thead.innerHTML = thHtml;
+      
+      bldActions.style.display = isBLD ? 'flex' : 'none'; 
       
       let sumDxKhoi = {}, sumDxPhong = {}, sumDxDuAn = {};
       let sumDuyetKhoi = {}, sumDuyetPhong = {}, sumDuyetDuAn = {};
-      let grandDeXuat = 0, grandDuyet = 0;
+      let sumAdvKhoi = {}, sumAdvPhong = {}, sumAdvDuAn = {};
+      let grandDeXuat = 0, grandDuyet = 0, grandAdv = 0;
 
       let safeId = str => btoa(unescape(encodeURIComponent(str))).replace(/[^a-zA-Z0-9]/g, '');
 
       flatItems.forEach(item => {
         let kId = safeId(item.khoi); let pId = safeId(item.khoi + '|' + item.phong); let dId = safeId(item.khoi + '|' + item.phong + '|' + item.tenDuAn);
-        sumDxKhoi[kId] = (sumDxKhoi[kId] || 0) + item.nsDeXuat;
-        sumDxPhong[pId] = (sumDxPhong[pId] || 0) + item.nsDeXuat;
-        sumDxDuAn[dId] = (sumDxDuAn[dId] || 0) + item.nsDeXuat;
+        let advAmt = Math.round(item.nsDeXuat * (item.phieuObj.advPercent || 0) / 100);
+
+        sumDxKhoi[kId] = (sumDxKhoi[kId] || 0) + item.nsDeXuat; sumDxPhong[pId] = (sumDxPhong[pId] || 0) + item.nsDeXuat; sumDxDuAn[dId] = (sumDxDuAn[dId] || 0) + item.nsDeXuat;
+        sumDuyetKhoi[kId] = (sumDuyetKhoi[kId] || 0) + item.nsDuyet; sumDuyetPhong[pId] = (sumDuyetPhong[pId] || 0) + item.nsDuyet; sumDuyetDuAn[dId] = (sumDuyetDuAn[dId] || 0) + item.nsDuyet;
+        sumAdvKhoi[kId] = (sumAdvKhoi[kId] || 0) + advAmt; sumAdvPhong[pId] = (sumAdvPhong[pId] || 0) + advAmt; sumAdvDuAn[dId] = (sumAdvDuAn[dId] || 0) + advAmt;
+        
+        grandDeXuat += item.nsDeXuat; grandDuyet += item.nsDuyet; grandAdv += advAmt;
       });
 
       let currentKhoi = null; let currentPhong = null; let currentDuAn = null; let html = '';
-      
+      let colBefore = isKD ? 6 : 5; 
+
       flatItems.forEach((item, index) => {
         let kId = safeId(item.khoi); let pId = safeId(item.khoi + '|' + item.phong); let dId = safeId(item.khoi + '|' + item.phong + '|' + item.tenDuAn);
 
         if (currentKhoi !== kId) {
             html += `<tr style="background:#0b1f8c; color:white; font-weight:bold; font-size: 14px; text-transform: uppercase;">
-                <td colspan="5" style="text-align:center;">🏢 KHỐI: ${item.khoi}</td>
-                <td style="color:#f39c12;">${formatNumber(sumDxKhoi[kId])}</td>
-                <td id="sum_duyet_khoi_${kId}" style="color:#2ecc71;">0</td>
-                <td colspan="2"></td>
-            </tr>`;
+                <td colspan="${colBefore}" style="text-align:center;">🏢 KHỐI: ${item.khoi}</td>
+                <td style="color:#f39c12;">${formatNumber(sumDxKhoi[kId])}</td>`;
+            if (isPTGD) { html += `<td></td><td style="color:#2ecc71;">${formatNumber(sumAdvKhoi[kId])}</td><td></td>`; } 
+            else if (isBLD || isMKT) { html += `<td id="sum_duyet_khoi_${kId}" style="color:#2ecc71;">0</td><td colspan="2"></td>`; } 
+            else { html += `<td></td>`; }
+            html += `</tr>`;
             currentKhoi = kId;
         }
         if (currentPhong !== pId) {
             html += `<tr style="background:#d4efff; font-weight:bold; font-size: 13px;">
-                <td colspan="5" style="text-align:center; color:#0b1f8c;">🏷️ PHÒNG: ${item.phong}</td>
-                <td style="color:#e74c3c;">${formatNumber(sumDxPhong[pId])}</td>
-                <td id="sum_duyet_phong_${pId}" style="color:#0b1f8c;">0</td>
-                <td colspan="2"></td>
-            </tr>`;
+                <td colspan="${colBefore}" style="text-align:center; color:#0b1f8c;">🏷️ PHÒNG: ${item.phong}</td>
+                <td style="color:#e74c3c;">${formatNumber(sumDxPhong[pId])}</td>`;
+            if (isPTGD) { html += `<td></td><td style="color:#0b1f8c;">${formatNumber(sumAdvPhong[pId])}</td><td></td>`; } 
+            else if (isBLD || isMKT) { html += `<td id="sum_duyet_phong_${pId}" style="color:#0b1f8c;">0</td><td colspan="2"></td>`; } 
+            else { html += `<td></td>`; }
+            html += `</tr>`;
             currentPhong = pId;
         }
         if (currentDuAn !== dId) {
             html += `<tr style="background:#f9f9f9; font-weight:bold; font-size: 13px;">
-                <td colspan="5" style="text-align:center; color:#333;">📌 Dự án: ${item.tenDuAn}</td>
-                <td>${formatNumber(sumDxDuAn[dId])}</td>
-                <td id="sum_duyet_duan_${dId}" style="color:#333;">0</td>
-                <td colspan="2"></td>
-            </tr>`;
+                <td colspan="${colBefore}" style="text-align:center; color:#333;">📌 Dự án: ${item.tenDuAn}</td>
+                <td>${formatNumber(sumDxDuAn[dId])}</td>`;
+            if (isPTGD) { html += `<td></td><td style="color:#333;">${formatNumber(sumAdvDuAn[dId])}</td><td></td>`; } 
+            else if (isBLD || isMKT) { html += `<td id="sum_duyet_duan_${dId}" style="color:#333;">0</td><td colspan="2"></td>`; } 
+            else { html += `<td></td>`; }
+            html += `</tr>`;
             currentDuAn = dId;
         }
 
         let rowClass = item.trangThai === 'APPROVED_BY_BLD' ? 'row-approved' : (item.trangThai === 'REJECTED' ? 'row-rejected' : '');
-        let isEditable = (role === 'BLD' || role === 'SUPER_ADMIN');
-        
-        let nsDuyetHtml = isEditable 
-            ? `<input type="text" class="input-budget bld-budget" data-id-dong="${item.idDong}" value="${formatNumber(item.nsDuyet)}" oninput="formatCurrencyAdmin(this)">`
-            : `<span style="color:var(--danger); font-weight:bold;">${formatNumber(item.nsDuyet)}</span>`;
-            
-        let ghiChuHtml = isEditable
-            ? `<input type="text" class="input-note bld-note" value="${item.ghiChu.replace(/"/g, '&quot;')}">`
-            : `<span style="font-size:12px;">${item.ghiChu}</span>`;
+        let nsDuyetHtml = isBLD ? `<input type="text" class="input-budget bld-budget" data-id-dong="${item.idDong}" value="${formatNumber(item.nsDuyet)}" oninput="formatCurrencyAdmin(this)">` : `<span style="color:var(--danger); font-weight:bold;">${formatNumber(item.nsDuyet)}</span>`;
+        let ghiChuHtml = isBLD ? `<input type="text" class="input-note bld-note" value="${item.ghiChu.replace(/"/g, '&quot;')}">` : `<span style="font-size:12px;">${item.ghiChu}</span>`;
 
         let btnHtml = '';
-        if (isEditable) {
+        if (isBLD) {
             btnHtml += `<button class="btn-action btn-draft" onclick="saveSingleRow(this, '${item.idDong}')">Cập nhật</button>`;
-            if (item.trangThai !== 'APPROVED_BY_BLD') {
-                btnHtml += `<button class="btn-action btn-approve" style="background:#8e44ad;" onclick="approveSingleBLD(this, '${item.idPhieu}')">Duyệt Đơn</button>`;
-            }
+            if (item.trangThai !== 'APPROVED_BY_BLD') btnHtml += `<button class="btn-action btn-approve" style="background:#8e44ad;" onclick="approveSingleBLD(this, '${item.idPhieu}')">Duyệt Đơn</button>`;
         } else {
             let grp = getStatusGroup(item.phieuObj, role);
             if (role === 'MKT') {
                 if (item.trangThai === 'APPROVED_BY_BLD') btnHtml += `<button class="btn-action btn-sendmail" onclick="sendApprovalMail(this, '${item.idPhieu}')">Gửi File Duyệt</button>`;
             } else if (role === 'TPMKT') {
-                if (item.trangThai === 'APPROVED_BY_BLD') {
-                    btnHtml += `<button class="btn-action btn-sendmail" onclick="sendApprovalMail(this, '${item.idPhieu}')">Gửi File Duyệt</button>`;
-                } else if (grp === 'ACTION') {
-                    btnHtml += `<button class="btn-action btn-approve" onclick="updateStatusOptimistic('${item.idPhieu}', 'PENDING_BLD', this, 'PENDING_BLD')">Duyệt</button>
-                               <button class="btn-action btn-reject" onclick="updateStatusOptimistic('${item.idPhieu}', 'REJECTED', this, 'PENDING_BLD')">Từ Chối</button>`;
-                } else if (grp === 'REJECTED') {
-                    btnHtml += `<button class="btn-action btn-draft" onclick="updateStatusOptimistic('${item.idPhieu}', 'PENDING_BLD', this, 'PENDING_BLD')">Duyệt Lại</button>`;
-                }
+                if (item.trangThai === 'APPROVED_BY_BLD') { btnHtml += `<button class="btn-action btn-sendmail" onclick="sendApprovalMail(this, '${item.idPhieu}')">Gửi File Duyệt</button>`; } 
+                else if (grp === 'ACTION') { btnHtml += `<button class="btn-action btn-approve" onclick="updateStatusOptimistic('${item.idPhieu}', 'PENDING_BLD', this, 'PENDING_BLD')">Duyệt</button><button class="btn-action btn-reject" onclick="updateStatusOptimistic('${item.idPhieu}', 'REJECTED', this, 'PENDING_BLD')">Từ Chối</button>`; } 
+                else if (grp === 'REJECTED') { btnHtml += `<button class="btn-action btn-draft" onclick="updateStatusOptimistic('${item.idPhieu}', 'PENDING_BLD', this, 'PENDING_BLD')">Duyệt Lại</button>`; }
             } else {
                 let nextStatus = '';
-                if (role === 'TPKD') nextStatus = 'PENDING_GDKD';
-                else if (role === 'GDKD' || role === 'GDKD_KIEM_TPKD') nextStatus = 'PENDING_PTGD';
-                else if (role === 'PTGD' || role === 'GDCN') nextStatus = 'PENDING_BLD';
-
-                if (grp === 'ACTION') {
-                    btnHtml += `<button class="btn-action btn-approve" onclick="updateStatusOptimistic('${item.idPhieu}', '${nextStatus}', this, '${nextStatus}')">Duyệt</button>
-                                <button class="btn-action btn-reject" onclick="updateStatusOptimistic('${item.idPhieu}', 'REJECTED', this, '${nextStatus}')">Từ Chối</button>`;
-                } else if (grp === 'REJECTED') {
-                    btnHtml += `<button class="btn-action btn-draft" onclick="updateStatusOptimistic('${item.idPhieu}', '${nextStatus}', this, '${nextStatus}')">Duyệt Lại</button>`;
-                }
+                if (role === 'TPKD') nextStatus = 'PENDING_GDKD'; else if (role === 'GDKD' || role === 'GDKD_KIEM_TPKD') nextStatus = 'PENDING_PTGD'; else if (role === 'PTGD' || role === 'GDCN') nextStatus = 'PENDING_BLD';
+                if (grp === 'ACTION') { btnHtml += `<button class="btn-action btn-approve" onclick="updateStatusOptimistic('${item.idPhieu}', '${nextStatus}', this, '${nextStatus}')">Duyệt</button><button class="btn-action btn-reject" onclick="updateStatusOptimistic('${item.idPhieu}', 'REJECTED', this, '${nextStatus}')">Từ Chối</button>`; } 
+                else if (grp === 'REJECTED') { btnHtml += `<button class="btn-action btn-draft" onclick="updateStatusOptimistic('${item.idPhieu}', '${nextStatus}', this, '${nextStatus}')">Duyệt Lại</button>`; }
             }
         }
 
@@ -1031,34 +914,42 @@
         if (item.trangThai === 'APPROVED_BY_BLD') statusText = `<span style="color:var(--success-green); font-weight:700;" id="status_${item.idPhieu}">ĐÃ DUYỆT</span>`;
         if (item.trangThai === 'REJECTED') statusText = `<span style="color:var(--danger); font-weight:700;" id="status_${item.idPhieu}">TỪ CHỐI</span>`;
 
-        html += `<tr data-id-dong="${item.idDong}" data-id-phieu="${item.idPhieu}" class="${rowClass}">
-            <td><button class="btn-view" onclick="viewDetail('${item.idPhieu}')">👁️</button></td>
-            <td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${item.idPhieu}</span></td>
+        let rowHTML = `<tr data-id-dong="${item.idDong}" data-id-phieu="${item.idPhieu}" class="${rowClass}">
+            <td><button class="btn-view" onclick="viewDetail('${item.idPhieu}')">👁️</button></td>`;
+        
+        if (isKD) { rowHTML += `<td><input type="checkbox" style="width:16px; height:16px; cursor:pointer;" title="Nhóm sale mới"></td>`; }
+        
+        rowHTML += `<td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${item.idPhieu}</span></td>
             <td><span style="font-weight:700; color:var(--primary-blue);">${item.phong}</span><br><span style="font-size:11px; color:#666;">Khối ${item.khoi}</span></td>
             <td style="text-align:left; font-size:12px; line-height:1.5;">${item.thanhVien}</td>
             <td>${statusText}</td>
-            <td>${formatNumber(item.nsDeXuat)}</td>
-            <td>${nsDuyetHtml}</td>
-            <td>${ghiChuHtml}</td>
-            <td class="td-actions">${btnHtml}</td>
-        </tr>`;
+            <td>${formatNumber(item.nsDeXuat)}</td>`;
+
+        if (isPTGD) {
+            let advAmt = Math.round(item.nsDeXuat * (item.phieuObj.advPercent || 0) / 100);
+            rowHTML += `<td style="color:var(--primary-blue); font-weight:bold;">${item.phieuObj.advPercent || 0}%</td><td style="color:var(--danger); font-weight:bold;">${formatNumber(advAmt)}</td>`;
+        } else if (isBLD || isMKT) {
+            rowHTML += `<td>${nsDuyetHtml}</td><td>${ghiChuHtml}</td>`;
+        }
+
+        rowHTML += `<td class="td-actions">${btnHtml}</td></tr>`;
+        html += rowHTML;
       });
 
       if (flatItems.length > 0) {
           html += `<tr style="background:#333; color:white; font-weight:bold; font-size: 16px;">
-              <td colspan="5" style="text-align:right; padding-right: 20px;">TỔNG CỘNG HỆ THỐNG</td>
-              <td style="color:#f39c12;">${formatNumber(grandDeXuat)}</td>
-              <td id="sum_duyet_grand" style="color:#2ecc71;">0</td>
-              <td colspan="2"></td>
-          </tr>`;
+              <td colspan="${colBefore}" style="text-align:right; padding-right: 20px;">TỔNG CỘNG HỆ THỐNG</td>
+              <td style="color:#f39c12;">${formatNumber(grandDeXuat)}</td>`;
+          if (isPTGD) { html += `<td></td><td style="color:#2ecc71;">${formatNumber(grandAdv)}</td><td></td>`; } 
+          else if (isBLD || isMKT) { html += `<td id="sum_duyet_grand" style="color:#2ecc71;">0</td><td colspan="2"></td>`; } 
+          else { html += `<td></td>`; }
+          html += `</tr>`;
       } else {
-          html += `<tr><td colspan="9">Không có dữ liệu hiển thị</td></tr>`;
+          html += `<tr><td colspan="10">Không có dữ liệu hiển thị</td></tr>`;
       }
 
       tbAction.innerHTML = html;
       bldItemsArray = flatItems; 
-      
-      // Chạy tính toán tổng ngay sau khi render xong để update 2 bảng trên cùng
       recalcBLDSummary();
     }
 
@@ -1103,8 +994,8 @@
         let rowHTML = `<tr class="${rowClass}">
           <td><button class="btn-view" onclick="viewDetail('${phieu.idPhieu}')">👁️</button></td>
           <td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${phieu.idPhieu}</span></td>
-          <td style="text-align:left; font-size:12px; line-height:1.4;">${(phieu.thanhVien||"").replace(/,/g, '<br>')}</td>
           <td><span style="font-weight:700; color:var(--primary-blue);">${phong}</span><br><span style="font-size:11px; color:#666;">Khối ${khoi}</span></td>
+          <td style="text-align:left; font-size:12px; line-height:1.4;">${(phieu.thanhVien||"").replace(/,/g, '<br>')}</td>
           <td style="color:#0b1f8c; font-weight:800; font-size:12px;">${prjNames.join(', ')}</td>
           <td>${formatNumber(totalDuyet)}</td>
           <td style="color:var(--danger); font-weight:bold; white-space:nowrap;">${percentHtml}</td>
@@ -1135,14 +1026,11 @@
       tb.innerHTML = html;
     }
 
-    // ĐÃ CHỈNH SỬA LOAD LẠI BẢNG KHI CẬP NHẬT ĐỂ KHÔNG MẤT NẾP CÂY PHÂN CẤP
     function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
       try {
         let targetPhieu = globalData.find(p => p.idPhieu === idPhieu);
         if (targetPhieu) targetPhieu.trangThai = newStatus;
-
         renderTableByRole(currentViewRole);
-
         callAPI("updateStatus", { data: JSON.stringify({ idPhieu: idPhieu, newStatus: newStatus }) }, function(res) { 
           if(!res || !res.success) alert("Lỗi đồng bộ máy chủ!"); 
         });
