@@ -30,9 +30,9 @@
     .info-group { display: flex; align-items: center; gap: 10px; flex: 1; }
     .info-label { font-weight: 600; color: #333; white-space: nowrap; }
     
-    .pill-input { border: 1px solid #999; border-radius: 20px; padding: 8px 15px; font-family: 'Manrope', sans-serif; font-size: 14px; outline: none; text-align: center; color: #333; width: 140px; box-sizing: border-box;}
+    .pill-input { border: 1px solid #999; border-radius: 20px; padding: 8px 15px; font-family: 'Manrope', sans-serif; font-size: 14px; outline: none; text-align: center; color: #333; width: 135px; box-sizing: border-box;}
     .pill-input:focus { border-color: var(--primary-blue); box-shadow: 0 0 0 2px rgba(11,31,140,0.1); }
-    .pill-input.small { width: 85px; padding: 8px 10px;}
+    .pill-input.small { width: 75px; padding: 8px 10px;}
     
     .inline-group { display: flex; align-items: flex-end; gap: 15px; flex: 1; width: 100%; }
     .inline-group .info-label { white-space: nowrap; margin: 0; line-height: 1; }
@@ -102,11 +102,12 @@
 
     .main-footer { text-align: center; padding: 20px 40px; color: var(--text-gray); font-size: 13px; line-height: 1.6; margin-bottom: 20px; max-width: 1450px; }
 
-    /* Fix responsive form member */
-    .member-group-container { display: flex; justify-content: space-between; margin-bottom: 20px; align-items: flex-start; flex-wrap: wrap; gap: 15px; width: 100%; }
-    .member-col { display: flex; align-items: flex-start; gap: 10px; flex: 1; min-width: 250px; }
-    .member-inputs { display: flex; flex-wrap: wrap; gap: 10px; flex: 1; }
-    .btn-add-member { margin-top: 2px; width: 34px; height: 34px; border-radius: 50%; border: 1px dashed var(--primary-blue); background: #f4f6f8; color: var(--primary-blue); font-size: 20px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; padding: 0; }
+    /* CSS FIX LAYOUT THÀNH VIÊN CO GIÃN THÔNG MINH */
+    .member-group-container { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; width: 100%; margin-bottom: 25px; flex-wrap: wrap;}
+    .member-col-names { display: flex; align-items: flex-start; gap: 10px; flex: 1; min-width: 350px; }
+    .member-col-ids { display: flex; align-items: flex-start; gap: 10px; flex: 0 0 auto; }
+    .member-inputs { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; }
+    .btn-add-member { margin-top: 2px; width: 34px; height: 34px; border-radius: 50%; border: 1px dashed var(--primary-blue); background: #f4f6f8; color: var(--primary-blue); font-size: 20px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; padding: 0; flex-shrink: 0;}
     .btn-add-member:hover { background: var(--primary-blue); color: white; border-style: solid; }
 
     @media (max-width: 1200px) { .main-card { padding: 40px 50px; width: 95%; } }
@@ -114,13 +115,12 @@
       .info-row { flex-direction: column; align-items: stretch; gap: 20px; margin-bottom: 25px; }
       .info-group, .inline-group { width: 100%; flex-wrap: wrap; align-items: flex-start; gap: 10px; }
       .info-group .info-label, .inline-group .info-label { width: 100%; margin-bottom: 5px; }
-      .pill-input, .pill-input.small, .pill-text, .pill-text.small { flex: 1 1 30%; min-width: 100px; max-width: 100%; }
       .inline-input { width: 100%; }
       #department { flex: 1 1 100%; max-width: 100%; }
       .status-area { flex-wrap: wrap; }
       .status-col { flex: 1 1 45%; margin-bottom: 15px; }
-      .member-col { flex-direction: column; width: 100%; }
-      .member-col .info-label { margin-top: 0; }
+      .member-col-names, .member-col-ids { flex-direction: column; width: 100%; min-width: unset;}
+      .member-col-names .info-label, .member-col-ids .info-label { margin-top: 0; }
     }
     @media (max-width: 768px) {
       .main-card { padding: 30px 20px; width: 96%; }
@@ -129,7 +129,6 @@
       .btn-check-status { width: 100%; white-space: normal;}
       .card-title-area h2 { font-size: 22px; }
       .btn-back { position: static; margin-bottom: 15px; justify-content: center; width: 100%; }
-      .pill-input, .pill-input.small, .pill-text, .pill-text.small { flex: 1 1 100%; margin-bottom: 5px;}
       .carousel-wrap { flex-direction: column; }
       .carousel-arrow { transform: rotate(90deg); margin: 10px 0;}
       .carousel-arrow:first-child { transform: rotate(-90deg); }
@@ -168,10 +167,10 @@
     <form id="marketingForm">
       <div class="info-section">
         
-        <!-- THÊM THÀNH VIÊN LINH HOẠT VỚI NÚT (+) -->
+        <!-- THIẾT KẾ CO GIÃN THÔNG MINH ĐẢM BẢO 4 NGƯỜI TRÊN 1 DÒNG -->
         <div class="member-group-container">
-            <div class="member-col" style="flex: 1.5;">
-                <label class="info-label" style="margin-top: 10px;">Thành viên:</label>
+            <div class="member-col-names">
+                <label class="info-label" style="margin-top: 10px; min-width: 85px;">Thành viên:</label>
                 <div id="memberNamesGroup" class="member-inputs">
                     <input type="text" class="pill-input member-name" placeholder="Nguyễn Văn A" required>
                     <input type="text" class="pill-input member-name" placeholder="Nguyễn Văn B">
@@ -179,8 +178,8 @@
                 </div>
             </div>
 
-            <div class="member-col" style="flex: 1; align-items: flex-start;">
-                <label class="info-label" style="margin-top: 10px;">Mã nhân viên:</label>
+            <div class="member-col-ids">
+                <label class="info-label" style="margin-top: 10px; min-width: 95px;">Mã nhân viên:</label>
                 <div id="memberIdsGroup" class="member-inputs">
                     <input type="text" class="pill-input small member-mnv" placeholder="AVH001" required>
                     <input type="text" class="pill-input small member-mnv" placeholder="...">
@@ -472,7 +471,8 @@
           const savedData = localStorage.getItem('avh_sale_info');
           if(savedData) {
              const info = JSON.parse(savedData);
-             if(info.mnv1) { document.getElementById('searchId').value = info.mnv1.replace(/AVH/i, '').trim(); }
+             let firstMnv = (info.mnvs || info.mnv1 || '').split(',')[0];
+             if(firstMnv) { document.getElementById('searchId').value = firstMnv.replace(/AVH/i, '').trim(); }
           }
         }, 300);
       }
@@ -496,14 +496,12 @@
           if(savedData) {
             const info = JSON.parse(savedData);
             
-            // Fill lại tên vào các ô có sẵn
             let namesArr = (info.names || info.tv1 || '').split(',').map(v => v.trim()).filter(v => v);
             let mnvArr = (info.mnvs || info.mnv1 || '').split(',').map(v => v.trim()).filter(v => v);
             
             let nameInputs = document.querySelectorAll('.member-name');
             let mnvInputs = document.querySelectorAll('.member-mnv');
             
-            // Nếu có nhiều người hơn ô trống, tự động tạo thêm
             let maxCount = Math.max(namesArr.length, mnvArr.length);
             for(let i = 3; i < maxCount; i++) { addMoreMember(); }
             
@@ -565,7 +563,6 @@
     function closeModal() { document.getElementById('searchModal').style.display = 'none'; }
     function closeAdvanceModal() { document.getElementById('advanceModal').style.display = 'none'; }
 
-    // ĐÃ FIX: LẤY THÁNG TRÊN Ô INPUT ĐỂ GỬI LÊN SERVER
     function executeSearch() {
       const sProposalId = document.getElementById('searchProposalId').value.trim();
       const sId = document.getElementById('searchId').value.trim();
@@ -687,7 +684,6 @@
         }
       });
 
-      // Gộp mảng Tên và Mã NV linh động
       let gatheredNames = Array.from(document.querySelectorAll('.member-name')).map(i => i.value.trim()).filter(v => v !== "").join(', ');
       let gatheredMnvs = Array.from(document.querySelectorAll('.member-mnv')).map(i => i.value.trim()).filter(v => v !== "").join(', ');
       
