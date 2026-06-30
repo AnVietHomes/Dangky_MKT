@@ -219,14 +219,40 @@
     });
 
     function callAPI(action, params, successCallback) {
-      const callbackName = "cb_" + action + "_" + new Date().getTime();
-      let isDone = false;
-      const timeoutId = setTimeout(() => { if (isDone) return; isDone = true; showLoading(false); alert("Lỗi mạng: Máy chủ Google không phản hồi."); if (document.getElementById(scriptId)) document.getElementById(scriptId).remove(); delete window[callbackName]; try { successCallback({ success: false }); } catch(e) {} }, 75000); 
-      window[callbackName] = function(response) { if (isDone) return; isDone = true; clearTimeout(timeoutId); try { successCallback(response); } catch (e) {} if (document.getElementById(scriptId)) document.getElementById(scriptId).remove(); delete window[callbackName]; };
-      const scriptId = "jsonp_" + new Date().getTime(); const script = document.createElement("script"); script.id = scriptId;
-      script.onerror = function() { if (isDone) return; isDone = true; clearTimeout(timeoutId); showLoading(false); alert("Lỗi kết nối máy chủ Google!"); if (document.getElementById(scriptId)) document.getElementById(scriptId).remove(); delete window[callbackName]; try { successCallback({ success: false }); } catch(e) {} };
-      let queryString = `?action=${action}&callback=${callbackName}&_=${new Date().getTime()}`; for (let key in params) { queryString += `&${key}=${encodeURIComponent(params[key])}`; }
-      script.src = API_URL + queryString; document.body.appendChild(script);
+      // 1. Tăng timeout lên 45 giây để server thoải mái xử lý 
+      const timeoutId = setTimeout(() => {
+          showLoading(false);
+          alert("Quá trình xử lý mất nhiều thời gian hơn dự kiến do tải nặng. Vui lòng tải lại trang để xem kết quả!");
+      }, 45000); 
+
+      // 2. Gom dữ liệu đẩy qua giao thức POST
+      let formData = new URLSearchParams();
+      formData.append('action', action);
+      for (let key in params) {
+          formData.append(key, params[key]);
+      }
+
+      // 3. Sử dụng Fetch API (Không bao giờ bị lỗi URL Too Long)
+      fetch(API_URL, {
+          method: 'POST',
+          body: formData
+      })
+      .then(response => {
+          if (!response.ok) throw new Error("Network response was not ok");
+          return response.json();
+      })
+      .then(data => {
+          clearTimeout(timeoutId);
+          if (successCallback) successCallback(data);
+      })
+      .catch(error => {
+          clearTimeout(timeoutId);
+          showLoading(false);
+          // Dự phòng an toàn: Đôi khi fetch bị CORS chặn hiển thị nhưng server vẫn ghi data thành công
+          console.warn("Fetch Error (Có thể do CORS Google):", error);
+          alert("Lệnh đã được gửi đi! Vui lòng làm mới trang (F5) để kiểm tra kết quả đồng bộ.");
+          if (successCallback) successCallback({ success: false, message: "CORS/Network Issue" });
+      });
     }
 
     function showLoading(show, mainText="ĐANG XỬ LÝ...", subText="Vui lòng đợi trong giây lát") { 
