@@ -225,7 +225,7 @@
       window[callbackName] = function(response) { if (isDone) return; isDone = true; clearTimeout(timeoutId); try { successCallback(response); } catch (e) {} if (document.getElementById(scriptId)) document.getElementById(scriptId).remove(); delete window[callbackName]; };
       const scriptId = "jsonp_" + new Date().getTime(); const script = document.createElement("script"); script.id = scriptId;
       script.onerror = function() { if (isDone) return; isDone = true; clearTimeout(timeoutId); showLoading(false); alert("Lỗi kết nối máy chủ Google!"); if (document.getElementById(scriptId)) document.getElementById(scriptId).remove(); delete window[callbackName]; try { successCallback({ success: false }); } catch(e) {} };
-      let queryString = `?action=${action}&callback=${callbackName}`; for (let key in params) { queryString += `&${key}=${encodeURIComponent(params[key])}`; }
+      let queryString = `?action=${action}&callback=${callbackName}&_=${new Date().getTime()}`; for (let key in params) { queryString += `&${key}=${encodeURIComponent(params[key])}`; }
       script.src = API_URL + queryString; document.body.appendChild(script);
     }
 
