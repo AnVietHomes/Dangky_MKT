@@ -709,10 +709,40 @@ function renderTableByRole(role) {
 
     function saveSingleRow(btn, idDong) {
       try {
-        let tr = btn.closest('tr'); let budget = parseNumber(tr.querySelector('.bld-budget').value); let note = tr.querySelector('.bld-note').value;
-        btn.innerText = 'Đang lưu...'; btn.disabled = true;
-        callAPI("bldApprove", { data: JSON.stringify({ isFinalApprove: false, items: [{idDong: idDong, nganSachDuyet: budget, ghiChuBLD: note}] }) }, function(res) { btn.innerText = 'Cập nhật'; btn.disabled = false; if (res && !res.success) alert(res.message); });
-      } catch (e) { alert("Có lỗi cục bộ khi cập nhật: " + e.message); btn.innerText = 'Cập nhật'; btn.disabled = false; }
+        let tr = btn.closest('tr');
+        
+        // Kiểm tra an toàn: lấy ô input, nếu không có thì lấy giá trị cũ từ data attribute hoặc set mặc định
+        let budgetInput = tr.querySelector('.bld-budget');
+        let budget = budgetInput ? parseNumber(budgetInput.value) : Number(tr.getAttribute('data-nsduyet') || 0);
+        
+        // Kiểm tra an toàn: lấy ô input ghi chú, nếu không có thì gửi rỗng
+        let noteInput = tr.querySelector('.bld-note');
+        let note = noteInput ? noteInput.value : "";
+        
+        let origText = btn.innerText;
+        btn.innerText = 'Đang lưu...'; 
+        btn.disabled = true;
+        
+        callAPI("bldApprove", { 
+          data: JSON.stringify({ 
+            isFinalApprove: false, 
+            items: [{idDong: idDong, nganSachDuyet: budget, ghiChuBLD: note}] 
+          }) 
+        }, function(res) { 
+          btn.innerText = origText; 
+          btn.disabled = false; 
+          if (res && !res.success) {
+            alert("Lỗi máy chủ: " + res.message);
+          } else {
+            // Cập nhật lại thuộc tính để đồng bộ dữ liệu sau khi lưu thành công
+            tr.setAttribute('data-nsduyet', budget);
+          }
+        });
+      } catch (e) { 
+        alert("Có lỗi cục bộ khi cập nhật: " + e.message); 
+        btn.innerText = 'Cập nhật'; 
+        btn.disabled = false; 
+      }
     }
 
     function submitBldApproval(isFinal) {
