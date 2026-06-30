@@ -221,7 +221,7 @@
     function callAPI(action, params, successCallback) {
       const callbackName = "cb_" + action + "_" + new Date().getTime();
       let isDone = false;
-      const timeoutId = setTimeout(() => { if (isDone) return; isDone = true; showLoading(false); alert("Lỗi mạng: Máy chủ Google không phản hồi."); if (document.getElementById(scriptId)) document.getElementById(scriptId).remove(); delete window[callbackName]; try { successCallback({ success: false }); } catch(e) {} }, 15000); 
+      const timeoutId = setTimeout(() => { if (isDone) return; isDone = true; showLoading(false); alert("Lỗi mạng: Máy chủ Google không phản hồi."); if (document.getElementById(scriptId)) document.getElementById(scriptId).remove(); delete window[callbackName]; try { successCallback({ success: false }); } catch(e) {} }, 75000); 
       window[callbackName] = function(response) { if (isDone) return; isDone = true; clearTimeout(timeoutId); try { successCallback(response); } catch (e) {} if (document.getElementById(scriptId)) document.getElementById(scriptId).remove(); delete window[callbackName]; };
       const scriptId = "jsonp_" + new Date().getTime(); const script = document.createElement("script"); script.id = scriptId;
       script.onerror = function() { if (isDone) return; isDone = true; clearTimeout(timeoutId); showLoading(false); alert("Lỗi kết nối máy chủ Google!"); if (document.getElementById(scriptId)) document.getElementById(scriptId).remove(); delete window[callbackName]; try { successCallback({ success: false }); } catch(e) {} };
