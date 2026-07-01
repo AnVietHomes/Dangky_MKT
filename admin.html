@@ -426,57 +426,59 @@
     }
 
     function recalcBLDSummary() {
-      let isBLD = (currentViewRole === 'BLD' || currentViewRole === 'SUPER_ADMIN'); let isMKT = (currentViewRole === 'MKT' || currentViewRole === 'TPMKT'); let isPTGD = (currentViewRole === 'PTGD' || currentViewRole === 'GDCN');
-      let sumDxKhoi = {}, sumDuyetKhoi = {}, sumAdvKhoi = {}; let sumDxDuAn = {}, sumDuyetDuAn = {}, sumAdvDuAn = {}; let inlineSumDuyetKhoi = {}, inlineSumDuyetPhong = {}, inlineSumDuyetDuAn = {};
-      let grandDeXuat = 0, grandDuyet = 0, grandAdv = 0; let safeId = str => btoa(unescape(encodeURIComponent(str))).replace(/[^a-zA-Z0-9]/g, '');
+      let isBLD = (currentViewRole === 'BLD' || currentViewRole === 'SUPER_ADMIN'); 
+      let isMKT = (currentViewRole === 'MKT' || currentViewRole === 'TPMKT'); 
+      let isPTGD = (currentViewRole === 'PTGD' || currentViewRole === 'GDCN');
+      
+      let sumDxKhoi = {}, sumDuyetKhoi = {}, sumAdvKhoi = {}; 
+      let sumDxDuAn = {}, sumDuyetDuAn = {}, sumAdvDuAn = {}; 
+      let grandDeXuat = 0, grandDuyet = 0, grandAdv = 0; 
+      let safeId = str => btoa(unescape(encodeURIComponent(str))).replace(/[^a-zA-Z0-9]/g, '');
 
-      bldItemsArray.forEach(item => {
-        let input = document.querySelector(`.bld-budget[data-id-dong="${item.idDong}"]`); if (input) item.nsDuyet = parseNumber(input.value);
-        let kId = safeId(item.khoi); let pId = safeId(item.khoi + '|' + item.phong); let dId = safeId(item.khoi + '|' + item.phong + '|' + item.tenDuAn);
-        let advAmount = Math.round(item.nsDeXuat * (item.phieuObj.advPercent || 0) / 100);
+      // QUÉT DỮ LIỆU VỚI BẪY LỖI AN TOÀN
+      (window.bldItemsArray || []).forEach(item => {
+        try {
+          let input = document.querySelector(`.bld-budget[data-id-dong="${item.idDong}"]`); 
+          if (input) item.nsDuyet = parseNumber(input.value);
+          
+          let kId = safeId(item.khoi); 
+          let advAmount = Math.round(item.nsDeXuat * (item.phieuObj.advPercent || 0) / 100);
 
-        let isRej = item.trangThai.startsWith('REJECTED');
-        let valDx = isRej ? 0 : item.nsDeXuat;
-        let valDuyet = isRej ? 0 : item.nsDuyet;
-        let valAdv = isRej ? 0 : advAmount;
+          let isRej = (item.trangThai && item.trangThai.startsWith('REJECTED'));
+          let valDx = isRej ? 0 : item.nsDeXuat;
+          let valDuyet = isRej ? 0 : item.nsDuyet;
+          let valAdv = isRej ? 0 : advAmount;
 
-        sumDxKhoi[item.khoi] = (sumDxKhoi[item.khoi] || 0) + valDx; sumDuyetKhoi[item.khoi] = (sumDuyetKhoi[item.khoi] || 0) + valDuyet; sumAdvKhoi[item.khoi] = (sumAdvKhoi[item.khoi] || 0) + valAdv;
-        sumDxDuAn[item.tenDuAn] = (sumDxDuAn[item.tenDuAn] || 0) + valDx; sumDuyetDuAn[item.tenDuAn] = (sumDuyetDuAn[item.tenDuAn] || 0) + valDuyet; sumAdvDuAn[item.tenDuAn] = (sumAdvDuAn[item.tenDuAn] || 0) + valAdv;
-        
-        inlineSumDuyetKhoi[kId] = (inlineSumDuyetKhoi[kId] || 0) + valDuyet; inlineSumDuyetPhong[pId] = (inlineSumDuyetPhong[pId] || 0) + valDuyet; inlineSumDuyetDuAn[dId] = (inlineSumDuyetDuAn[dId] || 0) + valDuyet;
-        grandDeXuat += valDx; grandDuyet += valDuyet; grandAdv += valAdv;
+          sumDxKhoi[item.khoi] = (sumDxKhoi[item.khoi] || 0) + valDx; 
+          sumDuyetKhoi[item.khoi] = (sumDuyetKhoi[item.khoi] || 0) + valDuyet; 
+          sumAdvKhoi[item.khoi] = (sumAdvKhoi[item.khoi] || 0) + valAdv;
+          
+          sumDxDuAn[item.tenDuAn] = (sumDxDuAn[item.tenDuAn] || 0) + valDx; 
+          sumDuyetDuAn[item.tenDuAn] = (sumDuyetDuAn[item.tenDuAn] || 0) + valDuyet; 
+          sumAdvDuAn[item.tenDuAn] = (sumAdvDuAn[item.tenDuAn] || 0) + valAdv;
+          
+          grandDeXuat += valDx; 
+          grandDuyet += valDuyet; 
+          grandAdv += valAdv;
+        } catch (e) { console.error("Lỗi tính toán dòng:", item, e); }
       });
 
+      // Cập nhật giao diện bảng
       let col2Name = isPTGD ? "Tạm Ứng" : ((isBLD||isMKT) ? "Phê Duyệt" : "");
-      let theadKhoi = `<tr><th style="text-align: left; background: #f4f6f8; color: #333;">Khối</th><th style="background: #f4f6f8; color: #333;">Đề Xuất</th>${col2Name ? `<th style="background: #f4f6f8; color: #333;">${col2Name}</th>` : ''}</tr>`;
-      let htmlKhoi = ''; let gDxKhoi = 0, gDyKhoi = 0, gAdvKhoi = 0;
+      let htmlKhoi = '', htmlDuAn = ''; 
+      
       Object.keys(sumDxKhoi).sort().forEach(k => {
-         htmlKhoi += `<tr><td style="text-align:left; font-weight:bold;">${k}</td><td style="color:var(--danger);">${formatNumber(sumDxKhoi[k])}</td>`;
-         if (isPTGD) htmlKhoi += `<td style="color:var(--success-green); font-weight:800;">${formatNumber(sumAdvKhoi[k])}</td>`; else if (isBLD || isMKT) htmlKhoi += `<td style="color:var(--primary-blue); font-weight:800;">${formatNumber(sumDuyetKhoi[k])}</td>`;
-         htmlKhoi += `</tr>`; gDxKhoi += sumDxKhoi[k]; gDyKhoi += sumDuyetKhoi[k]; gAdvKhoi += sumAdvKhoi[k];
+         htmlKhoi += `<tr><td style="text-align:left; font-weight:bold;">${k}</td><td>${formatNumber(sumDxKhoi[k])}</td><td>${formatNumber(isPTGD ? sumAdvKhoi[k] : sumDuyetKhoi[k])}</td></tr>`;
       });
-      htmlKhoi += `<tr style="background:#fffaf0;"><td style="text-align:right; font-weight:bold;">TỔNG CỘNG</td><td style="color:var(--danger); font-weight:bold;">${formatNumber(gDxKhoi)}</td>`;
-      if (isPTGD) htmlKhoi += `<td style="color:var(--success-green); font-weight:900;">${formatNumber(gAdvKhoi)}</td>`; else if (isBLD || isMKT) htmlKhoi += `<td style="color:var(--primary-blue); font-weight:900;">${formatNumber(gDyKhoi)}</td>`;
-      htmlKhoi += `</tr>`; document.querySelector('#tableSumKhoi thead').innerHTML = theadKhoi; document.querySelector('#tableSumKhoi tbody').innerHTML = htmlKhoi;
-
-      let theadDuan = `<tr><th style="text-align: left; background: #f4f6f8; color: #333;">Dự Án</th><th style="background: #f4f6f8; color: #333;">Đề Xuất</th>${col2Name ? `<th style="background: #f4f6f8; color: #333;">${col2Name}</th>` : ''}</tr>`;
-      let htmlDuAn = ''; let gDxDa = 0, gDyDa = 0, gAdvDa = 0;
+      htmlKhoi += `<tr style="background:#fffaf0; font-weight:bold;"><td style="text-align:right;">TỔNG CỘNG</td><td>${formatNumber(grandDeXuat)}</td><td>${formatNumber(isPTGD ? grandAdv : grandDuyet)}</td></tr>`;
+      
       Object.keys(sumDxDuAn).sort().forEach(d => {
-         htmlDuAn += `<tr><td style="text-align:left; font-weight:bold;">${d}</td><td style="color:var(--danger);">${formatNumber(sumDxDuAn[d])}</td>`;
-         if (isPTGD) htmlDuAn += `<td style="color:var(--success-green); font-weight:800;">${formatNumber(sumAdvDuAn[d])}</td>`; else if (isBLD || isMKT) htmlDuAn += `<td style="color:var(--primary-blue); font-weight:800;">${formatNumber(sumDuyetDuAn[d])}</td>`;
-         htmlDuAn += `</tr>`; gDxDa += sumDxDuAn[d]; gDyDa += sumDuyetDuAn[d]; gAdvDa += sumAdvDuAn[d];
+         htmlDuAn += `<tr><td style="text-align:left; font-weight:bold;">${d}</td><td>${formatNumber(sumDxDuAn[d])}</td><td>${formatNumber(isPTGD ? sumAdvDuAn[d] : sumDuyetDuAn[d])}</td></tr>`;
       });
-      htmlDuAn += `<tr style="background:#fffaf0;"><td style="text-align:right; font-weight:bold;">TỔNG CỘNG</td><td style="color:var(--danger); font-weight:bold;">${formatNumber(gDxDa)}</td>`;
-      if (isPTGD) htmlDuAn += `<td style="color:var(--success-green); font-weight:900;">${formatNumber(gAdvDa)}</td>`; else if (isBLD || isMKT) htmlDuAn += `<td style="color:var(--primary-blue); font-weight:900;">${formatNumber(gDyDa)}</td>`;
-      htmlDuAn += `</tr>`; document.querySelector('#tableSumDuAn thead').innerHTML = theadDuan; document.querySelector('#tableSumDuAn tbody').innerHTML = htmlDuAn;
+      htmlDuAn += `<tr style="background:#fffaf0; font-weight:bold;"><td style="text-align:right;">TỔNG CỘNG</td><td>${formatNumber(grandDeXuat)}</td><td>${formatNumber(isPTGD ? grandAdv : grandDuyet)}</td></tr>`;
 
-      if(isBLD || isMKT) {
-          for(let k in inlineSumDuyetKhoi) { let el = document.getElementById('sum_duyet_khoi_' + k); if(el) el.innerText = formatNumber(inlineSumDuyetKhoi[k]); }
-          for(let p in inlineSumDuyetPhong) { let el = document.getElementById('sum_duyet_phong_' + p); if(el) el.innerText = formatNumber(inlineSumDuyetPhong[p]); }
-          for(let d in inlineSumDuyetDuAn) { let el = document.getElementById('sum_duyet_duan_' + d); if(el) el.innerText = formatNumber(inlineSumDuyetDuAn[d]); }
-          let grandEl = document.getElementById('sum_duyet_grand'); if(grandEl) grandEl.innerText = formatNumber(grandDuyet);
-      }
-      renderAdvanceTableByRole(currentViewRole);
+      document.querySelector('#tbodySumKhoi').innerHTML = htmlKhoi;
+      document.querySelector('#tbodySumDuAn').innerHTML = htmlDuAn;
     }
 
     function formatCurrencyAdmin(input) { let val = input.value.replace(/\D/g, ''); if (val !== '') val = formatNumber(val); input.value = val; recalcBLDSummary(); }
