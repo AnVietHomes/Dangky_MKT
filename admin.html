@@ -580,7 +580,13 @@
 
       let mainItems = []; let cnqnItems = [];
       flatItems.forEach(item => {
-        if ((role === 'PTGD' || role === 'GDCN') && item.khoi.toUpperCase() === 'CNQN') {
+        // Kiểm tra xem phòng/khối này có thuộc quyền quản lý của user không
+        let isManaged = (loggedInUser.managedDepartments.indexOf('ALL') > -1 || 
+                         loggedInUser.managedDepartments.includes(item.phong) || 
+                         loggedInUser.managedDepartments.includes(item.khoi));
+        
+        // Nếu là khối CNQN và KHÔNG thuộc quyền quản lý trực tiếp -> Bảng chỉ xem
+        if (item.khoi.toUpperCase() === 'CNQN' && !isManaged) {
             cnqnItems.push(item);
         } else {
             mainItems.push(item);
@@ -618,9 +624,11 @@
           let saleMoiBadge = (isHighLevel && item.phieuObj.isNewSale) ? `<br><span style="display:inline-block; margin-top:5px; background:var(--danger); color:white; padding:3px 8px; border-radius:12px; font-size:10px; font-weight:bold;">NHÓM SALE MỚI</span>` : '';
 
           let btnHtml = '';
+          // CẤM HÀNH ĐỘNG CHỈ KHI NÀO LÀ CHẾ ĐỘ CHỈ XEM (ISREADONLYMODE)
           if (isReadOnlyMode) {
-              btnHtml = `<span style="color:#999; font-size: 11px; font-weight: bold; background: #e0e0e0; padding: 4px 8px; border-radius: 4px;">Chỉ xem</span>`;
+             btnHtml = `<span style="color:#999; font-size: 11px; font-weight: bold; background: #e0e0e0; padding: 4px 8px; border-radius: 4px;">Chỉ xem</span>`;
           } else {
+            // GIỮ NGUYÊN LOGIC NÚT BẤM CỦA BẠN (Duyệt/Từ chối/Lưu) ở đây
               let rCode = role;
               if(role === 'GDKD_KIEM_TPKD') rCode = 'GDKD'; if(role === 'GDCN') rCode = 'GDCN'; if(role === 'MKT') rCode = 'TPMKT'; if(role === 'SUPER_ADMIN') rCode = 'BLD';
 
