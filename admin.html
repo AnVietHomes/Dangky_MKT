@@ -515,7 +515,8 @@
       if (role === 'TPKD' && st === 'PENDING_TPKD') return 'ACTION';
       if (role === 'GDKD' && st === 'PENDING_GDKD') return 'ACTION';
       if (role === 'GDKD_KIEM_TPKD' && (st === 'PENDING_TPKD' || st === 'PENDING_GDKD')) return 'ACTION';
-      if ((role === 'PTGD' || role === 'GDCN') && st === 'PENDING_PTGD') return 'ACTION';
+      if ((role === 'GĐKD' && st === 'PENDING_GĐKD') return 'ACTION';
+      if ((role === 'PTGD' && st === 'PENDING_PTGD') return 'ACTION';
       if ((role === 'TPMKT' || role === 'MKT') && st === 'PENDING_TPMKT') return 'ACTION'; 
       if ((role === 'BLD' || role === 'SUPER_ADMIN') && st === 'PENDING_BLD') return 'ACTION'; 
       return 'HISTORY';
