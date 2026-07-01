@@ -515,7 +515,7 @@
       if (role === 'TPKD' && st === 'PENDING_TPKD') return 'ACTION';
       if (role === 'GDKD' && st === 'PENDING_GDKD') return 'ACTION';
       if (role === 'GDKD_KIEM_TPKD' && (st === 'PENDING_TPKD' || st === 'PENDING_GDKD')) return 'ACTION';
-      if ((role === 'PTGD' || role === 'GDCN') && st === 'PENDING_PTGD/GĐCN') return 'ACTION';
+      if ((role === 'PTGD' || role === 'GDCN') && st === 'PENDING_PTGD') return 'ACTION';
       if ((role === 'TPMKT' || role === 'MKT') && st === 'PENDING_TPMKT') return 'ACTION'; 
       if ((role === 'BLD' || role === 'SUPER_ADMIN') && st === 'PENDING_BLD') return 'ACTION'; 
       return 'HISTORY';
@@ -656,7 +656,7 @@
                       }
                   } else {
                       let nextStatus = ''; 
-                      if (role === 'TPKD') nextStatus = 'PENDING_GDKD'; else if (role === 'GDKD' || role === 'GDKD_KIEM_TPKD') nextStatus = 'PENDING_PTGD/GĐCN'; else if (role === 'PTGD' || role === 'GDCN') nextStatus = 'PENDING_TPMKT';
+                      if (role === 'TPKD') nextStatus = 'PENDING_GDKD'; else if (role === 'GDKD' || role === 'GDKD_KIEM_TPKD') nextStatus = 'PENDING_PTGD'; else if (role === 'PTGD' || role === 'GDCN') nextStatus = 'PENDING_TPMKT';
                       if (grp === 'ACTION') { 
                           btnHtml += `<button class="btn-action btn-approve" onclick="updateStatusOptimistic('${item.idPhieu}', '${nextStatus}', this, '${nextStatus}')">Duyệt</button><button class="btn-action btn-reject" onclick="updateStatusOptimistic('${item.idPhieu}', 'REJECTED_${rCode}', this, '${item.trangThai}')">Từ Chối</button>`; 
                       } else if (grp === 'REJECTED_MINE') { 
