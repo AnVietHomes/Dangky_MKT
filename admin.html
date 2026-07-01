@@ -435,15 +435,21 @@
       let grandDeXuat = 0, grandDuyet = 0, grandAdv = 0; 
       let safeId = str => btoa(unescape(encodeURIComponent(str))).replace(/[^a-zA-Z0-9]/g, '');
 
-      // QUÉT DỮ LIỆU VỚI BẪY LỖI AN TOÀN
-      (window.bldItemsArray || []).forEach(item => {
+      // LOGIC LỌC PHẠM VI QUẢN LÝ CHO GĐCN/PTGĐ
+      window.bldItemsArray.forEach(item => {
         try {
+          // Kiểm tra xem item này có nằm trong quyền quản lý không
+          let isManaged = (loggedInUser.managedDepartments.indexOf('ALL') > -1 || 
+                           loggedInUser.managedDepartments.includes(item.phong) || 
+                           loggedInUser.managedDepartments.includes(item.khoi));
+          
+          // GĐCN/PTGĐ chỉ được tính vào tổng nếu thuộc quyền quản lý hoặc là khối CNQN được xem
+          if (!isBLD && !isMKT && !isManaged && item.khoi.toUpperCase() !== 'CNQN') return;
+
           let input = document.querySelector(`.bld-budget[data-id-dong="${item.idDong}"]`); 
           if (input) item.nsDuyet = parseNumber(input.value);
           
-          let kId = safeId(item.khoi); 
           let advAmount = Math.round(item.nsDeXuat * (item.phieuObj.advPercent || 0) / 100);
-
           let isRej = (item.trangThai && item.trangThai.startsWith('REJECTED'));
           let valDx = isRej ? 0 : item.nsDeXuat;
           let valDuyet = isRej ? 0 : item.nsDuyet;
@@ -460,10 +466,10 @@
           grandDeXuat += valDx; 
           grandDuyet += valDuyet; 
           grandAdv += valAdv;
-        } catch (e) { console.error("Lỗi tính toán dòng:", item, e); }
+        } catch (e) { console.error("Lỗi tính tổng:", e); }
       });
 
-      // Cập nhật giao diện bảng
+      // Cập nhật giao diện bảng (Giữ nguyên logic in bảng như cũ)
       let col2Name = isPTGD ? "Tạm Ứng" : ((isBLD||isMKT) ? "Phê Duyệt" : "");
       let htmlKhoi = '', htmlDuAn = ''; 
       
