@@ -435,16 +435,16 @@
       let grandDeXuat = 0, grandDuyet = 0, grandAdv = 0; 
       let safeId = str => btoa(unescape(encodeURIComponent(str))).replace(/[^a-zA-Z0-9]/g, '');
 
-      // LOGIC LỌC PHẠM VI QUẢN LÝ CHO GĐCN/PTGĐ
-      window.bldItemsArray.forEach(item => {
+      (window.bldItemsArray || []).forEach(item => {
         try {
-          // Kiểm tra xem item này có nằm trong quyền quản lý không
           let isManaged = (loggedInUser.managedDepartments.indexOf('ALL') > -1 || 
                            loggedInUser.managedDepartments.includes(item.phong) || 
                            loggedInUser.managedDepartments.includes(item.khoi));
           
-          // GĐCN/PTGĐ chỉ được tính vào tổng nếu thuộc quyền quản lý hoặc là khối CNQN được xem
-          if (!isBLD && !isMKT && !isManaged && item.khoi.toUpperCase() !== 'CNQN') return;
+          let isCNQN = (item.khoi.toUpperCase() === 'CNQN');
+
+          // ĐÃ FIX: GĐCN kiểm tra quản lý, còn BLĐ và TPMKT thì tính tất cả
+          if (currentViewRole === 'GDCN' && !isManaged && !isCNQN) return;
 
           let input = document.querySelector(`.bld-budget[data-id-dong="${item.idDong}"]`); 
           if (input) item.nsDuyet = parseNumber(input.value);
@@ -466,25 +466,29 @@
           grandDeXuat += valDx; 
           grandDuyet += valDuyet; 
           grandAdv += valAdv;
-        } catch (e) { console.error("Lỗi tính tổng:", e); }
+        } catch (e) {}
       });
 
-      // Cập nhật giao diện bảng (Giữ nguyên logic in bảng như cũ)
       let col2Name = isPTGD ? "Tạm Ứng" : ((isBLD||isMKT) ? "Phê Duyệt" : "");
       let htmlKhoi = '', htmlDuAn = ''; 
       
       Object.keys(sumDxKhoi).sort().forEach(k => {
-         htmlKhoi += `<tr><td style="text-align:left; font-weight:bold;">${k}</td><td>${formatNumber(sumDxKhoi[k])}</td><td>${formatNumber(isPTGD ? sumAdvKhoi[k] : sumDuyetKhoi[k])}</td></tr>`;
+         htmlKhoi += `<tr><td style="text-align:left; font-weight:bold;">${k}</td><td style="color:var(--danger);">${formatNumber(sumDxKhoi[k])}</td><td style="color:var(--primary-blue); font-weight:bold;">${formatNumber(isPTGD ? sumAdvKhoi[k] : sumDuyetKhoi[k])}</td></tr>`;
       });
-      htmlKhoi += `<tr style="background:#fffaf0; font-weight:bold;"><td style="text-align:right;">TỔNG CỘNG</td><td>${formatNumber(grandDeXuat)}</td><td>${formatNumber(isPTGD ? grandAdv : grandDuyet)}</td></tr>`;
+      htmlKhoi += `<tr style="background:#fffaf0; font-weight:bold;"><td style="text-align:right;">TỔNG CỘNG</td><td style="color:var(--danger);">${formatNumber(grandDeXuat)}</td><td style="color:var(--primary-blue);">${formatNumber(isPTGD ? grandAdv : grandDuyet)}</td></tr>`;
       
       Object.keys(sumDxDuAn).sort().forEach(d => {
-         htmlDuAn += `<tr><td style="text-align:left; font-weight:bold;">${d}</td><td>${formatNumber(sumDxDuAn[d])}</td><td>${formatNumber(isPTGD ? sumAdvDuAn[d] : sumDuyetDuAn[d])}</td></tr>`;
+         htmlDuAn += `<tr><td style="text-align:left; font-weight:bold;">${d}</td><td style="color:var(--danger);">${formatNumber(sumDxDuAn[d])}</td><td style="color:var(--primary-blue); font-weight:bold;">${formatNumber(isPTGD ? sumAdvDuAn[d] : sumDuyetDuAn[d])}</td></tr>`;
       });
-      htmlDuAn += `<tr style="background:#fffaf0; font-weight:bold;"><td style="text-align:right;">TỔNG CỘNG</td><td>${formatNumber(grandDeXuat)}</td><td>${formatNumber(isPTGD ? grandAdv : grandDuyet)}</td></tr>`;
+      htmlDuAn += `<tr style="background:#fffaf0; font-weight:bold;"><td style="text-align:right;">TỔNG CỘNG</td><td style="color:var(--danger);">${formatNumber(grandDeXuat)}</td><td style="color:var(--primary-blue);">${formatNumber(isPTGD ? grandAdv : grandDuyet)}</td></tr>`;
 
       document.querySelector('#tbodySumKhoi').innerHTML = htmlKhoi;
       document.querySelector('#tbodySumDuAn').innerHTML = htmlDuAn;
+
+      if (isBLD || isMKT) {
+          let grandEl = document.getElementById('sum_duyet_grand'); 
+          if(grandEl) grandEl.innerText = formatNumber(grandDuyet);
+      }
     }
 
     function formatCurrencyAdmin(input) { let val = input.value.replace(/\D/g, ''); if (val !== '') val = formatNumber(val); input.value = val; recalcBLDSummary(); }
@@ -522,76 +526,231 @@
     }
 
     function renderTableByRole(role) {
-      const thead = document.getElementById('tableHeader'); const tbAction = document.getElementById('tableBodyAction'); const bldActions = document.getElementById('bldActions'); const expBlock = document.getElementById('exportBlock'); const mktBlock = document.getElementById('mktToolbar');
+      const thead = document.getElementById('tableHeader'); 
+      const tbAction = document.getElementById('tableBodyAction'); 
+      const bldActions = document.getElementById('bldActions'); 
+      const expBlock = document.getElementById('exportBlock'); 
+      const mktBlock = document.getElementById('mktToolbar');
       const cnqnContainer = document.getElementById('cnqnContainer');
       const theadCNQN = document.getElementById('tableHeaderCNQN');
       const tbCNQN = document.getElementById('tableBodyCNQN');
 
-      let isBLD = (role === 'BLD' || role === 'SUPER_ADMIN'); let isMKT = (role === 'MKT' || role === 'TPMKT'); let isPTGD = (role === 'PTGD' || role === 'GDCN'); let isKD = (role === 'TPKD' || role === 'GDKD' || role === 'GDKD_KIEM_TPKD'); let isHighLevel = (isBLD || isMKT || isPTGD);
+      let isBLD = (role === 'BLD' || role === 'SUPER_ADMIN'); 
+      let isMKT = (role === 'MKT' || role === 'TPMKT'); 
+      let isPTGD = (role === 'PTGD'); 
+      let isGDCN = (role === 'GDCN');
+      let isKD = (role === 'TPKD' || role === 'GDKD' || role === 'GDKD_KIEM_TPKD'); 
+      let isHighLevel = (isBLD || isMKT || isPTGD || isGDCN);
 
       if (tbAction) tbAction.innerHTML = '';
       if (tbCNQN) tbCNQN.innerHTML = '';
       if (cnqnContainer) cnqnContainer.style.display = 'none';
-      if (isMKT) { if (mktBlock) mktBlock.style.display = 'flex'; } else { if (mktBlock) mktBlock.style.display = 'none'; }
-      if (isHighLevel) { if (expBlock) expBlock.style.display = 'flex'; document.getElementById('topSummaryBlocks').style.display = 'flex'; } else { if (expBlock) expBlock.style.display = 'none'; document.getElementById('topSummaryBlocks').style.display = 'none'; }
+      if (isMKT && mktBlock) mktBlock.style.display = 'flex'; else if (mktBlock) mktBlock.style.display = 'none';
+      if (isHighLevel && expBlock) { expBlock.style.display = 'flex'; document.getElementById('topSummaryBlocks').style.display = 'flex'; } else if (expBlock) { expBlock.style.display = 'none'; document.getElementById('topSummaryBlocks').style.display = 'none'; }
 
       let flatItems = [];
-      globalData.forEach(phieu => {
-        let tk = (phieu.phongKD || "").split('-'); let phong = tk[0] ? tk[0].trim() : 'Chưa phân phòng'; let khoi = tk[1] ? tk[1].trim() : 'Chưa phân khối';
-        let tv = (phieu.thanhVien||"").split(',').join('<br>');
-        let diffDays = (new Date() - new Date(phieu.ngayCapNhat)) / (1000 * 60 * 60 * 24);
-        
-        let isCnqnItem = (khoi.toUpperCase() === 'CNQN');
-        let isWatchingOnly = (isPTGD && isCnqnItem);
+      (window.globalData || []).forEach(phieu => {
+        let tk = (phieu.phongKD || "").split('-'); 
+        let phong = tk[0] ? tk[0].trim() : 'Chưa phân phòng'; 
+        let khoi = tk[1] ? tk[1].trim().toUpperCase() : 'KHÔNG XÁC ĐỊNH';
+        let isManaged = (loggedInUser.managedDepartments.indexOf('ALL') > -1 || loggedInUser.managedDepartments.includes(phong) || loggedInUser.managedDepartments.includes(khoi));
 
-        if (isHighLevel && diffDays > 15 && !isWatchingOnly) { 
-            if (phieu.trangThai === 'APPROVED_BY_BLD' || phieu.trangThai === 'REJECTED') return; 
+        let diffDays = (new Date() - new Date(phieu.ngayCapNhat)) / (1000 * 60 * 60 * 24);
+        if (isHighLevel && diffDays > 15 && !(isPTGD || isGDCN)) { 
+            if (phieu.trangThai === 'APPROVED_BY_BLD' || phieu.trangThai.startsWith('REJECTED')) return; 
         }
 
-        phieu.chiTiet.forEach(ct => { flatItems.push({ idPhieu: phieu.idPhieu, phong: phong, khoi: khoi, thanhVien: tv, tenDuAn: ct.tenDuAn, nsDeXuat: Number(ct.nganSachDeXuat || 0), nsDuyet: Number(ct.nganSachDuyet || 0), ghiChu: ct.ghiChuBLD || "", idDong: ct.idDong, trangThai: phieu.trangThai, phieuObj: phieu }); });
+        (phieu.chiTiet || []).forEach(ct => { 
+            flatItems.push({ 
+                idPhieu: phieu.idPhieu, phong: phong, khoi: khoi, thanhVien: (phieu.thanhVien||"").split(',').join('<br>'), 
+                tenDuAn: ct.tenDuAn, nsDeXuat: Number(ct.nganSachDeXuat || 0), nsDuyet: Number(ct.nganSachDuyet || 0), 
+                ghiChu: ct.ghiChuBLD || "", idDong: ct.idDong, trangThai: phieu.trangThai, phieuObj: phieu, isManaged: isManaged 
+            }); 
+        });
       });
 
-      flatItems.sort((a,b) => { if(a.khoi !== b.khoi) return a.khoi.localeCompare(b.khoi); if(a.phong !== b.phong) return a.phong.localeCompare(b.phong); return a.tenDuAn.localeCompare(b.tenDuAn); });
+      flatItems.sort((a,b) => { 
+          if(a.khoi !== b.khoi) return a.khoi.localeCompare(b.khoi); 
+          if(a.phong !== b.phong) return a.phong.localeCompare(b.phong); 
+          return a.tenDuAn.localeCompare(b.tenDuAn); 
+      });
 
       let thHtml = `<th width="4%"></th>`;
       if (isKD) thHtml += `<th width="5%">Nhóm Sale Mới</th>`;
       thHtml += `<th>Mã Phiếu</th><th>Phòng / Khối</th><th>Thành Viên</th><th>Trạng Thái</th><th>Ngân Sách Đề Xuất</th>`;
-      if (isPTGD) { thHtml += `<th>Tỷ Lệ T.Ư</th><th>Tạm Ứng Đầu Kỳ</th><th>Ghi Chú</th>`; } else if (isBLD || isMKT) { thHtml += `<th>BLĐ Duyệt Thực Tế</th><th>Ghi Chú</th>`; } 
+      if (isPTGD || isGDCN) { thHtml += `<th>Tỷ Lệ T.Ư</th><th>Tạm Ứng Đầu Kỳ</th><th>Ghi Chú</th>`; } else if (isBLD || isMKT) { thHtml += `<th>BLĐ Duyệt Thực Tế</th><th>Ghi Chú</th>`; } 
       thHtml += `<th class="td-actions">Hành Động</th>`;
       
       if (thead) thead.innerHTML = thHtml; 
       if (theadCNQN) theadCNQN.innerHTML = thHtml;
       if (bldActions) bldActions.style.display = isBLD ? 'flex' : 'none'; 
+
+      let mainItems = []; 
+      let cnqnItems = [];
       
-      let sumDxKhoi = {}, sumDxPhong = {}, sumDxDuAn = {}; let sumDuyetKhoi = {}, sumDuyetPhong = {}, sumDuyetDuAn = {}; let sumAdvKhoi = {}, sumAdvPhong = {}, sumAdvDuAn = {}; let safeId = str => btoa(unescape(encodeURIComponent(str))).replace(/[^a-zA-Z0-9]/g, '');
-
       flatItems.forEach(item => {
-        let kId = safeId(item.khoi); let pId = safeId(item.khoi + '|' + item.phong); let dId = safeId(item.khoi + '|' + item.phong + '|' + item.tenDuAn); let advAmt = Math.round(item.nsDeXuat * (item.phieuObj.advPercent || 0) / 100);
-        
-        let isRej = item.trangThai.startsWith('REJECTED');
-        let valDx = isRej ? 0 : item.nsDeXuat;
-        let valDuyet = isRej ? 0 : item.nsDuyet;
-        let valAdv = isRej ? 0 : advAmt;
+        let isCNQN = (item.khoi === 'CNQN');
 
-        sumDxKhoi[kId] = (sumDxKhoi[kId] || 0) + valDx; sumDxPhong[pId] = (sumDxPhong[pId] || 0) + valDx; sumDxDuAn[dId] = (sumDxDuAn[dId] || 0) + valDx;
-        sumDuyetKhoi[kId] = (sumDuyetKhoi[kId] || 0) + valDuyet; sumDuyetPhong[pId] = (sumDuyetPhong[pId] || 0) + valDuyet; sumDuyetDuAn[dId] = (sumDuyetDuAn[dId] || 0) + valDuyet;
-        sumAdvKhoi[kId] = (sumAdvKhoi[kId] || 0) + valAdv; sumAdvPhong[pId] = (sumAdvPhong[pId] || 0) + valAdv; sumAdvDuAn[dId] = (sumAdvDuAn[dId] || 0) + valAdv;
-      });
-
-      let mainItems = []; let cnqnItems = [];
-      flatItems.forEach(item => {
-        // Kiểm tra xem phòng/khối này có thuộc quyền quản lý của user không
-        let isManaged = (loggedInUser.managedDepartments.indexOf('ALL') > -1 || 
-                         loggedInUser.managedDepartments.includes(item.phong) || 
-                         loggedInUser.managedDepartments.includes(item.khoi));
-        
-        // Nếu là khối CNQN và KHÔNG thuộc quyền quản lý trực tiếp -> Bảng chỉ xem
-        if (item.khoi.toUpperCase() === 'CNQN' && !isManaged) {
-            cnqnItems.push(item);
-        } else {
+        if (isBLD || isMKT) {
             mainItems.push(item);
+        } 
+        else if (isPTGD) {
+            if (isCNQN) cnqnItems.push(item);
+            else mainItems.push(item);
+        } 
+        else if (isGDCN) {
+            if (item.isManaged) mainItems.push(item);
+            else if (isCNQN) cnqnItems.push(item);
+        } 
+        else if (isKD) {
+            if (item.isManaged) mainItems.push(item);
         }
       });
+
+      let safeId = str => btoa(unescape(encodeURIComponent(str))).replace(/[^a-zA-Z0-9]/g, '');
+      
+      function buildRowsHTML(itemsArray, disableButtons) {
+        if (!itemsArray || itemsArray.length === 0) return `<tr><td colspan="10" style="text-align:center;">Không có dữ liệu hiển thị</td></tr>`;
+        
+        let localSumDxKhoi = {}, localSumDxPhong = {}, localSumDxDuAn = {};
+        let localSumAdvKhoi = {}, localSumAdvPhong = {}, localSumAdvDuAn = {};
+        let localSumDyKhoi = {}, localSumDyPhong = {}, localSumDyDuAn = {};
+        let localGrandDx = 0; let localGrandAdv = 0; let localGrandDy = 0;
+        
+        itemsArray.forEach(item => {
+            let kId = safeId(item.khoi); let pId = safeId(item.khoi + '|' + item.phong); let dId = safeId(item.khoi + '|' + item.phong + '|' + item.tenDuAn);
+            let advAmt = Math.round(item.nsDeXuat * (item.phieuObj.advPercent || 0) / 100);
+            let isRej = item.trangThai.startsWith('REJECTED');
+            let valDx = isRej ? 0 : item.nsDeXuat; let valAdv = isRej ? 0 : advAmt; let valDy = isRej ? 0 : item.nsDuyet;
+
+            localSumDxKhoi[kId] = (localSumDxKhoi[kId] || 0) + valDx; localSumDxPhong[pId] = (localSumDxPhong[pId] || 0) + valDx; localSumDxDuAn[dId] = (localSumDxDuAn[dId] || 0) + valDx;
+            localSumAdvKhoi[kId] = (localSumAdvKhoi[kId] || 0) + valAdv; localSumAdvPhong[pId] = (localSumAdvPhong[pId] || 0) + valAdv; localSumAdvDuAn[dId] = (localSumAdvDuAn[dId] || 0) + valAdv;
+            localSumDyKhoi[kId] = (localSumDyKhoi[kId] || 0) + valDy; localSumDyPhong[pId] = (localSumDyPhong[pId] || 0) + valDy; localSumDyDuAn[dId] = (localSumDyDuAn[dId] || 0) + valDy;
+        });
+
+        let currentKhoi = null; let currentPhong = null; let currentDuAn = null; let html = ''; let colBefore = isKD ? 6 : 5; 
+
+        itemsArray.forEach((item) => {
+          let kId = safeId(item.khoi); let pId = safeId(item.khoi + '|' + item.phong); let dId = safeId(item.khoi + '|' + item.phong + '|' + item.tenDuAn);
+          let advAmt = Math.round(item.nsDeXuat * (item.phieuObj.advPercent || 0) / 100);
+          
+          if(!item.trangThai.startsWith('REJECTED')) { localGrandDx += item.nsDeXuat; localGrandAdv += advAmt; localGrandDy += item.nsDuyet; }
+
+          if (currentKhoi !== kId) {
+              html += `<tr style="background:#0b1f8c; color:white; font-weight:bold; font-size: 14px; text-transform: uppercase;"><td colspan="${colBefore}" style="text-align:center;">🏢 KHỐI: ${item.khoi}</td><td style="color:#f39c12;">${formatNumber(localSumDxKhoi[kId])}</td>`;
+              if (isPTGD || isGDCN) { html += `<td></td><td style="color:#2ecc71;">${formatNumber(localSumAdvKhoi[kId])}</td><td></td><td></td>`; } else if (isBLD || isMKT) { html += `<td id="sum_duyet_khoi_${kId}" style="color:#2ecc71;">${formatNumber(localSumDyKhoi[kId])}</td><td colspan="2"></td>`; } else { html += `<td></td>`; } html += `</tr>`; currentKhoi = kId;
+          }
+          if (currentPhong !== pId) {
+              html += `<tr style="background:#d4efff; font-weight:bold; font-size: 13px;"><td colspan="${colBefore}" style="text-align:center; color:#0b1f8c;">🏷️ PHÒNG: ${item.phong}</td><td style="color:#e74c3c;">${formatNumber(localSumDxPhong[pId])}</td>`;
+              if (isPTGD || isGDCN) { html += `<td></td><td style="color:#0b1f8c;">${formatNumber(localSumAdvPhong[pId])}</td><td></td><td></td>`; } else if (isBLD || isMKT) { html += `<td id="sum_duyet_phong_${pId}" style="color:#0b1f8c;">${formatNumber(localSumDyPhong[pId])}</td><td colspan="2"></td>`; } else { html += `<td></td>`; } html += `</tr>`; currentPhong = pId;
+          }
+          if (currentDuAn !== dId) {
+              html += `<tr style="background:#f9f9f9; font-weight:bold; font-size: 13px;"><td colspan="${colBefore}" style="text-align:center; color:#333;">📌 Dự án: ${item.tenDuAn}</td><td>${formatNumber(localSumDxDuAn[dId])}</td>`;
+              if (isPTGD || isGDCN) { html += `<td></td><td style="color:#333;">${formatNumber(localSumAdvDuAn[dId])}</td><td></td><td></td>`; } else if (isBLD || isMKT) { html += `<td id="sum_duyet_duan_${dId}" style="color:#333;">${formatNumber(localSumDyDuAn[dId])}</td><td colspan="2"></td>`; } else { html += `<td></td>`; } html += `</tr>`; currentDuAn = dId;
+          }
+
+          let rowClass = item.trangThai === 'APPROVED_BY_BLD' ? 'row-approved' : (item.trangThai.startsWith('REJECTED') ? 'row-rejected' : '');
+          let nsDuyetHtml = (isBLD && !disableButtons) ? `<input type="text" class="input-budget bld-budget" data-id-dong="${item.idDong}" value="${formatNumber(item.nsDuyet)}" oninput="formatCurrencyAdmin(this)">` : `<span style="color:var(--danger); font-weight:bold;">${formatNumber(item.nsDuyet)}</span>`;
+          
+          let isEditableNote = (isBLD || role === 'TPMKT' || role === 'PTGD' || (role === 'GDCN' && item.isManaged)) && !disableButtons;
+          let ghiChuHtml = isEditableNote ? `<input type="text" class="input-note bld-note" placeholder="Nhập ghi chú..." value="${item.ghiChu.replace(/"/g, '&quot;')}">` : `<span style="font-size:12px;">${item.ghiChu}</span>`;
+          let saleMoiBadge = (isHighLevel && item.phieuObj.isNewSale) ? `<br><span style="display:inline-block; margin-top:5px; background:var(--danger); color:white; padding:3px 8px; border-radius:12px; font-size:10px; font-weight:bold;">NHÓM SALE MỚI</span>` : '';
+
+          let btnHtml = '';
+          if (disableButtons) {
+              btnHtml = `<span style="color:#999; font-size: 11px; font-weight: bold; background: #e0e0e0; padding: 4px 8px; border-radius: 4px;">Chỉ xem</span>`;
+          } else {
+              let rCode = role;
+              if(role === 'GDKD_KIEM_TPKD') rCode = 'GDKD'; if(role === 'GDCN') rCode = 'GDCN'; if(role === 'MKT') rCode = 'TPMKT'; if(role === 'SUPER_ADMIN') rCode = 'BLD';
+
+              if (isEditableNote && !isBLD) { btnHtml += `<button class="btn-action btn-draft" style="background:#f39c12;" onclick="saveSingleRow(this, '${item.idDong}')">Lưu Ghi Chú</button>`; }
+
+              if (isBLD) {
+                  btnHtml += `<button class="btn-action btn-draft" onclick="saveSingleRow(this, '${item.idDong}')">Cập nhật</button>`;
+                  if (item.trangThai === 'REJECTED_BLD' || item.trangThai === 'REJECTED') {
+                      btnHtml += `<button class="btn-action btn-draft" onclick="updateStatusOptimistic('${item.idPhieu}', 'PENDING_BLD', this, 'PENDING_BLD')">Hoàn Tác (Duyệt Lại)</button>`;
+                  } else if (item.trangThai !== 'APPROVED_BY_BLD') {
+                      btnHtml += `<button class="btn-action btn-approve" style="background:#8e44ad;" onclick="approveSingleBLD(this, '${item.idPhieu}')">Duyệt Đơn</button>`;
+                      btnHtml += `<button class="btn-action btn-reject" onclick="updateStatusOptimistic('${item.idPhieu}', 'REJECTED_BLD', this, 'PENDING_BLD')">Từ Chối</button>`;
+                  }
+              } else {
+                  let grp = typeof getStatusGroup === 'function' ? getStatusGroup(item.phieuObj, role) : '';
+                  if (role === 'MKT') {
+                      if (item.trangThai === 'APPROVED_BY_BLD') btnHtml += `<button class="btn-action btn-sendmail" onclick="sendApprovalMail(this, '${item.idPhieu}')">Gửi File Duyệt</button>`;
+                  } else if (role === 'TPMKT') {
+                      if (item.trangThai === 'APPROVED_BY_BLD') { 
+                          btnHtml += `<button class="btn-action btn-sendmail" onclick="sendApprovalMail(this, '${item.idPhieu}')">Gửi File Duyệt</button>`; 
+                      } else if (grp === 'ACTION') { 
+                          btnHtml += `<button class="btn-action btn-approve" onclick="updateStatusOptimistic('${item.idPhieu}', 'PENDING_BLD', this, 'PENDING_TPMKT')">Duyệt Lên BLĐ</button><button class="btn-action btn-reject" onclick="updateStatusOptimistic('${item.idPhieu}', 'REJECTED_TPMKT', this, 'PENDING_TPMKT')">Từ Chối</button>`; 
+                      } else if (grp === 'REJECTED_MINE') { 
+                          btnHtml += `<button class="btn-action btn-draft" onclick="updateStatusOptimistic('${item.idPhieu}', 'PENDING_TPMKT', this, 'PENDING_TPMKT')">Hoàn Tác (Duyệt Lại)</button>`; 
+                      }
+                  } else {
+                      let nextStatus = ''; 
+                      if (role === 'TPKD') nextStatus = 'PENDING_GDKD'; 
+                      else if (role === 'GDKD' || role === 'GDKD_KIEM_TPKD') nextStatus = 'PENDING_PTGD'; 
+                      else if (role === 'PTGD' || role === 'GDCN') nextStatus = 'PENDING_TPMKT';
+                      
+                      if (grp === 'ACTION') { 
+                          btnHtml += `<button class="btn-action btn-approve" onclick="updateStatusOptimistic('${item.idPhieu}', '${nextStatus}', this, '${nextStatus}')">Duyệt</button><button class="btn-action btn-reject" onclick="updateStatusOptimistic('${item.idPhieu}', 'REJECTED_${rCode}', this, '${item.trangThai}')">Từ Chối</button>`; 
+                      } else if (grp === 'REJECTED_MINE') { 
+                          let origStatus = 'PENDING_TPKD';
+                          if(item.trangThai === 'REJECTED_TPKD') origStatus = 'PENDING_TPKD'; else if(item.trangThai === 'REJECTED_GDKD') origStatus = 'PENDING_GDKD'; else if(item.trangThai === 'REJECTED_PTGD') origStatus = 'PENDING_PTGD'; else if(item.trangThai === 'REJECTED_GDCN') origStatus = 'PENDING_PTGD'; 
+                          btnHtml += `<button class="btn-action btn-draft" onclick="updateStatusOptimistic('${item.idPhieu}', '${origStatus}', this, '${origStatus}')">Hoàn Tác (Duyệt Lại)</button>`; 
+                      }
+                  }
+              }
+          }
+
+          let statusText = '';
+          if (item.trangThai === 'APPROVED_BY_BLD') { statusText = `<span style="color:var(--success-green); font-weight:700;" id="status_${item.idPhieu}">ĐÃ DUYỆT</span>`; }
+          else if (item.trangThai.startsWith('REJECTED')) {
+              let byStr = item.trangThai.split('_')[1]; let byRole = byStr ? `<br><span style="font-size:10px;">(Bởi ${byStr})</span>` : '';
+              statusText = `<span style="color:var(--danger); font-weight:700; line-height: 1.2;" id="status_${item.idPhieu}">TỪ CHỐI${byRole}</span>`;
+          } else {
+              let pStr = item.trangThai.replace('PENDING_', 'CHỜ ');
+              statusText = `<span style="color:var(--warning); font-weight:700;" id="status_${item.idPhieu}">${pStr}</span>`;
+          }
+
+          let rowHTML = `<tr data-id-dong="${item.idDong}" data-id-phieu="${item.idPhieu}" data-nsduyet="${item.nsDuyet}" class="${rowClass}"><td><button class="btn-view" onclick="viewDetail('${item.idPhieu}')">👁️</button></td>`;
+          if (isKD) { let checkedState = item.phieuObj.isNewSale ? 'checked' : ''; rowHTML += `<td><input type="checkbox" class="cb-newsale" style="width:16px; height:16px; cursor:pointer;" title="Nhóm sale mới" ${checkedState} ${disableButtons?'disabled':''}></td>`; }
+          rowHTML += `<td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${item.idPhieu}</span></td><td><span style="font-weight:700; color:var(--primary-blue);">${item.phong}</span><br><span style="font-size:11px; color:#666;">Khối ${item.khoi}</span></td><td style="text-align:left; font-size:12px; line-height:1.5;"><span style="color:var(--primary-blue); font-weight:bold;">Nhóm: ${item.phieuObj.tenNhom}</span><br>${item.thanhVien} ${saleMoiBadge}</td><td>${statusText}</td><td style="font-weight:bold;">${formatNumber(item.nsDeXuat)}</td>`;
+
+          if (isPTGD || isGDCN) { 
+              rowHTML += `<td style="color:var(--primary-blue); font-weight:bold;">${item.phieuObj.advPercent || 0}%</td><td style="color:var(--danger); font-weight:bold;">${formatNumber(advAmt)}</td><td style="width:250px;">${ghiChuHtml}</td>`; 
+          } else if (isBLD || isMKT) { 
+              rowHTML += `<td>${nsDuyetHtml}</td><td style="width:250px;">${ghiChuHtml}</td>`; 
+          }
+          rowHTML += `<td class="td-actions">${btnHtml}</td></tr>`; html += rowHTML;
+        });
+
+        let txtList = disableButtons ? "TỔNG CỘNG CNQN (CHỈ XEM)" : "TỔNG CỘNG BẢNG DUYỆT CHÍNH";
+        html += `<tr style="background:#333; color:white; font-weight:bold; font-size: 16px;"><td colspan="${colBefore}" style="text-align:right; padding-right: 20px;">${txtList}</td><td style="color:#f39c12;">${formatNumber(localGrandDx)}</td>`;
+        if (isPTGD || isGDCN) { html += `<td></td><td style="color:#2ecc71;">${formatNumber(localGrandAdv)}</td><td></td><td></td>`; } 
+        else if (isBLD || isMKT) { html += `<td style="color:#2ecc71;">${disableButtons ? formatNumber(localGrandDy) : `<span id="sum_duyet_grand">0</span>`}</td><td colspan="2"></td>`; } 
+        else { html += `<td></td>`; }
+        html += `</tr>`;
+        
+        return html;
+      }
+
+      if (tbAction) tbAction.innerHTML = buildRowsHTML(mainItems, false);
+
+      if (cnqnContainer) {
+          if (cnqnItems.length > 0) {
+              cnqnContainer.style.display = 'block';
+              if (tbCNQN) {
+                  let disableBtn = isPTGD ? false : true;
+                  tbCNQN.innerHTML = buildRowsHTML(cnqnItems, disableBtn);
+              }
+          } else {
+              cnqnContainer.style.display = 'none';
+          }
+      }
+
+      window.bldItemsArray = flatItems; 
+      if (typeof recalcBLDSummary === 'function') recalcBLDSummary();
+    }
 
       function buildRowsHTML(itemsArray, isReadOnlyMode) {
         let currentKhoi = null; let currentPhong = null; let currentDuAn = null; let html = ''; let colBefore = isKD ? 6 : 5; 
@@ -735,12 +894,15 @@
     function renderAdvanceTableByRole(role) {
       if(role !== 'MKT' && role !== 'TPMKT' && role !== 'BLD' && role !== 'SUPER_ADMIN') return;
       const tb = document.getElementById('tableAdvanceBody'); let html = '';
-      const allowedDXStatuses = ['PENDING_MKT', 'PENDING_BLD', 'BLD_DRAFTING', 'APPROVED_BY_BLD'];
+      
+      // ĐÃ FIX: Bổ sung PENDING_TPMKT để hiện các đơn CNQN đi Luồng Xanh
+      const allowedDXStatuses = ['PENDING_MKT', 'PENDING_TPMKT', 'PENDING_BLD', 'BLD_DRAFTING', 'APPROVED_BY_BLD'];
 
       globalData.forEach(phieu => {
         if (!allowedDXStatuses.includes(phieu.trangThai)) return;
         let diffDays = (new Date() - new Date(phieu.ngayCapNhat)) / (1000 * 60 * 60 * 24);
         if ((role === 'MKT' || role === 'TPMKT' || role === 'BLD' || role === 'SUPER_ADMIN') && diffDays > 15 && (phieu.trangThaiTU === 'APPROVED_TU' || phieu.trangThaiTU === 'REJECTED_TU')) return;
+        
         let isViewable = false;
         if(role === 'MKT' || role === 'SUPER_ADMIN') isViewable = true;
         if(role === 'TPMKT' && ['PENDING_MKT_TU', 'PENDING_BLD_TU', 'APPROVED_TU', 'REJECTED_TU'].includes(phieu.trangThaiTU)) isViewable = true;
