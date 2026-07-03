@@ -1119,6 +1119,16 @@
         callAPI("exportTracking", { data: JSON.stringify({ url: url, items: bldItemsArray }) }, function(res) { showLoading(false); if(res && res.success) alert(res.message); else alert("Đồng bộ thất bại: " + (res ? res.message : "Lỗi mạng")); });
       } catch(e) { showLoading(false); alert("Lỗi đồng bộ: " + e.message); }
     }
+
+    // Đặt toàn bộ code vào đây để đảm bảo nó chỉ chạy khi trang đã load xong
+      document.addEventListener('contextmenu', event => event.preventDefault());
+
+      document.onkeydown = function(e) {
+        // Chặn F12 (123), Ctrl+Shift+I (73), Ctrl+Shift+J (74), Ctrl+U (85)
+        if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) {
+          return false;
+        }
+      };
   </script>
 </body>
 </html>
