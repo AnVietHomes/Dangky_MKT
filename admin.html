@@ -118,7 +118,6 @@
       <button class="tab-btn" onclick="switchTab('report')" id="tabBtnReport" style="display:none;">3. TỔNG HỢP & BÁO CÁO</button>
     </div>
 
-    <!-- TAB 1: ĐỀ XUẤT -->
     <div class="tab-content active" id="tabProposal">
       <div class="mkt-toolbar" id="mktToolbar" style="display:none;">
         <div><b style="color: var(--primary-blue); font-size:16px;">CÔNG CỤ PHÒNG MARKETING</b></div>
@@ -147,9 +146,8 @@
 
       <div class="table-container"><table id="dataTable"><thead><tr id="tableHeader"></tr></thead><tbody id="tableBodyAction"></tbody></table></div>
       
-      <!-- BẢNG THEO DÕI RIÊNG KHỐI CNQN DÀNH CHO PTGĐ -->
       <div id="cnqnContainer" style="display: none; margin-top: 30px;">
-        <div style="background: #0a1f35; color: white; padding: 12px 15px; font-weight: bold; text-transform: uppercase; border-radius: 8px 8px 0 0; font-size: 15px;">📊 ĐỀ XUẤT KHỐI CNQN</div>
+        <div style="background: #0a1f35; color: white; padding: 12px 15px; font-weight: bold; text-transform: uppercase; border-radius: 8px 8px 0 0; font-size: 15px;">📊 ĐỀ XUẤT KHỐI CNQN (BẢNG THEO DÕI RIÊNG CỦA PTGĐ)</div>
         <div class="table-container" style="border-radius: 0 0 8px 8px; border-top: none;">
             <table id="dataTableCNQN">
                 <thead><tr id="tableHeaderCNQN"></tr></thead>
@@ -164,7 +162,6 @@
       </div>
     </div>
 
-    <!-- TAB 2: TẠM ỨNG -->
     <div class="tab-content" id="tabAdvance">
       <div class="mkt-toolbar" id="advMktToolbar" style="display:none; justify-content:flex-end;">
         <div style="display: flex; gap: 10px; align-items: center;">
@@ -181,7 +178,6 @@
       </div>
     </div>
 
-    <!-- TAB 3: BÁO CÁO -->
     <div class="tab-content" id="tabReport">
       <div class="mkt-toolbar" style="justify-content: space-between; gap: 20px; background: #fffaf0; border-color: #f39c12;">
         <div style="display: flex; gap: 15px; align-items: center;">
@@ -220,16 +216,19 @@
     function formatNumber(num) { return (num || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
     function parseNumber(str) { return parseFloat(str.replace(/\./g, '')) || 0; }
     
-    // Hàm phụ trợ dùng cho việc in hóa đơn và lọc báo cáo
+    // Hàm phụ trợ dùng cho việc in hóa đơn và lọc báo cáo (CHỈ lọc theo start/end gói chạy, ĐÃ XÓA logic lấy ngayTao dự phòng, VÁ LỖI undefined)
     function isPhieuInMonth(phieu, monthVal) {
         if(!monthVal) return true;
         let match = false;
         if (phieu.chiTiet && phieu.chiTiet.length > 0) {
             for(let ct of phieu.chiTiet) {
-                if ((ct.start && ct.start.includes(monthVal)) || (ct.end && ct.end.includes(monthVal))) { match = true; break; }
+                let s = ct.start ? String(ct.start) : "";
+                let e = ct.end ? String(ct.end) : "";
+                if (s.includes(monthVal) || e.includes(monthVal)) { 
+                    match = true; break; 
+                }
             }
         }
-        if (!match && phieu.ngayTao && phieu.ngayTao.includes(monthVal)) { match = true; }
         return match;
     }
 
@@ -329,7 +328,8 @@
 
       if(isHighLevel) {
         document.getElementById('tabBtnAdvance').style.display = 'inline-block'; document.getElementById('tabBtnReport').style.display = 'inline-block'; document.getElementById('globalSearchContainer').style.display = 'block';
-        if (role === 'MKT' || role === 'TPMKT') document.getElementById('advMktToolbar').style.display = 'flex'; else document.getElementById('advMktToolbar').style.display = 'none';
+        // ĐÃ FIX 3: Hiển thị thanh Toolbar cho cả BLĐ để có thể nhấn nút Duyệt Hàng Loạt
+        if (role === 'MKT' || role === 'TPMKT' || role === 'BLD' || role === 'SUPER_ADMIN') document.getElementById('advMktToolbar').style.display = 'flex'; else document.getElementById('advMktToolbar').style.display = 'none';
       } else {
         document.getElementById('tabBtnAdvance').style.display = 'none'; document.getElementById('tabBtnReport').style.display = 'none'; document.getElementById('globalSearchContainer').style.display = 'none';
         switchTab('proposal'); 
@@ -394,7 +394,7 @@
 
       globalData.forEach(phieu => {
         if (phieu.trangThai !== 'APPROVED_BY_BLD') return;
-        if (!isPhieuInMonth(phieu, month)) return; 
+        if (!isPhieuInMonth(phieu, month)) return; // Dùng logic filter theo gói
 
         let tk = (phieu.phongKD || "").split('-'); let phong = tk[0] ? tk[0].trim() : ''; let khoi = tk[1] ? tk[1].trim() : 'Chưa phân khối';
         (phieu.chiTiet || []).forEach(ct => {
@@ -439,7 +439,7 @@
         let totalBudget = 0; let totalAdvance = 0; let projectSummary = {}; let itemsByProject = {}; 
         globalData.forEach(phieu => {
           if (phieu.trangThai !== 'APPROVED_BY_BLD') return;
-          if (!isPhieuInMonth(phieu, month)) return;
+          if (!isPhieuInMonth(phieu, month)) return; // Dùng logic filter theo gói
           let tk = (phieu.phongKD || "").split('-'); let phong = tk[0] ? tk[0].trim() : ''; let khoi = tk[1] ? tk[1].trim() : 'Chưa phân khối';
           (phieu.chiTiet || []).forEach(ct => {
             let liveInput = document.querySelector(`.bld-budget[data-id-dong="${ct.idDong}"]`); let finalBudget = (liveInput) ? parseNumber(liveInput.value) : (Number(ct.nganSachDuyet) || 0);
@@ -773,7 +773,10 @@
             let txtList = isReadOnlyMode ? "TỔNG CỘNG CNQN" : "TỔNG CỘNG BẢNG DUYỆT CHÍNH";
             html += `<tr class="total-row" style="background:#333; color:white; font-weight:bold; font-size: 16px;"><td colspan="${colBefore}" style="text-align:right; padding-right: 20px;">${txtList}</td><td style="color:#f39c12;">${formatNumber(localGrandDx)}</td>`;
             if (isPTGD) { html += `<td></td><td style="color:#2ecc71;">${formatNumber(localGrandAdv)}</td><td></td><td></td>`; } 
-            else if (isBLD || isMKT) { html += `<td class="sum_duyet_grand" style="color:#2ecc71;">0</td><td colspan="2"></td>`; } 
+            else if (isBLD || isMKT) { 
+                if (isReadOnlyMode) { html += `<td style="color:#2ecc71;">${formatNumber(localGrandDy)}</td><td colspan="2"></td>`; } 
+                else { html += `<td class="sum_duyet_grand" style="color:#2ecc71;">${formatNumber(localGrandDy)}</td><td colspan="2"></td>`; }
+            } 
             else { html += `<td></td>`; }
             html += `</tr>`;
         } else { html += `<tr><td colspan="10">Không có dữ liệu hiển thị</td></tr>`; }
@@ -983,7 +986,7 @@
               <table class="form-table"><tr><td class="form-label" style="width: 1%;">Thành viên:</td><td class="form-dots">${htmlMembers}</td><td class="form-label" style="width: 1%; padding-left: 20px;">Mã nhân viên:</td><td class="form-dots">${htmlMnv}</td></tr><tr><td class="form-label">Tên nhóm:</td><td class="form-dots"><b>${phieu.tenNhom||''}</b></td><td class="form-label" style="padding-left: 20px;">Email liên hệ:</td><td class="form-dots">${phieu.email||''}</td></tr><tr><td class="form-label">Phòng kinh doanh:</td><td class="form-dots"><b>${phong}</b></td><td class="form-label" style="padding-left: 20px;">Khối kinh doanh:</td><td class="form-dots"><b>${khoi}</b></td></tr></table>
               <div style="font-weight: bold; font-size: 11pt; margin-bottom: 8px; text-align: left;">Nội dung đề xuất chiến dịch Marketing</div>
               <div class="rounded-wrapper"><table class="styled-table"><thead><tr style="background-color:#0b1f8c; color:#fff; font-weight:bold;"><th rowspan="2">STT</th><th rowspan="2">Dự án</th><th colspan="4">Thông tin chiến dịch Marketing đăng ký</th><th rowspan="2">Kênh chạy</th><th rowspan="2">Số điện thoại<br>đăng ký</th><th rowspan="2">Tài khoản<br>chạy QC</th><th rowspan="2">BLĐ<br>Duyệt</th></tr><tr style="background-color:#0b1f8c; color:#fff; font-weight:bold;"><th>Ngân sách</th><th>Bắt đầu</th><th>Kết thúc</th><th>KPI</th></tr></thead><tbody>${rowsHtml}</tbody><tr style="background:#f4f6f8; font-weight:bold;"><td colspan="2" style="text-align:right !important;">TỔNG CỘNG</td><td style="color:#fff; background:#0b1f8c; font-size:13pt;">${formatNumber(tongTien)}</td><td colspan="7"></td></tr></table></div>
-              <table class="no-border" style="width: 100%; text-align: center !important; margin-top: 15px;"><tr style="font-weight:bold; font-size: 10pt;"><td style="width: 20%; text-align:center !important;">NGƯỜI LÀM ĐƠN</td><td style="width: 20%; text-align:center !important;">TRƯỞNG PHÒNG KD</td><td style="width: 20%; text-align:center !important;">GIÁM ĐỐC KD</td><td style="width: 20%; text-align:center !important;">P. MARKETING</td><td style="width: 20%; text-align:center !important;">BAN LÃNH ĐẠO</td></tr><tr><td style="text-align:center !important; padding-top: 10px !important;"><span class="signature">Đã xác nhận<br>trên hệ thống</span></td><td style="text-align:center !important; padding-top: 10px !important;"><span class="signature">Đã xác nhận<br>trên hệ thống</span></td><td style="text-align:center !important; padding-top: 10px !important;"><span class="signature">Đã xác nhận<br>trên hệ thống</span></td><td style="text-align:center !important; padding-top: 10px !important;"><span class="signature">Đã xác nhận<br>trên hệ thống</span></td><td style="text-align:center !important; padding-top: 10px !important;"><span class="signature">Đã xác nhận<br>trên hệ thống</span></td></tr></table></div>`;
+              <table class="no-border" style="width: 100%; text-align: center !important; margin-top: 15px;"><tr style="font-weight:bold; font-size: 10pt;"><td style="width: 20%; text-align:center !important;">NGƯỜI LÀM ĐƠN</td><td style="width: 20%; text-align:center !important;">TRƯỞNG PHÒNG KD</td><td style="width: 20%; text-align:center !important;">GIÁM ĐỐC KD</td><td style="width: 20%; text-align:center !important;">P. MARKETING</td><td style="width: 20%; text-align:center !important;">BAN LÃNH ĐẠO</td></tr><tr><td style="text-align:center !important; padding-top: 10px !important;"><span class=\"signature\">Đã xác nhận<br>trên hệ thống</span></td><td style="text-align:center !important; padding-top: 10px !important;"><span class=\"signature\">Đã xác nhận<br>trên hệ thống</span></td><td style="text-align:center !important; padding-top: 10px !important;"><span class=\"signature\">Đã xác nhận<br>trên hệ thống</span></td><td style="text-align:center !important; padding-top: 10px !important;"><span class=\"signature\">Đã xác nhận<br>trên hệ thống</span></td><td style="text-align:center !important; padding-top: 10px !important;"><span class=\"signature\">Đã xác nhận<br>trên hệ thống</span></td></tr></table></div>`;
         });
         printHTMLNative(htmlString, 'landscape', 'Ban_Duyet_MKT_' + monthVal);
       } catch(e) { showLoading(false); alert("Lỗi xử lý dữ liệu in: " + e.message); }
@@ -1006,8 +1009,8 @@
               <div class="rounded-wrapper" style="margin-bottom: 10px;"><table class="styled-table" style="font-size: 11pt;"><thead><tr style="background-color:#0b1f8c; color:#fff; font-weight:bold;"><th>Tháng chạy MKT</th><th>Dự án</th><th>Ngân sách MKT</th><th>Số tiền được tạm ứng</th></tr></thead><tbody>${rowsHtml}<tr style="background:#f4f6f8; font-weight:bold;"><td colspan="3" style="text-align: left !important; padding: 4px;">Số tiền tạm ứng MKT lần 1 (${phieu.advPercent||0}%)</td><td style="text-align:center !important; color:#0b1f8c; font-size: 12pt; padding: 4px;">${formatNumber(totalAdvance)}</td></tr><tr><td colspan="3" style="text-align: left !important; padding: 4px;">Số tiền tạm ứng MKT lần 2</td><td style="padding: 4px;"></td></tr><tr style="font-weight:bold;"><td colspan="3" style="text-align: left !important; padding: 4px;">Số tiền còn lại</td><td style="text-align:center !important; color:#0b1f8c; font-size: 12pt; padding: 4px;">${formatNumber(remaining)}</td></tr></tbody></table></div>
               <table class="no-border" style="width: 100%; margin-bottom: 10px; font-size:11pt;"><tr><td style="width: 35px; vertical-align: top; text-align: left !important;">1.3.</td><td style="text-align: left !important;">Số tiền tạm ứng kỳ này: <b>${formatNumber(totalAdvance)} VNĐ</b><br><i style="font-size: 10.5pt;"></i></td></tr><tr><td style="width: 35px; vertical-align: top; text-align: left !important; padding-top: 5px !important;">1.4.</td><td style="text-align: left !important; padding-top: 5px !important;">Hình thức chi tạm ứng: Chuyển khoản. Thông tin số tài khoản nhận tạm ứng:<div style="padding-left: 15px; margin-top: 4px;">- Chủ tài khoản: <b>${phieu.bankOwner||''}</b><br>- Số tài khoản: <b>${phieu.bankAccount||''}</b><br>- Mở tại ngân hàng: <b>${phieu.bankName||''}</b></div></td></tr><tr><td style="width: 35px; vertical-align: top; text-align: left !important; padding-top: 5px !important;">1.5.</td><td style="text-align: justify !important; padding-top: 5px !important; line-height: 1.3;">Tôi/chúng tôi xin cam kết chạy đủ ngân sách trong thời gian hỗ trợ, nếu số tiền tôi/chúng tôi tạm ứng vượt quá số tiền được hỗ trợ marketing, tôi/chúng đồng ý cho Công ty khấu trừ phần chênh lệch đó vào lương, Hoa hồng và Thưởng từ các Giao dịch khác mà tôi/chúng tôi có tại Công ty. Trường hợp không đủ khấu trừ, tôi/chúng tôi hoàn toàn đồng ý mọi phương án xử lý từ Ban Lãnh đạo Công ty.</td></tr></table>
               <p style="margin: 0 0 10px 35px; text-align: left !important; font-size:11pt;">Kính đề nghị Ban Lãnh đạo hỗ trợ và phê duyệt.<br>Trân trọng cảm ơn!</p>
-              <table class="no-border" style="width: 100%; text-align: center !important; margin-top: 5px;"><tr style="font-weight:bold; font-size: 10pt;"><td style="width: 50%; text-align:center !important;">XÁC NHẬN P.MARKETING</td><td style="width: 50%; text-align:center !important;">NGƯỜI LÀM ĐƠN</td></tr><tr><td style="text-align:center !important; padding-top: 15px !important;"><span class="signature">Đã xác nhận<br>trên hệ thống</span></td><td style="text-align:center !important; padding-top: 15px !important;"><span class="signature">Đã xác nhận<br>trên hệ thống</span></td></tr></table>
-              <table class="no-border" style="width: 100%; text-align: center !important; margin-top: 25px;"><tr style="font-weight:bold; font-size: 10pt;"><td style="width: 33.33%; text-align:center !important;">BAN LÃNH ĐẠO</td><td style="width: 33.33%; text-align:center !important;">XÁC NHẬN P. KẾ TOÁN</td><td style="width: 33.33%; text-align:center !important;">XÁC NHẬN P. ADMIN</td></tr><tr><td style="text-align:center !important; padding-top: 15px !important;"><span class="signature">Đã xác nhận<br>trên hệ thống</span></td><td></td><td></td></tr></table>
+              <table class="no-border" style="width: 100%; text-align: center !important; margin-top: 5px;"><tr style="font-weight:bold; font-size: 10pt;"><td style="width: 50%; text-align:center !important;">XÁC NHẬN P.MARKETING</td><td style="width: 50%; text-align:center !important;">NGƯỜI LÀM ĐƠN</td></tr><tr><td style="text-align:center !important; padding-top: 15px !important;"><span class=\"signature\">Đã xác nhận<br>trên hệ thống</span></td><td style="text-align:center !important; padding-top: 15px !important;"><span class=\"signature\">Đã xác nhận<br>trên hệ thống</span></td></tr></table>
+              <table class="no-border" style="width: 100%; text-align: center !important; margin-top: 25px;"><tr style="font-weight:bold; font-size: 10pt;"><td style="width: 33.33%; text-align:center !important;">BAN LÃNH ĐẠO</td><td style="width: 33.33%; text-align:center !important;">XÁC NHẬN P. KẾ TOÁN</td><td style="width: 33.33%; text-align:center !important;">XÁC NHẬN P. ADMIN</td></tr><tr><td style="text-align:center !important; padding-top: 15px !important;"><span class=\"signature\">Đã xác nhận<br>trên hệ thống</span></td><td></td><td></td></tr></table>
             </div>`;
         });
         printHTMLNative(htmlString, 'portrait', 'Don_Tam_Ung_MKT_' + monthVal);
