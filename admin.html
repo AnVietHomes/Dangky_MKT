@@ -1122,8 +1122,10 @@
       try {
         const url = document.getElementById('trackingUrl').value.trim(); 
         if(!url) { alert("Vui lòng dán link Google Sheet để đồng bộ!"); return; }
-        showLoading(true, "Đang đồng bộ dữ liệu...");
         
+        showLoading(true, "ĐANG ĐỒNG BỘ...", "Dữ liệu lớn có thể mất 5 - 15 giây, vui lòng không đóng trang.");
+        
+        // Đóng gói dữ liệu cần thiết
         let exportData = bldItemsArray.map(item => ({
             idPhieu: item.idPhieu,
             tenDuAn: item.tenDuAn,
@@ -1135,12 +1137,36 @@
             ghiChu: item.ghiChu
         }));
 
-        callAPI("exportTracking", { data: JSON.stringify({ url: url, items: exportData }) }, function(res) { 
+        // SỬ DỤNG GIAO THỨC POST (Thay vì GET) để gửi lượng dữ liệu không giới hạn
+        fetch(API_URL, {
+            redirect: "follow",
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+            },
+            body: new URLSearchParams({
+                action: 'exportTracking',
+                data: JSON.stringify({ url: url, items: exportData })
+            })
+        })
+        .then(response => response.json())
+        .then(res => {
             showLoading(false); 
-            if(res && res.success) alert(res.message); 
-            else alert("Đồng bộ thất bại: " + (res ? res.message : "Lỗi mạng")); 
+            if(res && res.success) {
+                alert(res.message); 
+            } else {
+                alert("Đồng bộ thất bại: " + (res ? res.message : "Lỗi không xác định")); 
+            }
+        })
+        .catch(err => {
+            showLoading(false); 
+            alert("Lỗi kết nối khi gửi dữ liệu lớn: " + err.message);
         });
-      } catch(e) { showLoading(false); alert("Lỗi đồng bộ: " + e.message); }
+
+      } catch(e) { 
+        showLoading(false); 
+        alert("Lỗi đồng bộ cục bộ: " + e.message); 
+      }
     }
   </script>
   
