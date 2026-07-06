@@ -44,7 +44,7 @@
     #exportBlock { display: none; background: #e8f4fc; padding: 15px; border-radius: 8px; margin-bottom: 20px; align-items: center; gap: 15px; width: 100%; box-sizing: border-box; }
 
     .summary-table { width: 100%; border-collapse: collapse; }
-    .summary-table th { background: #f4f6f8; color: #ffffff; padding: 10px; font-size: 13px; text-align: center; border-bottom: 1px solid var(--border-color); }
+    .summary-table th { background: #f4f6f8; color: #333; padding: 10px; font-size: 13px; text-align: center; border-bottom: 1px solid var(--border-color); }
     .summary-table td { padding: 10px; border-bottom: 1px solid #ddd; text-align: center; font-size: 14px; }
 
     .table-container { width: 100%; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 20px; overflow-x: auto; }
@@ -211,12 +211,13 @@
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwFgszaVmJmOhs_GOMlcomv-RTcFJ2SXU4nbrGDRRqS8mZcFOR59YnBEl5boKmTeBFa/exec";
     let loggedInUser = null; let currentViewRole = ''; let globalData = []; let bldItemsArray = [];
+    let khoiMap = {}; // Lưu trữ tên khối để hiển thị bảng tổng hợp
+
     const ROLE_TITLES = { 'SUPER_ADMIN': 'Quản Trị Viên Tối Cao', 'BLD': 'Ban Lãnh Đạo', 'PTGD': 'Phó Tổng Giám Đốc', 'GDCN': 'Giám Đốc Chi Nhánh', 'GDKD': 'Giám Đốc Kinh Doanh', 'GDKD_KIEM_TPKD': 'GĐKD (Kiêm TPKD)', 'TPKD': 'Trưởng Phòng Kinh Doanh', 'TPMKT': 'Trưởng Phòng Marketing', 'MKT': 'Chuyên Viên Marketing' };
 
-    function formatNumber(num) { return (num || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
+    function formatNumber(num) { return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
     function parseNumber(str) { return parseFloat(str.replace(/\./g, '')) || 0; }
     
-    // HÀM LỌC CHUẨN XÁC DỰA VÀO ĐỊNH DẠNG "DD.MM" HAY "DD/MM" TRONG SHEET
     function isPhieuInMonth(phieu, monthVal) {
         if (!monthVal) return true;
         if (!phieu || !Array.isArray(phieu.chiTiet)) return false; 
@@ -241,7 +242,6 @@
         return false;
     }
 
-    // Kiểm tra biến an toàn cho KPI Đặc Biệt
     function checkKpiDacBiet(phieuObj) {
         if (!phieuObj) return false;
         return phieuObj.isKpiDacBiet === true || phieuObj.isKpiDacBiet === "TRUE" || phieuObj.isKpiDacBiet === "true";
@@ -430,7 +430,7 @@
               projectTotals[prjName].tamUng += addAdvance; 
           }
 
-          flatItems.push({ idPhieu: phieu.idPhieu, tenNhom: phieu.tenNhom, thanhVien: (phieu.thanhVien||"").replace(/,/g, '<br>'), phong: phong, khoi: khoi, tenDuAn: prjName, nganSach: finalBudget, tamUng: itemAdvance, trangThaiTU: phieu.trangThaiTU, isKpiDacBiet: isKpiDacBiet });
+          flatItems.push({ idPhieu: phieu.idPhieu, tenNhom: phieu.tenNhom, thanhVien: String(phieu.thanhVien||"").replace(/,/g, '<br>'), phong: phong, khoi: khoi, tenDuAn: prjName, nganSach: finalBudget, tamUng: itemAdvance, trangThaiTU: phieu.trangThaiTU, isKpiDacBiet: isKpiDacBiet });
         });
       });
 
@@ -486,7 +486,7 @@
             let addBudget = isKpiDacBiet ? 0 : finalBudget;
             let addAdvance = isKpiDacBiet ? 0 : itemAdvance;
 
-            let itemObj = { idPhieu: phieu.idPhieu, tenNhom: phieu.tenNhom, thanhVien: phieu.thanhVien || "", phong: phong, khoi: khoi, tenDuAn: prj, nganSach: finalBudget, tamUng: itemAdvance, trangThaiTU: phieu.trangThaiTU, isKpiDacBiet: isKpiDacBiet };
+            let itemObj = { idPhieu: phieu.idPhieu, tenNhom: phieu.tenNhom, thanhVien: String(phieu.thanhVien || ""), phong: phong, khoi: khoi, tenDuAn: prj, nganSach: finalBudget, tamUng: itemAdvance, trangThaiTU: phieu.trangThaiTU, isKpiDacBiet: isKpiDacBiet };
             if(!itemsByProject[prj]) itemsByProject[prj] = []; itemsByProject[prj].push(itemObj);
             
             if(!projectSummary[prj]) projectSummary[prj] = { nganSach: 0, tamUng: 0 };
@@ -536,7 +536,6 @@
       let sumDxKhoi = {}, sumDuyetKhoi = {}, sumAdvKhoi = {}; 
       let sumDxDuAnTop = {}, sumDuyetDuAnTop = {}, sumAdvDuAnTop = {}; 
       let inlineSumDuyetKhoi = {}, inlineSumDuyetPhong = {}, inlineSumDuyetDuAn = {};
-      let khoiNames = {}; // Gỡ mã tên khối
       let grandDeXuat = 0, grandDuyet = 0, grandAdv = 0; 
       let safeId = str => btoa(unescape(encodeURIComponent(str))).replace(/[^a-zA-Z0-9]/g, '');
 
@@ -565,7 +564,7 @@
           let pId = safeId(item.khoi + '|' + item.phong); 
           let dId = safeId(item.khoi + '|' + item.phong + '|' + item.tenDuAn);
           
-          khoiNames[kId] = item.khoi;
+          khoiMap[kId] = item.khoi; 
 
           sumDxKhoi[kId] = (sumDxKhoi[kId] || 0) + valDx; 
           sumDuyetKhoi[kId] = (sumDuyetKhoi[kId] || 0) + valDuyet; 
@@ -588,7 +587,8 @@
       let htmlKhoi = '', htmlDuAn = ''; 
       
       Object.keys(sumDxKhoi).sort().forEach(kId => {
-         htmlKhoi += `<tr><td style="text-align:left; font-weight:bold;">${khoiNames[kId]}</td><td>${formatNumber(sumDxKhoi[kId])}</td><td style="color:var(--primary-blue); font-weight:bold;">${formatNumber(isPTGD ? sumAdvKhoi[kId] : sumDuyetKhoi[kId])}</td></tr>`;
+         let tenKhoiGoc = khoiMap[kId] || kId;
+         htmlKhoi += `<tr><td style="text-align:left; font-weight:bold;">${tenKhoiGoc}</td><td>${formatNumber(sumDxKhoi[kId])}</td><td style="color:var(--primary-blue); font-weight:bold;">${formatNumber(isPTGD ? sumAdvKhoi[kId] : sumDuyetKhoi[kId])}</td></tr>`;
       });
       htmlKhoi += `<tr style="background:#fffaf0; font-weight:bold;"><td style="text-align:right;">TỔNG CỘNG</td><td>${formatNumber(grandDeXuat)}</td><td style="color:var(--primary-blue);">${formatNumber(isPTGD ? grandAdv : grandDuyet)}</td></tr>`;
       
@@ -612,7 +612,7 @@
 
     function viewDetail(idPhieu) {
       const phieu = globalData.find(p => p.idPhieu === idPhieu); if(!phieu) return;
-      let cleanTV = (phieu.thanhVien||"").replace(/,/g, '<br>');
+      let cleanTV = String(phieu.thanhVien||"").replace(/,/g, '<br>');
       document.getElementById('modalInfoGrid').innerHTML = `<div><b>Mã phiếu:</b> ${phieu.idPhieu}</div><div><b>Phòng ban:</b> ${phieu.phongKD}</div><div><b>Tên nhóm:</b> ${phieu.tenNhom}</div><div><b>Thành viên:</b><br>${cleanTV}</div>`;
       let tBody = '';
       (phieu.chiTiet || []).forEach(ct => { tBody += `<tr><td style="text-align:center; padding:8px; border:1px solid #ccc;">${ct.tenDuAn}</td><td style="text-align:center; border:1px solid #ccc; font-weight:bold;">${formatNumber(ct.nganSachDeXuat)}</td><td style="text-align:center; border:1px solid #ccc;">${ct.kpi}</td><td style="text-align:center; border:1px solid #ccc;">${ct.channel}</td></tr>`; });
@@ -667,7 +667,7 @@
       let flatItems = [];
       globalData.forEach(phieu => {
         let tk = (phieu.phongKD || "").split('-'); let phong = tk[0] ? tk[0].trim() : 'Chưa phân phòng'; let khoi = tk[1] ? tk[1].trim() : 'Chưa phân khối';
-        let tv = (phieu.thanhVien||"").split(',').join('<br>');
+        let tv = String(phieu.thanhVien||"").split(',').join('<br>');
         let diffDays = (new Date() - new Date(phieu.ngayCapNhat)) / (1000 * 60 * 60 * 24);
         
         let isCnqnItem = (khoi.toUpperCase() === 'CNQN');
@@ -680,7 +680,7 @@
         (phieu.chiTiet || []).forEach(ct => { flatItems.push({ idPhieu: phieu.idPhieu, phong: phong, khoi: khoi, thanhVien: tv, tenDuAn: ct.tenDuAn, nsDeXuat: Number(ct.nganSachDeXuat || 0), nsDuyet: Number(ct.nganSachDuyet || 0), ghiChu: ct.ghiChuBLD || "", idDong: ct.idDong, trangThai: phieu.trangThai, phieuObj: phieu }); });
       });
 
-      flatItems.sort((a,b) => { if(a.khoi !== b.khoi) return a.khoi.localeCompare(b.khoi); if(a.phong !== b.phong) return a.phong.localeCompare(b.phong); return a.tenDuAn.localeCompare(b.tenDuAn); });
+      flatItems.sort((a,b) => { if(a.khoi !== b.khoi) return a.khoi.localeCompare(b.khoi); if(a.phong !== b.phong) return a.phong.localeCompare(b.phong); return (a.tenDuAn||"").localeCompare(b.tenDuAn||""); });
 
       let thHtml = `<th width="4%"></th>`;
       if (isKD) thHtml += `<th width="5%">Nhóm Sale Mới</th>`;
@@ -710,7 +710,6 @@
 
       let mainItems = []; let cnqnItems = [];
       flatItems.forEach(item => {
-        // Tách khối CNQN ra riêng cho khối duyệt Cấp cao (PTGD/GDCN)
         if (item.khoi.toUpperCase() === 'CNQN' && (role === 'PTGD' || role === 'GDCN')) {
             cnqnItems.push(item);
         } else {
@@ -881,15 +880,15 @@
         let totalDuyet = 0; let prjNames = []; let tk = (phieu.phongKD || "").split('-'); let phong = tk[0] ? tk[0].trim() : ''; let khoi = tk[1] ? tk[1].trim() : '';
         (phieu.chiTiet || []).forEach(ct => { let liveInput = document.querySelector(`.bld-budget[data-id-dong="${ct.idDong}"]`); if((role === 'BLD' || role === 'SUPER_ADMIN') && liveInput) { totalDuyet += parseNumber(liveInput.value); } else { totalDuyet += Number(ct.nganSachDuyet); } prjNames.push(ct.tenDuAn); });
 
-        let advAmount = Math.round(totalDuyet * Number(phieu.advPercent) / 100);
+        let advAmount = Math.round(totalDuyet * Number(phieu.advPercent || 0) / 100);
         let isKpiDacBiet = checkKpiDacBiet(phieu);
         if(isKpiDacBiet) { totalDuyet = 0; advAmount = 0; } 
 
         let rowClass = phieu.trangThaiTU === 'APPROVED_TU' ? 'row-approved' : (phieu.trangThaiTU === 'REJECTED_TU' ? 'row-rejected' : '');
-        let percentHtml = `${phieu.advPercent}%`;
-        if (role === 'TPMKT' || role === 'BLD' || role === 'SUPER_ADMIN') { percentHtml = `<input type="number" min="0" max="100" class="input-budget adv-percent-input" value="${phieu.advPercent}" oninput="recalcAdvanceRow(this, ${totalDuyet})" style="width: 50px; padding: 4px; font-size: 13px; text-align: center;"> %`; }
+        let percentHtml = `${phieu.advPercent || 0}%`;
+        if (role === 'TPMKT' || role === 'BLD' || role === 'SUPER_ADMIN') { percentHtml = `<input type="number" min="0" max="100" class="input-budget adv-percent-input" value="${phieu.advPercent || 0}" oninput="recalcAdvanceRow(this, ${totalDuyet})" style="width: 50px; padding: 4px; font-size: 13px; text-align: center;"> %`; }
 
-        let rowHTML = `<tr class="${rowClass}"><td><button class="btn-view" onclick="viewDetail('${phieu.idPhieu}')">👁️</button></td><td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${phieu.idPhieu}</span></td><td><span style="font-weight:700; color:var(--primary-blue);">${phong}</span><br><span style="font-size:11px; color:#666;">Khối ${khoi}</span></td><td style="text-align:left; font-size:12px; line-height:1.4;">${isKpiDacBiet?'<b style="color:#8e44ad;">(KPI Đặc biệt)</b><br>':''}${(phieu.thanhVien||"").replace(/,/g, '<br>')}</td><td style="color:#0b1f8c; font-weight:800; font-size:12px;">${prjNames.join(', ')}</td><td>${formatNumber(totalDuyet)}</td><td style="color:var(--danger); font-weight:bold; white-space:nowrap;">${percentHtml}</td><td class="td-adv-amount" style="color:var(--danger); font-weight:bold;">${formatNumber(advAmount)}</td><td class="td-status-tu"><span style="color:var(--warning); font-weight:700;">${phieu.trangThaiTU}</span></td><td class="td-actions-tu">`;
+        let rowHTML = `<tr class="${rowClass}"><td><button class="btn-view" onclick="viewDetail('${phieu.idPhieu}')">👁️</button></td><td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${phieu.idPhieu}</span></td><td><span style="font-weight:700; color:var(--primary-blue);">${phong}</span><br><span style="font-size:11px; color:#666;">Khối ${khoi}</span></td><td style="text-align:left; font-size:12px; line-height:1.4;">${isKpiDacBiet?'<b style="color:#8e44ad;">(KPI Đặc biệt)</b><br>':''}${String(phieu.thanhVien||"").replace(/,/g, '<br>')}</td><td style="color:#0b1f8c; font-weight:800; font-size:12px;">${prjNames.join(', ')}</td><td>${formatNumber(totalDuyet)}</td><td style="color:var(--danger); font-weight:bold; white-space:nowrap;">${percentHtml}</td><td class="td-adv-amount" style="color:var(--danger); font-weight:bold;">${formatNumber(advAmount)}</td><td class="td-status-tu"><span style="color:var(--warning); font-weight:700;">${phieu.trangThaiTU}</span></td><td class="td-actions-tu">`;
 
         if(role === 'TPMKT') {
            if(phieu.trangThaiTU === 'PENDING_MKT_TU') { rowHTML += `<button class="btn-action btn-approve" onclick="updateStatusTUOptimistic('${phieu.idPhieu}', 'PENDING_BLD_TU', this)">Duyệt Lên BLĐ</button><button class="btn-action btn-reject" onclick="updateStatusTUOptimistic('${phieu.idPhieu}', 'REJECTED_TU', this)">Từ Chối</button>`; } 
@@ -1021,7 +1020,6 @@
       } catch(e) { showLoading(false); alert("Lỗi hệ thống in: " + e.message); }
     }
 
-    // ĐÃ VÁ LỖI IN CRASH - BẢO VỆ DỮ LIỆU
     function downloadPDFs() {
       try {
         const monthVal = document.getElementById('pdfMonth').value; 
@@ -1038,7 +1036,7 @@
         
         filteredData.forEach((phieu, i) => {
           let tongTien = 0; let rowsHtml = ''; 
-          let tk = (phieu.phongKD || "").split('-'); 
+          let tk = String(phieu.phongKD || "").split('-'); 
           let phong = tk[0] ? tk[0].trim() : ''; 
           let khoi = tk[1] ? tk[1].trim() : '';
           
@@ -1048,8 +1046,11 @@
             rowsHtml += `<tr><td>${index+1}</td><td><b>${ct.tenDuAn||''}</b></td><td style="color:#c00000; font-weight:bold;">${formatNumber(valNS)}</td><td>${ct.start||''}</td><td>${ct.end||''}</td><td>${ct.kpi || ''}</td><td>${ct.channel || ''}</td><td>${ct.phone || ''}</td><td>${ct.account || ''}</td><td></td></tr>`; 
           });
           
-          let htmlMembers = (phieu.thanhVien||"").split(',').map(n => n.trim()).join(', '); 
-          let htmlMnv = (phieu.maNhanVien||"...").split(',').map(n => n.trim()).join(', ');
+          let mnvRaw = phieu.maNhanVien ? String(phieu.maNhanVien) : "...";
+          let htmlMnv = mnvRaw.split(',').map(n => n.trim()).join(', ');
+          
+          let tvRaw = phieu.thanhVien ? String(phieu.thanhVien) : "...";
+          let htmlMembers = tvRaw.split(',').map(n => n.trim()).join(', ');
           
           htmlString += `<div class="${i < filteredData.length - 1 ? 'page-break' : ''}" style="width: 100%; box-sizing: border-box; line-height: 1.2;">
               <table class="no-border" style="width: 100%; margin-bottom: 5px;"><tr><td style="width: 45%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11pt; color: #0b1f8c;">CÔNG TY CP PHÁT TRIỂN DỊCH VỤ<br>VÀ ĐỊA ỐC AN VIỆT HOMES</td><td style="width: 55%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11pt;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập - Tự do - Hạnh Phúc<hr style="width: 50%; border-top: 1px solid #000; margin: 4px auto;"></td></tr></table>
@@ -1064,7 +1065,6 @@
       } catch(e) { showLoading(false); alert("Lỗi xử lý dữ liệu in: " + e.message); }
     }
 
-    // ĐÃ VÁ LỖI IN CRASH - BẢO VỆ DỮ LIỆU
     function downloadAdvancePDFs() {
       try {
         const monthVal = document.getElementById('advPdfMonth').value; 
@@ -1081,7 +1081,7 @@
         
         filteredData.forEach((phieu, i) => {
           let prjNames = []; let totalDuyet = 0; let rowsHtml = ''; 
-          let tk = (phieu.phongKD || "").split('-'); 
+          let tk = String(phieu.phongKD || "").split('-'); 
           let phong = tk[0] ? tk[0].trim() : '';
           
           (phieu.chiTiet || []).forEach(ct => { 
@@ -1096,10 +1096,16 @@
           let totalAdvance = Math.round(totalDuyet * Number(phieu.advPercent||0) / 100); 
           let remaining = totalDuyet - totalAdvance;
           
+          let mnvRaw = phieu.maNhanVien ? String(phieu.maNhanVien) : "...";
+          let htmlMnv = mnvRaw.split(',').map(n => n.trim()).join(', ');
+          
+          let tvRaw = phieu.thanhVien ? String(phieu.thanhVien) : "...";
+          let htmlMembers = tvRaw.split(',').map(n => n.trim()).join(', ');
+          
           htmlString += `<div class="${i < filteredData.length - 1 ? 'page-break' : ''}" style="width: 100%; box-sizing: border-box; line-height: 1.25;">
               <table class="no-border" style="width: 100%; margin-bottom: 5px;"><tr><td style="width: 45%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11pt; color: #0b1f8c;">CÔNG TY CP PHÁT TRIỂN DỊCH VỤ<br>VÀ ĐỊA ỐC AN VIỆT HOMES</td><td style="width: 55%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11pt;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập - Tự do - Hạnh Phúc<hr style="width: 50%; border-top: 1.5px solid #000; margin: 4px auto;"></td></tr></table>
               <div style="text-align: right; font-style: italic; font-size: 11pt; margin-bottom: 15px; margin-right: 15px;">${dateStr}</div><div style="text-align: center; font-size: 16pt; font-weight: bold; margin-bottom: 8px; color:#0b1f8c;">ĐƠN XIN TẠM ỨNG MARKETING</div><p style="margin: 5px 0; text-align: left !important; font-size: 11pt;"><u>Kính gửi:</u> <b>Ban Lãnh Đạo Công ty Cổ phần Phát triển Dịch vụ và Địa ốc An Việt Homes</b></p>
-              <div style="text-align: justify; margin: 8px 0; font-size: 11pt; line-height: 1.3;"><span style="display:inline-block; width: 30px;"></span>Tôi tên là: <b>${(phieu.thanhVien||"").split(',')[0].trim()}</b>. Có mã nhân viên là: <b>${(phieu.maNhanVien||"...").split(',')[0].trim()}</b>,<br>đại diện nhóm: <b>${phieu.tenNhom||''}</b> thuộc phòng kinh doanh: <b>${phong}</b> làm đơn xin tạm ứng khoản chi phí hỗ trợ Marketing (“MKT”) với các nội dung sau đây:</div>
+              <div style="text-align: justify; margin: 8px 0; font-size: 11pt; line-height: 1.3;"><span style="display:inline-block; width: 30px;"></span>Tôi tên là: <b>${htmlMembers.split(',')[0]}</b>. Có mã nhân viên là: <b>${htmlMnv.split(',')[0]}</b>,<br>đại diện nhóm: <b>${phieu.tenNhom||''}</b> thuộc phòng kinh doanh: <b>${phong}</b> làm đơn xin tạm ứng khoản chi phí hỗ trợ Marketing (“MKT”) với các nội dung sau đây:</div>
               <table class="no-border" style="width: 100%; margin-bottom: 10px; font-size:11pt;"><tr><td style="width: 35px; vertical-align: top; text-align: left !important;">1.1.</td><td style="text-align: left !important;">Tạm ứng cho cá nhân/nhóm: <b>Nhóm ${phieu.tenNhom||''}</b></td></tr><tr><td style="width: 35px; vertical-align: top; text-align: left !important;">1.2.</td><td style="text-align: left !important;">Nội dung tạm ứng: <b>Tạm ứng marketing dự án ${prjNames.join(', ')}</b></td></tr></table>
               <div class="rounded-wrapper" style="margin-bottom: 10px;"><table class="styled-table" style="font-size: 11pt;"><thead><tr style="background-color:#0b1f8c; color:#fff; font-weight:bold;"><th>Tháng chạy MKT</th><th>Dự án</th><th>Ngân sách MKT</th><th>Số tiền được tạm ứng</th></tr></thead><tbody>${rowsHtml}<tr style="background:#f4f6f8; font-weight:bold;"><td colspan="3" style="text-align: left !important; padding: 4px;">Số tiền tạm ứng MKT lần 1 (${phieu.advPercent||0}%)</td><td style="text-align:center !important; color:#0b1f8c; font-size: 12pt; padding: 4px;">${formatNumber(totalAdvance)}</td></tr><tr><td colspan="3" style="text-align: left !important; padding: 4px;">Số tiền tạm ứng MKT lần 2</td><td style="padding: 4px;"></td></tr><tr style="font-weight:bold;"><td colspan="3" style="text-align: left !important; padding: 4px;">Số tiền còn lại</td><td style="text-align:center !important; color:#0b1f8c; font-size: 12pt; padding: 4px;">${formatNumber(remaining)}</td></tr></tbody></table></div>
               <table class="no-border" style="width: 100%; margin-bottom: 10px; font-size:11pt;"><tr><td style="width: 35px; vertical-align: top; text-align: left !important;">1.3.</td><td style="text-align: left !important;">Số tiền tạm ứng kỳ này: <b>${formatNumber(totalAdvance)} VNĐ</b><br><i style="font-size: 10.5pt;"></i></td></tr><tr><td style="width: 35px; vertical-align: top; text-align: left !important; padding-top: 5px !important;">1.4.</td><td style="text-align: left !important; padding-top: 5px !important;">Hình thức chi tạm ứng: Chuyển khoản. Thông tin số tài khoản nhận tạm ứng:<div style="padding-left: 15px; margin-top: 4px;">- Chủ tài khoản: <b>${phieu.bankOwner||''}</b><br>- Số tài khoản: <b>${phieu.bankAccount||''}</b><br>- Mở tại ngân hàng: <b>${phieu.bankName||''}</b></div></td></tr><tr><td style="width: 35px; vertical-align: top; text-align: left !important; padding-top: 5px !important;">1.5.</td><td style="text-align: justify !important; padding-top: 5px !important; line-height: 1.3;">Tôi/chúng tôi xin cam kết chạy đủ ngân sách trong thời gian hỗ trợ, nếu số tiền tôi/chúng tôi tạm ứng vượt quá số tiền được hỗ trợ marketing, tôi/chúng đồng ý cho Công ty khấu trừ phần chênh lệch đó vào lương, Hoa hồng và Thưởng từ các Giao dịch khác mà tôi/chúng tôi có tại Công ty. Trường hợp không đủ khấu trừ, tôi/chúng tôi hoàn toàn đồng ý mọi phương án xử lý từ Ban Lãnh đạo Công ty.</td></tr></table>
@@ -1119,16 +1125,16 @@
         callAPI("exportTracking", { data: JSON.stringify({ url: url, items: bldItemsArray }) }, function(res) { showLoading(false); if(res && res.success) alert(res.message); else alert("Đồng bộ thất bại: " + (res ? res.message : "Lỗi mạng")); });
       } catch(e) { showLoading(false); alert("Lỗi đồng bộ: " + e.message); }
     }
+  </script>
+  
+  <script>
+    document.addEventListener('contextmenu', event => event.preventDefault());
 
-    // Đặt toàn bộ code vào đây để đảm bảo nó chỉ chạy khi trang đã load xong
-      document.addEventListener('contextmenu', event => event.preventDefault());
-
-      document.onkeydown = function(e) {
-        // Chặn F12 (123), Ctrl+Shift+I (73), Ctrl+Shift+J (74), Ctrl+U (85)
-        if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) {
-          return false;
-        }
-      };
+    document.onkeydown = function(e) {
+      if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) {
+        return false;
+      }
+    };
   </script>
 </body>
 </html>
