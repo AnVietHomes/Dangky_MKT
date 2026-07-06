@@ -211,7 +211,7 @@
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwFgszaVmJmOhs_GOMlcomv-RTcFJ2SXU4nbrGDRRqS8mZcFOR59YnBEl5boKmTeBFa/exec";
     let loggedInUser = null; let currentViewRole = ''; let globalData = []; let bldItemsArray = [];
-    let khoiMap = {}; // Lưu trữ tên khối để hiển thị bảng tổng hợp
+    let khoiMap = {}; 
 
     const ROLE_TITLES = { 'SUPER_ADMIN': 'Quản Trị Viên Tối Cao', 'BLD': 'Ban Lãnh Đạo', 'PTGD': 'Phó Tổng Giám Đốc', 'GDCN': 'Giám Đốc Chi Nhánh', 'GDKD': 'Giám Đốc Kinh Doanh', 'GDKD_KIEM_TPKD': 'GĐKD (Kiêm TPKD)', 'TPKD': 'Trưởng Phòng Kinh Doanh', 'TPMKT': 'Trưởng Phòng Marketing', 'MKT': 'Chuyên Viên Marketing' };
 
@@ -539,7 +539,7 @@
       let grandDeXuat = 0, grandDuyet = 0, grandAdv = 0; 
       let safeId = str => btoa(unescape(encodeURIComponent(str))).replace(/[^a-zA-Z0-9]/g, '');
 
-      (window.bldItemsArray || []).forEach(item => {
+      (bldItemsArray || []).forEach(item => {
         try {
           let isManaged = (loggedInUser.managedDepartments.indexOf('ALL') > -1 || 
                            loggedInUser.managedDepartments.includes(item.phong) || 
@@ -834,7 +834,7 @@
         return html;
       }
 
-      window.bldItemsArray = flatItems; 
+      bldItemsArray = flatItems; 
       
       if (typeof buildRowsHTML === 'function') {
           if (tbAction) tbAction.innerHTML = buildRowsHTML(mainItems, false);
@@ -877,7 +877,7 @@
         if(role === 'BLD' && ['PENDING_BLD_TU', 'APPROVED_TU', 'REJECTED_TU'].includes(phieu.trangThaiTU)) isViewable = true;
         if(!isViewable) return;
 
-        let totalDuyet = 0; let prjNames = []; let tk = (phieu.phongKD || "").split('-'); let phong = tk[0] ? tk[0].trim() : ''; let khoi = tk[1] ? tk[1].trim() : '';
+        let totalDuyet = 0; let prjNames = []; let tk = String(phieu.phongKD || "").split('-'); let phong = tk[0] ? tk[0].trim() : ''; let khoi = tk[1] ? tk[1].trim() : '';
         (phieu.chiTiet || []).forEach(ct => { let liveInput = document.querySelector(`.bld-budget[data-id-dong="${ct.idDong}"]`); if((role === 'BLD' || role === 'SUPER_ADMIN') && liveInput) { totalDuyet += parseNumber(liveInput.value); } else { totalDuyet += Number(ct.nganSachDuyet); } prjNames.push(ct.tenDuAn); });
 
         let advAmount = Math.round(totalDuyet * Number(phieu.advPercent || 0) / 100);
@@ -1120,9 +1120,26 @@
 
     function exportToTracking() {
       try {
-        const url = document.getElementById('trackingUrl').value.trim(); if(!url) { alert("Vui lòng dán link Google Sheet để đồng bộ!"); return; }
+        const url = document.getElementById('trackingUrl').value.trim(); 
+        if(!url) { alert("Vui lòng dán link Google Sheet để đồng bộ!"); return; }
         showLoading(true, "Đang đồng bộ dữ liệu...");
-        callAPI("exportTracking", { data: JSON.stringify({ url: url, items: bldItemsArray }) }, function(res) { showLoading(false); if(res && res.success) alert(res.message); else alert("Đồng bộ thất bại: " + (res ? res.message : "Lỗi mạng")); });
+        
+        let exportData = bldItemsArray.map(item => ({
+            idPhieu: item.idPhieu,
+            tenDuAn: item.tenDuAn,
+            khoi: item.khoi,
+            phong: item.phong,
+            thanhVien: item.thanhVien,
+            nsDeXuat: item.nsDeXuat,
+            nsDuyet: item.nsDuyet,
+            ghiChu: item.ghiChu
+        }));
+
+        callAPI("exportTracking", { data: JSON.stringify({ url: url, items: exportData }) }, function(res) { 
+            showLoading(false); 
+            if(res && res.success) alert(res.message); 
+            else alert("Đồng bộ thất bại: " + (res ? res.message : "Lỗi mạng")); 
+        });
       } catch(e) { showLoading(false); alert("Lỗi đồng bộ: " + e.message); }
     }
   </script>
