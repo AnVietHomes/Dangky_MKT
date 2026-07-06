@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trang Quản Trị - An Việt Homes</title>
+  <title>Cổng Quản Trị - An Việt Homes</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
@@ -218,6 +218,24 @@
     function formatNumber(num) { return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
     function parseNumber(str) { return parseFloat(str.replace(/\./g, '')) || 0; }
     
+    // Hàm nội bộ bóc tách Tháng/Năm chuẩn từ ngày tháng
+    function getMonthKey(dateStr, fallbackDate) {
+        if (dateStr) {
+            let parts = String(dateStr).split(/[./-]/);
+            if (parts.length >= 2) {
+                let m = parseInt(parts[1], 10);
+                let y = parts.length === 3 ? parseInt(parts[2], 10) : new Date().getFullYear();
+                if (y < 2000) y = new Date().getFullYear();
+                if (!isNaN(m) && !isNaN(y)) {
+                    return String(m).padStart(2, '0') + '/' + y;
+                }
+            }
+        }
+        let d = new Date(fallbackDate);
+        if (isNaN(d)) d = new Date();
+        return String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
+    }
+
     function isPhieuInMonth(phieu, monthVal) {
         if (!monthVal) return true;
         if (!phieu || !Array.isArray(phieu.chiTiet)) return false; 
@@ -357,12 +375,13 @@
 
     function applyGlobalSearch() {
       let filter = document.getElementById('globalSearch').value.toUpperCase();
-      let tables = [document.getElementById('dataTable'), document.getElementById('dataTableCNQN'), document.querySelector('#tabAdvance table'), document.getElementById('reportTable')];
+      let tables = document.querySelectorAll('table'); // Tìm tất cả các table, bao gồm cả archive
       
       tables.forEach(table => {
-        if(!table) return;
+        if(!table || table.classList.contains('summary-table') || table.classList.contains('form-table') || table.classList.contains('styled-table')) return;
         let trs = Array.from(table.getElementsByTagName('tr'));
-        let isComplexTable = table.id === 'dataTable' || table.id === 'dataTableCNQN';
+        
+        let isComplexTable = table.id.includes('dataTable');
 
         if (!isComplexTable) {
             for(let i = 1; i < trs.length; i++) { 
@@ -664,20 +683,24 @@
       if (isMKT) { if (mktBlock) mktBlock.style.display = 'flex'; } else { if (mktBlock) mktBlock.style.display = 'none'; }
       if (isHighLevel) { if (expBlock) expBlock.style.display = 'flex'; document.getElementById('topSummaryBlocks').style.display = 'flex'; } else { if (expBlock) expBlock.style.display = 'none'; document.getElementById('topSummaryBlocks').style.display = 'none'; }
 
+      // LOGIC NGÀY THÁNG ĐỂ PHÂN LOẠI ARCHIVE
+      let today = new Date();
+      let activeDate = new Date(today);
+      if (today.getDate() > 23) {
+          activeDate.setMonth(activeDate.getMonth() + 1);
+      }
+      let activeMonthNum = activeDate.getMonth() + 1;
+      let activeYearNum = activeDate.getFullYear();
+
       let flatItems = [];
       globalData.forEach(phieu => {
         let tk = (phieu.phongKD || "").split('-'); let phong = tk[0] ? tk[0].trim() : 'Chưa phân phòng'; let khoi = tk[1] ? tk[1].trim() : 'Chưa phân khối';
         let tv = String(phieu.thanhVien||"").split(',').join('<br>');
-        let diffDays = (new Date() - new Date(phieu.ngayCapNhat)) / (1000 * 60 * 60 * 24);
         
-        let isCnqnItem = (khoi.toUpperCase() === 'CNQN');
-        let isWatchingOnly = (isPTGD && isCnqnItem);
-
-        if (isHighLevel && diffDays > 15 && !isWatchingOnly) { 
-            if (phieu.trangThai === 'APPROVED_BY_BLD' || phieu.trangThai === 'REJECTED') return; 
-        }
-
-        (phieu.chiTiet || []).forEach(ct => { flatItems.push({ idPhieu: phieu.idPhieu, phong: phong, khoi: khoi, thanhVien: tv, tenDuAn: ct.tenDuAn, nsDeXuat: Number(ct.nganSachDeXuat || 0), nsDuyet: Number(ct.nganSachDuyet || 0), ghiChu: ct.ghiChuBLD || "", idDong: ct.idDong, trangThai: phieu.trangThai, phieuObj: phieu }); });
+        (phieu.chiTiet || []).forEach(ct => { 
+            let mKey = getMonthKey(ct.start, phieu.ngayTao);
+            flatItems.push({ idPhieu: phieu.idPhieu, phong: phong, khoi: khoi, thanhVien: tv, tenDuAn: ct.tenDuAn, nsDeXuat: Number(ct.nganSachDeXuat || 0), nsDuyet: Number(ct.nganSachDuyet || 0), ghiChu: ct.ghiChuBLD || "", idDong: ct.idDong, trangThai: phieu.trangThai, phieuObj: phieu, monthKey: mKey }); 
+        });
       });
 
       flatItems.sort((a,b) => { if(a.khoi !== b.khoi) return a.khoi.localeCompare(b.khoi); if(a.phong !== b.phong) return a.phong.localeCompare(b.phong); return (a.tenDuAn||"").localeCompare(b.tenDuAn||""); });
@@ -708,9 +731,26 @@
         sumAdvKhoi[kId] = (sumAdvKhoi[kId] || 0) + valAdv; sumAdvPhong[pId] = (sumAdvPhong[pId] || 0) + valAdv; sumAdvDuAn[dId] = (sumAdvDuAn[dId] || 0) + valAdv;
       });
 
-      let mainItems = []; let cnqnItems = [];
+      let mainItems = []; let cnqnItems = []; let archiveGroups = {};
+      
       flatItems.forEach(item => {
-        if (item.khoi.toUpperCase() === 'CNQN' && (role === 'PTGD' || role === 'GDCN')) {
+        let isArchived = false;
+        if (isHighLevel) {
+            let [iM, iY] = item.monthKey.split('/').map(Number);
+            if (iY < activeYearNum || (iY === activeYearNum && iM < activeMonthNum)) {
+                isArchived = true;
+            }
+        }
+
+        let isManaged = (loggedInUser.managedDepartments.indexOf('ALL') > -1 || 
+                         loggedInUser.managedDepartments.includes(item.phong) || 
+                         loggedInUser.managedDepartments.includes(item.khoi));
+        let isCNQN = (item.khoi.toUpperCase() === 'CNQN' && (role === 'PTGD' || role === 'GDCN'));
+
+        if (isArchived) {
+            if (!archiveGroups[item.monthKey]) archiveGroups[item.monthKey] = [];
+            archiveGroups[item.monthKey].push(item);
+        } else if (isCNQN && !isManaged) {
             cnqnItems.push(item);
         } else {
             mainItems.push(item);
@@ -820,7 +860,7 @@
         });
 
         if (itemsArray.length > 0) {
-            let txtList = isReadOnlyMode ? "TỔNG CỘNG CNQN" : "TỔNG CỘNG BẢNG DUYỆT CHÍNH";
+            let txtList = isReadOnlyMode ? "TỔNG CỘNG LƯU TRỮ" : "TỔNG CỘNG";
             html += `<tr class="total-row" style="background:#333; color:white; font-weight:bold; font-size: 16px;"><td colspan="${colBefore}" style="text-align:right; padding-right: 20px;">${txtList}</td><td style="color:#f39c12;">${formatNumber(localGrandDx)}</td>`;
             if (isPTGD) { html += `<td></td><td style="color:#2ecc71;">${formatNumber(localGrandAdv)}</td><td></td><td></td>`; } 
             else if (isBLD || isMKT) { 
@@ -834,19 +874,56 @@
         return html;
       }
 
-      bldItemsArray = flatItems; 
+      // CHỈ TRUYỀN CÁC GÓI CỦA THÁNG HIỆN TẠI VÀO SUMMARY TOP (Tránh cộng dồn rác cũ)
+      bldItemsArray = mainItems.concat(cnqnItems); 
       
       if (typeof buildRowsHTML === 'function') {
           if (tbAction) tbAction.innerHTML = buildRowsHTML(mainItems, false);
           if (cnqnContainer) {
               if ((role === 'PTGD' || role === 'GDCN') && cnqnItems.length > 0) {
                   cnqnContainer.style.display = 'block';
-                  if (tbCNQN) tbCNQN.innerHTML = buildRowsHTML(cnqnItems, (role === 'GDCN'));
+                  if (tbCNQN) tbCNQN.innerHTML = buildRowsHTML(cnqnItems, false);
               } else {
                   cnqnContainer.style.display = 'none';
               }
           }
       }
+
+      // HIỂN THỊ CÁC NHÓM ARCHIVE (LƯU TRỮ)
+      let archiveHtml = '';
+      let sortedArchiveMonths = Object.keys(archiveGroups).sort((a,b) => {
+          let [m1,y1] = a.split('/').map(Number); let [m2,y2] = b.split('/').map(Number);
+          return y1 !== y2 ? y2 - y1 : m2 - m1;
+      });
+
+      sortedArchiveMonths.forEach(mKey => {
+          let safeKey = mKey.replace('/', '_');
+          archiveHtml += `
+          <div style="margin-top: 20px;">
+              <button class="btn-action" style="width: 100%; background: #34495e; color: #fff; padding: 12px 20px; text-align: left; font-size: 15px; font-weight: bold; border-radius: 8px; display: flex; justify-content: space-between;" onclick="let d = document.getElementById('arch_${safeKey}'); d.style.display = d.style.display === 'none' ? 'block' : 'none';">
+                  <span>📁 LƯU TRỮ ĐỀ XUẤT - THÁNG ${mKey}</span>
+                  <span>▼ Hiện / Ẩn</span>
+              </button>
+              <div id="arch_${safeKey}" style="display: none; padding-top: 15px; background: #fff; border: 1px solid #ddd; border-top: none; padding: 15px; border-radius: 0 0 8px 8px;">
+                  <div class="table-container" style="margin-bottom:0;">
+                      <table>
+                          <thead><tr>${thHtml}</tr></thead>
+                          <tbody>${buildRowsHTML(archiveGroups[mKey], false)}</tbody>
+                      </table>
+                  </div>
+              </div>
+          </div>
+          `;
+      });
+      let archContainer = document.getElementById('archiveContainer');
+      if (!archContainer) {
+          archContainer = document.createElement('div');
+          archContainer.id = 'archiveContainer';
+          let bldActions = document.getElementById('bldActions');
+          bldActions.parentNode.insertBefore(archContainer, bldActions);
+      }
+      archContainer.innerHTML = archiveHtml;
+
       if (typeof recalcBLDSummary === 'function') recalcBLDSummary();
     }
 
@@ -864,8 +941,19 @@
 
     function renderAdvanceTableByRole(role) {
       if(role !== 'MKT' && role !== 'TPMKT' && role !== 'BLD' && role !== 'SUPER_ADMIN') return;
-      const tb = document.getElementById('tableAdvanceBody'); let html = '';
+      const tb = document.getElementById('tableAdvanceBody'); 
       const allowedDXStatuses = ['PENDING_MKT', 'PENDING_TPMKT', 'PENDING_BLD', 'BLD_DRAFTING', 'APPROVED_BY_BLD'];
+
+      let today = new Date();
+      let activeDate = new Date(today);
+      if (today.getDate() > 23) {
+          activeDate.setMonth(activeDate.getMonth() + 1);
+      }
+      let activeMonthNum = activeDate.getMonth() + 1;
+      let activeYearNum = activeDate.getFullYear();
+
+      let mainRows = '';
+      let archiveAdvGroups = {};
 
       globalData.forEach(phieu => {
         if (!allowedDXStatuses.includes(phieu.trangThai)) return;
@@ -876,6 +964,16 @@
         if(role === 'TPMKT' && ['PENDING_MKT_TU', 'PENDING_BLD_TU', 'APPROVED_TU', 'REJECTED_TU'].includes(phieu.trangThaiTU)) isViewable = true;
         if(role === 'BLD' && ['PENDING_BLD_TU', 'APPROVED_TU', 'REJECTED_TU'].includes(phieu.trangThaiTU)) isViewable = true;
         if(!isViewable) return;
+
+        let monthKey = "";
+        (phieu.chiTiet || []).forEach(ct => { if (!monthKey && ct.start) monthKey = getMonthKey(ct.start, phieu.ngayTao); });
+        if (!monthKey) monthKey = getMonthKey("", phieu.ngayTao);
+
+        let isArchived = false;
+        let [iM, iY] = monthKey.split('/').map(Number);
+        if (iY < activeYearNum || (iY === activeYearNum && iM < activeMonthNum)) {
+            isArchived = true;
+        }
 
         let totalDuyet = 0; let prjNames = []; let tk = String(phieu.phongKD || "").split('-'); let phong = tk[0] ? tk[0].trim() : ''; let khoi = tk[1] ? tk[1].trim() : '';
         (phieu.chiTiet || []).forEach(ct => { let liveInput = document.querySelector(`.bld-budget[data-id-dong="${ct.idDong}"]`); if((role === 'BLD' || role === 'SUPER_ADMIN') && liveInput) { totalDuyet += parseNumber(liveInput.value); } else { totalDuyet += Number(ct.nganSachDuyet); } prjNames.push(ct.tenDuAn); });
@@ -900,9 +998,50 @@
            else { rowHTML += `<button class="btn-action btn-draft" onclick="saveAdvPercent('${phieu.idPhieu}', this)">Cập nhật %</button>`; }
         }
         rowHTML += `</td></tr>`;
-        if(phieu.trangThaiTU.indexOf('PENDING') > -1) html = rowHTML + html; else html = html + rowHTML;
+        
+        if (isArchived) {
+            if (!archiveAdvGroups[monthKey]) archiveAdvGroups[monthKey] = "";
+            if (phieu.trangThaiTU.indexOf('PENDING') > -1) archiveAdvGroups[monthKey] = rowHTML + archiveAdvGroups[monthKey]; 
+            else archiveAdvGroups[monthKey] += rowHTML;
+        } else {
+            if(phieu.trangThaiTU.indexOf('PENDING') > -1) mainRows = rowHTML + mainRows; else mainRows += rowHTML;
+        }
       });
-      tb.innerHTML = html;
+      tb.innerHTML = mainRows || '<tr><td colspan="10" style="text-align:center;">Chưa có dữ liệu Tạm ứng cho tháng này</td></tr>';
+
+      let archAdvHtml = '';
+      let sortedAdvKeys = Object.keys(archiveAdvGroups).sort((a,b) => {
+          let [m1,y1] = a.split('/').map(Number); let [m2,y2] = b.split('/').map(Number);
+          return y1 !== y2 ? y2 - y1 : m2 - m1;
+      });
+
+      sortedAdvKeys.forEach(mKey => {
+          let safeKey = mKey.replace('/', '_');
+          archAdvHtml += `
+          <div style="margin-top: 20px;">
+              <button class="btn-action" style="width: 100%; background: #34495e; color: #fff; padding: 12px 20px; text-align: left; font-size: 15px; font-weight: bold; border-radius: 8px; display: flex; justify-content: space-between;" onclick="let d = document.getElementById('arch_adv_${safeKey}'); d.style.display = d.style.display === 'none' ? 'block' : 'none';">
+                  <span>📁 LƯU TRỮ TẠM ỨNG - THÁNG ${mKey}</span>
+                  <span>▼ Hiện / Ẩn</span>
+              </button>
+              <div id="arch_adv_${safeKey}" style="display: none; padding-top: 15px; background: #fff; border: 1px solid #ddd; border-top: none; padding: 15px; border-radius: 0 0 8px 8px;">
+                  <div class="table-container" style="margin-bottom:0;">
+                      <table>
+                          <thead><tr><th width="4%"></th><th>Mã Phiếu</th><th>Phòng / Khối</th><th>Thành Viên</th><th>Dự án Tạm ứng</th><th>Ngân Sách (Được Duyệt)</th><th>Tỷ lệ xin T.Ư</th><th>Số tiền T.Ư lần 1</th><th>Trạng Thái Tạm Ứng</th><th class="td-actions">Hành Động</th></tr></thead>
+                          <tbody>${archiveAdvGroups[mKey]}</tbody>
+                      </table>
+                  </div>
+              </div>
+          </div>
+          `;
+      });
+
+      let archAdvContainer = document.getElementById('archiveAdvContainer');
+      if (!archAdvContainer) {
+          archAdvContainer = document.createElement('div');
+          archAdvContainer.id = 'archiveAdvContainer';
+          document.getElementById('tableAdvanceBody').closest('.table-container').insertAdjacentElement('afterend', archAdvContainer);
+      }
+      archAdvContainer.innerHTML = archAdvHtml;
     }
 
     function bulkApproveAdvances() {
@@ -1083,7 +1222,7 @@
           let prjNames = []; let totalDuyet = 0; let rowsHtml = ''; 
           let tk = String(phieu.phongKD || "").split('-'); 
           let phong = tk[0] ? tk[0].trim() : '';
-          let khoi = tk[1] ? tk[1].trim() : ''; // Đã bổ sung lấy tên Khối
+          let khoi = tk[1] ? tk[1].trim() : '';
           
           (phieu.chiTiet || []).forEach(ct => { 
             prjNames.push(ct.tenDuAn||''); 
@@ -1103,7 +1242,6 @@
           let tvRaw = phieu.thanhVien ? String(phieu.thanhVien) : "...";
           let htmlMembers = tvRaw.split(',').map(n => n.trim()).join(', ');
           
-          // Đã cập nhật dòng văn bản: Thêm " - Khối ..." và thẻ <br> để xuống dòng
           htmlString += `<div class="${i < filteredData.length - 1 ? 'page-break' : ''}" style="width: 100%; box-sizing: border-box; line-height: 1.25;">
               <table class="no-border" style="width: 100%; margin-bottom: 5px;"><tr><td style="width: 45%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11pt; color: #0b1f8c;">CÔNG TY CP PHÁT TRIỂN DỊCH VỤ<br>VÀ ĐỊA ỐC AN VIỆT HOMES</td><td style="width: 55%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11pt;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập - Tự do - Hạnh Phúc<hr style="width: 50%; border-top: 1.5px solid #000; margin: 4px auto;"></td></tr></table>
               <div style="text-align: right; font-style: italic; font-size: 11pt; margin-bottom: 15px; margin-right: 15px;">${dateStr}</div><div style="text-align: center; font-size: 16pt; font-weight: bold; margin-bottom: 8px; color:#0b1f8c;">ĐƠN XIN TẠM ỨNG MARKETING</div><p style="margin: 5px 0; text-align: left !important; font-size: 11pt;"><u>Kính gửi:</u> <b>Ban Lãnh Đạo Công ty Cổ phần Phát triển Dịch vụ và Địa ốc An Việt Homes</b></p>
@@ -1119,12 +1257,13 @@
         printHTMLNative(htmlString, 'portrait', 'Don_Tam_Ung_MKT_' + monthVal);
       } catch(e) { showLoading(false); alert("Lỗi xử lý dữ liệu in: " + e.message); }
     }
-function exportToTracking() {
+
+    function exportToTracking() {
       try {
         const url = document.getElementById('trackingUrl').value.trim(); 
         if(!url) { alert("Vui lòng dán link Google Sheet để đồng bộ!"); return; }
         
-        showLoading(true, "Đang đồng bộ...", "Hệ thống đang đẩy dữ liệu sang Sheet...");
+        showLoading(true, "ĐANG ĐỒNG BỘ...", "Dữ liệu lớn có thể mất 5 - 15 giây, vui lòng không đóng trang.");
         
         let exportData = bldItemsArray.map(item => ({
             idPhieu: item.idPhieu,
@@ -1146,21 +1285,17 @@ function exportToTracking() {
             })
         })
         .then(response => {
-            // Không đợi response.json() nếu không cần thiết, 
-            // chúng ta chỉ cần biết máy chủ đã nhận lệnh
             showLoading(false);
             alert("Đã gửi lệnh đồng bộ! Vui lòng kiểm tra file Google Sheet sau vài giây.");
         })
         .catch(err => {
-            // Nếu dữ liệu đã sang rồi mà vẫn báo lỗi này, 
-            // thì đây là lỗi phản hồi, không phải lỗi đồng bộ.
             showLoading(false);
             alert("Đã gửi lệnh đồng bộ thành công! (Nếu thấy thông báo này, dữ liệu đang được Google ghi vào Sheet).");
         });
 
       } catch(e) { 
         showLoading(false); 
-        alert("Lỗi đồng bộ: " + e.message); 
+        alert("Lỗi đồng bộ cục bộ: " + e.message); 
       }
     }
   </script>
