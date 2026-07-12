@@ -677,7 +677,7 @@ const API_URL = atob("aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J3Rm
       }
     }
 
-    function handleTruyThuClick(idPhieu, cb) {
+   function handleTruyThuClick(idPhieu, cb) {
         let isChecked = cb.checked;
         let msg = isChecked ? 
             "CẢNH BÁO: Hành động TRUY THU sẽ thực hiện:\n- Loại bỏ toàn bộ ngân sách và tạm ứng của nhóm này khỏi báo cáo tổng.\n- Bôi đỏ cảnh báo vi phạm.\n- Gạch bỏ số tiền tạm ứng đã chi.\n\nBạn có CHẮC CHẮN muốn truy thu nhóm này?" : 
@@ -705,7 +705,7 @@ const API_URL = atob("aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J3Rm
                 }
             });
         }
-    }}
+    }
 
     function getStatusGroup(phieuObj, role) {
       let st = phieuObj.trangThai;
