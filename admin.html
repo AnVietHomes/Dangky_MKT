@@ -3,13 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trang Web Quản Trị - An Việt Homes</title>
+  <title>Cổng Quản Trị - An Việt Homes</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <style>
     :root { --bg-login: #d4efff; --primary-blue: #0b1f8c; --text-dark: #333333; --text-gray: #666666; --input-bg: #f4f6f8; --border-color: #e5e8ec; --success-green: #27ae60; --danger: #e74c3c; --warning: #f39c12; }
-    body { font-family: 'Manrope', Arial, sans-serif; margin: 0; padding: 0; min-height: 100vh; background-color: var(--bg-login); box-sizing: border-box; }
+    /* CHỐNG BÔI ĐEN VÀ COPY TEXT */
+    body { font-family: 'Manrope', Arial, sans-serif; margin: 0; padding: 0; min-height: 100vh; background-color: var(--bg-login); box-sizing: border-box; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+    input, textarea { -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text; }
+    
     .login-wrapper { width: 100%; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; background: var(--bg-login); position: absolute; top: 0; left: 0; z-index: 10; }
     .login-header { text-align: center; margin-bottom: 30px; }
     .login-header img { max-width: 90px; margin-bottom: 15px; }
@@ -44,7 +47,7 @@
     #exportBlock { display: none; background: #e8f4fc; padding: 15px; border-radius: 8px; margin-bottom: 20px; align-items: center; gap: 15px; width: 100%; box-sizing: border-box; }
 
     .summary-table { width: 100%; border-collapse: collapse; }
-    .summary-table th { background: #f4f6f8; color: #ffffff; padding: 10px; font-size: 13px; text-align: center; border-bottom: 1px solid var(--border-color); }
+    .summary-table th { background: #f4f6f8; color: #333; padding: 10px; font-size: 13px; text-align: center; border-bottom: 1px solid var(--border-color); }
     .summary-table td { padding: 10px; border-bottom: 1px solid #ddd; text-align: center; font-size: 14px; }
 
     .table-container { width: 100%; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 20px; overflow-x: auto; }
@@ -66,6 +69,9 @@
     .row-rejected { background-color: #ffebee; border-left: 5px solid var(--danger); opacity: 0.8;}
     .row-rejected:hover { opacity: 1; transition: 0.2s; }
     .op-kpi { background-color: #f5eef8; opacity: 0.85; border-left: 5px solid #8e44ad; }
+    /* STYLE ĐẶC BIỆT CHO TRUY THU */
+    .row-truythu { background-color: #ffeded !important; border-left: 5px solid #d32f2f !important; }
+    .row-truythu td { opacity: 0.85; }
 
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1000; }
     .modal-card { background: #fff; width: 1000px; max-width: 95%; max-height: 90vh; overflow-y: auto; border-radius: 12px; padding: 30px; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
@@ -209,7 +215,9 @@
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbwFgszaVmJmOhs_GOMlcomv-RTcFJ2SXU4nbrGDRRqS8mZcFOR59YnBEl5boKmTeBFa/exec";
+    // BẢO MẬT API KEY BẰNG MÃ HÓA BASE64
+    const API_URL = atob("aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J3RmdzemFWbUptT2hzX0dPTWxjb212LVJUY0ZKMlNYVTRuYnJHRFJRcVM4bVpjRk9SNTlZbkJFbDVib0ttVGVARmEvZXhlYw==");
+    
     let loggedInUser = null; let currentViewRole = ''; let globalData = []; let bldItemsArray = [];
     let khoiMap = {}; 
 
@@ -218,7 +226,6 @@
     function formatNumber(num) { return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
     function parseNumber(str) { return parseFloat(str.replace(/\./g, '')) || 0; }
     
-    // Hàm nội bộ bóc tách Tháng/Năm chuẩn từ ngày tháng
     function getMonthKey(dateStr, fallbackDate) {
         if (dateStr) {
             let parts = String(dateStr).split(/[./-]/);
@@ -375,7 +382,7 @@
 
     function applyGlobalSearch() {
       let filter = document.getElementById('globalSearch').value.toUpperCase();
-      let tables = document.querySelectorAll('table'); // Tìm tất cả các table, bao gồm cả archive
+      let tables = document.querySelectorAll('table'); 
       
       tables.forEach(table => {
         if(!table || table.classList.contains('summary-table') || table.classList.contains('form-table') || table.classList.contains('styled-table')) return;
@@ -428,6 +435,8 @@
         if (!isPhieuInMonth(phieu, month)) return; 
         
         let isKpiDacBiet = checkKpiDacBiet(phieu);
+        let isTruyThu = phieu.isTruyThu === true;
+
         let tk = (phieu.phongKD || "").split('-'); let phong = tk[0] ? tk[0].trim() : ''; let khoi = tk[1] ? tk[1].trim() : 'Chưa phân khối';
         
         (phieu.chiTiet || []).forEach(ct => {
@@ -437,8 +446,8 @@
           
           let itemAdvance = Math.round(finalBudget * Number(phieu.advPercent || 0) / 100);
           
-          let addBudget = isKpiDacBiet ? 0 : finalBudget;
-          let addAdvance = isKpiDacBiet ? 0 : itemAdvance;
+          let addBudget = (isKpiDacBiet || isTruyThu) ? 0 : finalBudget;
+          let addAdvance = (isKpiDacBiet || isTruyThu) ? 0 : itemAdvance;
 
           totalBudget += addBudget;
           let prjName = (ct.tenDuAn || "Không tên").trim();
@@ -449,7 +458,7 @@
               projectTotals[prjName].tamUng += addAdvance; 
           }
 
-          flatItems.push({ idPhieu: phieu.idPhieu, tenNhom: phieu.tenNhom, thanhVien: String(phieu.thanhVien||"").replace(/,/g, '<br>'), phong: phong, khoi: khoi, tenDuAn: prjName, nganSach: finalBudget, tamUng: itemAdvance, trangThaiTU: phieu.trangThaiTU, isKpiDacBiet: isKpiDacBiet });
+          flatItems.push({ idPhieu: phieu.idPhieu, tenNhom: phieu.tenNhom, thanhVien: String(phieu.thanhVien||"").replace(/,/g, '<br>'), phong: phong, khoi: khoi, tenDuAn: prjName, nganSach: finalBudget, tamUng: itemAdvance, trangThaiTU: phieu.trangThaiTU, isKpiDacBiet: isKpiDacBiet, isTruyThu: isTruyThu });
         });
       });
 
@@ -461,17 +470,28 @@
           if (currentKhoi !== null) { html += `<tr style="background:#e8f4fc; font-weight:bold;"><td colspan="5" style="text-align:right; color:var(--primary-blue);">TỔNG CỘNG KHỐI ${currentKhoi}</td><td style="color:var(--danger); font-size:15px;">${formatNumber(khoiBudget)}</td><td style="color:var(--success-green); font-size:15px;">${formatNumber(khoiAdvance)}</td><td></td></tr>`; }
           currentKhoi = item.khoi; khoiBudget = 0; khoiAdvance = 0; html += `<tr style="background:#0b1f8c; color:white; font-weight:bold; text-transform:uppercase;"><td colspan="8" style="text-align:center; padding:10px 15px;">🏢 KHỐI: ${currentKhoi}</td></tr>`;
         }
-        let addBudget = item.isKpiDacBiet ? 0 : item.nganSach;
-        let addAdvance = item.isKpiDacBiet ? 0 : item.tamUng;
+        let addBudget = (item.isKpiDacBiet || item.isTruyThu) ? 0 : item.nganSach;
+        let addAdvance = (item.isKpiDacBiet || item.isTruyThu) ? 0 : item.tamUng;
         khoiBudget += addBudget; 
         let isApprovedTU = (item.trangThaiTU === 'APPROVED_TU'); 
         if (isApprovedTU) { khoiAdvance += addAdvance; }
         
         let advStatusText = isApprovedTU ? `<span style="color:var(--success-green); font-weight:bold;">Đã duyệt Tạm ứng</span>` : (item.trangThaiTU === 'REJECTED_TU' ? `<span style="color:var(--danger); font-weight:bold;">Tạm ứng bị từ chối</span>` : `<span style="color:var(--danger); font-weight:bold;">Chưa duyệt tạm ứng</span>`);
-        let bgStyle = isApprovedTU ? '' : 'background-color: #ffebee;';
         
+        let bgStyle = isApprovedTU ? '' : 'background-color: #ffebee;';
+        if (item.isTruyThu) bgStyle = 'background-color: #ffeded;';
+
         let kpiText = item.isKpiDacBiet ? '<b style="color:#8e44ad;">(Nhóm KPI Đặc biệt)</b><br>' : '';
-        html += `<tr class="row-approved"><td><b>${item.idPhieu}</b></td><td style="font-weight: bold; color: var(--primary-blue);">${item.tenNhom}</td><td style="text-align:left; font-size:12px; line-height: 1.4;">${kpiText}${item.thanhVien}</td><td><b>Phòng:</b> ${item.phong}</td><td style="color:var(--primary-blue); font-weight:bold;">${item.tenDuAn}</td><td style="color:var(--danger); font-weight:bold; font-size:15px;">${formatNumber(item.nganSach)}</td><td style="${bgStyle} color:var(--danger); font-weight:bold; font-size:14px;">${formatNumber(item.tamUng)}</td><td style="${bgStyle}">${advStatusText}</td></tr>`;
+        let rowCls = "row-approved";
+        if (item.isTruyThu) {
+            kpiText = '<b style="color:#d32f2f;">(BỊ TRUY THU GÓI)</b><br>' + kpiText;
+            rowCls = "row-truythu";
+        }
+
+        let bdgDisplay = item.isTruyThu ? `<s style="opacity:0.6;">${formatNumber(item.nganSach)}</s>` : formatNumber(item.nganSach);
+        let advDisplay = item.isTruyThu ? `<s style="opacity:0.6;">${formatNumber(item.tamUng)}</s><br><span style="font-size:10px; color:#d32f2f; font-weight:800;">(Truy thu tạm ứng đã chi)</span>` : formatNumber(item.tamUng);
+
+        html += `<tr class="${rowCls}"><td><b>${item.idPhieu}</b></td><td style="font-weight: bold; color: var(--primary-blue);">${item.tenNhom}</td><td style="text-align:left; font-size:12px; line-height: 1.4;">${kpiText}${item.thanhVien}</td><td><b>Phòng:</b> ${item.phong}</td><td style="color:var(--primary-blue); font-weight:bold;">${item.tenDuAn}</td><td style="color:var(--danger); font-weight:bold; font-size:15px;">${bdgDisplay}</td><td style="${bgStyle} color:var(--danger); font-weight:bold; font-size:14px;">${advDisplay}</td><td style="${bgStyle}">${advStatusText}</td></tr>`;
       });
 
       if (currentKhoi !== null) { html += `<tr style="background:#e8f4fc; font-weight:bold;"><td colspan="5" style="text-align:right; color:var(--primary-blue);">TỔNG CỘNG KHỐI ${currentKhoi}</td><td style="color:var(--danger); font-size:15px;">${formatNumber(khoiBudget)}</td><td style="color:var(--success-green); font-size:15px;">${formatNumber(khoiAdvance)}</td><td></td></tr>`; }
@@ -493,6 +513,8 @@
           if (phieu.trangThai !== 'APPROVED_BY_BLD') return;
           if (!isPhieuInMonth(phieu, month)) return; 
           let isKpiDacBiet = checkKpiDacBiet(phieu);
+          let isTruyThu = phieu.isTruyThu === true;
+
           let tk = (phieu.phongKD || "").split('-'); let phong = tk[0] ? tk[0].trim() : ''; let khoi = tk[1] ? tk[1].trim() : 'Chưa phân khối';
           
           (phieu.chiTiet || []).forEach(ct => {
@@ -502,10 +524,10 @@
             
             let itemAdvance = Math.round(finalBudget * Number(phieu.advPercent || 0) / 100); 
             let prj = (ct.tenDuAn || "Không tên").trim();
-            let addBudget = isKpiDacBiet ? 0 : finalBudget;
-            let addAdvance = isKpiDacBiet ? 0 : itemAdvance;
+            let addBudget = (isKpiDacBiet || isTruyThu) ? 0 : finalBudget;
+            let addAdvance = (isKpiDacBiet || isTruyThu) ? 0 : itemAdvance;
 
-            let itemObj = { idPhieu: phieu.idPhieu, tenNhom: phieu.tenNhom, thanhVien: String(phieu.thanhVien || ""), phong: phong, khoi: khoi, tenDuAn: prj, nganSach: finalBudget, tamUng: itemAdvance, trangThaiTU: phieu.trangThaiTU, isKpiDacBiet: isKpiDacBiet };
+            let itemObj = { idPhieu: phieu.idPhieu, tenNhom: phieu.tenNhom, thanhVien: String(phieu.thanhVien || ""), phong: phong, khoi: khoi, tenDuAn: prj, nganSach: finalBudget, tamUng: itemAdvance, trangThaiTU: phieu.trangThaiTU, isKpiDacBiet: isKpiDacBiet, isTruyThu: isTruyThu };
             if(!itemsByProject[prj]) itemsByProject[prj] = []; itemsByProject[prj].push(itemObj);
             
             if(!projectSummary[prj]) projectSummary[prj] = { nganSach: 0, tamUng: 0 };
@@ -525,15 +547,19 @@
           let itemStt = 1; let sumPrjNganSach = 0; let sumPrjTamUng = 0;
           items.forEach(item => {
             let isAppr = (item.trangThaiTU === 'APPROVED_TU'); 
-            if (!item.isKpiDacBiet) {
+            if (!item.isKpiDacBiet && !item.isTruyThu) {
                 sumPrjNganSach += item.nganSach; 
                 if (isAppr) sumPrjTamUng += item.tamUng;
             }
-            let kpiText = item.isKpiDacBiet ? '(KPI Đặc biệt)\n' : '';
+            let kpiText = item.isTruyThu ? '(Đã Truy Thu Gói)\n' : (item.isKpiDacBiet ? '(KPI Đặc biệt)\n' : '');
             let excelMembers = kpiText + (item.thanhVien || "").replace(/<br>/g, '\n'); 
             let trangThaiText = isAppr ? 'Đã duyệt Tạm ứng' : (item.trangThaiTU === 'REJECTED_TU' ? 'Tạm ứng bị từ chối' : 'Chưa duyệt tạm ứng'); 
             let bgClass = isAppr ? '' : ' style="background-color: #ffebee;"';
-            excelHtml += `<tr><td class="center">${itemStt++}</td><td class="center bold">${item.idPhieu}</td><td class="center bold">${item.tenNhom}</td><td class="left" style="white-space: pre-wrap;">${excelMembers}</td><td class="center">${item.phong}</td><td class="center">${item.khoi}</td><td class="center bold">${item.tenDuAn}</td><td class="num">${formatNumber(item.nganSach)}</td><td class="num"${bgClass}>${formatNumber(item.tamUng)}</td><td class="center bold"${bgClass}>${trangThaiText}</td></tr>`;
+            
+            let bdgDisp = item.isTruyThu ? 0 : item.nganSach;
+            let advDisp = item.isTruyThu ? 0 : item.tamUng;
+
+            excelHtml += `<tr><td class="center">${itemStt++}</td><td class="center bold">${item.idPhieu}</td><td class="center bold">${item.tenNhom}</td><td class="left" style="white-space: pre-wrap;">${excelMembers}</td><td class="center">${item.phong}</td><td class="center">${item.khoi}</td><td class="center bold">${item.tenDuAn}</td><td class="num">${formatNumber(bdgDisp)}</td><td class="num"${bgClass}>${formatNumber(advDisp)}</td><td class="center bold"${bgClass}>${trangThaiText}</td></tr>`;
           });
           excelHtml += `<tr><td colspan="7" class="bg-total center">TỔNG CỘNG ${prj.toUpperCase()}</td><td class="bg-total num">${formatNumber(sumPrjNganSach)}</td><td class="bg-total num">${formatNumber(sumPrjTamUng)}</td><td class="bg-total"></td></tr></tbody></table><br>`;
         });
@@ -574,10 +600,11 @@
           let advAmount = Math.round(item.nsDeXuat * (item.phieuObj.advPercent || 0) / 100);
           let isRej = (item.trangThai && item.trangThai.startsWith('REJECTED'));
           let isKpiDacBiet = checkKpiDacBiet(item.phieuObj);
+          let isTruyThu = item.phieuObj.isTruyThu === true;
           
-          let valDx = (isRej || isKpiDacBiet) ? 0 : item.nsDeXuat;
-          let valDuyet = (isRej || isKpiDacBiet) ? 0 : item.nsDuyet;
-          let valAdv = (isRej || isKpiDacBiet) ? 0 : advAmount;
+          let valDx = (isRej || isKpiDacBiet || isTruyThu) ? 0 : item.nsDeXuat;
+          let valDuyet = (isRej || isKpiDacBiet || isTruyThu) ? 0 : item.nsDuyet;
+          let valAdv = (isRej || isKpiDacBiet || isTruyThu) ? 0 : advAmount;
 
           let kId = safeId(item.khoi); 
           let pId = safeId(item.khoi + '|' + item.phong); 
@@ -649,6 +676,27 @@
       }
     }
 
+    function handleTruyThuClick(idPhieu, cb) {
+        let isChecked = cb.checked;
+        let msg = isChecked ? 
+            "CẢNH BÁO: Hành động TRUY THU sẽ thực hiện:\n- Loại bỏ toàn bộ ngân sách và tạm ứng của nhóm này khỏi báo cáo tổng.\n- Bôi đỏ cảnh báo vi phạm.\n- Gạch bỏ số tiền tạm ứng đã chi.\n\nBạn có CHẮC CHẮN muốn truy thu nhóm này?" : 
+            "HOÀN TÁC TRUY THU:\nKhôi phục lại trạng thái ngân sách và tính toán bình thường cho nhóm này?\n\nBạn xác nhận chứ?";
+        
+        if (!confirm(msg)) {
+            cb.checked = !isChecked; 
+            return;
+        }
+        
+        let targetPhieu = globalData.find(p => p.idPhieu === idPhieu);
+        if(targetPhieu) {
+            targetPhieu.isTruyThu = isChecked;
+            callAPI("updateStatus", { data: JSON.stringify({ idPhieu: idPhieu, isTruyThu: isChecked, newStatus: targetPhieu.trangThai }) }, function(res) {
+                if(!res || !res.success) alert("Lỗi đồng bộ máy chủ!");
+            });
+            simulateRole(currentViewRole); 
+        }
+    }
+
     function getStatusGroup(phieuObj, role) {
       let st = phieuObj.trangThai;
       if (st.startsWith('REJECTED')) {
@@ -683,7 +731,6 @@
       if (isMKT) { if (mktBlock) mktBlock.style.display = 'flex'; } else { if (mktBlock) mktBlock.style.display = 'none'; }
       if (isHighLevel) { if (expBlock) expBlock.style.display = 'flex'; document.getElementById('topSummaryBlocks').style.display = 'flex'; } else { if (expBlock) expBlock.style.display = 'none'; document.getElementById('topSummaryBlocks').style.display = 'none'; }
 
-      // LOGIC NGÀY THÁNG ĐỂ PHÂN LOẠI ARCHIVE
       let today = new Date();
       let activeDate = new Date(today);
       if (today.getDate() > 23) {
@@ -721,10 +768,11 @@
         let kId = safeId(item.khoi); let pId = safeId(item.khoi + '|' + item.phong); let dId = safeId(item.khoi + '|' + item.phong + '|' + item.tenDuAn); let advAmt = Math.round(item.nsDeXuat * (item.phieuObj.advPercent || 0) / 100);
         
         let isKpiDacBiet = checkKpiDacBiet(item.phieuObj);
+        let isTruyThu = item.phieuObj.isTruyThu === true;
         let isRej = item.trangThai.startsWith('REJECTED');
-        let valDx = (isRej || isKpiDacBiet) ? 0 : item.nsDeXuat;
-        let valDuyet = (isRej || isKpiDacBiet) ? 0 : item.nsDuyet;
-        let valAdv = (isRej || isKpiDacBiet) ? 0 : advAmt;
+        let valDx = (isRej || isKpiDacBiet || isTruyThu) ? 0 : item.nsDeXuat;
+        let valDuyet = (isRej || isKpiDacBiet || isTruyThu) ? 0 : item.nsDuyet;
+        let valAdv = (isRej || isKpiDacBiet || isTruyThu) ? 0 : advAmt;
 
         sumDxKhoi[kId] = (sumDxKhoi[kId] || 0) + valDx; sumDxPhong[pId] = (sumDxPhong[pId] || 0) + valDx; sumDxDuAn[dId] = (sumDxDuAn[dId] || 0) + valDx;
         sumDuyetKhoi[kId] = (sumDuyetKhoi[kId] || 0) + valDuyet; sumDuyetPhong[pId] = (sumDuyetPhong[pId] || 0) + valDuyet; sumDuyetDuAn[dId] = (sumDuyetDuAn[dId] || 0) + valDuyet;
@@ -765,8 +813,9 @@
           let kId = safeId(item.khoi); let pId = safeId(item.khoi + '|' + item.phong); let dId = safeId(item.khoi + '|' + item.phong + '|' + item.tenDuAn);
           let advAmt = Math.round(item.nsDeXuat * (item.phieuObj.advPercent || 0) / 100);
           let isKpiDacBiet = checkKpiDacBiet(item.phieuObj);
+          let isTruyThu = item.phieuObj.isTruyThu === true;
           
-          if(!item.trangThai.startsWith('REJECTED') && !isKpiDacBiet) { localGrandDx += item.nsDeXuat; localGrandAdv += advAmt; localGrandDy += item.nsDuyet; }
+          if(!item.trangThai.startsWith('REJECTED') && !isKpiDacBiet && !isTruyThu) { localGrandDx += item.nsDeXuat; localGrandAdv += advAmt; localGrandDy += item.nsDuyet; }
           let searchData = `${item.khoi} ${item.phong} ${item.tenDuAn} ${item.thanhVien} ${item.phieuObj.tenNhom}`.replace(/<br>/g, ' ');
 
           if (currentKhoi !== kId) {
@@ -784,6 +833,7 @@
 
           let rowClass = item.trangThai === 'APPROVED_BY_BLD' ? 'row-approved' : (item.trangThai.startsWith('REJECTED') ? 'row-rejected' : '');
           if (isKpiDacBiet) rowClass += ' op-kpi'; 
+          if (isTruyThu) rowClass = 'row-truythu'; 
 
           let nsDuyetHtml = (isBLD && !isReadOnlyMode) ? `<input type="text" class="input-budget bld-budget" data-id-dong="${item.idDong}" value="${formatNumber(item.nsDuyet)}" oninput="formatCurrencyAdmin(this)">` : `<span style="color:var(--danger); font-weight:bold;">${formatNumber(item.nsDuyet)}</span>`;
           
@@ -791,8 +841,12 @@
           let ghiChuHtml = isEditableNote ? `<input type="text" class="input-note bld-note" placeholder="Nhập ghi chú..." value="${item.ghiChu.replace(/"/g, '&quot;')}">` : `<span style="font-size:12px;">${item.ghiChu}</span>`;
           
           let kpiChecked = isKpiDacBiet ? 'checked' : '';
+          let truyThuChecked = isTruyThu ? 'checked' : '';
           let disabledKpi = (isBLD || role === 'PTGD' || role === 'SUPER_ADMIN') ? '' : 'disabled';
+          let disabledTruyThu = (isBLD || role === 'TPMKT' || role === 'SUPER_ADMIN') ? '' : 'disabled';
+          
           let kpiHtml = `<div style="margin-top: 6px;"><label style="font-size: 11px; cursor: pointer; color: #8e44ad; font-weight: bold; display: flex; align-items: center; gap: 4px; line-height: 1;"><input type="checkbox" style="margin:0;" class="cb-kpi-dacbiet" ${kpiChecked} ${disabledKpi} onchange="toggleKpiDacBiet('${item.idPhieu}', this)"> KPI đặc biệt</label></div>`;
+          let truyThuHtml = `<div style="margin-top: 4px;"><label style="font-size: 11px; cursor: pointer; color: #d32f2f; font-weight: bold; display: flex; align-items: center; gap: 4px; line-height: 1;"><input type="checkbox" style="margin:0;" class="cb-truythu" ${truyThuChecked} ${disabledTruyThu} onchange="handleTruyThuClick('${item.idPhieu}', this)"> 🚫 Truy thu gói</label></div>`;
           
           let btnHtml = '';
           if (isReadOnlyMode) {
@@ -847,20 +901,24 @@
               statusText = `<span style="color:var(--warning); font-weight:700;" id="status_${item.idPhieu}">${pStr}</span>`;
           }
 
+          let dxDisplay = isTruyThu ? `<s style="opacity:0.6;">${formatNumber(item.nsDeXuat)}</s>` : formatNumber(item.nsDeXuat);
+
           let rowHTML = `<tr data-id-dong="${item.idDong}" data-id-phieu="${item.idPhieu}" data-nsduyet="${item.nsDuyet}" data-search="${searchData}" class="${rowClass}"><td><button class="btn-view" onclick="viewDetail('${item.idPhieu}')">👁️</button></td>`;
           if (isKD) { let checkedState = item.phieuObj.isNewSale ? 'checked' : ''; rowHTML += `<td><input type="checkbox" class="cb-newsale" style="width:16px; height:16px; cursor:pointer;" title="Nhóm sale mới" ${checkedState} ${isReadOnlyMode?'disabled':''}></td>`; }
-          rowHTML += `<td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${item.idPhieu}</span></td><td><span style="font-weight:700; color:var(--primary-blue);">${item.phong}</span><br><span style="font-size:11px; color:#666;">Khối ${item.khoi}</span></td><td style="text-align:left; font-size:12px; line-height:1.5;"><span style="color:var(--primary-blue); font-weight:bold;">Nhóm: ${item.phieuObj.tenNhom}</span>${kpiHtml}<div style="margin-top:4px;">${item.thanhVien}</div></td><td>${statusText}</td><td>${formatNumber(item.nsDeXuat)}</td>`;
+          rowHTML += `<td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${item.idPhieu}</span></td><td><span style="font-weight:700; color:var(--primary-blue);">${item.phong}</span><br><span style="font-size:11px; color:#666;">Khối ${item.khoi}</span></td><td style="text-align:left; font-size:12px; line-height:1.5;"><span style="color:var(--primary-blue); font-weight:bold;">Nhóm: ${item.phieuObj.tenNhom}</span>${kpiHtml}${truyThuHtml}<div style="margin-top:4px;">${item.thanhVien}</div></td><td>${statusText}</td><td>${dxDisplay}</td>`;
 
           if (isPTGD) { 
-              rowHTML += `<td style="color:var(--primary-blue); font-weight:bold;">${item.phieuObj.advPercent || 0}%</td><td style="color:var(--danger); font-weight:bold;">${formatNumber(advAmt)}</td><td style="width:250px;">${ghiChuHtml}</td>`; 
+              let advDisplay = isTruyThu ? `<s style="opacity:0.6;">${formatNumber(advAmt)}</s><br><span style="font-size:10px; color:#d32f2f; font-weight:800;">(Truy thu tạm ứng)</span>` : formatNumber(advAmt);
+              rowHTML += `<td style="color:var(--primary-blue); font-weight:bold;">${item.phieuObj.advPercent || 0}%</td><td style="color:var(--danger); font-weight:bold;">${advDisplay}</td><td style="width:250px;">${ghiChuHtml}</td>`; 
           } else if (isBLD || isMKT) { 
+              if (isTruyThu && isReadOnlyMode) { nsDuyetHtml = `<s style="opacity:0.6;">${formatNumber(item.nsDuyet)}</s>`; }
               rowHTML += `<td>${nsDuyetHtml}</td><td style="width:250px;">${ghiChuHtml}</td>`; 
           }
           rowHTML += `<td class="td-actions">${btnHtml}</td></tr>`; html += rowHTML;
         });
 
         if (itemsArray.length > 0) {
-            let txtList = isReadOnlyMode ? "TỔNG CỘNG LƯU TRỮ" : "TỔNG CỘNG";
+            let txtList = isReadOnlyMode ? "TỔNG CỘNG LƯU TRỮ" : "TỔNG CỘNG BẢNG DUYỆT CHÍNH";
             html += `<tr class="total-row" style="background:#333; color:white; font-weight:bold; font-size: 16px;"><td colspan="${colBefore}" style="text-align:right; padding-right: 20px;">${txtList}</td><td style="color:#f39c12;">${formatNumber(localGrandDx)}</td>`;
             if (isPTGD) { html += `<td></td><td style="color:#2ecc71;">${formatNumber(localGrandAdv)}</td><td></td><td></td>`; } 
             else if (isBLD || isMKT) { 
@@ -874,7 +932,6 @@
         return html;
       }
 
-      // CHỈ TRUYỀN CÁC GÓI CỦA THÁNG HIỆN TẠI VÀO SUMMARY TOP (Tránh cộng dồn rác cũ)
       bldItemsArray = mainItems.concat(cnqnItems); 
       
       if (typeof buildRowsHTML === 'function') {
@@ -889,7 +946,6 @@
           }
       }
 
-      // HIỂN THỊ CÁC NHÓM ARCHIVE (LƯU TRỮ)
       let archiveHtml = '';
       let sortedArchiveMonths = Object.keys(archiveGroups).sort((a,b) => {
           let [m1,y1] = a.split('/').map(Number); let [m2,y2] = b.split('/').map(Number);
@@ -925,18 +981,6 @@
       archContainer.innerHTML = archiveHtml;
 
       if (typeof recalcBLDSummary === 'function') recalcBLDSummary();
-    }
-
-    function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
-      try {
-        let targetPhieu = globalData.find(p => p.idPhieu === idPhieu);
-        let cb = btnElement.closest('tr').querySelector('.cb-newsale');
-        let isNewSaleVal = targetPhieu ? targetPhieu.isNewSale : false;
-        if (cb) isNewSaleVal = cb.checked;
-        if (targetPhieu) { targetPhieu.trangThai = newStatus; targetPhieu.isNewSale = isNewSaleVal; }
-        renderTableByRole(currentViewRole);
-        callAPI("updateStatus", { data: JSON.stringify({ idPhieu: idPhieu, newStatus: newStatus, isNewSale: isNewSaleVal }) }, function(res) { if(!res || !res.success) alert("Lỗi đồng bộ máy chủ!"); });
-      } catch(e) { alert("Lỗi: " + e.message); }
     }
 
     function renderAdvanceTableByRole(role) {
@@ -975,18 +1019,29 @@
             isArchived = true;
         }
 
-        let totalDuyet = 0; let prjNames = []; let tk = String(phieu.phongKD || "").split('-'); let phong = tk[0] ? tk[0].trim() : ''; let khoi = tk[1] ? tk[1].trim() : '';
-        (phieu.chiTiet || []).forEach(ct => { let liveInput = document.querySelector(`.bld-budget[data-id-dong="${ct.idDong}"]`); if((role === 'BLD' || role === 'SUPER_ADMIN') && liveInput) { totalDuyet += parseNumber(liveInput.value); } else { totalDuyet += Number(ct.nganSachDuyet); } prjNames.push(ct.tenDuAn); });
+        let totalDuyet_orig = 0; let prjNames = []; let tk = String(phieu.phongKD || "").split('-'); let phong = tk[0] ? tk[0].trim() : ''; let khoi = tk[1] ? tk[1].trim() : '';
+        (phieu.chiTiet || []).forEach(ct => { let liveInput = document.querySelector(`.bld-budget[data-id-dong="${ct.idDong}"]`); if((role === 'BLD' || role === 'SUPER_ADMIN') && liveInput) { totalDuyet_orig += parseNumber(liveInput.value); } else { totalDuyet_orig += Number(ct.nganSachDuyet); } prjNames.push(ct.tenDuAn); });
 
-        let advAmount = Math.round(totalDuyet * Number(phieu.advPercent || 0) / 100);
+        let totalDuyet = totalDuyet_orig;
+        let origAdvAmt = Math.round(totalDuyet_orig * Number(phieu.advPercent || 0) / 100);
         let isKpiDacBiet = checkKpiDacBiet(phieu);
-        if(isKpiDacBiet) { totalDuyet = 0; advAmount = 0; } 
+        let isTruyThu = phieu.isTruyThu === true;
+        
+        if(isKpiDacBiet || isTruyThu) { totalDuyet = 0; } 
+        let advAmount = Math.round(totalDuyet * Number(phieu.advPercent || 0) / 100);
 
         let rowClass = phieu.trangThaiTU === 'APPROVED_TU' ? 'row-approved' : (phieu.trangThaiTU === 'REJECTED_TU' ? 'row-rejected' : '');
-        let percentHtml = `${phieu.advPercent || 0}%`;
-        if (role === 'TPMKT' || role === 'BLD' || role === 'SUPER_ADMIN') { percentHtml = `<input type="number" min="0" max="100" class="input-budget adv-percent-input" value="${phieu.advPercent || 0}" oninput="recalcAdvanceRow(this, ${totalDuyet})" style="width: 50px; padding: 4px; font-size: 13px; text-align: center;"> %`; }
+        if (isTruyThu) rowClass = 'row-truythu';
 
-        let rowHTML = `<tr class="${rowClass}"><td><button class="btn-view" onclick="viewDetail('${phieu.idPhieu}')">👁️</button></td><td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${phieu.idPhieu}</span></td><td><span style="font-weight:700; color:var(--primary-blue);">${phong}</span><br><span style="font-size:11px; color:#666;">Khối ${khoi}</span></td><td style="text-align:left; font-size:12px; line-height:1.4;">${isKpiDacBiet?'<b style="color:#8e44ad;">(KPI Đặc biệt)</b><br>':''}${String(phieu.thanhVien||"").replace(/,/g, '<br>')}</td><td style="color:#0b1f8c; font-weight:800; font-size:12px;">${prjNames.join(', ')}</td><td>${formatNumber(totalDuyet)}</td><td style="color:var(--danger); font-weight:bold; white-space:nowrap;">${percentHtml}</td><td class="td-adv-amount" style="color:var(--danger); font-weight:bold;">${formatNumber(advAmount)}</td><td class="td-status-tu"><span style="color:var(--warning); font-weight:700;">${phieu.trangThaiTU}</span></td><td class="td-actions-tu">`;
+        let percentHtml = `${phieu.advPercent || 0}%`;
+        if (role === 'TPMKT' || role === 'BLD' || role === 'SUPER_ADMIN') { percentHtml = `<input type="number" min="0" max="100" class="input-budget adv-percent-input" value="${phieu.advPercent || 0}" oninput="recalcAdvanceRow(this, ${totalDuyet_orig})" style="width: 50px; padding: 4px; font-size: 13px; text-align: center;"> %`; }
+
+        let bdgDisplay = isTruyThu ? `<s style="opacity:0.6;">${formatNumber(totalDuyet_orig)}</s>` : formatNumber(totalDuyet);
+        let advDisplay = isTruyThu ? `<s style="opacity:0.6;">${formatNumber(origAdvAmt)}</s><br><span style="font-size:10px; color:#d32f2f; font-weight:800;">(Truy thu tạm ứng đã chi)</span>` : formatNumber(advAmount);
+        
+        let subNote = isTruyThu ? '<b style="color:#d32f2f;">(ĐÃ TRUY THU GÓI)</b><br>' : (isKpiDacBiet ? '<b style="color:#8e44ad;">(KPI Đặc biệt)</b><br>' : '');
+
+        let rowHTML = `<tr class="${rowClass}"><td><button class="btn-view" onclick="viewDetail('${phieu.idPhieu}')">👁️</button></td><td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${phieu.idPhieu}</span></td><td><span style="font-weight:700; color:var(--primary-blue);">${phong}</span><br><span style="font-size:11px; color:#666;">Khối ${khoi}</span></td><td style="text-align:left; font-size:12px; line-height:1.4;">${subNote}${String(phieu.thanhVien||"").replace(/,/g, '<br>')}</td><td style="color:#0b1f8c; font-weight:800; font-size:12px;">${prjNames.join(', ')}</td><td>${bdgDisplay}</td><td style="color:var(--danger); font-weight:bold; white-space:nowrap;">${percentHtml}</td><td class="td-adv-amount" style="color:var(--danger); font-weight:bold;">${advDisplay}</td><td class="td-status-tu"><span style="color:var(--warning); font-weight:700;">${phieu.trangThaiTU}</span></td><td class="td-actions-tu">`;
 
         if(role === 'TPMKT') {
            if(phieu.trangThaiTU === 'PENDING_MKT_TU') { rowHTML += `<button class="btn-action btn-approve" onclick="updateStatusTUOptimistic('${phieu.idPhieu}', 'PENDING_BLD_TU', this)">Duyệt Lên BLĐ</button><button class="btn-action btn-reject" onclick="updateStatusTUOptimistic('${phieu.idPhieu}', 'REJECTED_TU', this)">Từ Chối</button>`; } 
@@ -1149,6 +1204,14 @@
       function sendNext() { if (currentIndex >= approvedItems.length) { showLoading(false); alert(`Hoàn tất! Đã gửi thành công ${successCount}/${approvedItems.length} Email.`); return; } callAPI("sendPdfEmail", { idPhieu: approvedItems[currentIndex].idPhieu }, function(res) { if (res && res.success) successCount++; currentIndex++; sendNext(); }); }
       sendNext();
     }
+    
+    // Đã thay đổi phím tắt in PDF
+    document.addEventListener('keydown', function(event) {
+        if (event.ctrlKey && event.key === 'p') {
+            event.preventDefault();
+            alert("Vui lòng sử dụng các nút màu xanh 'XUẤT BẢN IN PDF' trên bảng công cụ để in tài liệu chuẩn form!");
+        }
+    });
 
     function printHTMLNative(htmlContent, orientation, title) {
       try {
@@ -1174,6 +1237,7 @@
         let dateStr = "Hà Nội, ngày " + String(today.getDate()).padStart(2,'0') + " tháng " + String(today.getMonth()+1).padStart(2,'0') + " năm " + today.getFullYear();
         
         filteredData.forEach((phieu, i) => {
+          let isTruyThu = phieu.isTruyThu === true;
           let tongTien = 0; let rowsHtml = ''; 
           let tk = String(phieu.phongKD || "").split('-'); 
           let phong = tk[0] ? tk[0].trim() : ''; 
@@ -1181,8 +1245,10 @@
           
           (phieu.chiTiet || []).forEach((ct, index) => { 
             let valNS = parseNumber(ct.nganSachDuyet?.toString() || "0");
-            tongTien += valNS; 
-            rowsHtml += `<tr><td>${index+1}</td><td><b>${ct.tenDuAn||''}</b></td><td style="color:#c00000; font-weight:bold;">${formatNumber(valNS)}</td><td>${ct.start||''}</td><td>${ct.end||''}</td><td>${ct.kpi || ''}</td><td>${ct.channel || ''}</td><td>${ct.phone || ''}</td><td>${ct.account || ''}</td><td></td></tr>`; 
+            if (!isTruyThu) tongTien += valNS; 
+            
+            let displayNS = isTruyThu ? `<s style="opacity:0.6">${formatNumber(valNS)}</s>` : formatNumber(valNS);
+            rowsHtml += `<tr><td>${index+1}</td><td><b>${ct.tenDuAn||''}</b></td><td style="color:#c00000; font-weight:bold;">${displayNS}</td><td>${ct.start||''}</td><td>${ct.end||''}</td><td>${ct.kpi || ''}</td><td>${ct.channel || ''}</td><td>${ct.phone || ''}</td><td>${ct.account || ''}</td><td></td></tr>`; 
           });
           
           let mnvRaw = phieu.maNhanVien ? String(phieu.maNhanVien) : "...";
@@ -1191,10 +1257,12 @@
           let tvRaw = phieu.thanhVien ? String(phieu.thanhVien) : "...";
           let htmlMembers = tvRaw.split(',').map(n => n.trim()).join(', ');
           
+          let titlePrefix = isTruyThu ? `<span style="color:red; font-size:14pt;">(ĐÃ BỊ TRUY THU GÓI)</span><br>` : '';
+
           htmlString += `<div class="${i < filteredData.length - 1 ? 'page-break' : ''}" style="width: 100%; box-sizing: border-box; line-height: 1.2;">
               <table class="no-border" style="width: 100%; margin-bottom: 5px;"><tr><td style="width: 45%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11pt; color: #0b1f8c;">CÔNG TY CP PHÁT TRIỂN DỊCH VỤ<br>VÀ ĐỊA ỐC AN VIỆT HOMES</td><td style="width: 55%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11pt;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập - Tự do - Hạnh Phúc<hr style="width: 50%; border-top: 1px solid #000; margin: 4px auto;"></td></tr></table>
               <div style="text-align: right; font-style: italic; font-size: 11pt; margin-bottom: 15px; margin-right: 15px;">${dateStr}</div>
-              <div style="text-align:center; font-size: 16pt; font-weight: bold; margin-bottom: 8px; color:#0b1f8c;">ĐỀ XUẤT CHIẾN DỊCH MARKETING</div><p style="text-align:center; font-size: 11pt; font-style: italic; margin-top: 0; margin-bottom: 20px;">Mã phiếu: <b>${phieu.idPhieu||''}</b></p>
+              <div style="text-align:center; font-size: 16pt; font-weight: bold; margin-bottom: 8px; color:#0b1f8c;">${titlePrefix}ĐỀ XUẤT CHIẾN DỊCH MARKETING</div><p style="text-align:center; font-size: 11pt; font-style: italic; margin-top: 0; margin-bottom: 20px;">Mã phiếu: <b>${phieu.idPhieu||''}</b></p>
               <table class="form-table"><tr><td class="form-label" style="width: 1%;">Thành viên:</td><td class="form-dots">${htmlMembers}</td><td class="form-label" style="width: 1%; padding-left: 20px;">Mã nhân viên:</td><td class="form-dots">${htmlMnv}</td></tr><tr><td class="form-label">Tên nhóm:</td><td class="form-dots"><b>${phieu.tenNhom||''}</b></td><td class="form-label" style="padding-left: 20px;">Email liên hệ:</td><td class="form-dots">${phieu.email||''}</td></tr><tr><td class="form-label">Phòng kinh doanh:</td><td class="form-dots"><b>${phong}</b></td><td class="form-label" style="padding-left: 20px;">Khối kinh doanh:</td><td class="form-dots"><b>${khoi}</b></td></tr></table>
               <div style="font-weight: bold; font-size: 11pt; margin-bottom: 8px; text-align: left;">Nội dung đề xuất chiến dịch Marketing</div>
               <div class="rounded-wrapper"><table class="styled-table"><thead><tr style="background-color:#0b1f8c; color:#fff; font-weight:bold;"><th rowspan="2">STT</th><th rowspan="2">Dự án</th><th colspan="4">Thông tin chiến dịch Marketing đăng ký</th><th rowspan="2">Kênh chạy</th><th rowspan="2">Số điện thoại<br>đăng ký</th><th rowspan="2">Tài khoản<br>chạy QC</th><th rowspan="2">BLĐ<br>Duyệt</th></tr><tr style="background-color:#0b1f8c; color:#fff; font-weight:bold;"><th>Ngân sách</th><th>Bắt đầu</th><th>Kết thúc</th><th>KPI</th></tr></thead><tbody>${rowsHtml}</tbody><tr style="background:#f4f6f8; font-weight:bold;"><td colspan="2" style="text-align:right !important;">TỔNG CỘNG</td><td style="color:#fff; background:#0b1f8c; font-size:13pt;">${formatNumber(tongTien)}</td><td colspan="7"></td></tr></table></div>
@@ -1220,6 +1288,8 @@
         
         filteredData.forEach((phieu, i) => {
           let prjNames = []; let totalDuyet = 0; let rowsHtml = ''; 
+          let isTruyThu = phieu.isTruyThu === true;
+
           let tk = String(phieu.phongKD || "").split('-'); 
           let phong = tk[0] ? tk[0].trim() : '';
           let khoi = tk[1] ? tk[1].trim() : '';
@@ -1230,7 +1300,11 @@
             totalDuyet += valNS; 
             let mThang = monthVal.split('-')[1]; 
             let advanceAmt = Math.round(valNS * Number(phieu.advPercent||0) / 100); 
-            rowsHtml += `<tr><td>Tháng ${mThang}</td><td><b>${ct.tenDuAn||''}</b></td><td style="color:#c00000; font-weight:bold;">${formatNumber(valNS)}</td><td style="color:#c00000; font-weight:bold;">${formatNumber(advanceAmt)}</td></tr>`; 
+            
+            let displayBdg = isTruyThu ? `<s style="opacity:0.6">${formatNumber(valNS)}</s>` : formatNumber(valNS);
+            let displayAdv = isTruyThu ? `<s style="opacity:0.6">${formatNumber(advanceAmt)}</s>` : formatNumber(advanceAmt);
+
+            rowsHtml += `<tr><td>Tháng ${mThang}</td><td><b>${ct.tenDuAn||''}</b></td><td style="color:#c00000; font-weight:bold;">${displayBdg}</td><td style="color:#c00000; font-weight:bold;">${displayAdv}</td></tr>`; 
           });
           
           let totalAdvance = Math.round(totalDuyet * Number(phieu.advPercent||0) / 100); 
@@ -1242,13 +1316,18 @@
           let tvRaw = phieu.thanhVien ? String(phieu.thanhVien) : "...";
           let htmlMembers = tvRaw.split(',').map(n => n.trim()).join(', ');
           
+          let titlePrefix = isTruyThu ? `<span style="color:red; font-size:14pt;">(ĐÃ TRUY THU LẠI TIỀN)</span><br>` : '';
+
+          let displayTotalAdv = isTruyThu ? 0 : totalAdvance;
+          let displayRemain = isTruyThu ? 0 : remaining;
+
           htmlString += `<div class="${i < filteredData.length - 1 ? 'page-break' : ''}" style="width: 100%; box-sizing: border-box; line-height: 1.25;">
               <table class="no-border" style="width: 100%; margin-bottom: 5px;"><tr><td style="width: 45%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11pt; color: #0b1f8c;">CÔNG TY CP PHÁT TRIỂN DỊCH VỤ<br>VÀ ĐỊA ỐC AN VIỆT HOMES</td><td style="width: 55%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11pt;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập - Tự do - Hạnh Phúc<hr style="width: 50%; border-top: 1.5px solid #000; margin: 4px auto;"></td></tr></table>
-              <div style="text-align: right; font-style: italic; font-size: 11pt; margin-bottom: 15px; margin-right: 15px;">${dateStr}</div><div style="text-align: center; font-size: 16pt; font-weight: bold; margin-bottom: 8px; color:#0b1f8c;">ĐƠN XIN TẠM ỨNG MARKETING</div><p style="margin: 5px 0; text-align: left !important; font-size: 11pt;"><u>Kính gửi:</u> <b>Ban Lãnh Đạo Công ty Cổ phần Phát triển Dịch vụ và Địa ốc An Việt Homes</b></p>
+              <div style="text-align: right; font-style: italic; font-size: 11pt; margin-bottom: 15px; margin-right: 15px;">${dateStr}</div><div style="text-align: center; font-size: 16pt; font-weight: bold; margin-bottom: 8px; color:#0b1f8c;">${titlePrefix}ĐƠN XIN TẠM ỨNG MARKETING</div><p style="margin: 5px 0; text-align: left !important; font-size: 11pt;"><u>Kính gửi:</u> <b>Ban Lãnh Đạo Công ty Cổ phần Phát triển Dịch vụ và Địa ốc An Việt Homes</b></p>
               <div style="text-align: justify; margin: 8px 0; font-size: 11pt; line-height: 1.3;"><span style="display:inline-block; width: 30px;"></span>Tôi tên là: <b>${htmlMembers.split(',')[0]}</b>. Có mã nhân viên là: <b>${htmlMnv.split(',')[0]}</b>,<br>đại diện nhóm: <b>${phieu.tenNhom||''}</b> thuộc phòng kinh doanh: <b>${phong} - Khối ${khoi}</b>.<br>Làm đơn xin tạm ứng khoản chi phí hỗ trợ Marketing (“MKT”) với các nội dung sau đây:</div>
               <table class="no-border" style="width: 100%; margin-bottom: 10px; font-size:11pt;"><tr><td style="width: 35px; vertical-align: top; text-align: left !important;">1.1.</td><td style="text-align: left !important;">Tạm ứng cho cá nhân/nhóm: <b>Nhóm ${phieu.tenNhom||''}</b></td></tr><tr><td style="width: 35px; vertical-align: top; text-align: left !important;">1.2.</td><td style="text-align: left !important;">Nội dung tạm ứng: <b>Tạm ứng marketing dự án ${prjNames.join(', ')}</b></td></tr></table>
-              <div class="rounded-wrapper" style="margin-bottom: 10px;"><table class="styled-table" style="font-size: 11pt;"><thead><tr style="background-color:#0b1f8c; color:#fff; font-weight:bold;"><th>Tháng chạy MKT</th><th>Dự án</th><th>Ngân sách MKT</th><th>Số tiền được tạm ứng</th></tr></thead><tbody>${rowsHtml}<tr style="background:#f4f6f8; font-weight:bold;"><td colspan="3" style="text-align: left !important; padding: 4px;">Số tiền tạm ứng MKT lần 1 (${phieu.advPercent||0}%)</td><td style="text-align:center !important; color:#0b1f8c; font-size: 12pt; padding: 4px;">${formatNumber(totalAdvance)}</td></tr><tr><td colspan="3" style="text-align: left !important; padding: 4px;">Số tiền tạm ứng MKT lần 2</td><td style="padding: 4px;"></td></tr><tr style="font-weight:bold;"><td colspan="3" style="text-align: left !important; padding: 4px;">Số tiền còn lại</td><td style="text-align:center !important; color:#0b1f8c; font-size: 12pt; padding: 4px;">${formatNumber(remaining)}</td></tr></tbody></table></div>
-              <table class="no-border" style="width: 100%; margin-bottom: 10px; font-size:11pt;"><tr><td style="width: 35px; vertical-align: top; text-align: left !important;">1.3.</td><td style="text-align: left !important;">Số tiền tạm ứng kỳ này: <b>${formatNumber(totalAdvance)} VNĐ</b><br><i style="font-size: 10.5pt;"></i></td></tr><tr><td style="width: 35px; vertical-align: top; text-align: left !important; padding-top: 5px !important;">1.4.</td><td style="text-align: left !important; padding-top: 5px !important;">Hình thức chi tạm ứng: Chuyển khoản. Thông tin số tài khoản nhận tạm ứng:<div style="padding-left: 15px; margin-top: 4px;">- Chủ tài khoản: <b>${phieu.bankOwner||''}</b><br>- Số tài khoản: <b>${phieu.bankAccount||''}</b><br>- Mở tại ngân hàng: <b>${phieu.bankName||''}</b></div></td></tr><tr><td style="width: 35px; vertical-align: top; text-align: left !important; padding-top: 5px !important;">1.5.</td><td style="text-align: justify !important; padding-top: 5px !important; line-height: 1.3;">Tôi/chúng tôi xin cam kết chạy đủ ngân sách trong thời gian hỗ trợ, nếu số tiền tôi/chúng tôi tạm ứng vượt quá số tiền được hỗ trợ marketing, tôi/chúng đồng ý cho Công ty khấu trừ phần chênh lệch đó vào lương, Hoa hồng và Thưởng từ các Giao dịch khác mà tôi/chúng tôi có tại Công ty. Trường hợp không đủ khấu trừ, tôi/chúng tôi hoàn toàn đồng ý mọi phương án xử lý từ Ban Lãnh đạo Công ty.</td></tr></table>
+              <div class="rounded-wrapper" style="margin-bottom: 10px;"><table class="styled-table" style="font-size: 11pt;"><thead><tr style="background-color:#0b1f8c; color:#fff; font-weight:bold;"><th>Tháng chạy MKT</th><th>Dự án</th><th>Ngân sách MKT</th><th>Số tiền được tạm ứng</th></tr></thead><tbody>${rowsHtml}<tr style="background:#f4f6f8; font-weight:bold;"><td colspan="3" style="text-align: left !important; padding: 4px;">Số tiền tạm ứng MKT lần 1 (${phieu.advPercent||0}%)</td><td style="text-align:center !important; color:#0b1f8c; font-size: 12pt; padding: 4px;">${formatNumber(displayTotalAdv)}</td></tr><tr><td colspan="3" style="text-align: left !important; padding: 4px;">Số tiền tạm ứng MKT lần 2</td><td style="padding: 4px;"></td></tr><tr style="font-weight:bold;"><td colspan="3" style="text-align: left !important; padding: 4px;">Số tiền còn lại</td><td style="text-align:center !important; color:#0b1f8c; font-size: 12pt; padding: 4px;">${formatNumber(displayRemain)}</td></tr></tbody></table></div>
+              <table class="no-border" style="width: 100%; margin-bottom: 10px; font-size:11pt;"><tr><td style="width: 35px; vertical-align: top; text-align: left !important;">1.3.</td><td style="text-align: left !important;">Số tiền tạm ứng kỳ này: <b>${formatNumber(displayTotalAdv)} VNĐ</b><br><i style="font-size: 10.5pt;"></i></td></tr><tr><td style="width: 35px; vertical-align: top; text-align: left !important; padding-top: 5px !important;">1.4.</td><td style="text-align: left !important; padding-top: 5px !important;">Hình thức chi tạm ứng: Chuyển khoản. Thông tin số tài khoản nhận tạm ứng:<div style="padding-left: 15px; margin-top: 4px;">- Chủ tài khoản: <b>${phieu.bankOwner||''}</b><br>- Số tài khoản: <b>${phieu.bankAccount||''}</b><br>- Mở tại ngân hàng: <b>${phieu.bankName||''}</b></div></td></tr><tr><td style="width: 35px; vertical-align: top; text-align: left !important; padding-top: 5px !important;">1.5.</td><td style="text-align: justify !important; padding-top: 5px !important; line-height: 1.3;">Tôi/chúng tôi xin cam kết chạy đủ ngân sách trong thời gian hỗ trợ, nếu số tiền tôi/chúng tôi tạm ứng vượt quá số tiền được hỗ trợ marketing, tôi/chúng đồng ý cho Công ty khấu trừ phần chênh lệch đó vào lương, Hoa hồng và Thưởng từ các Giao dịch khác mà tôi/chúng tôi có tại Công ty. Trường hợp không đủ khấu trừ, tôi/chúng tôi hoàn toàn đồng ý mọi phương án xử lý từ Ban Lãnh đạo Công ty.</td></tr></table>
               <p style="margin: 0 0 10px 35px; text-align: left !important; font-size:11pt;">Kính đề nghị Ban Lãnh đạo hỗ trợ và phê duyệt.<br>Trân trọng cảm ơn!</p>
               <table class="no-border" style="width: 100%; text-align: center !important; margin-top: 5px;"><tr style="font-weight:bold; font-size: 10pt;"><td style="width: 50%; text-align:center !important;">XÁC NHẬN P.MARKETING</td><td style="width: 50%; text-align:center !important;">NGƯỜI LÀM ĐƠN</td></tr><tr><td style="text-align:center !important; padding-top: 15px !important;"><span class="signature">Đã xác nhận<br>trên hệ thống</span></td><td style="text-align:center !important; padding-top: 15px !important;"><span class="signature">Đã xác nhận<br>trên hệ thống</span></td></tr></table>
               <table class="no-border" style="width: 100%; text-align: center !important; margin-top: 25px;"><tr style="font-weight:bold; font-size: 10pt;"><td style="width: 33.33%; text-align:center !important;">BAN LÃNH ĐẠO</td><td style="width: 33.33%; text-align:center !important;">XÁC NHẬN P. KẾ TOÁN</td><td style="width: 33.33%; text-align:center !important;">XÁC NHẬN P. ADMIN</td></tr><tr><td style="text-align:center !important; padding-top: 15px !important;"><span class="signature">Đã xác nhận<br>trên hệ thống</span></td><td></td><td></td></tr></table>
@@ -1302,9 +1381,17 @@
   
   <script>
     document.addEventListener('contextmenu', event => event.preventDefault());
+    
+    document.addEventListener('copy', function(e) {
+        e.preventDefault();
+        return false;
+    });
 
     document.onkeydown = function(e) {
-      if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) {
+      if(e.keyCode == 123 || 
+        (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || 
+        (e.ctrlKey && e.keyCode == 85) ||
+        (e.ctrlKey && e.keyCode == 67)) {
         return false;
       }
     };
