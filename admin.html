@@ -47,7 +47,7 @@
     #exportBlock { display: none; background: #e8f4fc; padding: 15px; border-radius: 8px; margin-bottom: 20px; align-items: center; gap: 15px; width: 100%; box-sizing: border-box; }
 
     .summary-table { width: 100%; border-collapse: collapse; }
-    .summary-table th { background: #f4f6f8; color: #333; padding: 10px; font-size: 13px; text-align: center; border-bottom: 1px solid var(--border-color); }
+    .summary-table th { background: #f4f6f8; color: #ffffff; padding: 10px; font-size: 13px; text-align: center; border-bottom: 1px solid var(--border-color); }
     .summary-table td { padding: 10px; border-bottom: 1px solid #ddd; text-align: center; font-size: 14px; }
 
     .table-container { width: 100%; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 20px; overflow-x: auto; }
@@ -70,8 +70,9 @@
     .row-rejected:hover { opacity: 1; transition: 0.2s; }
     .op-kpi { background-color: #f5eef8; opacity: 0.85; border-left: 5px solid #8e44ad; }
     /* STYLE ĐẶC BIỆT CHO TRUY THU */
-    .row-truythu { background-color: #ffeded !important; border-left: 5px solid #d32f2f !important; }
-    .row-truythu td { opacity: 0.85; }
+    .row-truythu { background-color: #ffb3b3 !important; border-left: 6px solid #900000 !important; }
+    .row-truythu td { opacity: 1 !important; }
+    .row-truythu:hover { background-color: #ff9999 !important; transition: 0.2s; }
 
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1000; }
     .modal-card { background: #fff; width: 1000px; max-width: 95%; max-height: 90vh; overflow-y: auto; border-radius: 12px; padding: 30px; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
@@ -682,20 +683,29 @@ const API_URL = atob("aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J3Rm
             "CẢNH BÁO: Hành động TRUY THU sẽ thực hiện:\n- Loại bỏ toàn bộ ngân sách và tạm ứng của nhóm này khỏi báo cáo tổng.\n- Bôi đỏ cảnh báo vi phạm.\n- Gạch bỏ số tiền tạm ứng đã chi.\n\nBạn có CHẮC CHẮN muốn truy thu nhóm này?" : 
             "HOÀN TÁC TRUY THU:\nKhôi phục lại trạng thái ngân sách và tính toán bình thường cho nhóm này?\n\nBạn xác nhận chứ?";
         
+        // Nếu người dùng ấn CANCEL (Hủy bỏ) trên thông báo cảnh báo
         if (!confirm(msg)) {
-            cb.checked = !isChecked; 
+            cb.checked = !isChecked; // Trả lại trạng thái checkbox trước đó
             return;
         }
         
+        // Tìm phiếu trong biến toàn cục
         let targetPhieu = globalData.find(p => p.idPhieu === idPhieu);
         if(targetPhieu) {
+            // 1. Cập nhật ngay lập tức vào dữ liệu cục bộ
             targetPhieu.isTruyThu = isChecked;
+            
+            // 2. Render lại giao diện ngay tức thì (hàng sẽ bôi đỏ, tiền sẽ bị gạch bỏ và trừ khỏi tổng ngay 1 chạm)
+            renderTableByRole(currentViewRole);
+            
+            // 3. Gửi lệnh ngầm về server Google để lưu vĩnh viễn vào Google Sheet
             callAPI("updateStatus", { data: JSON.stringify({ idPhieu: idPhieu, isTruyThu: isChecked, newStatus: targetPhieu.trangThai }) }, function(res) {
-                if(!res || !res.success) alert("Lỗi đồng bộ máy chủ!");
+                if(!res || !res.success) {
+                    alert("Lỗi đồng bộ máy chủ! Vui lòng kiểm tra lại mạng.");
+                }
             });
-            simulateRole(currentViewRole); 
         }
-    }
+    }}
 
     function getStatusGroup(phieuObj, role) {
       let st = phieuObj.trangThai;
