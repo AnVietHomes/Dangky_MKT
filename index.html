@@ -395,7 +395,9 @@
       });
     });
 
-    const API_URL = "https://script.google.com/macros/s/AKfycbwFgszaVmJmOhs_GOMlcomv-RTcFJ2SXU4nbrGDRRqS8mZcFOR59YnBEl5boKmTeBFa/exec";
+    // MÃ HÓA BẢO MẬT ĐƯỜNG LINK API BẰNG BASE64
+    const API_URL = atob("aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J3RmdzemFWbUptT2hzX0dPTWxjb212LVJUY0ZKMlNYVTRuYnJHRFJScVM4bVpjRk9SNTlZbkJFbDVib0ttVGVCRmEvZXhlYw==");
+    
     let departmentsData = [];
     let currentSearchResults = [];
     let currentSearchIndex = 0;
@@ -404,7 +406,6 @@
       const callbackName = "cb_" + action + "_" + new Date().getTime();
       let isDone = false;
 
-      // Thời gian chờ nâng lên 45s để bọc lót an toàn
       const timeoutId = setTimeout(() => {
           if (isDone) return;
           isDone = true;
@@ -439,7 +440,6 @@
           try { successCallback({ success: false, message: "Lỗi mạng" }); } catch(e) {}
       };
 
-      // Thêm _ts= (timestamp) để đánh lừa trình duyệt, ép tải data mới nhất (Chống lỗi Cache)
       let queryString = `?action=${action}&callback=${callbackName}&_ts=${new Date().getTime()}`;
       for (let key in params) { 
           queryString += `&${key}=${encodeURIComponent(params[key])}`; 
@@ -600,7 +600,7 @@
              document.getElementById('carouselContent').innerHTML = "";
              document.getElementById('btnPrevSlide').style.display = 'none'; document.getElementById('btnNextSlide').style.display = 'none'; document.getElementById('carouselPageIndicator').innerText = "";
           } else {
-             document.getElementById('searchSummaryText').innerHTML = `Đã tìm thấy <span style="color:#e74c3c;">${currentSearchResults.length}</span> phiếu đăng ký khớp với thông tin bảo mật trong <span style="color:#e74c3c;">${displayMonth}</span>`;
+             document.getElementById('searchSummaryText').innerHTML = `Đã tìm thấy <span style="color:#e74c3c;">${currentSearchResults.length}</span> phiếu đăng ký khớp với thôngquan bảo mật trong <span style="color:#e74c3c;">${displayMonth}</span>`;
              if(currentSearchResults.length > 1) { document.getElementById('btnPrevSlide').style.display = 'block'; document.getElementById('btnNextSlide').style.display = 'block'; } 
              else { document.getElementById('btnPrevSlide').style.display = 'none'; document.getElementById('btnNextSlide').style.display = 'none'; }
              renderSlide(currentSearchIndex);
@@ -781,6 +781,21 @@
         btn.disabled = false; btn.innerText = "NỘP TOÀN BỘ ĐỀ XUẤT";
       });
     }
+  </script>
+  
+  <script>
+    // Chặn chuột phải (Không thể dùng Inspect/Kiểm tra phần tử)
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
+    // Khóa các tổ hợp phím mở Developer Tools (F12, Ctrl+U, Ctrl+Shift+I, Ctrl+Shift+J) 
+    // NHƯNG VẪN CHO PHÉP COPY (Ctrl+C, Ctrl+V, Ctrl+X)
+    document.onkeydown = function(e) {
+      if(e.keyCode == 123 || // F12
+        (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || // Ctrl+Shift+I hoặc J
+        (e.ctrlKey && e.keyCode == 85)) { // Ctrl+U
+        return false;
+      }
+    };
   </script>
 </body>
 </html>
