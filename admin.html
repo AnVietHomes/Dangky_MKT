@@ -1448,12 +1448,12 @@
       } catch(e) { showLoading(false); alert("Lỗi xử lý dữ liệu in: " + e.message); }
     }
 
-    function exportToTracking() {
+function exportToTracking() {
       try {
         const url = document.getElementById('trackingUrl').value.trim(); 
         if(!url) { alert("Vui lòng dán link Google Sheet để đồng bộ!"); return; }
         
-        showLoading(true, "ĐANG ĐỒNG BỘ...", "Dữ liệu lớn có thể mất 5 - 15 giây, vui lòng không đóng trang.");
+        showLoading(true, "ĐANG ĐỒNG BỘ...", "Đang chuyển khối lượng dữ liệu lớn. Quá trình này mất khoảng 5 - 15 giây, vui lòng chờ...");
         
         let exportData = bldItemsArray.map(item => ({
             idPhieu: item.idPhieu,
@@ -1471,28 +1471,64 @@
             trangThaiTU: item.phieuObj.trangThaiTU
         }));
 
-        fetch(API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: newSearchParams({
-                action: 'exportTracking',
-                data: JSON.stringify({ url: url, items: exportData })
-            })
-        })
-        .then(response => {
+        // Kỹ thuật "Hidden Form & Iframe" để bypass 100% giới hạn CORS và độ lớn dữ liệu của Google
+        let iframeId = 'hiddenSyncIframe_' + Date.now();
+        let formId = 'hiddenSyncForm_' + Date.now();
+        
+        // 1. Tạo iframe tàng hình để hứng dữ liệu trả về mà không làm tải lại trang
+        let iframe = document.createElement('iframe');
+        iframe.name = iframeId;
+        iframe.id = iframeId;
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+
+        // 2. Tạo form tàng hình để nhét dữ liệu
+        let form = document.createElement('form');
+        form.id = formId;
+        form.method = 'POST';
+        form.action = API_URL;
+        form.target = iframeId;
+        form.style.display = 'none';
+
+        // 3. Gắn lệnh action
+        let inputAction = document.createElement('input');
+        inputAction.type = 'hidden';
+        inputAction.name = 'action';
+        inputAction.value = 'exportTracking';
+        form.appendChild(inputAction);
+
+        // 4. Đóng gói túi dữ liệu khổng lồ
+        let inputData = document.createElement('input');
+        inputData.type = 'hidden';
+        inputData.name = 'data';
+        inputData.value = encodeURIComponent(JSON.stringify({ url: url, items: exportData }));
+        form.appendChild(inputData);
+
+        document.body.appendChild(form);
+
+        // Bắt sự kiện khi iframe tải xong (tức là Server Google đã ghi Sheet xong)
+        iframe.onload = function() {
             showLoading(false);
-            alert("Đã gửi lệnh đồng bộ! Vui lòng kiểm tra file Google Sheet sau vài giây.");
-        })
-        .catch(err => {
-            showLoading(false);
-            alert("Đã gửi lệnh đồng bộ thành công! (Nếu thấy thông báo này, dữ liệu đang được Google ghi vào Sheet).");
-        });
+            alert("✅ Lệnh đồng bộ đã được gửi thành công! Vui lòng mở file Google Sheet Tracking để kiểm tra dữ liệu.");
+            
+            // Dọn rác HTML sau khi xong
+            setTimeout(() => {
+                let f = document.getElementById(formId);
+                let i = document.getElementById(iframeId);
+                if (f) f.remove();
+                if (i) i.remove();
+            }, 2000);
+        };
+
+        // Kích hoạt bắn dữ liệu đi
+        form.submit();
 
       } catch(e) { 
         showLoading(false); 
         alert("Lỗi đồng bộ cục bộ: " + e.message); 
       }
     }
+    
   </script>
   
   <script>
