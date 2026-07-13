@@ -4,11 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cổng Quản Trị - An Việt Homes</title>
-  
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
-
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
@@ -52,7 +47,7 @@
     #exportBlock { display: none; background: #e8f4fc; padding: 15px; border-radius: 8px; margin-bottom: 20px; align-items: center; gap: 15px; width: 100%; box-sizing: border-box; }
 
     .summary-table { width: 100%; border-collapse: collapse; }
-    .summary-table th { background: #f4f6f8; color: #ffffff; padding: 10px; font-size: 13px; text-align: center; border-bottom: 1px solid var(--border-color); }
+    .summary-table th { background: #f4f6f8; color: #333; padding: 10px; font-size: 13px; text-align: center; border-bottom: 1px solid var(--border-color); }
     .summary-table td { padding: 10px; border-bottom: 1px solid #ddd; text-align: center; font-size: 14px; }
 
     .table-container { width: 100%; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 20px; overflow-x: auto; }
@@ -233,7 +228,7 @@
     
     let loggedInUser = null; let currentViewRole = ''; let globalData = []; let bldItemsArray = [];
     let khoiMap = {}; 
-    let currentPrintContext = null; // Trạng thái màn hình in chi tiết
+    let currentPrintContext = null; 
 
     const ROLE_TITLES = { 'SUPER_ADMIN': 'Quản Trị Viên Tối Cao', 'BLD': 'Ban Lãnh Đạo', 'PTGD': 'Phó Tổng Giám Đốc', 'GDCN': 'Giám Đốc Chi Nhánh', 'GDKD': 'Giám Đốc Kinh Doanh', 'GDKD_KIEM_TPKD': 'GĐKD (Kiêm TPKD)', 'TPKD': 'Trưởng Phòng Kinh Doanh', 'TPMKT': 'Trưởng Phòng Marketing', 'MKT': 'Chuyên Viên Marketing' };
 
@@ -668,7 +663,8 @@
       }
     }
 
-    // TÍNH NĂNG IN CHI TIẾT ĐƠN LẺ TỪ MODAL (MẮT)
+    function formatCurrencyAdmin(input) { let val = input.value.replace(/\D/g, ''); if (val !== '') val = formatNumber(val); input.value = val; recalcBLDSummary(); }
+
     function viewDetail(idPhieu, type = 'proposal') {
       currentPrintContext = { id: idPhieu, type: type };
       const phieu = globalData.find(p => p.idPhieu === idPhieu); if(!phieu) return;
@@ -772,22 +768,16 @@
             "CẢNH BÁO: Hành động TRUY THU sẽ thực hiện:\n- Loại bỏ toàn bộ ngân sách và tạm ứng của nhóm này khỏi báo cáo tổng.\n- Bôi đỏ cảnh báo vi phạm.\n- Gạch bỏ số tiền tạm ứng đã chi.\n\nBạn có CHẮC CHẮN muốn truy thu nhóm này?" : 
             "HOÀN TÁC TRUY THU:\nKhôi phục lại trạng thái ngân sách và tính toán bình thường cho nhóm này?\n\nBạn xác nhận chứ?";
         
-        // Nếu người dùng ấn CANCEL (Hủy bỏ) trên thông báo cảnh báo
         if (!confirm(msg)) {
-            cb.checked = !isChecked; // Trả lại trạng thái checkbox trước đó
+            cb.checked = !isChecked; 
             return;
         }
         
-        // Tìm phiếu trong biến toàn cục
         let targetPhieu = globalData.find(p => p.idPhieu === idPhieu);
         if(targetPhieu) {
-            // Cập nhật ngay lập tức vào dữ liệu cục bộ
             targetPhieu.isTruyThu = isChecked;
-            
-            // Render lại giao diện ngay tức thì
             renderTableByRole(currentViewRole);
             
-            // Gửi lệnh ngầm về server Google
             callAPI("updateStatus", { data: JSON.stringify({ idPhieu: idPhieu, isTruyThu: isChecked, newStatus: targetPhieu.trangThai }) }, function(res) {
                 if(!res || !res.success) {
                     alert("Lỗi đồng bộ máy chủ! Vui lòng kiểm tra lại mạng.");
@@ -1450,13 +1440,18 @@
             thanhVien: item.thanhVien,
             nsDeXuat: item.nsDeXuat,
             nsDuyet: item.nsDuyet,
-            ghiChu: item.ghiChu
+            ghiChu: item.ghiChu,
+            trangThai: item.trangThai,
+            isTruyThu: item.phieuObj.isTruyThu === true,
+            isKpiDacBiet: item.phieuObj.isKpiDacBiet === true,
+            advPercent: Number(item.phieuObj.advPercent || 0),
+            trangThaiTU: item.phieuObj.trangThaiTU
         }));
 
         fetch(API_URL, {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: new URLSearchParams({
+            body: newSearchParams({
                 action: 'exportTracking',
                 data: JSON.stringify({ url: url, items: exportData })
             })
