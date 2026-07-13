@@ -1072,6 +1072,24 @@
       if (typeof recalcBLDSummary === 'function') recalcBLDSummary();
     }
 
+    function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
+      try {
+        let targetPhieu = globalData.find(p => p.idPhieu === idPhieu);
+        let cb = btnElement.closest('tr').querySelector('.cb-newsale');
+        let isNewSaleVal = targetPhieu ? targetPhieu.isNewSale : false;
+        if (cb) isNewSaleVal = cb.checked;
+        if (targetPhieu) { targetPhieu.trangThai = newStatus; targetPhieu.isNewSale = isNewSaleVal; }
+        
+        renderTableByRole(currentViewRole);
+        
+        callAPI("updateStatus", { data: JSON.stringify({ idPhieu: idPhieu, newStatus: newStatus, isNewSale: isNewSaleVal }) }, function(res) { 
+            if(!res || !res.success) alert("Lỗi đồng bộ máy chủ!"); 
+        });
+      } catch(e) { 
+          alert("Lỗi: " + e.message); 
+      }
+    }
+
     function renderAdvanceTableByRole(role) {
       if(role !== 'MKT' && role !== 'TPMKT' && role !== 'BLD' && role !== 'SUPER_ADMIN') return;
       const tb = document.getElementById('tableAdvanceBody'); 
