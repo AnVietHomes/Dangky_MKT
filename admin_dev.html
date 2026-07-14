@@ -832,6 +832,7 @@
         if(targetPhieu) {
             targetPhieu.isTruyThu = isChecked;
             renderTableByRole(currentViewRole);
+          applyGlobalSearch();
             
             callAPI("updateStatus", { data: JSON.stringify({ idPhieu: idPhieu, isTruyThu: isChecked, newStatus: targetPhieu.trangThai }) }, function(res) {
                 if(!res || !res.success) {
