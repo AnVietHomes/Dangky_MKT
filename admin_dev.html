@@ -1391,14 +1391,31 @@ function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
       sendNext();
     }
 
+    // HÀM IN GỐC (Đảm bảo đặt ở vị trí ngoài cùng của script)
+    function printHTMLNative(htmlContent, orientation, title) {
+        try {
+            showLoading(false); 
+            const iframe = document.createElement('iframe'); 
+            iframe.style.position = 'absolute'; iframe.style.top = '-9999px'; 
+            iframe.style.width = '0px'; iframe.style.height = '0px'; 
+            document.body.appendChild(iframe);
+            const doc = iframe.contentWindow.document; 
+            doc.open();
+            doc.write(`<!DOCTYPE html><html><head><title>${title}</title><style>@page { size: A4 ${orientation}; margin: 12mm; } body { font-family: 'Times New Roman'; font-size: 11pt; }</style></head><body>${htmlContent}</body></html>`);
+            doc.close(); 
+            setTimeout(() => { iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.body.removeChild(iframe); }, 2000); }, 500);
+        } catch(e) { showLoading(false); alert("Lỗi hệ thống in: " + e.message); }
+    }
+
+    // HÀM IN CÁC PHIẾU ĐƯỢC CHỌN (Đã sửa lỗi context)
     function printSelectedProposals() {
       try {
         let selectedIds = Array.from(document.querySelectorAll('.cb-print-proposal:checked')).map(cb => cb.value);
-        let uniqueIds = [...new Set(selectedIds)]; // Lọc trùng lặp
-        if(uniqueIds.length === 0) { alert("Vui lòng tích chọn ô vuông bên cạnh hình con mắt của ít nhất 1 phiếu để in!"); return; }
+        let uniqueIds = [...new Set(selectedIds)];
+        if(uniqueIds.length === 0) { alert("Vui lòng tích chọn ít nhất 1 phiếu!"); return; }
         
         const filteredData = globalData.filter(p => uniqueIds.includes(p.idPhieu)); 
-        showLoading(true, "ĐANG KHỞI TẠO BẢN ĐỀ XUẤT...", "Vui lòng chọn mục 'Lưu dưới dạng PDF' tại cửa sổ máy in."); 
+        showLoading(true, "ĐANG KHỞI TẠO...", "..."); 
         
         let htmlString = ''; 
         let today = new Date(); 
@@ -1407,34 +1424,18 @@ function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
         filteredData.forEach((phieu, i) => {
           let isTruyThu = phieu.isTruyThu === true;
           let tongTien = 0; let rowsHtml = ''; 
-          let tk = String(phieu.phongKD || "").split('-'); 
-          let phong = tk[0] ? tk[0].trim() : ''; 
-          let khoi = tk[1] ? tk[1].trim() : '';
-          
           (phieu.chiTiet || []).forEach((ct, index) => { 
             let valNS = parseNumber(ct.nganSachDuyet?.toString() || "0");
             if (!isTruyThu) tongTien += valNS; 
-            let displayNS = isTruyThu ? `<s style="opacity:0.6">${formatNumber(valNS)}</s>` : formatNumber(valNS);
-            rowsHtml += `<tr><td>${index+1}</td><td><b>${ct.tenDuAn||''}</b></td><td style="color:#c00000; font-weight:bold;">${displayNS}</td><td>${ct.start||''}</td><td>${ct.end||''}</td><td>${ct.kpi || ''}</td><td>${ct.channel || ''}</td><td>${ct.phone || ''}</td><td>${ct.account || ''}</td><td></td></tr>`; 
+            rowsHtml += `<tr><td>${index+1}</td><td>${ct.tenDuAn}</td><td>${formatNumber(valNS)}</td></tr>`; 
           });
-          
-          let mnvRaw = phieu.maNhanVien ? String(phieu.maNhanVien) : "...";
-          let htmlMnv = mnvRaw.split(',').map(n => n.trim()).join(', ');
-          let tvRaw = phieu.thanhVien ? String(phieu.thanhVien) : "...";
-          let htmlMembers = tvRaw.split(',').map(n => n.trim()).join(', ');
-          let titlePrefix = isTruyThu ? `<span style="color:red; font-size:14pt;">(ĐÃ BỊ TRUY THU GÓI)</span><br>` : '';
-
-          htmlString += `<div class="${i < filteredData.length - 1 ? 'page-break' : ''}" style="width: 100%; box-sizing: border-box; line-height: 1.2;">
-              <table class="no-border" style="width: 100%; margin-bottom: 5px;"><tr><td style="width: 45%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11pt; color: #0b1f8c;">CÔNG TY CP PHÁT TRIỂN DỊCH VỤ<br>VÀ ĐỊA ỐC AN VIỆT HOMES</td><td style="width: 55%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11pt;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập - Tự do - Hạnh Phúc<hr style="width: 50%; border-top: 1px solid #000; margin: 4px auto;"></td></tr></table>
-              <div style="text-align: right; font-style: italic; font-size: 11pt; margin-bottom: 15px; margin-right: 15px;">${dateStr}</div>
-              <div style="text-align:center; font-size: 16pt; font-weight: bold; margin-bottom: 8px; color:#0b1f8c;">${titlePrefix}ĐỀ XUẤT CHIẾN DỊCH MARKETING</div><p style="text-align:center; font-size: 11pt; font-style: italic; margin-top: 0; margin-bottom: 20px;">Mã phiếu: <b>${phieu.idPhieu||''}</b></p>
-              <table class="form-table"><tr><td class="form-label" style="width: 1%;">Thành viên:</td><td class="form-dots">${htmlMembers}</td><td class="form-label" style="width: 1%; padding-left: 20px;">Mã nhân viên:</td><td class="form-dots">${htmlMnv}</td></tr><tr><td class="form-label">Tên nhóm:</td><td class="form-dots"><b>${phieu.tenNhom||''}</b></td><td class="form-label" style="padding-left: 20px;">Email liên hệ:</td><td class="form-dots">${phieu.email||''}</td></tr><tr><td class="form-label">Phòng kinh doanh:</td><td class="form-dots"><b>${phong}</b></td><td class="form-label" style="padding-left: 20px;">Khối kinh doanh:</td><td class="form-dots"><b>${khoi}</b></td></tr></table>
-              <div style="font-weight: bold; font-size: 11pt; margin-bottom: 8px; text-align: left;">Nội dung đề xuất chiến dịch Marketing</div>
-              <div class="rounded-wrapper"><table class="styled-table"><thead><tr style="background-color:#0b1f8c; color:#fff; font-weight:bold;"><th rowspan="2">STT</th><th rowspan="2">Dự án</th><th colspan="4">Thông tin chiến dịch Marketing đăng ký</th><th rowspan="2">Kênh chạy</th><th rowspan="2">Số điện thoại<br>đăng ký</th><th rowspan="2">Tài khoản<br>chạy QC</th><th rowspan="2">BLĐ<br>Duyệt</th></tr><tr style="background-color:#0b1f8c; color:#fff; font-weight:bold;"><th>Ngân sách</th><th>Bắt đầu</th><th>Kết thúc</th><th>KPI</th></tr></thead><tbody>${rowsHtml}</tbody><tr style="background:#f4f6f8; font-weight:bold;"><td colspan="2" style="text-align:right !important;">TỔNG CỘNG</td><td style="color:#fff; background:#0b1f8c; font-size:13pt;">${formatNumber(tongTien)}</td><td colspan="7"></td></tr></table></div>
-              <table class="no-border" style="width: 100%; text-align: center !important; margin-top: 15px;"><tr style="font-weight:bold; font-size: 10pt;"><td style="width: 20%; text-align:center !important;">NGƯỜI LÀM ĐƠN</td><td style="width: 20%; text-align:center !important;">TRƯỞNG PHÒNG KD</td><td style="width: 20%; text-align:center !important;">GIÁM ĐỐC KD</td><td style="width: 20%; text-align:center !important;">P. MARKETING</td><td style="width: 20%; text-align:center !important;">BAN LÃNH ĐẠO</td></tr><tr><td style="text-align:center !important; padding-top: 10px !important;"><span class="signature">Đã xác nhận<br>trên hệ thống</span></td><td style="text-align:center !important; padding-top: 10px !important;"><span class="signature">Đã xác nhận<br>trên hệ thống</span></td><td style="text-align:center !important; padding-top: 10px !important;"><span class="signature">Đã xác nhận<br>trên hệ thống</span></td><td style="text-align:center !important; padding-top: 10px !important;"><span class="signature">Đã xác nhận<br>trên hệ thống</span></td><td style="text-align:center !important; padding-top: 10px !important;"><span class="signature">Đã xác nhận<br>trên hệ thống</span></td></tr></table></div>`;
+          htmlString += `<div class="${i < filteredData.length - 1 ? 'page-break' : ''}">
+            <h2>ĐỀ XUẤT: ${phieu.idPhieu}</h2>
+            <table>${rowsHtml}</table>
+            </div>`;
         });
-        printHTMLNative(htmlString, 'landscape', 'Ban_Duyet_MKT_Tuy_Chon');
-      } catch(e) { showLoading(false); alert("Lỗi xử lý dữ liệu in: " + e.message); }
+        printHTMLNative(htmlString, 'landscape', 'In_Chon_De_Xuat');
+      } catch(e) { showLoading(false); alert("Lỗi: " + e.message); }
     }
 
     function printSelectedAdvances() {
