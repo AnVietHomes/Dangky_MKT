@@ -145,6 +145,8 @@
       <div class="mkt-toolbar" id="mktToolbar" style="display:none;">
         <div><b style="color: var(--primary-blue); font-size:16px;">CÔNG CỤ PHÒNG MARKETING</b></div>
         <div style="display: flex; gap: 10px; align-items: center;">
+          <button class="btn-action" style="padding: 10px 20px; background: #34495e;" onclick="printSelectedProposals()">🖨️ In Đề Xuất Đã Chọn</button>
+          <span style="border-left: 2px solid #ccc; height: 30px; margin: 0 5px;"></span>
           <label>Lọc xuất PDF:</label><input type="month" id="pdfMonth" class="form-control" style="width: auto; padding: 8px;">
           <button class="btn-action btn-approve" style="padding: 10px 20px;" onclick="downloadPDFs()">Xuất Bản In PDF</button>
           <button class="btn-action btn-sendmail" style="padding: 10px 20px;" onclick="sendAllApprovalMails()">Gửi Email Hàng Loạt</button>
@@ -186,9 +188,11 @@
     </div>
 
     <div class="tab-content" id="tabAdvance">
-      <div class="mkt-toolbar" id="advMktToolbar" style="display:none; justify-content:flex-end;">
+     <div class="mkt-toolbar" id="advMktToolbar" style="display:none; justify-content:flex-end;">
         <div style="display: flex; gap: 10px; align-items: center;">
           <button id="btnBulkApproveAdv" class="btn-action btn-sendmail" style="padding: 10px 20px; display: none;" onclick="bulkApproveAdvances()">Duyệt Hàng Loạt Tạm Ứng</button>
+          <button class="btn-action" style="padding: 10px 20px; background: #34495e;" onclick="printSelectedAdvances()">🖨️ In Tạm Ứng Đã Chọn</button>
+          <span style="border-left: 2px solid #ccc; height: 30px; margin: 0 5px;"></span>
           <label>Lọc tải bản Tạm ứng PDF:</label><input type="month" id="advPdfMonth" class="form-control" style="width: auto; padding: 8px;">
           <button class="btn-action btn-approve" style="padding: 10px 20px;" onclick="downloadAdvancePDFs()">Xuất Bản In Tạm Ứng</button>
         </div>
@@ -970,15 +974,15 @@
           let searchData = `${item.khoi} ${item.phong} ${item.tenDuAn} ${item.thanhVien} ${item.phieuObj.tenNhom}`.replace(/<br>/g, ' ');
 
           if (currentKhoi !== kId) {
-              html += `<tr style="background:#0b1f8c; color:white; font-weight:bold; font-size: 14px; text-transform: uppercase;"><td colspan="${colBefore}" style="text-align:center;">🏢 KHỐI: ${item.khoi}</td><td style="color:#f39c12;">${formatNumber(sumDxKhoi[kId])}</td>`;
+              html += `<tr style="background:#0b1f8c; color:white; font-weight:bold; font-size: 14px; text-transform: uppercase;"><td colspan="${colBefore}" style="text-align:left; padding-left:15px;"><label style="cursor:pointer; display:inline-flex; align-items:center; gap:8px;"><input type="checkbox" class="cb-group-khoi" data-target="${kId}" onchange="toggleGroupCbs(this, 'khoi', '${kId}')" style="width:16px;height:16px; margin:0; cursor:pointer;">🏢 KHỐI: ${item.khoi}</label></td><td style="color:#f39c12;">${formatNumber(sumDxKhoi[kId])}</td>`;
               if (isPTGD) { html += `<td></td><td style="color:#2ecc71;">${formatNumber(sumAdvKhoi[kId])}</td><td></td><td></td>`; } else if (isBLD || isMKT) { html += `<td id="sum_duyet_khoi_${kId}" style="color:#2ecc71;">0</td><td colspan="2"></td>`; } else { html += `<td></td>`; } html += `</tr>`; currentKhoi = kId;
           }
           if (currentPhong !== pId) {
-              html += `<tr style="background:#d4efff; font-weight:bold; font-size: 13px;"><td colspan="${colBefore}" style="text-align:center; color:#0b1f8c;">🏷️ PHÒNG: ${item.phong}</td><td style="color:#e74c3c;">${formatNumber(sumDxPhong[pId])}</td>`;
+              html += `<tr style="background:#d4efff; font-weight:bold; font-size: 13px;"><td colspan="${colBefore}" style="text-align:left; padding-left:35px; color:#0b1f8c;"><label style="cursor:pointer; display:inline-flex; align-items:center; gap:8px;"><input type="checkbox" class="cb-group-phong" data-parent-khoi="${kId}" data-target="${pId}" onchange="toggleGroupCbs(this, 'phong', '${pId}')" style="width:15px;height:15px; margin:0; cursor:pointer;">🏷️ PHÒNG: ${item.phong}</label></td><td style="color:#e74c3c;">${formatNumber(sumDxPhong[pId])}</td>`;
               if (isPTGD) { html += `<td></td><td style="color:#0b1f8c;">${formatNumber(sumAdvPhong[pId])}</td><td></td><td></td>`; } else if (isBLD || isMKT) { html += `<td id="sum_duyet_phong_${pId}" style="color:#0b1f8c;">0</td><td colspan="2"></td>`; } else { html += `<td></td>`; } html += `</tr>`; currentPhong = pId;
           }
           if (currentDuAn !== dId) {
-              html += `<tr style="background:#f9f9f9; font-weight:bold; font-size: 13px;"><td colspan="${colBefore}" style="text-align:center; color:#333;">📌 Dự án: ${item.tenDuAn}</td><td>${formatNumber(sumDxDuAn[dId])}</td>`;
+              html += `<tr style="background:#f9f9f9; font-weight:bold; font-size: 13px;"><td colspan="${colBefore}" style="text-align:left; padding-left:55px; color:#333;"><label style="cursor:pointer; display:inline-flex; align-items:center; gap:8px;"><input type="checkbox" class="cb-group-duan" data-parent-khoi="${kId}" data-parent-phong="${pId}" data-target="${dId}" onchange="toggleGroupCbs(this, 'duan', '${dId}')" style="width:14px;height:14px; margin:0; cursor:pointer;">📌 Dự án: ${item.tenDuAn}</label></td><td>${formatNumber(sumDxDuAn[dId])}</td>`;
               if (isPTGD) { html += `<td></td><td style="color:#333;">${formatNumber(sumAdvDuAn[dId])}</td><td></td><td></td>`; } else if (isBLD || isMKT) { html += `<td id="sum_duyet_duan_${dId}" style="color:#333;">0</td><td colspan="2"></td>`; } else { html += `<td></td>`; } html += `</tr>`; currentDuAn = dId;
           }
 
@@ -1061,7 +1065,7 @@
 
           let dxDisplay = isTruyThu ? `<s style="opacity:0.6;">${formatNumber(item.nsDeXuat)}</s>` : formatNumber(item.nsDeXuat);
 
-          let rowHTML = `<tr data-id-dong="${item.idDong}" data-id-phieu="${item.idPhieu}" data-nsduyet="${item.nsDuyet}" data-search="${searchData}" class="${rowClass}"><td><button class="btn-view" onclick="viewDetail('${item.idPhieu}', 'proposal')">👁️</button></td>`;
+     let rowHTML = `<tr data-id-dong="${item.idDong}" data-id-phieu="${item.idPhieu}" data-nsduyet="${item.nsDuyet}" data-search="${searchData}" class="${rowClass}"><td><div style="display:flex; flex-direction:column; align-items:center; gap:6px;"><button class="btn-view" onclick="viewDetail('${item.idPhieu}', 'proposal')">👁️</button><input type="checkbox" class="cb-print-proposal cb-print-item" data-khoi="${kId}" data-phong="${pId}" data-duan="${dId}" value="${item.idPhieu}" title="Tích chọn để in" style="cursor:pointer; width:16px; height:16px;"></div></td>`;
           if (isKD) { let checkedState = item.phieuObj.isNewSale ? 'checked' : ''; rowHTML += `<td><input type="checkbox" class="cb-newsale" style="width:16px; height:16px; cursor:pointer;" title="Nhóm sale mới" ${checkedState} ${isReadOnlyMode?'disabled':''}></td>`; }
           rowHTML += `<td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${item.idPhieu}</span></td><td><span style="font-weight:700; color:var(--primary-blue);">${item.phong}</span><br><span style="font-size:11px; color:#666;">Khối ${item.khoi}</span></td><td style="text-align:left; font-size:12px; line-height:1.5;"><span style="color:var(--primary-blue); font-weight:bold;">Nhóm: ${item.phieuObj.tenNhom}</span>${kpiHtml}${truyThuHtml}<div style="margin-top:4px;">${item.thanhVien}</div></td><td>${statusText}</td><td>${dxDisplay}</td>`;
 
@@ -1199,7 +1203,7 @@
         
         let subNote = isTruyThu ? '<b style="color:#d32f2f;">(ĐÃ TRUY THU GÓI)</b><br>' : (isKpiDacBiet ? '<b style="color:#8e44ad;">(KPI Đặc biệt)</b><br>' : '');
 
-        let rowHTML = `<tr class="${rowClass}"><td><button class="btn-view" onclick="viewDetail('${phieu.idPhieu}', 'advance')">👁️</button></td><td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${phieu.idPhieu}</span></td><td><span style="font-weight:700; color:var(--primary-blue);">${phong}</span><br><span style="font-size:11px; color:#666;">Khối ${khoi}</span></td><td style="text-align:left; font-size:12px; line-height:1.4;">${subNote}${String(phieu.thanhVien||"").replace(/,/g, '<br>')}</td><td style="color:#0b1f8c; font-weight:800; font-size:12px;">${prjNames.join(', ')}</td><td>${bdgDisplay}</td><td style="color:var(--danger); font-weight:bold; white-space:nowrap;">${percentHtml}</td><td class="td-adv-amount" style="color:var(--danger); font-weight:bold;">${advDisplay}</td><td class="td-status-tu"><span style="color:var(--warning); font-weight:700;">${phieu.trangThaiTU}</span></td><td class="td-actions-tu">`;
+        let rowHTML = `<tr class="${rowClass}"><td><div style="display:flex; flex-direction:column; align-items:center; gap:6px;"><button class="btn-view" onclick="viewDetail('${phieu.idPhieu}', 'advance')">👁️</button><input type="checkbox" class="cb-print-advance" value="${phieu.idPhieu}" title="Tích chọn để in" style="cursor:pointer; width:16px; height:16px;"></div></td><td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${phieu.idPhieu}</span></td><td><span style="font-weight:700; color:var(--primary-blue);">${phong}</span><br><span style="font-size:11px; color:#666;">Khối ${khoi}</span></td><td style="text-align:left; font-size:12px; line-height:1.4;">${subNote}${String(phieu.thanhVien||"").replace(/,/g, '<br>')}</td><td style="color:#0b1f8c; font-weight:800; font-size:12px;">${prjNames.join(', ')}</td><td>${bdgDisplay}</td><td style="color:var(--danger); font-weight:bold; white-space:nowrap;">${percentHtml}</td><td class="td-adv-amount" style="color:var(--danger); font-weight:bold;">${advDisplay}</td><td class="td-status-tu"><span style="color:var(--warning); font-weight:700;">${phieu.trangThaiTU}</span></td><td class="td-actions-tu">`;
 
         if(role === 'TPMKT') {
            if(phieu.trangThaiTU === 'PENDING_MKT_TU') { rowHTML += `<button class="btn-action btn-approve" onclick="updateStatusTUOptimistic('${phieu.idPhieu}', 'PENDING_BLD_TU', this)">Duyệt Lên BLĐ</button><button class="btn-action btn-reject" onclick="updateStatusTUOptimistic('${phieu.idPhieu}', 'REJECTED_TU', this)">Từ Chối</button>`; } 
@@ -1385,6 +1389,136 @@ function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
       showLoading(true, "Đang gửi Email...", "Hệ thống đang phát thư, vui lòng chờ..."); let currentIndex = 0; let successCount = 0;
       function sendNext() { if (currentIndex >= approvedItems.length) { showLoading(false); alert(`Hoàn tất! Đã gửi thành công ${successCount}/${approvedItems.length} Email.`); return; } callAPI("sendPdfEmail", { idPhieu: approvedItems[currentIndex].idPhieu }, function(res) { if (res && res.success) successCount++; currentIndex++; sendNext(); }); }
       sendNext();
+    }
+
+    function printSelectedProposals() {
+      try {
+        let selectedIds = Array.from(document.querySelectorAll('.cb-print-proposal:checked')).map(cb => cb.value);
+        let uniqueIds = [...new Set(selectedIds)]; // Lọc trùng lặp
+        if(uniqueIds.length === 0) { alert("Vui lòng tích chọn ô vuông bên cạnh hình con mắt của ít nhất 1 phiếu để in!"); return; }
+        
+        const filteredData = globalData.filter(p => uniqueIds.includes(p.idPhieu)); 
+        showLoading(true, "ĐANG KHỞI TẠO BẢN ĐỀ XUẤT...", "Vui lòng chọn mục 'Lưu dưới dạng PDF' tại cửa sổ máy in."); 
+        
+        let htmlString = ''; 
+        let today = new Date(); 
+        let dateStr = "Hà Nội, ngày " + String(today.getDate()).padStart(2,'0') + " tháng " + String(today.getMonth()+1).padStart(2,'0') + " năm " + today.getFullYear();
+        
+        filteredData.forEach((phieu, i) => {
+          let isTruyThu = phieu.isTruyThu === true;
+          let tongTien = 0; let rowsHtml = ''; 
+          let tk = String(phieu.phongKD || "").split('-'); 
+          let phong = tk[0] ? tk[0].trim() : ''; 
+          let khoi = tk[1] ? tk[1].trim() : '';
+          
+          (phieu.chiTiet || []).forEach((ct, index) => { 
+            let valNS = parseNumber(ct.nganSachDuyet?.toString() || "0");
+            if (!isTruyThu) tongTien += valNS; 
+            let displayNS = isTruyThu ? `<s style="opacity:0.6">${formatNumber(valNS)}</s>` : formatNumber(valNS);
+            rowsHtml += `<tr><td>${index+1}</td><td><b>${ct.tenDuAn||''}</b></td><td style="color:#c00000; font-weight:bold;">${displayNS}</td><td>${ct.start||''}</td><td>${ct.end||''}</td><td>${ct.kpi || ''}</td><td>${ct.channel || ''}</td><td>${ct.phone || ''}</td><td>${ct.account || ''}</td><td></td></tr>`; 
+          });
+          
+          let mnvRaw = phieu.maNhanVien ? String(phieu.maNhanVien) : "...";
+          let htmlMnv = mnvRaw.split(',').map(n => n.trim()).join(', ');
+          let tvRaw = phieu.thanhVien ? String(phieu.thanhVien) : "...";
+          let htmlMembers = tvRaw.split(',').map(n => n.trim()).join(', ');
+          let titlePrefix = isTruyThu ? `<span style="color:red; font-size:14pt;">(ĐÃ BỊ TRUY THU GÓI)</span><br>` : '';
+
+          htmlString += `<div class="${i < filteredData.length - 1 ? 'page-break' : ''}" style="width: 100%; box-sizing: border-box; line-height: 1.2;">
+              <table class="no-border" style="width: 100%; margin-bottom: 5px;"><tr><td style="width: 45%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11pt; color: #0b1f8c;">CÔNG TY CP PHÁT TRIỂN DỊCH VỤ<br>VÀ ĐỊA ỐC AN VIỆT HOMES</td><td style="width: 55%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11pt;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập - Tự do - Hạnh Phúc<hr style="width: 50%; border-top: 1px solid #000; margin: 4px auto;"></td></tr></table>
+              <div style="text-align: right; font-style: italic; font-size: 11pt; margin-bottom: 15px; margin-right: 15px;">${dateStr}</div>
+              <div style="text-align:center; font-size: 16pt; font-weight: bold; margin-bottom: 8px; color:#0b1f8c;">${titlePrefix}ĐỀ XUẤT CHIẾN DỊCH MARKETING</div><p style="text-align:center; font-size: 11pt; font-style: italic; margin-top: 0; margin-bottom: 20px;">Mã phiếu: <b>${phieu.idPhieu||''}</b></p>
+              <table class="form-table"><tr><td class="form-label" style="width: 1%;">Thành viên:</td><td class="form-dots">${htmlMembers}</td><td class="form-label" style="width: 1%; padding-left: 20px;">Mã nhân viên:</td><td class="form-dots">${htmlMnv}</td></tr><tr><td class="form-label">Tên nhóm:</td><td class="form-dots"><b>${phieu.tenNhom||''}</b></td><td class="form-label" style="padding-left: 20px;">Email liên hệ:</td><td class="form-dots">${phieu.email||''}</td></tr><tr><td class="form-label">Phòng kinh doanh:</td><td class="form-dots"><b>${phong}</b></td><td class="form-label" style="padding-left: 20px;">Khối kinh doanh:</td><td class="form-dots"><b>${khoi}</b></td></tr></table>
+              <div style="font-weight: bold; font-size: 11pt; margin-bottom: 8px; text-align: left;">Nội dung đề xuất chiến dịch Marketing</div>
+              <div class="rounded-wrapper"><table class="styled-table"><thead><tr style="background-color:#0b1f8c; color:#fff; font-weight:bold;"><th rowspan="2">STT</th><th rowspan="2">Dự án</th><th colspan="4">Thông tin chiến dịch Marketing đăng ký</th><th rowspan="2">Kênh chạy</th><th rowspan="2">Số điện thoại<br>đăng ký</th><th rowspan="2">Tài khoản<br>chạy QC</th><th rowspan="2">BLĐ<br>Duyệt</th></tr><tr style="background-color:#0b1f8c; color:#fff; font-weight:bold;"><th>Ngân sách</th><th>Bắt đầu</th><th>Kết thúc</th><th>KPI</th></tr></thead><tbody>${rowsHtml}</tbody><tr style="background:#f4f6f8; font-weight:bold;"><td colspan="2" style="text-align:right !important;">TỔNG CỘNG</td><td style="color:#fff; background:#0b1f8c; font-size:13pt;">${formatNumber(tongTien)}</td><td colspan="7"></td></tr></table></div>
+              <table class="no-border" style="width: 100%; text-align: center !important; margin-top: 15px;"><tr style="font-weight:bold; font-size: 10pt;"><td style="width: 20%; text-align:center !important;">NGƯỜI LÀM ĐƠN</td><td style="width: 20%; text-align:center !important;">TRƯỞNG PHÒNG KD</td><td style="width: 20%; text-align:center !important;">GIÁM ĐỐC KD</td><td style="width: 20%; text-align:center !important;">P. MARKETING</td><td style="width: 20%; text-align:center !important;">BAN LÃNH ĐẠO</td></tr><tr><td style="text-align:center !important; padding-top: 10px !important;"><span class="signature">Đã xác nhận<br>trên hệ thống</span></td><td style="text-align:center !important; padding-top: 10px !important;"><span class="signature">Đã xác nhận<br>trên hệ thống</span></td><td style="text-align:center !important; padding-top: 10px !important;"><span class="signature">Đã xác nhận<br>trên hệ thống</span></td><td style="text-align:center !important; padding-top: 10px !important;"><span class="signature">Đã xác nhận<br>trên hệ thống</span></td><td style="text-align:center !important; padding-top: 10px !important;"><span class="signature">Đã xác nhận<br>trên hệ thống</span></td></tr></table></div>`;
+        });
+        printHTMLNative(htmlString, 'landscape', 'Ban_Duyet_MKT_Tuy_Chon');
+      } catch(e) { showLoading(false); alert("Lỗi xử lý dữ liệu in: " + e.message); }
+    }
+
+    function printSelectedAdvances() {
+      try {
+        let selectedIds = Array.from(document.querySelectorAll('.cb-print-advance:checked')).map(cb => cb.value);
+        let uniqueIds = [...new Set(selectedIds)];
+        if(uniqueIds.length === 0) { alert("Vui lòng tích chọn ô vuông bên cạnh hình con mắt của ít nhất 1 phiếu để in!"); return; }
+        
+        const filteredData = globalData.filter(p => uniqueIds.includes(p.idPhieu)); 
+        showLoading(true, "ĐANG TRÍCH XUẤT ĐƠN TẠM ỨNG...", "Vui lòng chọn mục 'Lưu dưới dạng PDF' tại cửa sổ máy in hệ thống."); 
+        
+        let htmlString = ''; 
+        let today = new Date(); 
+        let dateStr = "Hà Nội, ngày " + String(today.getDate()).padStart(2,'0') + " tháng " + String(today.getMonth()+1).padStart(2,'0') + " năm " + today.getFullYear();
+        
+        filteredData.forEach((phieu, i) => {
+          let prjNames = []; let totalDuyet = 0; let rowsHtml = ''; 
+          let isTruyThu = phieu.isTruyThu === true;
+
+          let tk = String(phieu.phongKD || "").split('-'); 
+          let phong = tk[0] ? tk[0].trim() : '';
+          let khoi = tk[1] ? tk[1].trim() : '';
+          
+          (phieu.chiTiet || []).forEach(ct => { 
+            prjNames.push(ct.tenDuAn||''); 
+            let valNS = parseNumber(ct.nganSachDuyet?.toString() || "0");
+            totalDuyet += valNS; 
+            let mThang = getMonthKey(ct.start, phieu.ngayTao).split('/')[0];
+            let advanceAmt = Math.round(valNS * Number(phieu.advPercent||0) / 100); 
+            
+            let displayBdg = isTruyThu ? `<s style="opacity:0.6">${formatNumber(valNS)}</s>` : formatNumber(valNS);
+            let displayAdv = isTruyThu ? `<s style="opacity:0.6">${formatNumber(advanceAmt)}</s>` : formatNumber(advanceAmt);
+
+            rowsHtml += `<tr><td>Tháng ${mThang}</td><td><b>${ct.tenDuAn||''}</b></td><td style="color:#c00000; font-weight:bold;">${displayBdg}</td><td style="color:#c00000; font-weight:bold;">${displayAdv}</td></tr>`; 
+          });
+          
+          let totalAdvance = Math.round(totalDuyet * Number(phieu.advPercent||0) / 100); 
+          let remaining = totalDuyet - totalAdvance;
+          let mnvRaw = phieu.maNhanVien ? String(phieu.maNhanVien) : "...";
+          let htmlMnv = mnvRaw.split(',').map(n => n.trim()).join(', ');
+          let tvRaw = phieu.thanhVien ? String(phieu.thanhVien) : "...";
+          let htmlMembers = tvRaw.split(',').map(n => n.trim()).join(', ');
+          let titlePrefix = isTruyThu ? `<span style="color:red; font-size:14pt;">(ĐÃ TRUY THU LẠI TIỀN)</span><br>` : '';
+
+          let displayTotalAdv = isTruyThu ? 0 : totalAdvance;
+          let displayRemain = isTruyThu ? 0 : remaining;
+
+          htmlString += `<div class="${i < filteredData.length - 1 ? 'page-break' : ''}" style="width: 100%; box-sizing: border-box; line-height: 1.25;">
+              <table class="no-border" style="width: 100%; margin-bottom: 5px;"><tr><td style="width: 45%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11pt; color: #0b1f8c;">CÔNG TY CP PHÁT TRIỂN DỊCH VỤ<br>VÀ ĐỊA ỐC AN VIỆT HOMES</td><td style="width: 55%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11pt;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập - Tự do - Hạnh Phúc<hr style="width: 50%; border-top: 1.5px solid #000; margin: 4px auto;"></td></tr></table>
+              <div style="text-align: right; font-style: italic; font-size: 11pt; margin-bottom: 15px; margin-right: 15px;">${dateStr}</div><div style="text-align: center; font-size: 16pt; font-weight: bold; margin-bottom: 8px; color:#0b1f8c;">${titlePrefix}ĐƠN XIN TẠM ỨNG MARKETING</div><p style="margin: 5px 0; text-align: left !important; font-size: 11pt;"><u>Kính gửi:</u> <b>Ban Lãnh Đạo Công ty Cổ phần Phát triển Dịch vụ và Địa ốc An Việt Homes</b></p>
+              <div style="text-align: justify; margin: 8px 0; font-size: 11pt; line-height: 1.3;"><span style="display:inline-block; width: 30px;"></span>Tôi tên là: <b>${htmlMembers.split(',')[0]}</b>. Có mã nhân viên là: <b>${htmlMnv.split(',')[0]}</b>,<br>đại diện nhóm: <b>${phieu.tenNhom||''}</b> thuộc phòng kinh doanh: <b>${phong} - Khối ${khoi}</b>.<br>Làm đơn xin tạm ứng khoản chi phí hỗ trợ Marketing (“MKT”) với các nội dung sau đây:</div>
+              <table class="no-border" style="width: 100%; margin-bottom: 10px; font-size:11pt;"><tr><td style="width: 35px; vertical-align: top; text-align: left !important;">1.1.</td><td style="text-align: left !important;">Tạm ứng cho cá nhân/nhóm: <b>Nhóm ${phieu.tenNhom||''}</b></td></tr><tr><td style="width: 35px; vertical-align: top; text-align: left !important;">1.2.</td><td style="text-align: left !important;">Nội dung tạm ứng: <b>Tạm ứng marketing dự án ${prjNames.join(', ')}</b></td></tr></table>
+              <div class="rounded-wrapper" style="margin-bottom: 10px;"><table class="styled-table" style="font-size: 11pt;"><thead><tr style="background-color:#0b1f8c; color:#fff; font-weight:bold;"><th>Tháng chạy MKT</th><th>Dự án</th><th>Ngân sách MKT</th><th>Số tiền được tạm ứng</th></tr></thead><tbody>${rowsHtml}<tr style="background:#f4f6f8; font-weight:bold;"><td colspan="3" style="text-align: left !important; padding: 4px;">Số tiền tạm ứng MKT lần 1 (${phieu.advPercent||0}%)</td><td style="text-align:center !important; color:#0b1f8c; font-size: 12pt; padding: 4px;">${formatNumber(displayTotalAdv)}</td></tr><tr><td colspan="3" style="text-align: left !important; padding: 4px;">Số tiền tạm ứng MKT lần 2</td><td style="padding: 4px;"></td></tr><tr style="font-weight:bold;"><td colspan="3" style="text-align: left !important; padding: 4px;">Số tiền còn lại</td><td style="text-align:center !important; color:#0b1f8c; font-size: 12pt; padding: 4px;">${formatNumber(displayRemain)}</td></tr></tbody></table></div>
+              <table class="no-border" style="width: 100%; margin-bottom: 10px; font-size:11pt;"><tr><td style="width: 35px; vertical-align: top; text-align: left !important;">1.3.</td><td style="text-align: left !important;">Số tiền tạm ứng kỳ này: <b>${formatNumber(displayTotalAdv)} VNĐ</b><br><i style="font-size: 10.5pt;"></i></td></tr><tr><td style="width: 35px; vertical-align: top; text-align: left !important; padding-top: 5px !important;">1.4.</td><td style="text-align: left !important; padding-top: 5px !important;">Hình thức chi tạm ứng: Chuyển khoản. Thông tin số tài khoản nhận tạm ứng:<div style="padding-left: 15px; margin-top: 4px;">- Chủ tài khoản: <b>${phieu.bankOwner||''}</b><br>- Số tài khoản: <b>${phieu.bankAccount||''}</b><br>- Mở tại ngân hàng: <b>${phieu.bankName||''}</b></div></td></tr><tr><td style="width: 35px; vertical-align: top; text-align: left !important; padding-top: 5px !important;">1.5.</td><td style="text-align: justify !important; padding-top: 5px !important; line-height: 1.3;">Tôi/chúng tôi xin cam kết chạy đủ ngân sách trong thời gian hỗ trợ, nếu số tiền tôi/chúng tôi tạm ứng vượt quá số tiền được hỗ trợ marketing, tôi/chúng đồng ý cho Công ty khấu trừ phần chênh lệch đó vào lương, Hoa hồng và Thưởng từ các Giao dịch khác mà tôi/chúng tôi có tại Công ty. Trường hợp không đủ khấu trừ, tôi/chúng tôi hoàn toàn đồng ý mọi phương án xử lý từ Ban Lãnh đạo Công ty.</td></tr></table>
+              <p style="margin: 0 0 10px 35px; text-align: left !important; font-size:11pt;">Kính đề nghị Ban Lãnh đạo hỗ trợ và phê duyệt.<br>Trân trọng cảm ơn!</p>
+              <table class="no-border" style="width: 100%; text-align: center !important; margin-top: 5px;"><tr style="font-weight:bold; font-size: 10pt;"><td style="width: 50%; text-align:center !important;">XÁC NHẬN P.MARKETING</td><td style="width: 50%; text-align:center !important;">NGƯỜI LÀM ĐƠN</td></tr><tr><td style="text-align:center !important; padding-top: 15px !important;"><span class="signature">Đã xác nhận<br>trên hệ thống</span></td><td style="text-align:center !important; padding-top: 15px !important;"><span class="signature">Đã xác nhận<br>trên hệ thống</span></td></tr></table>
+              <table class="no-border" style="width: 100%; text-align: center !important; margin-top: 25px;"><tr style="font-weight:bold; font-size: 10pt;"><td style="width: 33.33%; text-align:center !important;">BAN LÃNH ĐẠO</td><td style="width: 33.33%; text-align:center !important;">XÁC NHẬN P. KẾ TOÁN</td><td style="width: 33.33%; text-align:center !important;">XÁC NHẬN P. ADMIN</td></tr><tr><td style="text-align:center !important; padding-top: 15px !important;"><span class="signature">Đã xác nhận<br>trên hệ thống</span></td><td></td><td></td></tr></table>
+            </div>`;
+        });
+        printHTMLNative(htmlString, 'portrait', 'Don_Tam_Ung_MKT_Tuy_Chon');
+      } catch(e) { showLoading(false); alert("Lỗi xử lý dữ liệu in: " + e.message); }
+    }
+
+    function toggleGroupCbs(cbElement, level, id) {
+        let isChecked = cbElement.checked;
+        
+        // 1. Tự động đánh dấu tất cả các Phiếu (Con mắt) thuộc nhóm này
+        let childSelector = `.cb-print-item[data-${level}="${id}"]`;
+        let childCbs = document.querySelectorAll(childSelector);
+        
+        childCbs.forEach(child => {
+            let tr = child.closest('tr');
+            // Chỉ chọn những dòng đang hiển thị (Tránh chọn nhầm phiếu đang bị ẩn bởi thanh tìm kiếm/bộ lọc)
+            if (tr && tr.style.display !== 'none') {
+                child.checked = isChecked;
+            }
+        });
+
+        // 2. Chế độ thác nước: Nếu tích Khối thì tích luôn cả checkbox của Phòng và Dự án bên trong
+        if (level === 'khoi') {
+            document.querySelectorAll(`.cb-group-phong[data-parent-khoi="${id}"], .cb-group-duan[data-parent-khoi="${id}"]`).forEach(c => c.checked = isChecked);
+        } else if (level === 'phong') {
+            document.querySelectorAll(`.cb-group-duan[data-parent-phong="${id}"]`).forEach(c => c.checked = isChecked);
+        }
     }
 
 function exportToTracking() {
