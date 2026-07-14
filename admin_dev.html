@@ -813,6 +813,7 @@
               if(!res || !res.success) alert("Lỗi đồng bộ máy chủ!");
           });
           renderTableByRole(currentViewRole);
+        applyGlobalSearch();
       }
     }
 
@@ -860,15 +861,32 @@
       return 'HISTORY';
     }
 
-    function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
+    function updateStatusOptimistic(idPhieu, newStatus, btnElement) {
       try {
         let targetPhieu = globalData.find(p => p.idPhieu === idPhieu);
         let cb = btnElement.closest('tr').querySelector('.cb-newsale');
         let isNewSaleVal = targetPhieu ? targetPhieu.isNewSale : false;
         if (cb) isNewSaleVal = cb.checked;
+        
+        // Cập nhật trạng thái cục bộ
         if (targetPhieu) { targetPhieu.trangThai = newStatus; targetPhieu.isNewSale = isNewSaleVal; }
+        
+        // 1. Lưu tạm trạng thái bộ lọc hiện tại vào biến
+        let currentFilterText = document.getElementById('globalSearch').value;
+        let currentStatusFilter = document.getElementById('statusFilter').value;
+        
+        // 2. Render lại bảng
         renderTableByRole(currentViewRole);
-        callAPI("updateStatus", { data: JSON.stringify({ idPhieu: idPhieu, newStatus: newStatus, isNewSale: isNewSaleVal }) }, function(res) { if(!res || !res.success) alert("Lỗi đồng bộ máy chủ!"); });
+        
+        // 3. Khôi phục lại bộ lọc ngay sau khi render
+        document.getElementById('globalSearch').value = currentFilterText;
+        document.getElementById('statusFilter').value = currentStatusFilter;
+        applyGlobalSearch(); // Chạy lại bộ lọc để cập nhật giao diện
+        
+        // 4. Gửi lệnh cập nhật lên server
+        callAPI("updateStatus", { data: JSON.stringify({ idPhieu: idPhieu, newStatus: newStatus, isNewSale: isNewSaleVal }) }, function(res) { 
+            if(!res || !res.success) alert("Lỗi đồng bộ máy chủ!"); 
+        });
       } catch(e) { alert("Lỗi: " + e.message); }
     }
 
@@ -1354,7 +1372,9 @@ function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
         }, function(res) { 
           btn.innerText = origText; btn.disabled = false; 
           if (res && !res.success) { alert("Lỗi máy chủ: " + res.message); } 
-          else { tr.setAttribute('data-nsduyet', budget); }
+          else { tr.setAttribute('data-nsduyet', budget);
+                applyGlobalSearch();
+               }
         });
       } catch (e) { alert("Có lỗi cục bộ khi cập nhật: " + e.message); btn.innerText = 'Cập nhật'; btn.disabled = false; }
     }
