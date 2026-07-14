@@ -121,8 +121,18 @@
       </div>
     </div>
 
-    <div id="globalSearchContainer" style="display: none; margin-bottom: 25px; width: 100%;">
-      <input type="text" id="globalSearch" class="form-control" placeholder="🔍 TÌM KIẾM NHANH: Nhập Mã đơn (VD: DX-123456), Mã NV, Tên NV, Tên Nhóm, Phòng Ban..." onkeyup="applyGlobalSearch()" style="width: 100%; border: 2px solid var(--primary-blue); font-weight: bold; font-size: 15px; padding: 16px 20px;">
+<div id="globalSearchContainer" style="display: none; margin-bottom: 25px; width: 100%;">
+      <div style="display: flex; gap: 15px; width: 100%;">
+        <input type="text" id="globalSearch" class="form-control" placeholder="🔍 TÌM KIẾM HOẶC LỌC NHANH..." onkeyup="applyGlobalSearch()" style="flex: 1; border: 2px solid var(--primary-blue); font-weight: bold; font-size: 15px; padding: 16px 20px;">
+        <select id="statusFilter" class="form-control" onchange="applyGlobalSearch()" style="width: 250px; border: 2px solid var(--primary-blue); font-weight: bold; font-size: 14px; color: var(--primary-blue); cursor: pointer; padding: 0 15px;">
+          <option value="ALL">Tất cả trạng thái</option>
+          <option value="PENDING">⏳ Đang chờ duyệt</option>
+          <option value="APPROVED">✅ Đã chốt duyệt</option>
+          <option value="REJECTED">❌ Bị từ chối</option>
+          <option value="TRUYTHU">🚫 Đã truy thu gói</option>
+          <option value="KPI">⭐ Nhóm KPI Đặc biệt</option>
+        </select>
+      </div>
     </div>
 
     <div class="tab-nav" id="tabNavBlock">
@@ -395,47 +405,82 @@
     }
 
     function applyGlobalSearch() {
-      let filter = document.getElementById('globalSearch').value.toUpperCase();
+      let textFilter = document.getElementById('globalSearch').value.toUpperCase();
+      let statusDropdown = document.getElementById('statusFilter');
+      let statusVal = statusDropdown ? statusDropdown.value : 'ALL';
+
       let tables = document.querySelectorAll('table'); 
       
       tables.forEach(table => {
+        // Bỏ qua các bảng không cần lọc (Bảng tổng hợp ở trên cùng)
         if(!table || table.classList.contains('summary-table') || table.classList.contains('form-table') || table.classList.contains('styled-table')) return;
         let trs = Array.from(table.getElementsByTagName('tr'));
         
-        let isComplexTable = table.id.includes('dataTable');
+        // Nhận diện bảng có phân cấp Khối/Phòng/Dự án
+        let isComplexTable = table.id.includes('dataTable') || table.innerHTML.includes('data-search');
 
+        // XỬ LÝ BẢNG ĐƠN GIẢN (Bảng Tạm ứng, Bảng Báo cáo)
         if (!isComplexTable) {
             for(let i = 1; i < trs.length; i++) { 
               let row = trs[i]; 
               if (row.closest('thead') || row.classList.contains('subtotal-row') || row.classList.contains('total-row')) continue; 
-              let txt = row.innerText.toUpperCase();
-              row.style.display = (txt.indexOf(filter) > -1) ? "" : "none";
+              
+              let textMatch = (textFilter === "" || row.innerText.toUpperCase().indexOf(textFilter) > -1);
+              row.style.display = textMatch ? "" : "none";
             }
             return;
         }
 
+        // XỬ LÝ BẢNG ĐỀ XUẤT (Có phân cấp và gom nhóm)
+        // 1. Nếu không có bộ lọc nào -> Hiện toàn bộ
+        if (textFilter === "" && statusVal === "ALL") {
+             trs.forEach(row => { if(!row.closest('thead')) row.style.display = ""; });
+             return;
+        }
+
+        // 2. Ẩn tất cả các dòng dữ liệu và dòng tiêu đề trước
         trs.forEach(row => {
-            if (row.closest('thead') || row.cells.length === 0) return;
-            if (filter === "") { row.style.display = ""; } else { row.style.display = "none"; }
+            if (!row.closest('thead') && !row.classList.contains('total-row')) row.style.display = "none";
         });
 
-        if (filter !== "") {
-            trs.forEach(row => {
-                let searchData = row.getAttribute('data-search');
-                if (searchData && searchData.toUpperCase().indexOf(filter) > -1) {
-                    row.style.display = "";
+        // 3. Quét các dòng dữ liệu để kiểm tra và bật lại
+        trs.forEach(row => {
+            let searchData = row.getAttribute('data-search');
+            if (searchData) { // Chỉ kiểm tra trên các dòng dữ liệu thực tế
+                let textMatch = (textFilter === "" || searchData.toUpperCase().indexOf(textFilter) > -1 || row.innerText.toUpperCase().indexOf(textFilter) > -1);
+                
+                let statusMatch = true;
+                if (statusVal !== "ALL") {
+                    let isTruyThu = row.classList.contains('row-truythu');
+                    let isKpi = row.classList.contains('op-kpi');
+                    let isApproved = row.classList.contains('row-approved');
+                    let isRejected = row.classList.contains('row-rejected');
+                    let isPending = !isApproved && !isRejected && !isTruyThu;
+
+                    if (statusVal === 'TRUYTHU' && !isTruyThu) statusMatch = false;
+                    if (statusVal === 'KPI' && !isKpi) statusMatch = false;
+                    if (statusVal === 'APPROVED' && (!isApproved || isTruyThu)) statusMatch = false; 
+                    if (statusVal === 'REJECTED' && !isRejected) statusMatch = false;
+                    if (statusVal === 'PENDING' && (!isPending || isTruyThu)) statusMatch = false;
+                }
+
+                // Nếu khớp cả text tìm kiếm VÀ bộ lọc trạng thái -> Bật sáng
+                if (textMatch && statusMatch) {
+                    row.style.display = ""; 
+                    
+                    // Lần ngược lên trên để bật sáng dòng Khối, Phòng, Dự án chứa nó
                     let prev = row.previousElementSibling;
                     while(prev) {
                         let txt = prev.innerText;
                         if (txt.includes('🏢 KHỐI:') || txt.includes('🏷️ PHÒNG:') || txt.includes('📌 Dự án:')) {
                             prev.style.display = "";
                         }
-                        if (txt.includes('🏢 KHỐI:')) break;
+                        if (txt.includes('🏢 KHỐI:')) break; // Dừng lại khi lên tới cấp Khối
                         prev = prev.previousElementSibling;
                     }
                 }
-            });
-        }
+            }
+        });
       });
     }
 
