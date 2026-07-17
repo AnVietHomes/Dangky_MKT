@@ -386,7 +386,7 @@
       else if (tabName === 'report') { document.querySelector('.tab-btn[onclick="switchTab(\'report\')"]').classList.add('active'); document.getElementById('tabReport').classList.add('active'); renderReport(); }
     }
 
-    function simulateRole(role) {
+function simulateRole(role) {
       currentViewRole = role; showLoading(true);
       let isHighLevel = (role === 'MKT' || role === 'TPMKT' || role === 'BLD' || role === 'SUPER_ADMIN' || role === 'PTGD' || role === 'GDCN');
       
@@ -402,9 +402,17 @@
       }
       let today = new Date(); let m = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0'); document.getElementById('reportMonth').value = m;
       const deptsString = JSON.stringify(loggedInUser.managedDepartments);
+      
       callAPI("getDashboardData", { role: currentViewRole, departments: deptsString }, function(result) {
         showLoading(false);
-        if (result && result.success) { globalData = result.data; renderTableByRole(currentViewRole); renderAdvanceTableByRole(currentViewRole); if (isHighLevel) renderReport(); }
+        if (result && result.success) { 
+            globalData = result.data; 
+            renderTableByRole(currentViewRole); 
+            renderAdvanceTableByRole(currentViewRole); 
+            if (isHighLevel) renderReport(); 
+            // THÊM LỆNH NÀY: Tự động áp dụng lại bộ lọc sau khi tải xong dữ liệu mới
+            if (typeof applyGlobalSearch === 'function') applyGlobalSearch();
+        }
       });
     }
 
@@ -809,11 +817,12 @@
       let targetPhieu = globalData.find(p => p.idPhieu === idPhieu);
       if(targetPhieu) {
           targetPhieu.isKpiDacBiet = cb.checked;
+          renderTableByRole(currentViewRole);
+          applyGlobalSearch(); // GIỮ BỘ LỌC
+          
           callAPI("updateStatus", { data: JSON.stringify({ idPhieu: idPhieu, isKpiDacBiet: cb.checked, newStatus: targetPhieu.trangThai }) }, function(res) {
               if(!res || !res.success) alert("Lỗi đồng bộ máy chủ!");
           });
-          renderTableByRole(currentViewRole);
-        applyGlobalSearch();
       }
     }
 
@@ -823,21 +832,16 @@
             "CẢNH BÁO: Hành động TRUY THU sẽ thực hiện:\n- Loại bỏ toàn bộ ngân sách và tạm ứng của nhóm này khỏi báo cáo tổng.\n- Bôi đỏ cảnh báo vi phạm.\n- Gạch bỏ số tiền tạm ứng đã chi.\n\nBạn có CHẮC CHẮN muốn truy thu nhóm này?" : 
             "HOÀN TÁC TRUY THU:\nKhôi phục lại trạng thái ngân sách và tính toán bình thường cho nhóm này?\n\nBạn xác nhận chứ?";
         
-        if (!confirm(msg)) {
-            cb.checked = !isChecked; 
-            return;
-        }
+        if (!confirm(msg)) { cb.checked = !isChecked; return; }
         
         let targetPhieu = globalData.find(p => p.idPhieu === idPhieu);
         if(targetPhieu) {
             targetPhieu.isTruyThu = isChecked;
             renderTableByRole(currentViewRole);
-          applyGlobalSearch();
+            applyGlobalSearch(); // GIỮ BỘ LỌC
             
             callAPI("updateStatus", { data: JSON.stringify({ idPhieu: idPhieu, isTruyThu: isChecked, newStatus: targetPhieu.trangThai }) }, function(res) {
-                if(!res || !res.success) {
-                    alert("Lỗi đồng bộ máy chủ! Vui lòng kiểm tra lại mạng.");
-                }
+                if(!res || !res.success) { alert("Lỗi đồng bộ máy chủ! Vui lòng kiểm tra lại mạng."); }
             });
         }
     }
@@ -862,32 +866,19 @@
       return 'HISTORY';
     }
 
-    function updateStatusOptimistic(idPhieu, newStatus, btnElement) {
+function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
       try {
         let targetPhieu = globalData.find(p => p.idPhieu === idPhieu);
         let cb = btnElement.closest('tr').querySelector('.cb-newsale');
         let isNewSaleVal = targetPhieu ? targetPhieu.isNewSale : false;
         if (cb) isNewSaleVal = cb.checked;
         
-        // Cập nhật trạng thái cục bộ
         if (targetPhieu) { targetPhieu.trangThai = newStatus; targetPhieu.isNewSale = isNewSaleVal; }
         
-        // 1. Lưu tạm trạng thái bộ lọc hiện tại vào biến
-        let currentFilterText = document.getElementById('globalSearch').value;
-        let currentStatusFilter = document.getElementById('statusFilter').value;
-        
-        // 2. Render lại bảng
         renderTableByRole(currentViewRole);
+        applyGlobalSearch(); // GIỮ BỘ LỌC
         
-        // 3. Khôi phục lại bộ lọc ngay sau khi render
-        document.getElementById('globalSearch').value = currentFilterText;
-        document.getElementById('statusFilter').value = currentStatusFilter;
-        applyGlobalSearch(); // Chạy lại bộ lọc để cập nhật giao diện
-        
-        // 4. Gửi lệnh cập nhật lên server
-        callAPI("updateStatus", { data: JSON.stringify({ idPhieu: idPhieu, newStatus: newStatus, isNewSale: isNewSaleVal }) }, function(res) { 
-            if(!res || !res.success) alert("Lỗi đồng bộ máy chủ!"); 
-        });
+        callAPI("updateStatus", { data: JSON.stringify({ idPhieu: idPhieu, newStatus: newStatus, isNewSale: isNewSaleVal }) }, function(res) { if(!res || !res.success) alert("Lỗi đồng bộ máy chủ!"); });
       } catch(e) { alert("Lỗi: " + e.message); }
     }
 
@@ -1164,6 +1155,103 @@
       if (typeof recalcBLDSummary === 'function') recalcBLDSummary();
     }
 
+    // 1. HÀM DUYỆT / TỪ CHỐI TẠM ỨNG (1 CHẠM)
+    function updateStatusTUOptimistic(idPhieu, newStatus, btnElement) {
+      try {
+        // Lấy % tạm ứng hiện tại trên giao diện
+        let advPercent = 0;
+        if (btnElement) {
+           const row = btnElement.closest('tr'); 
+           if (row) {
+               let percentInput = row.querySelector('.adv-percent-input'); 
+               if (percentInput) advPercent = parseFloat(percentInput.value) || 0;
+           }
+        }
+
+        // Cập nhật dữ liệu nội bộ
+        let targetPhieu = globalData.find(p => p.idPhieu === idPhieu); 
+        if (targetPhieu) { 
+            targetPhieu.trangThaiTU = newStatus; 
+            targetPhieu.advPercent = advPercent; 
+        }
+
+        // Cập nhật giao diện & GIỮ NGUYÊN BỘ LỌC
+        renderAdvanceTableByRole(currentViewRole);
+        if (typeof applyGlobalSearch === 'function') { applyGlobalSearch(); }
+
+        // Gửi lệnh đồng bộ lên server
+        let payload = { idPhieu: idPhieu, newStatus: newStatus, advPercent: advPercent };
+        callAPI("updateStatusTU", { data: JSON.stringify(payload) }, function(res) { 
+            if(!res || !res.success) alert("Lỗi đồng bộ Tạm Ứng!"); 
+        });
+        
+      } catch(e) { 
+        console.error(e);
+        alert("Lỗi cục bộ: " + e.message); 
+      }
+    }
+
+    // 2. HÀM LƯU TỶ LỆ % TẠM ỨNG (CẬP NHẬT %)
+    function saveAdvPercent(idPhieu, btn) {
+      try {
+        let row = btn.closest('tr'); 
+        let percentInput = row.querySelector('.adv-percent-input'); 
+        let advPercent = parseFloat(percentInput.value) || 0;
+        
+        btn.innerText = 'Đang lưu...'; btn.disabled = true; 
+        let targetPhieu = globalData.find(p => p.idPhieu === idPhieu); 
+        if (targetPhieu) targetPhieu.advPercent = advPercent;
+        
+        callAPI("updateStatusTU", { data: JSON.stringify({ idPhieu: idPhieu, advPercent: advPercent, newStatus: targetPhieu.trangThaiTU }) }, function(res) { 
+            btn.innerText = 'Cập nhật %'; btn.disabled = false; 
+            if(!res || !res.success) alert("Lỗi đồng bộ Tạm Ứng!"); 
+            else {
+                // Tải lại bảng & GIỮ BỘ LỌC
+                renderAdvanceTableByRole(currentViewRole);
+                if (typeof applyGlobalSearch === 'function') { applyGlobalSearch(); }
+            }
+        });
+      } catch(e) { alert("Lỗi: " + e.message); }
+    }
+
+    // 3. HÀM DUYỆT HÀNG LOẠT TẠM ỨNG
+    function bulkApproveAdvances() {
+        let targetStatus = ''; let newStatus = '';
+        if (currentViewRole === 'TPMKT') { targetStatus = 'PENDING_MKT_TU'; newStatus = 'PENDING_BLD_TU'; }
+        else if (currentViewRole === 'BLD' || currentViewRole === 'SUPER_ADMIN') { targetStatus = 'PENDING_BLD_TU'; newStatus = 'APPROVED_TU'; }
+        else { return; }
+
+        let pendingItems = globalData.filter(p => p.trangThaiTU === targetStatus);
+        if (pendingItems.length === 0) { alert("Không có đơn tạm ứng nào đang chờ bạn duyệt!"); return; }
+
+        if(!confirm(`Bạn có chắc chắn muốn duyệt ĐỒNG LOẠT ${pendingItems.length} đơn tạm ứng?`)) return;
+
+        showLoading(true, "ĐANG DUYỆT HÀNG LOẠT...", `Đã duyệt 0 / ${pendingItems.length}`);
+        let currentIndex = 0;
+
+        function processNext() {
+            if (currentIndex >= pendingItems.length) {
+                showLoading(false);
+                alert(`Hoàn tất! Đã duyệt thành công ${pendingItems.length} đơn tạm ứng.`);
+                
+                // Tải lại bảng & GIỮ BỘ LỌC
+                renderAdvanceTableByRole(currentViewRole);
+                if (typeof applyGlobalSearch === 'function') { applyGlobalSearch(); }
+                return;
+            }
+            
+            let phieu = pendingItems[currentIndex];
+            phieu.trangThaiTU = newStatus;
+            
+            callAPI("updateStatusTU", { data: JSON.stringify({ idPhieu: phieu.idPhieu, newStatus: newStatus, advPercent: phieu.advPercent }) }, function(res) {
+                currentIndex++;
+                document.getElementById('loadingSubtext').innerText = `Đã duyệt ${currentIndex} / ${pendingItems.length} ...`;
+                setTimeout(processNext, 350); 
+            });
+        }
+        processNext();
+    }
+
     function renderAdvanceTableByRole(role) {
       if(role !== 'MKT' && role !== 'TPMKT' && role !== 'BLD' && role !== 'SUPER_ADMIN') return;
       const tb = document.getElementById('tableAdvanceBody'); 
@@ -1280,39 +1368,6 @@
       archAdvContainer.innerHTML = archAdvHtml;
     }
 
-    function bulkApproveAdvances() {
-        let targetStatus = ''; let newStatus = '';
-        if (currentViewRole === 'TPMKT') { targetStatus = 'PENDING_MKT_TU'; newStatus = 'PENDING_BLD_TU'; }
-        else if (currentViewRole === 'BLD' || currentViewRole === 'SUPER_ADMIN') { targetStatus = 'PENDING_BLD_TU'; newStatus = 'APPROVED_TU'; }
-        else { return; }
-
-        let pendingItems = globalData.filter(p => p.trangThaiTU === targetStatus);
-        if (pendingItems.length === 0) { alert("Không có đơn tạm ứng nào đang chờ bạn duyệt!"); return; }
-
-        if(!confirm(`Bạn có chắc chắn muốn duyệt ĐỒNG LOẠT ${pendingItems.length} đơn tạm ứng?`)) return;
-
-        showLoading(true, "ĐANG DUYỆT HÀNG LOẠT...", `Đã duyệt 0 / ${pendingItems.length}`);
-        let currentIndex = 0;
-
-        function processNext() {
-            if (currentIndex >= pendingItems.length) {
-                showLoading(false);
-                alert(`Hoàn tất! Đã duyệt thành công ${pendingItems.length} đơn tạm ứng.`);
-                renderAdvanceTableByRole(currentViewRole);
-                return;
-            }
-            let phieu = pendingItems[currentIndex];
-            phieu.trangThaiTU = newStatus;
-            
-            callAPI("updateStatusTU", { data: JSON.stringify({ idPhieu: phieu.idPhieu, newStatus: newStatus, advPercent: phieu.advPercent }) }, function(res) {
-                currentIndex++;
-                document.getElementById('loadingSubtext').innerText = `Đã duyệt ${currentIndex} / ${pendingItems.length} ...`;
-                setTimeout(processNext, 350); 
-            });
-        }
-        processNext();
-    }
-
 function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
       try {
         let targetPhieu = globalData.find(p => p.idPhieu === idPhieu);
@@ -1373,9 +1428,10 @@ function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
         }, function(res) { 
           btn.innerText = origText; btn.disabled = false; 
           if (res && !res.success) { alert("Lỗi máy chủ: " + res.message); } 
-          else { tr.setAttribute('data-nsduyet', budget);
-                applyGlobalSearch();
-               }
+          else { 
+              tr.setAttribute('data-nsduyet', budget); 
+              applyGlobalSearch(); // GIỮ BỘ LỌC
+          }
         });
       } catch (e) { alert("Có lỗi cục bộ khi cập nhật: " + e.message); btn.innerText = 'Cập nhật'; btn.disabled = false; }
     }
