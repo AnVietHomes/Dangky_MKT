@@ -1848,5 +1848,52 @@ function exportToTracking() {
       }
     }
   </script>
+  
+  <script>
+    // 1. CHẶN CHUỘT PHẢI & PHÍM TẮT DEVTOOLS
+    document.addEventListener('contextmenu', event => event.preventDefault());
+    document.addEventListener('keydown', function(e) {
+      if (
+        e.key === 'F12' || e.keyCode === 123 ||
+        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.keyCode === 73)) || 
+        (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j' || e.keyCode === 74)) || 
+        (e.ctrlKey && (e.key === 'U' || e.key === 'u' || e.keyCode === 85))
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // 2. BẪY DEBUGGER: ĐÁNH SẬP TRANG NẾU CỐ TÌNH VƯỢT RÀO
+    setInterval(function() {
+      let before = new Date().getTime();
+      
+      // Lệnh này sẽ làm trình duyệt khựng lại nếu DevTools đang mở
+      debugger; 
+      
+      let after = new Date().getTime();
+      
+      // Nếu thời gian xử lý lệnh debugger mất hơn 100ms -> DevTools đang mở
+      if (after - before > 100) {
+          // Xóa toàn bộ nội dung trang web ngay lập tức
+          document.body.innerHTML = `
+            <div style="display:flex; height:100vh; width:100vw; background:#222; color:red; align-items:center; justify-content:center; font-family:sans-serif; flex-direction:column;">
+                <h1 style="font-size: 3rem;">⚠️ CẢNH BÁO BẢO MẬT</h1>
+                <h2>Phát hiện hành vi can thiệp hệ thống trái phép.</h2>
+                <p>Hệ thống đã tự động khóa kết nối của bạn.</p>
+            </div>
+          `;
+          
+          // Phá hủy các biến dữ liệu quan trọng
+          window.globalData = null;
+          window.API_URL = null;
+          
+          // Ép tải lại hoặc chuyển hướng sau 3 giây
+          setTimeout(() => {
+              window.location.replace("about:blank");
+          }, 3000);
+      }
+    }, 1000); // Kiểm tra liên tục mỗi giây
+  </script>
 </body>
 </html>
