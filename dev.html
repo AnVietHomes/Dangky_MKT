@@ -217,8 +217,11 @@
           </thead>
          <tbody id="tableBody">
             <tr>
-              <td style="position: relative;">1 <span onclick="clearRow(this)" title="Xóa trắng dòng này" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); color: var(--red-status); cursor: pointer; font-size: 22px; font-weight: bold; line-height: 1;">×</span></td>
-              <td><select class="table-input project-select" name="project" required><option value="" disabled selected>Chọn dự án...</option></select></td>
+              <td>1</td>
+              <td style="position: relative;">
+                <select class="table-input project-select" name="project" onchange="toggleClearBtn(this)" required><option value="" disabled selected>Chọn dự án...</option></select>
+                <span class="clear-btn" onclick="clearRow(this)" title="Xóa trắng dòng này" style="display: none; position: absolute; right: 28px; top: 50%; transform: translateY(-50%); color: inherit; opacity: 0.6; cursor: pointer; font-size: 15px; font-weight: normal; font-family: sans-serif;">✕</span>
+              </td>
               <td><input type="text" class="table-input calc-budget" name="budget" placeholder="0" oninput="formatCurrency(this)" required></td>
               <td><input type="text" class="table-input date-format start-date" name="start" placeholder="DD/MM" maxlength="5" required></td>
               <td><input type="text" class="table-input date-format" name="end" placeholder="DD/MM" maxlength="5" required></td>
@@ -229,8 +232,11 @@
               <td style="background-color: #f9f9f9;" readonly></td>
             </tr>
             <tr>
-              <td style="position: relative;">2 <span onclick="clearRow(this)" title="Xóa trắng dòng này" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); color: var(--red-status); cursor: pointer; font-size: 22px; font-weight: bold; line-height: 1;">×</span></td>
-              <td><select class="table-input project-select" name="project"><option value="" disabled selected>Chọn dự án...</option></select></td>
+              <td>2</td>
+              <td style="position: relative;">
+                <select class="table-input project-select" name="project" onchange="toggleClearBtn(this)"><option value="" disabled selected>Chọn dự án...</option></select>
+                <span class="clear-btn" onclick="clearRow(this)" title="Xóa trắng dòng này" style="display: none; position: absolute; right: 28px; top: 50%; transform: translateY(-50%); color: inherit; opacity: 0.6; cursor: pointer; font-size: 15px; font-weight: normal; font-family: sans-serif;">✕</span>
+              </td>
               <td><input type="text" class="table-input calc-budget" name="budget" placeholder="0" oninput="formatCurrency(this)"></td>
               <td><input type="text" class="table-input date-format start-date" name="start" placeholder="DD/MM" maxlength="5"></td>
               <td><input type="text" class="table-input date-format" name="end" placeholder="DD/MM" maxlength="5"></td>
@@ -241,8 +247,11 @@
               <td style="background-color: #f9f9f9;" readonly></td>
             </tr>
             <tr>
-              <td style="position: relative;">3 <span onclick="clearRow(this)" title="Xóa trắng dòng này" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); color: var(--red-status); cursor: pointer; font-size: 22px; font-weight: bold; line-height: 1;">×</span></td>
-              <td><select class="table-input project-select" name="project"><option value="" disabled selected>Chọn dự án...</option></select></td>
+              <td>3</td>
+              <td style="position: relative;">
+                <select class="table-input project-select" name="project" onchange="toggleClearBtn(this)"><option value="" disabled selected>Chọn dự án...</option></select>
+                <span class="clear-btn" onclick="clearRow(this)" title="Xóa trắng dòng này" style="display: none; position: absolute; right: 28px; top: 50%; transform: translateY(-50%); color: inherit; opacity: 0.6; cursor: pointer; font-size: 15px; font-weight: normal; font-family: sans-serif;">✕</span>
+              </td>
               <td><input type="text" class="table-input calc-budget" name="budget" placeholder="0" oninput="formatCurrency(this)"></td>
               <td><input type="text" class="table-input date-format start-date" name="start" placeholder="DD/MM" maxlength="5"></td>
               <td><input type="text" class="table-input date-format" name="end" placeholder="DD/MM" maxlength="5"></td>
@@ -253,13 +262,6 @@
               <td style="background-color: #f9f9f9;" readonly></td>
             </tr>
           </tbody>
-          <tfoot>
-            <tr class="total-row">
-              <td colspan="2" style="text-align: right; padding-right: 20px;">Tổng cộng</td>
-              <td class="total-bg-blue" id="totalBudgetDisplay">0</td>
-              <td colspan="7" style="border-bottom: transparent; border-right: transparent;"></td>
-            </tr>
-          </tfoot>
         </table>
       </div>
       
@@ -678,11 +680,21 @@
       document.getElementById('resultView').style.display = 'none'; document.getElementById('marketingForm').style.display = 'block'; document.getElementById('mainTitle').innerText = "ĐỀ XUẤT CHIẾN DỊCH MARKETING"; document.getElementById('btnBack').style.display = 'none';
     }
 
+   // Hàm mới: Chỉ bật nút X khi có dự án được chọn
+    function toggleClearBtn(selectElem) {
+      let clearBtn = selectElem.parentElement.querySelector('.clear-btn');
+      if (clearBtn) {
+        clearBtn.style.display = selectElem.value ? 'block' : 'none';
+      }
+    }
+
+    // Hàm cập nhật: Xóa trắng dòng và ẩn nút X đi
     function clearRow(btn) {
       const row = btn.closest('tr');
+      const selectElem = row.querySelector('select[name="project"]');
       
       // Đặt lại Dự án về trạng thái rỗng
-      row.querySelector('select[name="project"]').value = '';
+      selectElem.value = '';
       
       // Xóa các ô nhập liệu khác
       row.querySelector('input[name="budget"]').value = '';
@@ -691,11 +703,14 @@
       row.querySelector('input[name="phone"]').value = '';
       row.querySelector('input[name="account"]').value = '';
       
-      // Kích hoạt sự kiện 'change' để bỏ yêu cầu bắt buộc nhập (required) nếu là dòng 2 và 3
-      row.querySelector('select[name="project"]').dispatchEvent(new Event('change'));
+      // Ẩn nút X đi vì dự án đã trở về rỗng
+      btn.style.display = 'none';
+
+      // Kích hoạt lại sự kiện 'change' để bỏ yêu cầu bắt buộc nhập (required)
+      selectElem.dispatchEvent(new Event('change'));
       
       // Tính lại tổng tiền
-      calculateTotal();
+      if(typeof calculateTotal === 'function') calculateTotal();
     }
     
     function openAdvanceModal() {
