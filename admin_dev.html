@@ -856,22 +856,7 @@ function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
       if (theadCNQN) theadCNQN.innerHTML = thHtml;
       if (bldActions) bldActions.style.display = isBLD ? 'flex' : 'none'; 
       
-      let sumDxKhoi = {}, sumDxPhong = {}, sumDxDuAn = {}; let sumDuyetKhoi = {}, sumDuyetPhong = {}, sumDuyetDuAn = {}; let sumAdvKhoi = {}, sumAdvPhong = {}, sumAdvDuAn = {}; let safeId = str => btoa(unescape(encodeURIComponent(str))).replace(/[^a-zA-Z0-9]/g, '');
-
-      flatItems.forEach(item => {
-        let kId = safeId(item.khoi); let pId = safeId(item.khoi + '|' + item.phong); let dId = safeId(item.khoi + '|' + item.phong + '|' + item.tenDuAn); let advAmt = Math.round(item.nsDeXuat * (item.phieuObj.advPercent || 0) / 100);
-        
-        let isKpiDacBiet = checkKpiDacBiet(item.phieuObj);
-        let isTruyThu = item.phieuObj.isTruyThu === true;
-        let isRej = item.trangThai.startsWith('REJECTED');
-        let valDx = (isRej || isKpiDacBiet || isTruyThu) ? 0 : item.nsDeXuat;
-        let valDuyet = (isRej || isKpiDacBiet || isTruyThu) ? 0 : item.nsDuyet;
-        let valAdv = (isRej || isKpiDacBiet || isTruyThu) ? 0 : advAmt;
-
-        sumDxKhoi[kId] = (sumDxKhoi[kId] || 0) + valDx; sumDxPhong[pId] = (sumDxPhong[pId] || 0) + valDx; sumDxDuAn[dId] = (sumDxDuAn[dId] || 0) + valDx;
-        sumDuyetKhoi[kId] = (sumDuyetKhoi[kId] || 0) + valDuyet; sumDuyetPhong[pId] = (sumDuyetPhong[pId] || 0) + valDuyet; sumDuyetDuAn[dId] = (sumDuyetDuAn[dId] || 0) + valDuyet;
-        sumAdvKhoi[kId] = (sumAdvKhoi[kId] || 0) + valAdv; sumAdvPhong[pId] = (sumAdvPhong[pId] || 0) + valAdv; sumAdvDuAn[dId] = (sumAdvDuAn[dId] || 0) + valAdv;
-      });
+let safeId = str => btoa(unescape(encodeURIComponent(str))).replace(/[^a-zA-Z0-9]/g, '');
 
       let mainItems = []; let cnqnItems = []; let archiveGroups = {};
       
@@ -900,6 +885,29 @@ function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
       });
 
       function buildRowsHTML(itemsArray, isReadOnlyMode) {
+        let sumDxKhoi = {}, sumDxPhong = {}, sumDxDuAn = {}; 
+        let sumDuyetKhoi = {}, sumDuyetPhong = {}, sumDuyetDuAn = {}; 
+        let sumAdvKhoi = {}, sumAdvPhong = {}, sumAdvDuAn = {}; 
+        
+        itemsArray.forEach(item => {
+            let kId = safeId(item.khoi); let pId = safeId(item.khoi + '|' + item.phong); let dId = safeId(item.khoi + '|' + item.phong + '|' + item.tenDuAn); 
+            let advAmt = Math.round(item.nsDeXuat * (item.phieuObj.advPercent || 0) / 100);
+            let isKpiDacBiet = checkKpiDacBiet(item.phieuObj);
+            let isTruyThu = item.phieuObj.isTruyThu === true;
+            let isRej = item.trangThai.startsWith('REJECTED');
+            
+            let valDx = (isRej || isKpiDacBiet || isTruyThu) ? 0 : item.nsDeXuat;
+            let valDuyet = (isRej || isKpiDacBiet || isTruyThu) ? 0 : item.nsDuyet;
+            let valAdv = (isRej || isKpiDacBiet || isTruyThu) ? 0 : advAmt;
+
+            sumDxKhoi[kId] = (sumDxKhoi[kId] || 0) + valDx; sumDxPhong[pId] = (sumDxPhong[pId] || 0) + valDx; sumDxDuAn[dId] = (sumDxDuAn[dId] || 0) + valDx;
+            sumDuyetKhoi[kId] = (sumDuyetKhoi[kId] || 0) + valDuyet; sumDuyetPhong[pId] = (sumDuyetPhong[pId] || 0) + valDuyet; sumDuyetDuAn[dId] = (sumDuyetDuAn[dId] || 0) + valDuyet;
+            sumAdvKhoi[kId] = (sumAdvKhoi[kId] || 0) + valAdv; sumAdvPhong[pId] = (sumAdvPhong[pId] || 0) + valAdv; sumAdvDuAn[dId] = (sumAdvDuAn[dId] || 0) + valAdv;
+        });
+        // --------------------------------------------------------
+
+        let currentKhoi = null; let currentPhong = null; let currentDuAn = null; let html = ''; let colBefore = isKD ? 6 : 5; 
+        let localGrandDx = 0; let localGrandAdv = 0; let localGrandDy = 0;
         let currentKhoi = null; let currentPhong = null; let currentDuAn = null; let html = ''; let colBefore = isKD ? 6 : 5; 
         let localGrandDx = 0; let localGrandAdv = 0; let localGrandDy = 0;
 
