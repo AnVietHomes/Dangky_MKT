@@ -955,23 +955,29 @@ function submitEntireProposal() {
           
           finalTeamName = "🌟 [GÓI TỔNG] " + masterName;
           
-          // 2. Gom dữ liệu theo dạng Giật cấp: Nhóm -> Thành viên
+          // GOM DỮ LIỆU DẠNG GIẬT CẤP (Chuẩn form Ảnh 2 - Tuyệt đối không dùng dấu phẩy)
           let groupsArr = [];
           document.querySelectorAll('.goi-tong-group').forEach(group => {
               let tName = group.querySelector('.gt-team-name').value.trim();
-              // Các thành viên trong 1 nhóm được nối bằng dấu gạch ngang ( - )
-              let mNames = Array.from(group.querySelectorAll('.gt-member-name')).map(i => i.value.trim()).filter(v => v !== "").join(' - ');
+              let mNames = Array.from(group.querySelectorAll('.gt-member-name')).map(i => i.value.trim()).filter(v => v !== "");
               
-              if (tName || mNames) {
-                  // Đóng gói 1 nhóm bằng HTML in đậm, in nghiêng
-                  groupsArr.push(`▪️ <b>${tName \vert{}\vert{} 'Nhóm'}</b>: <i>${mNames || 'Không có TV'}</i>`);
+              if (tName || mNames.length > 0) {
+                  // 1. Tên nhóm in đậm, màu xanh
+                  let groupHtml = `<div style="font-weight:bold; color:#0b1f8c; margin-bottom: 2px;">${tName || 'Nhóm'}</div>`;
+                  
+                  // 2. Thành viên thụt lề vào trong 15px
+                  if (mNames.length > 0) {
+                      groupHtml += mNames.map(m => `<div style="padding-left: 15px; color: #333; margin-bottom: 2px;">${m}</div>`).join('');
+                  }
+                  groupsArr.push(groupHtml);
               }
           });
           
-          // Các nhóm cách nhau bằng dấu phẩy để sang Admin tự động ngắt dòng
-          finalNames = groupsArr.join(', ');
+          // Nối các nhóm bằng 1 khoảng trắng cao 8px (Tuyệt đối không dùng phẩy)
+          finalNames = groupsArr.join('<div style="height: 8px;"></div>');
           finalMnvs = "Miễn trừ Mã NV"; 
       } else {
+          // ... (Phần Gói thường của bạn giữ nguyên bên dưới)
           finalTeamName = document.getElementById('teamName').value;
           finalNames = Array.from(document.querySelectorAll('.member-name')).map(i => i.value.trim()).filter(v => v !== "").join(', ');
           finalMnvs = Array.from(document.querySelectorAll('.member-mnv')).map(i => i.value.trim()).filter(v => v !== "").join(', ');
