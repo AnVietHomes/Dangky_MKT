@@ -829,5 +829,36 @@
       }
     }, 1000); // Kiểm tra liên tục mỗi giây
   </script>
+  
+  <!-- ========================================== -->
+  <!-- SCRIPT AUTO FORMAT TÊN THÀNH VIÊN          -->
+  <!-- ========================================== -->
+  <script>
+    document.addEventListener('input', function(e) {
+      // Kiểm tra xem ô đang gõ có phải là ô nhập tên thành viên không (class="member-name")
+      if (e.target && e.target.classList.contains('member-name')) {
+        
+        // 1. Lưu lại vị trí con trỏ chuột hiện tại để khi code đổi chữ không bị nhảy con trỏ về cuối dòng
+        let start = e.target.selectionStart;
+        let end = e.target.selectionEnd;
+
+        let oldVal = e.target.value;
+        
+        // 2. Chuyển toàn bộ chuỗi về chữ thường (Xử lý trường hợp bật Caps Lock), 
+        // sau đó tìm tất cả các chữ cái đứng đầu mỗi từ và viết hoa chúng lên.
+        let newVal = oldVal.toLowerCase().replace(/(?:^|\s)\S/g, function(a) { 
+            return a.toUpperCase(); 
+        });
+
+        // 3. Chỉ cập nhật lại value nếu có sự thay đổi để tối ưu hiệu suất trình duyệt
+        if (oldVal !== newVal) {
+          e.target.value = newVal;
+          
+          // Trả lại vị trí con trỏ chuột về đúng chỗ cũ
+          e.target.setSelectionRange(start, end);
+        }
+      }
+    });
+  </script>
 </body>
 </html>
