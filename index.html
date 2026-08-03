@@ -8,6 +8,23 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <style>
+    /* --- CSS NÚT GẠT GÓI TỔNG & GIAO DIỆN MỚI --- */
+    .toggle-small-wrap { display: flex; align-items: center; gap: 12px; }
+    .lbl-toggle { font-size: 14px; font-weight: bold; transition: color 0.3s; }
+    .lbl-normal.active { color: var(--primary-blue); }
+    .lbl-normal:not(.active) { color: #999; }
+    .lbl-master.active { color: #007bff; }
+    .lbl-master:not(.active) { color: #999; }
+
+    .switch-small { position: relative; display: inline-block; width: 38px; height: 20px; margin: 0; }
+    .switch-small input { opacity: 0; width: 0; height: 0; }
+    .slider-small { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .3s; border-radius: 34px; }
+    .slider-small:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+    .switch-small input:checked + .slider-small { background-color: #007bff; }
+    .switch-small input:checked + .slider-small:before { transform: translateX(18px); }
+
+    .goi-tong-group { display: flex; gap: 15px; margin-bottom: 15px; align-items: center; flex-wrap: wrap; }
+    
     :root { --bg-light-blue: #d4efff; --primary-blue: #0b1f8c; --text-dark: #222222; --text-gray: #666666; --red-status: #c00000; --table-border: #222222; }
     body { font-family: 'Manrope', sans-serif; margin: 0; padding: 0; background-color: var(--bg-light-blue); color: var(--text-dark); min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
     .top-header { width: 100%; max-width: 1600px; display: flex; justify-content: space-between; align-items: center; padding: 20px 50px; margin-top: 10px; box-sizing: border-box; }
@@ -157,9 +174,21 @@
     </div>
 
     <form id="marketingForm">
-      <div class="info-section">
-        
-        <div class="member-group-wrapper">
+<div class="info-section">
+        <!-- 1. KHUNG CHỨA TẠM CHO GÓI TỔNG (Ẩn mặc định) -->
+        <!-- 1.1 TÊN GÓI TỔNG (Nằm ngay trên Email) -->
+        <div id="row-master-name" class="info-row" style="display: none; margin-bottom: 25px;">
+            <div class="inline-group" style="width: 100%;">
+                <span class="info-label" style="color: #0b1f8c; font-weight: bold;">Tên Gói Tổng:</span>
+                <input type="text" class="inline-input" id="masterPackageName" placeholder="VD: Chiến dịch Booking tháng 8 - Khối CNQN..." style="font-weight: 700; color: #0b1f8c;">
+            </div>
+        </div>
+
+        <!-- 1.2 KHUNG CHỨA TẠM EMAIL & PHÒNG BAN CHO GÓI TỔNG -->
+        <div id="shared-chung-goi-tong" class="info-row" style="display: none; align-items: center; margin-bottom: 25px;"></div>
+
+        <!-- 2. KHU VỰC GÓI THƯỜNG (Giữ nguyên form cũ) -->
+        <div id="row-members" class="member-group-wrapper">
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: bold;">Thành viên:</label>
                 <div id="memberNamesGroup" class="grid-names">
@@ -168,7 +197,6 @@
                     <input type="text" class="pill-input member-name" placeholder="Nguyễn Văn C">
                 </div>
             </div>
-
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: bold;">Mã nhân viên:</label>
                 <div id="memberIdsGroup" class="grid-ids">
@@ -177,35 +205,94 @@
                     <input type="text" class="pill-input small member-mnv" placeholder="...">
                 </div>
             </div>
-
             <div style="padding-top: 28px; display: flex; justify-content: center;">
                 <button type="button" class="btn-add-member" onclick="addMoreMember()" title="Thêm thành viên">+</button>
             </div>
         </div>
 
-        <div class="info-row">
-          <div class="inline-group">
+        <div id="row-team-email" class="info-row">
+          <div class="inline-group" id="wrap-team">
             <span class="info-label">Tên nhóm:</span>
             <input type="text" class="inline-input" id="teamName" placeholder="VD: ABC" required>
           </div>
-          <div class="inline-group">
+          <div class="inline-group" id="wrap-email">
             <span class="info-label">Email liên hệ:</span>
             <input type="email" class="inline-input" id="emailContact" placeholder="VD: nguyenvana@gmail.com" required>
           </div>
         </div>
 
-        <div class="info-row">
-          <div style="display: flex; align-items: center; gap: 15px; position: relative;">
+        <div id="row-dept-div" class="info-row">
+          <div style="display: flex; align-items: center; gap: 15px; position: relative;" id="wrap-dept">
             <span class="info-label">Phòng kinh doanh:</span>
             <select class="pill-input" id="department" required>
               <option value="" disabled selected>Đang tải...</option>
             </select>
             <span id="loadingDepts">⏳</span>
           </div>
-          <div class="inline-group">
+          <div class="inline-group" id="wrap-div">
             <span class="info-label">Khối kinh doanh:</span>
             <input type="text" class="inline-input" id="division" placeholder="Tự động nhảy theo phòng..." readonly required>
           </div>
+        </div>
+
+        <!-- 3. KHU VỰC GÓI TỔNG (Đã fix font chữ nút Thêm Nhóm) -->
+        <div id="khu-vuc-goi-tong" style="display: none; padding-top: 15px; border-top: 1.5px dashed #ccc; margin-top: 15px;">
+            <div id="danhSachNhomGoiTong">
+                <!-- Nhóm 1 -->
+                <div class="goi-tong-group">
+                    <div class="inline-group" style="width: auto; flex: none;">
+                        <span class="info-label">Tên nhóm 1:</span>
+                        <input type="text" class="inline-input gt-team-name" placeholder="VD: Nhóm Lion..." style="width: 150px;">
+                    </div>
+                    <div class="gt-members" style="display: flex; gap: 10px; flex: 1; align-items: center; flex-wrap: wrap;">
+                        <input type="text" class="pill-input gt-member-name" style="width: 140px;" placeholder="Thành viên 1">
+                        <input type="text" class="pill-input gt-member-name" style="width: 140px;" placeholder="Thành viên 2">
+                        <input type="text" class="pill-input gt-member-name" style="width: 140px;" placeholder="Thành viên 3">
+                        <button type="button" class="btn-add-member" style="width: 32px; height: 32px;" onclick="addMemToGtGroup(this)" title="Thêm thành viên">+</button>
+                    </div>
+                </div>
+                <!-- Nhóm 2 -->
+                <div class="goi-tong-group">
+                    <div class="inline-group" style="width: auto; flex: none;">
+                        <span class="info-label">Tên nhóm 2:</span>
+                        <input type="text" class="inline-input gt-team-name" placeholder="VD: Nhóm Tiger..." style="width: 150px;">
+                    </div>
+                    <div class="gt-members" style="display: flex; gap: 10px; flex: 1; align-items: center; flex-wrap: wrap;">
+                        <input type="text" class="pill-input gt-member-name" style="width: 140px;" placeholder="Thành viên 1">
+                        <input type="text" class="pill-input gt-member-name" style="width: 140px;" placeholder="Thành viên 2">
+                        <input type="text" class="pill-input gt-member-name" style="width: 140px;" placeholder="Thành viên 3">
+                        <button type="button" class="btn-add-member" style="width: 32px; height: 32px;" onclick="addMemToGtGroup(this)">+</button>
+                    </div>
+                </div>
+                <!-- Nhóm 3 -->
+                <div class="goi-tong-group">
+                    <div class="inline-group" style="width: auto; flex: none;">
+                        <span class="info-label">Tên nhóm 3:</span>
+                        <input type="text" class="inline-input gt-team-name" placeholder="VD: Nhóm Eagle..." style="width: 150px;">
+                    </div>
+                    <div class="gt-members" style="display: flex; gap: 10px; flex: 1; align-items: center; flex-wrap: wrap;">
+                        <input type="text" class="pill-input gt-member-name" style="width: 140px;" placeholder="Thành viên 1">
+                        <input type="text" class="pill-input gt-member-name" style="width: 140px;" placeholder="Thành viên 2">
+                        <input type="text" class="pill-input gt-member-name" style="width: 140px;" placeholder="Thành viên 3">
+                        <button type="button" class="btn-add-member" style="width: 32px; height: 32px;" onclick="addMemToGtGroup(this)">+</button>
+                    </div>
+                </div>
+                <!-- Nhóm 4 -->
+                <div class="goi-tong-group">
+                    <div class="inline-group" style="width: auto; flex: none;">
+                        <span class="info-label">Tên nhóm 4:</span>
+                        <input type="text" class="inline-input gt-team-name" placeholder="VD: Nhóm Shark..." style="width: 150px;">
+                    </div>
+                    <div class="gt-members" style="display: flex; gap: 10px; flex: 1; align-items: center; flex-wrap: wrap;">
+                        <input type="text" class="pill-input gt-member-name" style="width: 140px;" placeholder="Thành viên 1">
+                        <input type="text" class="pill-input gt-member-name" style="width: 140px;" placeholder="Thành viên 2">
+                        <input type="text" class="pill-input gt-member-name" style="width: 140px;" placeholder="Thành viên 3">
+                        <button type="button" class="btn-add-member" style="width: 32px; height: 32px;" onclick="addMemToGtGroup(this)">+</button>
+                    </div>
+                </div>
+            </div>
+            <!-- ĐÃ CẬP NHẬT LẠI FONT CHỮ MANROPE CHO NÚT NÀY -->
+            <button type="button" style="background: transparent; border: 1.5px dashed #0b1f8c; color: #0b1f8c; font-weight: bold; font-family: 'Manrope', sans-serif; font-size: 14px; padding: 8px 20px; border-radius: 20px; cursor: pointer; margin-top: 5px;" onclick="addNewGtGroup()">+ Thêm Nhóm Mới</button>
         </div>
       </div>
       
@@ -273,7 +360,18 @@
   }
 </style>
       
-      <div class="table-title">Nội dung đề xuất chiến dịch Marketing</div>
+   <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; margin-top: 25px;">
+          <div class="table-title" style="margin-bottom: 0;">Nội dung đề xuất chiến dịch Marketing</div>
+          
+          <div class="toggle-small-wrap">
+              <span id="lblNormal" class="lbl-toggle lbl-normal active">Đăng ký Gói Thường</span>
+              <label class="switch-small">
+                  <input type="checkbox" id="toggleGoiTong" onchange="switchPackageMode()">
+                  <span class="slider-small"></span>
+              </label>
+              <span id="lblMaster" class="lbl-toggle lbl-master">Đăng ký GÓI TỔNG (Theo Khối)</span>
+          </div>
+      </div>
       
      <div class="table-responsive smart-cutout-wrapper">
         <table class="data-table">
@@ -652,12 +750,13 @@
       input.value = val; calculateTotal();
     }
 
-    function calculateTotal() {
+function calculateTotal() {
       let total = 0;
       document.querySelectorAll('.calc-budget').forEach(input => {
         total += parseFloat(input.value.replace(/\./g, '')) || 0;
       });
-      document.getElementById('totalBudgetDisplay').innerText = formatNumber(total);
+      // Đã sửa 'totalBudgetDisplay' thành đúng ID thực tế là 'totalBudget'
+      document.getElementById('totalBudget').innerText = formatNumber(total);
     }
 
     function openModal() { document.getElementById('searchModal').style.display = 'flex'; }
@@ -796,7 +895,7 @@
       if(typeof calculateTotal === 'function') calculateTotal();
     }
     
-    function openAdvanceModal() {
+   function openAdvanceModal() {
       const form = document.getElementById('marketingForm');
       if(!form.checkValidity()) { form.reportValidity(); return; }
 
@@ -808,7 +907,16 @@
 
       if(!hasItem) { alert("Vui lòng chọn ít nhất 1 dự án và điền đầy đủ số tiền!"); return; }
 
-      document.getElementById('advTeamNameDisplay').innerText = document.getElementById('teamName').value;
+      // --- CẬP NHẬT LOGIC LẤY TÊN NHÓM ---
+      let isMaster = document.getElementById('toggleGoiTong') && document.getElementById('toggleGoiTong').checked;
+      let displayName = "";
+      if (isMaster) {
+          displayName = document.getElementById('masterPackageName').value.trim() || ("Khối " + document.getElementById('division').value);
+      } else {
+          displayName = document.getElementById('teamName').value;
+      }
+
+      document.getElementById('advTeamNameDisplay').innerText = displayName;
       document.getElementById('advContentDisplay').innerText = "Tạm ứng Marketing dự án " + projectNames.join(', ');
       document.getElementById('advanceModal').style.display = 'flex';
     }
@@ -831,19 +939,45 @@
         }
       });
 
-      let gatheredNames = Array.from(document.querySelectorAll('.member-name')).map(i => i.value.trim()).filter(v => v !== "").join(', ');
-      let gatheredMnvs = Array.from(document.querySelectorAll('.member-mnv')).map(i => i.value.trim()).filter(v => v !== "").join(', ');
+     // Kịch bản gửi dữ liệu: Phân biệt Gói Thường và Gói Tổng
+      let isMaster = document.getElementById('toggleGoiTong') && document.getElementById('toggleGoiTong').checked;
+      
+      let finalTeamName = "";
+      let finalNames = "";
+      let finalMnvs = "";
+
+      if (isMaster) {
+          // Lấy Tên Gói Tổng trực tiếp từ ô nhập liệu và đính kèm cờ báo hiệu
+          let masterName = document.getElementById('masterPackageName').value.trim();
+          if(!masterName) masterName = "Khối " + document.getElementById('division').value;
+          
+          finalTeamName = "🌟 [GÓI TỔNG] " + masterName;
+          finalNames = Array.from(document.querySelectorAll('.gt-member-name')).map(i => i.value.trim()).filter(v => v !== "").join(', ');
+          finalMnvs = "Miễn trừ Mã NV"; 
+      } else {
+          finalTeamName = document.getElementById('teamName').value;
+          finalNames = Array.from(document.querySelectorAll('.member-name')).map(i => i.value.trim()).filter(v => v !== "").join(', ');
+          finalMnvs = Array.from(document.querySelectorAll('.member-mnv')).map(i => i.value.trim()).filter(v => v !== "").join(', ');
+      }
       
       const payload = {
-        teamName: document.getElementById('teamName').value, memberName: gatheredNames, memberIds: gatheredMnvs, emailContact: document.getElementById('emailContact').value,
-        department: document.getElementById('department').value + " - " + document.getElementById('division').value, items: items,
-        advPercent: document.getElementById('advPercent').value, bankOwner: document.getElementById('bankOwner').value, bankAccount: document.getElementById('bankAccount').value, bankName: document.getElementById('bankName').value
+        teamName: finalTeamName, 
+        memberName: finalNames, 
+        memberIds: finalMnvs, 
+        emailContact: document.getElementById('emailContact').value,
+        department: document.getElementById('department').value + " - " + document.getElementById('division').value, 
+        items: items,
+        advPercent: document.getElementById('advPercent').value, 
+        bankOwner: document.getElementById('bankOwner').value, 
+        bankAccount: document.getElementById('bankAccount').value, 
+        bankName: document.getElementById('bankName').value
       };
 
+      // Cập nhật lại các biến lưu trữ cache cho đúng với tên biến mới (finalNames, finalMnvs...)
       const userInfoToSave = {
-        names: gatheredNames,
-        mnvs: gatheredMnvs,
-        teamName: document.getElementById('teamName').value,
+        names: finalNames,
+        mnvs: finalMnvs,
+        teamName: isMaster ? (document.getElementById('masterPackageName').value.trim() || "") : document.getElementById('teamName').value,
         emailContact: document.getElementById('emailContact').value,
         dept: document.getElementById('department').value
       };
@@ -977,6 +1111,95 @@
         }
       }
     });
+
+    // 1. Chuyển đổi trạng thái Gói Thường / Gói Tổng
+    function switchPackageMode() {
+        let isMaster = document.getElementById('toggleGoiTong').checked;
+        
+        document.getElementById('lblNormal').classList.toggle('active', !isMaster);
+        document.getElementById('lblMaster').classList.toggle('active', isMaster);
+
+        let rowMasterName = document.getElementById('row-master-name');
+        let sharedGt = document.getElementById('shared-chung-goi-tong');
+        let rowTeamEmail = document.getElementById('row-team-email');
+        let rowDeptDiv = document.getElementById('row-dept-div');
+        
+        let wrapEmail = document.getElementById('wrap-email');
+        let wrapDept = document.getElementById('wrap-dept');
+        let wrapDiv = document.getElementById('wrap-div');
+
+        if (isMaster) {
+            sharedGt.appendChild(wrapEmail);
+            sharedGt.appendChild(wrapDept);
+            sharedGt.appendChild(wrapDiv);
+            
+            rowMasterName.style.display = 'flex'; // Hiện ô Tên gói tổng
+            sharedGt.style.display = 'flex';
+            document.getElementById('row-members').style.display = 'none';
+            rowTeamEmail.style.display = 'none';
+            rowDeptDiv.style.display = 'none';
+            document.getElementById('khu-vuc-goi-tong').style.display = 'block';
+            
+            // Bắt buộc nhập Tên gói tổng, bỏ bắt buộc Gói thường
+            document.getElementById('masterPackageName').required = true;
+            document.getElementById('teamName').required = false;
+            if(document.querySelector('.member-name')) document.querySelector('.member-name').required = false;
+            if(document.querySelector('.member-mnv')) document.querySelector('.member-mnv').required = false;
+        } else {
+            rowTeamEmail.appendChild(wrapEmail);
+            rowDeptDiv.appendChild(wrapDept);
+            rowDeptDiv.appendChild(wrapDiv);
+            
+            rowMasterName.style.display = 'none'; // Ẩn ô Tên gói tổng
+            sharedGt.style.display = 'none';
+            document.getElementById('row-members').style.display = 'grid';
+            rowTeamEmail.style.display = 'flex';
+            rowDeptDiv.style.display = 'flex';
+            document.getElementById('khu-vuc-goi-tong').style.display = 'none';
+            
+            // Trả lại bắt buộc nhập cho Gói thường
+            document.getElementById('masterPackageName').required = false;
+            document.getElementById('teamName').required = true;
+            if(document.querySelector('.member-name')) document.querySelector('.member-name').required = true;
+            if(document.querySelector('.member-mnv')) document.querySelector('.member-mnv').required = true;
+        }
+    }
+    
+    // 2. Thêm thành viên vào bên trong một nhóm của Gói Tổng
+    function addMemToGtGroup(btn) {
+        let container = btn.parentElement;
+        let memCount = container.querySelectorAll('.gt-member-name').length + 1;
+        
+        let newInput = document.createElement('input');
+        newInput.type = 'text';
+        newInput.className = 'pill-input gt-member-name';
+        newInput.placeholder = 'Thành viên ' + memCount;
+        newInput.style.width = '140px';
+        
+        container.insertBefore(newInput, btn);
+    }
+
+    // 3. Tạo hẳn một nhóm mới bên trong Gói Tổng
+    function addNewGtGroup() {
+        let container = document.getElementById('danhSachNhomGoiTong');
+        let groupCount = container.querySelectorAll('.goi-tong-group').length + 1;
+        
+        let div = document.createElement('div');
+        div.className = 'goi-tong-group';
+        div.innerHTML = `
+            <div class="inline-group" style="width: auto; flex: none;">
+                <span class="info-label">Tên nhóm ${groupCount}:</span>
+                <input type="text" class="inline-input gt-team-name" placeholder="VD: Nhóm Mới..." style="width: 150px;">
+            </div>
+            <div class="gt-members" style="display: flex; gap: 10px; flex: 1; align-items: center; flex-wrap: wrap;">
+                <input type="text" class="pill-input gt-member-name" style="width: 140px;" placeholder="Thành viên 1">
+                <input type="text" class="pill-input gt-member-name" style="width: 140px;" placeholder="Thành viên 2">
+                <input type="text" class="pill-input gt-member-name" style="width: 140px;" placeholder="Thành viên 3">
+                <button type="button" class="btn-add-member" style="width: 32px; height: 32px;" onclick="addMemToGtGroup(this)" title="Thêm thành viên">+</button>
+            </div>
+        `;
+        container.appendChild(div);
+    }
   </script>
 </body>
 </html>
