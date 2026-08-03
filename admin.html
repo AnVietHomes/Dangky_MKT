@@ -840,10 +840,25 @@ function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
         
         (phieu.chiTiet || []).forEach(ct => { 
             let mKey = getMonthKey(ct.start, phieu.ngayTao);
-            flatItems.push({ idPhieu: phieu.idPhieu, phong: phong, khoi: khoi, thanhVien: tv, tenDuAn: ct.tenDuAn, nsDeXuat: Number(ct.nganSachDeXuat || 0), nsDuyet: Number(ct.nganSachDuyet || 0), ghiChu: ct.ghiChuBLD || "", idDong: ct.idDong, trangThai: phieu.trangThai, phieuObj: phieu, monthKey: mKey }); 
+            flatItems.push({ 
+                idPhieu: phieu.idPhieu, 
+                phong: phong, 
+                khoi: khoi, 
+                thanhVien: tv, 
+                tenDuAn: ct.tenDuAn, 
+                nsDeXuat: Number(ct.nganSachDeXuat || 0), 
+                nsDuyet: Number(ct.nganSachDuyet || 0), 
+                ghiChu: ct.ghiChuBLD || "", 
+                idDong: ct.idDong, 
+                trangThai: phieu.trangThai, 
+                phieuObj: phieu, 
+                monthKey: mKey,
+                // --- BỔ SUNG NGÀY KẾT THÚC ĐỂ SO SÁNH ---
+                endDate: ct.end || ct.ketThuc || "" 
+            }); 
         });
       });
-
+      
       flatItems.sort((a,b) => { if(a.khoi !== b.khoi) return a.khoi.localeCompare(b.khoi); if(a.phong !== b.phong) return a.phong.localeCompare(b.phong); return (a.tenDuAn||"").localeCompare(b.tenDuAn||""); });
 
       let thHtml = `<th width="4%"></th>`;
@@ -863,10 +878,26 @@ function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
       flatItems.forEach(item => {
         let isArchived = false;
         
-        // ĐÃ XÓA ĐIỀU KIỆN isHighLevel Ở ĐÂY ĐỂ TPKD & GĐKD CŨNG ĐƯỢC GOM THÁNG CŨ
         let [iM, iY] = item.monthKey.split('/').map(Number);
+        
+        // 1. Quét mặc định: Nếu tháng bắt đầu là tháng cũ -> Đưa vào diện nghi ngờ lưu trữ
         if (iY < activeYearNum || (iY === activeYearNum && iM < activeMonthNum)) {
             isArchived = true;
+        }
+
+        // 2. GIẢI CỨU ĐỀ XUẤT VẮT CHÉO THÁNG
+        if (isArchived && item.endDate) {
+            let endParts = item.endDate.split('/'); // Tách ngày kết thúc (VD: 31/08)
+            if (endParts.length >= 2) {
+                let endMonth = parseInt(endParts[1], 10);
+                // Nếu không có năm, tự mặc định là năm hiện tại
+                let endYear = endParts.length === 3 ? parseInt(endParts[2], 10) : activeYearNum; 
+                
+                // Nếu tháng kết thúc vẫn >= tháng làm việc hiện tại, cứu nó lại ra bảng chính!
+                if (endYear > activeYearNum || (endYear === activeYearNum && endMonth >= activeMonthNum)) {
+                    isArchived = false; 
+                }
+            }
         }
 
         let isManaged = (loggedInUser.managedDepartments.indexOf('ALL') > -1 || 
