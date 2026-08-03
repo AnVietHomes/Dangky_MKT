@@ -128,11 +128,23 @@
   <datalist id="list-bankAccount"></datalist>
   <datalist id="list-bankName"></datalist>
 
-  <header class="top-header">
-    <div class="header-left">
-      <img src="logo.svg" alt="An Việt Homes" class="brand-logo" onerror="this.src='https://placehold.co/120x60/d4efff/0b1f8c?text=LOGO'">
-      <div class="company-name">CÔNG TY CỔ PHẦN PHÁT TRIỂN DỊCH VỤ<br>VÀ ĐỊA ỐC AN VIỆT HOMES</div>
+<header class="top-header">
+    <!-- Thêm display: flex và gap để căn giữa các phần tử và tạo khoảng cách -->
+    <div class="header-left" style="display: flex; align-items: center; gap: 20px;">
+      
+      <!-- Logo -->
+      <img src="logo.svg" alt="An Việt Homes" class="brand-logo" style="height: 55px; width: auto;" onerror="this.src='https://placehold.co/120x60/d4efff/0b1f8c?text=LOGO'">
+      
+      <!-- Vạch phân cách mảnh dọc -->
+      <div style="width: 1px; height: 45px; background-color: #0b1f8c; opacity: 0.5;"></div>
+      
+      <!-- Tên doanh nghiệp (Đã tăng font-size lên 16px và làm đậm) -->
+      <div class="company-name" style="font-size: 16px; font-weight: 800; color: #0b1f8c; line-height: 1.4;">
+        CÔNG TY CỔ PHẦN PHÁT TRIỂN DỊCH VỤ<br>VÀ ĐỊA ỐC AN VIỆT HOMES
+      </div>
+
     </div>
+    
     <button class="btn-check-status" onclick="openModal()">Kiểm tra trạng thái duyệt</button>
   </header>
 
@@ -199,7 +211,6 @@
       
 <!-- === BỘ CSS XỬ LÝ HIỆU ỨNG CẮT GÓC L-SHAPE HOÀN HẢO === -->
 <style>
-  /* 1. Xóa bóng và khung của div bọc ngoài */
   .smart-cutout-wrapper {
      background: transparent !important;
      border: none !important;
@@ -207,47 +218,43 @@
      border-radius: 0 !important;
   }
   
-  /* 2. Áp dụng bóng đổ thông minh ôm sát viền bảng */
   .smart-cutout-wrapper table {
      border-collapse: separate !important;
      border-spacing: 0 !important;
      width: 100%;
-     background: transparent !important; /* Xóa nền tổng để khoảng trống tàng hình */
+     background: transparent !important; 
      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.08));
   }
   
-  /* Đảm bảo các ô có nền để bóng đổ bắt đúng hình dáng */
   .smart-cutout-wrapper thead, .smart-cutout-wrapper tbody, .smart-cutout-wrapper tfoot td.cutout-label {
      background-color: #fff;
   }
   
-  /* 3. Đắp viền lưới cho bảng */
+  /* Đã sửa về 1px để nét thanh mảnh, sắc nét, không bị bóng mờ trắng */
   .smart-cutout-wrapper th, .smart-cutout-wrapper td {
-     border-right: 1.5px solid #0b1f8c;
-     border-bottom: 1.5px solid #0b1f8c;
+     border-right: 1px solid #0b1f8c;
+     border-bottom: 1px solid #0b1f8c;
   }
   .smart-cutout-wrapper th:first-child, .smart-cutout-wrapper td:first-child {
-     border-left: 1.5px solid #0b1f8c;
+     border-left: 1px solid #0b1f8c;
   }
   .smart-cutout-wrapper thead tr:first-child th {
-     border-top: 1.5px solid #0b1f8c;
+     border-top: 1px solid #0b1f8c;
   }
   
-  /* 4. Bo tròn các góc */
   .smart-cutout-wrapper thead tr:first-child th:first-child { border-top-left-radius: 12px; }
   .smart-cutout-wrapper thead tr:first-child th:last-child { border-top-right-radius: 12px; }
   .smart-cutout-wrapper tbody tr:last-child td:last-child { border-bottom-right-radius: 12px; }
   
   .smart-cutout-wrapper tfoot td.cutout-label {
-     border-bottom-left-radius: 12px; /* Phục hồi góc trái dưới cùng */
+     border-bottom-left-radius: 12px; 
   }
   .smart-cutout-wrapper tfoot td.cutout-value {
-     border-bottom-right-radius: 12px; /* Bo góc vát chữ L */
+     border-bottom-right-radius: 12px; 
      background-color: #0b1f8c !important;
      color: white !important;
   }
   
-  /* 5. Tàng hình các ô thừa */
   .smart-cutout-wrapper tfoot td.empty-space {
      border: none !important;
      background: transparent !important;
@@ -264,12 +271,12 @@
               <th rowspan="2" width="15%">Dự án</th>
               <th colspan="4">Thông tin chiến dịch Marketing đăng ký</th>
               <th rowspan="2" width="9%">Kênh chạy</th>
-              <th rowspan="2" width="11%">Số điện thoại<br>đăng ký trên quảng cáo</th>
+              <th rowspan="2" width="14%">Số điện thoại<br>đăng ký trên quảng cáo</th>
               <th rowspan="2" width="13%">Tài khoản đăng ký<br>chạy quảng cáo</th>
               <th rowspan="2" width="10%">Ban lãnh đạo<br>phê duyệt</th>
             </tr>
             <tr>
-              <th width="18%">Ngân sách</th><th width="7%">Bắt đầu</th><th width="7%">Kết thúc</th><th width="6%">KPI</th>
+              <th width="18%">Ngân sách</th><th width="7%">Bắt đầu</th><th width="7%">Kết thúc</th><th width="5%">KPI</th>
             </tr>
           </thead>
          <tbody id="tableBody">
