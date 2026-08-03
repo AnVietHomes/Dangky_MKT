@@ -175,59 +175,59 @@
 
     <form id="marketingForm">
 <div class="info-section">
-        <!-- 1. THÔNG TIN CHUNG (Luôn hiển thị cho cả 2 chế độ) -->
-        <div class="info-row" style="margin-bottom: 25px;">
-          <div class="inline-group">
+        <!-- 1. KHUNG CHỨA TẠM CHO GÓI TỔNG (Ẩn mặc định) -->
+        <div id="shared-chung-goi-tong" class="info-row" style="display: none; align-items: center; margin-bottom: 25px;"></div>
+
+        <!-- 2. KHU VỰC GÓI THƯỜNG (Giữ nguyên form cũ) -->
+        <div id="row-members" class="member-group-wrapper">
+            <div>
+                <label style="display: block; margin-bottom: 8px; font-weight: bold;">Thành viên:</label>
+                <div id="memberNamesGroup" class="grid-names">
+                    <input type="text" class="pill-input member-name" placeholder="Nguyễn Văn A" required>
+                    <input type="text" class="pill-input member-name" placeholder="Nguyễn Văn B">
+                    <input type="text" class="pill-input member-name" placeholder="Nguyễn Văn C">
+                </div>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 8px; font-weight: bold;">Mã nhân viên:</label>
+                <div id="memberIdsGroup" class="grid-ids">
+                    <input type="text" class="pill-input small member-mnv" placeholder="AVH001" required>
+                    <input type="text" class="pill-input small member-mnv" placeholder="...">
+                    <input type="text" class="pill-input small member-mnv" placeholder="...">
+                </div>
+            </div>
+            <div style="padding-top: 28px; display: flex; justify-content: center;">
+                <button type="button" class="btn-add-member" onclick="addMoreMember()" title="Thêm thành viên">+</button>
+            </div>
+        </div>
+
+        <div id="row-team-email" class="info-row">
+          <div class="inline-group" id="wrap-team">
+            <span class="info-label">Tên nhóm:</span>
+            <input type="text" class="inline-input" id="teamName" placeholder="VD: ABC" required>
+          </div>
+          <div class="inline-group" id="wrap-email">
             <span class="info-label">Email liên hệ:</span>
             <input type="email" class="inline-input" id="emailContact" placeholder="VD: nguyenvana@gmail.com" required>
           </div>
-          <div style="display: flex; align-items: center; gap: 15px; position: relative;">
+        </div>
+
+        <div id="row-dept-div" class="info-row">
+          <div style="display: flex; align-items: center; gap: 15px; position: relative;" id="wrap-dept">
             <span class="info-label">Phòng kinh doanh:</span>
             <select class="pill-input" id="department" required>
               <option value="" disabled selected>Đang tải...</option>
             </select>
             <span id="loadingDepts">⏳</span>
           </div>
-          <div class="inline-group">
+          <div class="inline-group" id="wrap-div">
             <span class="info-label">Khối kinh doanh:</span>
             <input type="text" class="inline-input" id="division" placeholder="Tự động nhảy theo phòng..." readonly required>
           </div>
         </div>
 
-        <!-- 2. KHU VỰC GÓI THƯỜNG -->
-        <div id="khu-vuc-goi-thuong">
-            <div class="member-group-wrapper">
-                <div>
-                    <label style="display: block; margin-bottom: 8px; font-weight: bold;">Thành viên:</label>
-                    <div id="memberNamesGroup" class="grid-names">
-                        <input type="text" class="pill-input member-name" placeholder="Nguyễn Văn A" required>
-                        <input type="text" class="pill-input member-name" placeholder="Nguyễn Văn B">
-                        <input type="text" class="pill-input member-name" placeholder="Nguyễn Văn C">
-                    </div>
-                </div>
-                <div>
-                    <label style="display: block; margin-bottom: 8px; font-weight: bold;">Mã nhân viên:</label>
-                    <div id="memberIdsGroup" class="grid-ids">
-                        <input type="text" class="pill-input small member-mnv" placeholder="AVH001" required>
-                        <input type="text" class="pill-input small member-mnv" placeholder="...">
-                        <input type="text" class="pill-input small member-mnv" placeholder="...">
-                    </div>
-                </div>
-                <div style="padding-top: 28px; display: flex; justify-content: center;">
-                    <button type="button" class="btn-add-member" onclick="addMoreMember()" title="Thêm thành viên">+</button>
-                </div>
-            </div>
-            
-            <div class="info-row" style="margin-bottom: 0;">
-                <div class="inline-group" style="max-width: 50%;">
-                    <span class="info-label">Tên nhóm:</span>
-                    <input type="text" class="inline-input" id="teamName" placeholder="VD: ABC" required>
-                </div>
-            </div>
-        </div>
-
-        <!-- 3. KHU VỰC GÓI TỔNG (Được ẩn đi mặc định) -->
-        <div id="khu-vuc-goi-tong" style="display: none; padding-top: 15px; border-top: 1.5px dashed #ccc; margin-top: 25px;">
+        <!-- 3. KHU VỰC GÓI TỔNG (Đã fix font chữ nút Thêm Nhóm) -->
+        <div id="khu-vuc-goi-tong" style="display: none; padding-top: 15px; border-top: 1.5px dashed #ccc; margin-top: 15px;">
             <div id="danhSachNhomGoiTong">
                 <!-- Nhóm 1 -->
                 <div class="goi-tong-group">
@@ -282,7 +282,8 @@
                     </div>
                 </div>
             </div>
-            <button type="button" style="background: transparent; border: 1.5px dashed #0b1f8c; color: #0b1f8c; font-weight: bold; padding: 8px 20px; border-radius: 20px; cursor: pointer; margin-top: 5px;" onclick="addNewGtGroup()">+ Thêm Nhóm Mới</button>
+            <!-- ĐÃ CẬP NHẬT LẠI FONT CHỮ MANROPE CHO NÚT NÀY -->
+            <button type="button" style="background: transparent; border: 1.5px dashed #0b1f8c; color: #0b1f8c; font-weight: bold; font-family: 'Manrope', sans-serif; font-size: 14px; padding: 8px 20px; border-radius: 20px; cursor: pointer; margin-top: 5px;" onclick="addNewGtGroup()">+ Thêm Nhóm Mới</button>
         </div>
       </div>
       
@@ -919,13 +920,37 @@
         }
       });
 
-      let gatheredNames = Array.from(document.querySelectorAll('.member-name')).map(i => i.value.trim()).filter(v => v !== "").join(', ');
-      let gatheredMnvs = Array.from(document.querySelectorAll('.member-mnv')).map(i => i.value.trim()).filter(v => v !== "").join(', ');
+     // Kịch bản gửi dữ liệu: Phân biệt Gói Thường và Gói Tổng
+      let isMaster = document.getElementById('toggleGoiTong') && document.getElementById('toggleGoiTong').checked;
+      
+      let finalTeamName = "";
+      let finalNames = "";
+      let finalMnvs = "";
+
+      if (isMaster) {
+          // Thu thập nhóm Gói Tổng và gắn nhãn "🌟 [GÓI TỔNG]" để báo hiệu cho Admin
+          let gtNames = Array.from(document.querySelectorAll('.gt-team-name')).map(i => i.value.trim()).filter(v => v !== "");
+          finalTeamName = "🌟 [GÓI TỔNG] " + (gtNames.length > 0 ? gtNames.join(' + ') : "Khối " + document.getElementById('division').value);
+          finalNames = Array.from(document.querySelectorAll('.gt-member-name')).map(i => i.value.trim()).filter(v => v !== "").join(', ');
+          finalMnvs = "Miễn trừ Mã NV"; // Loại bỏ Mã NV theo yêu cầu
+      } else {
+          // Thu thập Gói Thường bình thường
+          finalTeamName = document.getElementById('teamName').value;
+          finalNames = Array.from(document.querySelectorAll('.member-name')).map(i => i.value.trim()).filter(v => v !== "").join(', ');
+          finalMnvs = Array.from(document.querySelectorAll('.member-mnv')).map(i => i.value.trim()).filter(v => v !== "").join(', ');
+      }
       
       const payload = {
-        teamName: document.getElementById('teamName').value, memberName: gatheredNames, memberIds: gatheredMnvs, emailContact: document.getElementById('emailContact').value,
-        department: document.getElementById('department').value + " - " + document.getElementById('division').value, items: items,
-        advPercent: document.getElementById('advPercent').value, bankOwner: document.getElementById('bankOwner').value, bankAccount: document.getElementById('bankAccount').value, bankName: document.getElementById('bankName').value
+        teamName: finalTeamName, 
+        memberName: finalNames, 
+        memberIds: finalMnvs, 
+        emailContact: document.getElementById('emailContact').value,
+        department: document.getElementById('department').value + " - " + document.getElementById('division').value, 
+        items: items,
+        advPercent: document.getElementById('advPercent').value, 
+        bankOwner: document.getElementById('bankOwner').value, 
+        bankAccount: document.getElementById('bankAccount').value, 
+        bankName: document.getElementById('bankName').value
       };
 
       const userInfoToSave = {
@@ -1070,18 +1095,50 @@
     function switchPackageMode() {
         let isMaster = document.getElementById('toggleGoiTong').checked;
         
-        // Đổi màu sắc nhãn gạt
         document.getElementById('lblNormal').classList.toggle('active', !isMaster);
         document.getElementById('lblMaster').classList.toggle('active', isMaster);
 
-        // Hiển thị Form tương ứng
-        document.getElementById('khu-vuc-goi-thuong').style.display = isMaster ? 'none' : 'block';
-        document.getElementById('khu-vuc-goi-tong').style.display = isMaster ? 'block' : 'none';
+        let sharedGt = document.getElementById('shared-chung-goi-tong');
+        let rowTeamEmail = document.getElementById('row-team-email');
+        let rowDeptDiv = document.getElementById('row-dept-div');
         
-        // Cập nhật thuộc tính bắt buộc (required) để không bị lỗi khi nộp đơn
-        document.getElementById('teamName').required = !isMaster;
-        document.querySelector('.member-name').required = !isMaster;
-        document.querySelector('.member-mnv').required = !isMaster;
+        let wrapEmail = document.getElementById('wrap-email');
+        let wrapDept = document.getElementById('wrap-dept');
+        let wrapDiv = document.getElementById('wrap-div');
+
+        if (isMaster) {
+            // Chuyển form sang Gói Tổng
+            sharedGt.appendChild(wrapEmail);
+            sharedGt.appendChild(wrapDept);
+            sharedGt.appendChild(wrapDiv);
+            
+            sharedGt.style.display = 'flex';
+            document.getElementById('row-members').style.display = 'none';
+            rowTeamEmail.style.display = 'none';
+            rowDeptDiv.style.display = 'none';
+            document.getElementById('khu-vuc-goi-tong').style.display = 'block';
+            
+            // Hủy bắt buộc nhập của Gói thường
+            document.getElementById('teamName').required = false;
+            if(document.querySelector('.member-name')) document.querySelector('.member-name').required = false;
+            if(document.querySelector('.member-mnv')) document.querySelector('.member-mnv').required = false;
+        } else {
+            // Trả về form Gói Thường
+            rowTeamEmail.appendChild(wrapEmail);
+            rowDeptDiv.appendChild(wrapDept);
+            rowDeptDiv.appendChild(wrapDiv);
+            
+            sharedGt.style.display = 'none';
+            document.getElementById('row-members').style.display = 'grid'; // Lưới cũ
+            rowTeamEmail.style.display = 'flex';
+            rowDeptDiv.style.display = 'flex';
+            document.getElementById('khu-vuc-goi-tong').style.display = 'none';
+            
+            // Bật lại bắt buộc nhập
+            document.getElementById('teamName').required = true;
+            if(document.querySelector('.member-name')) document.querySelector('.member-name').required = true;
+            if(document.querySelector('.member-mnv')) document.querySelector('.member-mnv').required = true;
+        }
     }
 
     // 2. Thêm thành viên vào bên trong một nhóm của Gói Tổng
