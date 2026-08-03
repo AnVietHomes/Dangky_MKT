@@ -884,14 +884,18 @@ let safeId = str => btoa(unescape(encodeURIComponent(str))).replace(/[^a-zA-Z0-9
         }
       });
 
-      function buildRowsHTML(itemsArray, isReadOnlyMode) {
+function buildRowsHTML(itemsArray, isReadOnlyMode) {
+        // --- BƯỚC 1: TÍNH TỔNG CHÍNH XÁC CHO MẢNG HIỂN THỊ HIỆN TẠI ---
         let sumDxKhoi = {}, sumDxPhong = {}, sumDxDuAn = {}; 
         let sumDuyetKhoi = {}, sumDuyetPhong = {}, sumDuyetDuAn = {}; 
         let sumAdvKhoi = {}, sumAdvPhong = {}, sumAdvDuAn = {}; 
         
         itemsArray.forEach(item => {
-            let kId = safeId(item.khoi); let pId = safeId(item.khoi + '|' + item.phong); let dId = safeId(item.khoi + '|' + item.phong + '|' + item.tenDuAn); 
+            let kId = safeId(item.khoi); 
+            let pId = safeId(item.khoi + '|' + item.phong); 
+            let dId = safeId(item.khoi + '|' + item.phong + '|' + item.tenDuAn); 
             let advAmt = Math.round(item.nsDeXuat * (item.phieuObj.advPercent || 0) / 100);
+            
             let isKpiDacBiet = checkKpiDacBiet(item.phieuObj);
             let isTruyThu = item.phieuObj.isTruyThu === true;
             let isRej = item.trangThai.startsWith('REJECTED');
@@ -900,14 +904,20 @@ let safeId = str => btoa(unescape(encodeURIComponent(str))).replace(/[^a-zA-Z0-9
             let valDuyet = (isRej || isKpiDacBiet || isTruyThu) ? 0 : item.nsDuyet;
             let valAdv = (isRej || isKpiDacBiet || isTruyThu) ? 0 : advAmt;
 
-            sumDxKhoi[kId] = (sumDxKhoi[kId] || 0) + valDx; sumDxPhong[pId] = (sumDxPhong[pId] || 0) + valDx; sumDxDuAn[dId] = (sumDxDuAn[dId] || 0) + valDx;
-            sumDuyetKhoi[kId] = (sumDuyetKhoi[kId] || 0) + valDuyet; sumDuyetPhong[pId] = (sumDuyetPhong[pId] || 0) + valDuyet; sumDuyetDuAn[dId] = (sumDuyetDuAn[dId] || 0) + valDuyet;
-            sumAdvKhoi[kId] = (sumAdvKhoi[kId] || 0) + valAdv; sumAdvPhong[pId] = (sumAdvPhong[pId] || 0) + valAdv; sumAdvDuAn[dId] = (sumAdvDuAn[dId] || 0) + valAdv;
+            sumDxKhoi[kId] = (sumDxKhoi[kId] || 0) + valDx; 
+            sumDxPhong[pId] = (sumDxPhong[pId] || 0) + valDx; 
+            sumDxDuAn[dId] = (sumDxDuAn[dId] || 0) + valDx;
+            
+            sumDuyetKhoi[kId] = (sumDuyetKhoi[kId] || 0) + valDuyet; 
+            sumDuyetPhong[pId] = (sumDuyetPhong[pId] || 0) + valDuyet; 
+            sumDuyetDuAn[dId] = (sumDuyetDuAn[dId] || 0) + valDuyet;
+            
+            sumAdvKhoi[kId] = (sumAdvKhoi[kId] || 0) + valAdv; 
+            sumAdvPhong[pId] = (sumAdvPhong[pId] || 0) + valAdv; 
+            sumAdvDuAn[dId] = (sumAdvDuAn[dId] || 0) + valAdv;
         });
-        // --------------------------------------------------------
 
-        let currentKhoi = null; let currentPhong = null; let currentDuAn = null; let html = ''; let colBefore = isKD ? 6 : 5; 
-        let localGrandDx = 0; let localGrandAdv = 0; let localGrandDy = 0;
+        // --- BƯỚC 2: RENDER CÁC DÒNG GIAO DIỆN ---
         let currentKhoi = null; let currentPhong = null; let currentDuAn = null; let html = ''; let colBefore = isKD ? 6 : 5; 
         let localGrandDx = 0; let localGrandAdv = 0; let localGrandDy = 0;
 
@@ -920,6 +930,7 @@ let safeId = str => btoa(unescape(encodeURIComponent(str))).replace(/[^a-zA-Z0-9
           if(!item.trangThai.startsWith('REJECTED') && !isKpiDacBiet && !isTruyThu) { localGrandDx += item.nsDeXuat; localGrandAdv += advAmt; localGrandDy += item.nsDuyet; }
           let searchData = `${item.khoi} ${item.phong} ${item.tenDuAn} ${item.thanhVien} ${item.phieuObj.tenNhom}`.replace(/<br>/g, ' ');
 
+          // DÒNG TIÊU ĐỀ: KHỐI, PHÒNG, DỰ ÁN (Có tích hợp Checkbox chọn thông minh)
           if (currentKhoi !== kId) {
               html += `<tr style="background:#0b1f8c; color:white; font-weight:bold; font-size: 14px; text-transform: uppercase;"><td colspan="${colBefore}" style="text-align:left; padding-left:15px;"><label style="cursor:pointer; display:inline-flex; align-items:center; gap:8px;"><input type="checkbox" class="cb-group-khoi" data-target="${kId}" onchange="toggleGroupCbs(this, 'khoi', '${kId}')" style="width:16px;height:16px; margin:0; cursor:pointer;">🏢 KHỐI: ${item.khoi}</label></td><td style="color:#f39c12;">${formatNumber(sumDxKhoi[kId])}</td>`;
               if (isPTGD) { html += `<td></td><td style="color:#2ecc71;">${formatNumber(sumAdvKhoi[kId])}</td><td></td><td></td>`; } else if (isBLD || isMKT) { html += `<td id="sum_duyet_khoi_${kId}" style="color:#2ecc71;">0</td><td colspan="2"></td>`; } else { html += `<td></td>`; } html += `</tr>`; currentKhoi = kId;
@@ -937,12 +948,10 @@ let safeId = str => btoa(unescape(encodeURIComponent(str))).replace(/[^a-zA-Z0-9
           if (isKpiDacBiet) rowClass += ' op-kpi'; 
           if (isTruyThu) rowClass = 'row-truythu'; 
 
-          // MỞ QUYỀN GHI CHÚ CHO MKT TẠI ĐÂY
           let isEditableNote = (isBLD || role === 'TPMKT' || role === 'MKT' || isPTGD) && !isReadOnlyMode;
           
           let nsDuyetHtml = (isBLD && !isReadOnlyMode) ? `<input type="text" class="input-budget bld-budget" data-id-dong="${item.idDong}" value="${formatNumber(item.nsDuyet)}" oninput="formatCurrencyAdmin(this)">` : `<span style="color:var(--danger); font-weight:bold;">${formatNumber(item.nsDuyet)}</span>`;
           
-          // XỬ LÝ CHỮ NHỎ KÝ TÊN Ở Ô GHI CHÚ
           let ghiChuText = item.ghiChu || "";
           let cleanNote = ghiChuText.replace(/"/g, '&quot;');
           let displayNote = cleanNote.replace(/(\(Ghi chú bởi:.*?\))/g, '<br><i style="font-size:10.5px; color:#888;">$1</i>');
@@ -1012,7 +1021,8 @@ let safeId = str => btoa(unescape(encodeURIComponent(str))).replace(/[^a-zA-Z0-9
 
           let dxDisplay = isTruyThu ? `<s style="opacity:0.6;">${formatNumber(item.nsDeXuat)}</s>` : formatNumber(item.nsDeXuat);
 
-     let rowHTML = `<tr data-id-dong="${item.idDong}" data-id-phieu="${item.idPhieu}" data-nsduyet="${item.nsDuyet}" data-search="${searchData}" class="${rowClass}"><td><div style="display:flex; flex-direction:column; align-items:center; gap:6px;"><button class="btn-view" onclick="viewDetail('${item.idPhieu}', 'proposal')">👁️</button><input type="checkbox" class="cb-print-proposal cb-print-item" data-khoi="${kId}" data-phong="${pId}" data-duan="${dId}" value="${item.idPhieu}" title="Tích chọn để in" style="cursor:pointer; width:16px; height:16px;"></div></td>`;
+          // CỘT MÃ PHIẾU CÓ CHỨA CHECKBOX CHỌN IN ẤN
+          let rowHTML = `<tr data-id-dong="${item.idDong}" data-id-phieu="${item.idPhieu}" data-nsduyet="${item.nsDuyet}" data-search="${searchData}" class="${rowClass}"><td><div style="display:flex; flex-direction:column; align-items:center; gap:6px;"><button class="btn-view" onclick="viewDetail('${item.idPhieu}', 'proposal')">👁️</button><input type="checkbox" class="cb-print-proposal cb-print-item" data-khoi="${kId}" data-phong="${pId}" data-duan="${dId}" value="${item.idPhieu}" title="Tích chọn để in" style="cursor:pointer; width:16px; height:16px;"></div></td>`;
           if (isKD) { let checkedState = item.phieuObj.isNewSale ? 'checked' : ''; rowHTML += `<td><input type="checkbox" class="cb-newsale" style="width:16px; height:16px; cursor:pointer;" title="Nhóm sale mới" ${checkedState} ${isReadOnlyMode?'disabled':''}></td>`; }
           rowHTML += `<td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${item.idPhieu}</span></td><td><span style="font-weight:700; color:var(--primary-blue);">${item.phong}</span><br><span style="font-size:11px; color:#666;">Khối ${item.khoi}</span></td><td style="text-align:left; font-size:12px; line-height:1.5;"><span style="color:var(--primary-blue); font-weight:bold;">Nhóm: ${item.phieuObj.tenNhom}</span>${kpiHtml}${truyThuHtml}<div style="margin-top:4px;">${item.thanhVien}</div></td><td>${statusText}</td><td>${dxDisplay}</td>`;
 
@@ -1026,6 +1036,7 @@ let safeId = str => btoa(unescape(encodeURIComponent(str))).replace(/[^a-zA-Z0-9
           rowHTML += `<td class="td-actions">${btnHtml}</td></tr>`; html += rowHTML;
         });
 
+        // DÒNG TỔNG CỘNG CUỐI BẢNG
         if (itemsArray.length > 0) {
             let txtList = isReadOnlyMode ? "TỔNG CỘNG LƯU TRỮ" : "TỔNG CỘNG BẢNG DUYỆT CHÍNH";
             html += `<tr class="total-row" style="background:#333; color:white; font-weight:bold; font-size: 16px;"><td colspan="${colBefore}" style="text-align:right; padding-right: 20px;">${txtList}</td><td style="color:#f39c12;">${formatNumber(localGrandDx)}</td>`;
