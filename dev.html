@@ -196,10 +196,67 @@
           </div>
         </div>
       </div>
-
+      
+<!-- === BỘ CSS XỬ LÝ HIỆU ỨNG CẮT GÓC L-SHAPE HOÀN HẢO === -->
+<style>
+  /* 1. Xóa bóng và khung của div bọc ngoài */
+  .smart-cutout-wrapper {
+     background: transparent !important;
+     border: none !important;
+     box-shadow: none !important;
+     border-radius: 0 !important;
+  }
+  
+  /* 2. Áp dụng bóng đổ thông minh ôm sát viền bảng */
+  .smart-cutout-wrapper table {
+     border-collapse: separate !important;
+     border-spacing: 0 !important;
+     width: 100%;
+     background: transparent !important; /* Xóa nền tổng để khoảng trống tàng hình */
+     filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.08));
+  }
+  
+  /* Đảm bảo các ô có nền để bóng đổ bắt đúng hình dáng */
+  .smart-cutout-wrapper thead, .smart-cutout-wrapper tbody, .smart-cutout-wrapper tfoot td.cutout-label {
+     background-color: #fff;
+  }
+  
+  /* 3. Đắp viền lưới cho bảng */
+  .smart-cutout-wrapper th, .smart-cutout-wrapper td {
+     border-right: 1.5px solid #0b1f8c;
+     border-bottom: 1.5px solid #0b1f8c;
+  }
+  .smart-cutout-wrapper th:first-child, .smart-cutout-wrapper td:first-child {
+     border-left: 1.5px solid #0b1f8c;
+  }
+  .smart-cutout-wrapper thead tr:first-child th {
+     border-top: 1.5px solid #0b1f8c;
+  }
+  
+  /* 4. Bo tròn các góc */
+  .smart-cutout-wrapper thead tr:first-child th:first-child { border-top-left-radius: 12px; }
+  .smart-cutout-wrapper thead tr:first-child th:last-child { border-top-right-radius: 12px; }
+  .smart-cutout-wrapper tbody tr:last-child td:last-child { border-bottom-right-radius: 12px; }
+  
+  .smart-cutout-wrapper tfoot td.cutout-label {
+     border-bottom-left-radius: 12px; /* Phục hồi góc trái dưới cùng */
+  }
+  .smart-cutout-wrapper tfoot td.cutout-value {
+     border-bottom-right-radius: 12px; /* Bo góc vát chữ L */
+     background-color: #0b1f8c !important;
+     color: white !important;
+  }
+  
+  /* 5. Tàng hình các ô thừa */
+  .smart-cutout-wrapper tfoot td.empty-space {
+     border: none !important;
+     background: transparent !important;
+  }
+</style>
+      
       <div class="table-title">Nội dung đề xuất chiến dịch Marketing</div>
       
-      <div class="table-responsive" style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+     <div class="table-responsive smart-cutout-wrapper">
         <table class="data-table">
           <thead>
             <tr>
@@ -263,12 +320,12 @@
             </tr>
           </tbody>
 <tfoot id="tableFoot">
-            <tr>
-              <td colspan="2" style="text-align: right; font-weight: bold; padding-right: 15px; border-left: 1px solid #0b1f8c; border-bottom: 1px solid #0b1f8c;">Tổng cộng</td>
-              <td id="totalBudget" style="background-color: #0b1f8c; color: #ffffff; font-weight: bold; font-size: 15px; text-align: center; border: 1px solid #0b1f8c;">0</td>
-              <td colspan="7" style="border: none !important; background: transparent !important;"></td>
-            </tr>
-          </tfoot>
+  <tr>
+    <td colspan="2" class="cutout-label" style="text-align: right; font-weight: bold; padding-right: 15px;">Tổng cộng</td>
+    <td id="totalBudget" class="cutout-value" style="font-weight: bold; font-size: 15px; text-align: center;">0</td>
+    <td colspan="7" class="empty-space"></td>
+  </tr>
+</tfoot>
         </table>
       </div>
       
