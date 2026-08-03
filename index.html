@@ -128,11 +128,23 @@
   <datalist id="list-bankAccount"></datalist>
   <datalist id="list-bankName"></datalist>
 
-  <header class="top-header">
-    <div class="header-left">
-      <img src="logo.svg" alt="An Việt Homes" class="brand-logo" onerror="this.src='https://placehold.co/120x60/d4efff/0b1f8c?text=LOGO'">
-      <div class="company-name">CÔNG TY CỔ PHẦN PHÁT TRIỂN DỊCH VỤ<br>VÀ ĐỊA ỐC AN VIỆT HOMES</div>
+<header class="top-header">
+    <!-- Thêm display: flex và gap để căn giữa các phần tử và tạo khoảng cách -->
+    <div class="header-left" style="display: flex; align-items: center; gap: 20px;">
+      
+      <!-- Logo -->
+      <img src="logo.svg" alt="An Việt Homes" class="brand-logo" style="height: 55px; width: auto;" onerror="this.src='https://placehold.co/120x60/d4efff/0b1f8c?text=LOGO'">
+      
+      <!-- Vạch phân cách mảnh dọc -->
+      <div style="width: 1px; height: 45px; background-color: #0b1f8c; opacity: 0.5;"></div>
+      
+      <!-- Tên doanh nghiệp (Đã tăng font-size lên 16px và làm đậm) -->
+      <div class="company-name" style="font-size: 16px; font-weight: 800; color: #0b1f8c; line-height: 1.4;">
+        CÔNG TY CỔ PHẦN PHÁT TRIỂN DỊCH VỤ<br>VÀ ĐỊA ỐC AN VIỆT HOMES
+      </div>
+
     </div>
+    
     <button class="btn-check-status" onclick="openModal()">Kiểm tra trạng thái duyệt</button>
   </header>
 
@@ -196,10 +208,74 @@
           </div>
         </div>
       </div>
+      
+<!-- === BỘ CSS XỬ LÝ HIỆU ỨNG CẮT GÓC L-SHAPE HOÀN HẢO (BẢN NÉT MẢNH) === -->
+<style>
+  .smart-cutout-wrapper {
+     background: transparent !important;
+     border: none !important;
+     box-shadow: none !important;
+     border-radius: 0 !important;
+  }
+  
+  .smart-cutout-wrapper table {
+     border-collapse: separate !important;
+     border-spacing: 0 !important;
+     width: 100%;
+     background: transparent !important; 
+     /* Giảm nhẹ độ bóng đổ cho thanh thoát hơn */
+     filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.05));
+  }
+  
+  .smart-cutout-wrapper thead, .smart-cutout-wrapper tbody, .smart-cutout-wrapper tfoot td.cutout-label {
+     background-color: #fff;
+  }
+  
+  /* 1. TẨY SẠCH VIỀN CŨ (Chống nét viền đôi dày cộp) */
+  .smart-cutout-wrapper th, .smart-cutout-wrapper td {
+     border: none !important; 
+  }
 
+  /* 2. ĐI NÉT VIỀN MỚI SIÊU MẢNH & MÀU NHẠT */
+  /* Sử dụng màu rgba(11, 31, 140, 0.15) tức là màu xanh navy nhưng độ nhạt chỉ bằng 15% */
+  .smart-cutout-wrapper th, .smart-cutout-wrapper td {
+     border-right: 1px solid rgba(11, 31, 140, 0.15) !important;
+     border-bottom: 1px solid rgba(11, 31, 140, 0.15) !important;
+  }
+  .smart-cutout-wrapper th:first-child, .smart-cutout-wrapper td:first-child {
+     border-left: 1px solid rgba(11, 31, 140, 0.15) !important;
+  }
+  .smart-cutout-wrapper thead tr:first-child th {
+     border-top: 1px solid rgba(11, 31, 140, 0.15) !important;
+  }
+  
+  /* 3. BO GÓC BẢNG TRƠN TRU */
+  .smart-cutout-wrapper thead tr:first-child th:first-child { border-top-left-radius: 12px; }
+  .smart-cutout-wrapper thead tr:first-child th:last-child { border-top-right-radius: 12px; }
+  .smart-cutout-wrapper tbody tr:last-child td:last-child { border-bottom-right-radius: 12px; }
+  
+  .smart-cutout-wrapper tfoot td.cutout-label {
+     border-bottom-left-radius: 12px; 
+  }
+
+  /* Ô số tiền tổng vẫn giữ viền đậm một chút để đóng khối chữ L sắc nét */
+  .smart-cutout-wrapper tfoot td.cutout-value {
+     border-bottom-right-radius: 12px; 
+     background-color: #0b1f8c !important;
+     color: white !important;
+     border: 1px solid #0b1f8c !important; 
+  }
+  
+  /* Các ô bên phải bị giấu đi */
+  .smart-cutout-wrapper tfoot td.empty-space {
+     border: none !important;
+     background: transparent !important;
+  }
+</style>
+      
       <div class="table-title">Nội dung đề xuất chiến dịch Marketing</div>
       
-      <div class="table-responsive">
+     <div class="table-responsive smart-cutout-wrapper">
         <table class="data-table">
           <thead>
             <tr>
@@ -207,18 +283,21 @@
               <th rowspan="2" width="15%">Dự án</th>
               <th colspan="4">Thông tin chiến dịch Marketing đăng ký</th>
               <th rowspan="2" width="9%">Kênh chạy</th>
-              <th rowspan="2" width="11%">Số điện thoại<br>đăng ký trên quảng cáo</th>
+              <th rowspan="2" width="14%">Số điện thoại<br>đăng ký trên quảng cáo</th>
               <th rowspan="2" width="13%">Tài khoản đăng ký<br>chạy quảng cáo</th>
               <th rowspan="2" width="10%">Ban lãnh đạo<br>phê duyệt</th>
             </tr>
             <tr>
-              <th width="18%">Ngân sách</th><th width="7%">Bắt đầu</th><th width="7%">Kết thúc</th><th width="6%">KPI</th>
+              <th width="18%">Ngân sách</th><th width="7%">Bắt đầu</th><th width="7%">Kết thúc</th><th width="5%">KPI</th>
             </tr>
           </thead>
-          <tbody id="tableBody">
+         <tbody id="tableBody">
             <tr>
               <td>1</td>
-              <td><select class="table-input project-select" name="project" required><option value="" disabled selected>Chọn dự án...</option></select></td>
+              <td style="position: relative;">
+                <select class="table-input project-select" name="project" onchange="toggleClearBtn(this)" required><option value="" disabled selected>Chọn dự án...</option></select>
+                <span class="clear-btn" onclick="clearRow(this)" title="Xóa trắng dòng này" style="display: none; position: absolute; right: 28px; top: 50%; transform: translateY(-50%); color: inherit; opacity: 0.6; cursor: pointer; font-size: 15px; font-weight: normal; font-family: sans-serif;">✕</span>
+              </td>
               <td><input type="text" class="table-input calc-budget" name="budget" placeholder="0" oninput="formatCurrency(this)" required></td>
               <td><input type="text" class="table-input date-format start-date" name="start" placeholder="DD/MM" maxlength="5" required></td>
               <td><input type="text" class="table-input date-format" name="end" placeholder="DD/MM" maxlength="5" required></td>
@@ -230,7 +309,10 @@
             </tr>
             <tr>
               <td>2</td>
-              <td><select class="table-input project-select" name="project"><option value="" disabled selected>Chọn dự án...</option></select></td>
+              <td style="position: relative;">
+                <select class="table-input project-select" name="project" onchange="toggleClearBtn(this)"><option value="" disabled selected>Chọn dự án...</option></select>
+                <span class="clear-btn" onclick="clearRow(this)" title="Xóa trắng dòng này" style="display: none; position: absolute; right: 28px; top: 50%; transform: translateY(-50%); color: inherit; opacity: 0.6; cursor: pointer; font-size: 15px; font-weight: normal; font-family: sans-serif;">✕</span>
+              </td>
               <td><input type="text" class="table-input calc-budget" name="budget" placeholder="0" oninput="formatCurrency(this)"></td>
               <td><input type="text" class="table-input date-format start-date" name="start" placeholder="DD/MM" maxlength="5"></td>
               <td><input type="text" class="table-input date-format" name="end" placeholder="DD/MM" maxlength="5"></td>
@@ -242,7 +324,10 @@
             </tr>
             <tr>
               <td>3</td>
-              <td><select class="table-input project-select" name="project"><option value="" disabled selected>Chọn dự án...</option></select></td>
+              <td style="position: relative;">
+                <select class="table-input project-select" name="project" onchange="toggleClearBtn(this)"><option value="" disabled selected>Chọn dự án...</option></select>
+                <span class="clear-btn" onclick="clearRow(this)" title="Xóa trắng dòng này" style="display: none; position: absolute; right: 28px; top: 50%; transform: translateY(-50%); color: inherit; opacity: 0.6; cursor: pointer; font-size: 15px; font-weight: normal; font-family: sans-serif;">✕</span>
+              </td>
               <td><input type="text" class="table-input calc-budget" name="budget" placeholder="0" oninput="formatCurrency(this)"></td>
               <td><input type="text" class="table-input date-format start-date" name="start" placeholder="DD/MM" maxlength="5"></td>
               <td><input type="text" class="table-input date-format" name="end" placeholder="DD/MM" maxlength="5"></td>
@@ -253,13 +338,13 @@
               <td style="background-color: #f9f9f9;" readonly></td>
             </tr>
           </tbody>
-          <tfoot>
-            <tr class="total-row">
-              <td colspan="2" style="text-align: right; padding-right: 20px;">Tổng cộng</td>
-              <td class="total-bg-blue" id="totalBudgetDisplay">0</td>
-              <td colspan="7" style="border-bottom: transparent; border-right: transparent;"></td>
-            </tr>
-          </tfoot>
+<tfoot id="tableFoot">
+  <tr>
+    <td colspan="2" class="cutout-label" style="text-align: right; font-weight: bold; padding-right: 15px;">Tổng cộng</td>
+    <td id="totalBudget" class="cutout-value" style="font-weight: bold; font-size: 15px; text-align: center;">0</td>
+    <td colspan="7" class="empty-space"></td>
+  </tr>
+</tfoot>
         </table>
       </div>
       
@@ -678,6 +763,39 @@
       document.getElementById('resultView').style.display = 'none'; document.getElementById('marketingForm').style.display = 'block'; document.getElementById('mainTitle').innerText = "ĐỀ XUẤT CHIẾN DỊCH MARKETING"; document.getElementById('btnBack').style.display = 'none';
     }
 
+   // Hàm mới: Chỉ bật nút X khi có dự án được chọn
+    function toggleClearBtn(selectElem) {
+      let clearBtn = selectElem.parentElement.querySelector('.clear-btn');
+      if (clearBtn) {
+        clearBtn.style.display = selectElem.value ? 'block' : 'none';
+      }
+    }
+
+    // Hàm cập nhật: Xóa trắng dòng và ẩn nút X đi
+    function clearRow(btn) {
+      const row = btn.closest('tr');
+      const selectElem = row.querySelector('select[name="project"]');
+      
+      // Đặt lại Dự án về trạng thái rỗng
+      selectElem.value = '';
+      
+      // Xóa các ô nhập liệu khác
+      row.querySelector('input[name="budget"]').value = '';
+      row.querySelector('input[name="kpi"]').value = '';
+      row.querySelector('input[name="channel"]').value = '';
+      row.querySelector('input[name="phone"]').value = '';
+      row.querySelector('input[name="account"]').value = '';
+      
+      // Ẩn nút X đi vì dự án đã trở về rỗng
+      btn.style.display = 'none';
+
+      // Kích hoạt lại sự kiện 'change' để bỏ yêu cầu bắt buộc nhập (required)
+      selectElem.dispatchEvent(new Event('change'));
+      
+      // Tính lại tổng tiền
+      if(typeof calculateTotal === 'function') calculateTotal();
+    }
+    
     function openAdvanceModal() {
       const form = document.getElementById('marketingForm');
       if(!form.checkValidity()) { form.reportValidity(); return; }
@@ -828,6 +946,37 @@
           }, 3000);
       }
     }, 1000); // Kiểm tra liên tục mỗi giây
+  </script>
+  
+  <!-- ========================================== -->
+  <!-- SCRIPT AUTO FORMAT TÊN THÀNH VIÊN          -->
+  <!-- ========================================== -->
+  <script>
+    document.addEventListener('input', function(e) {
+      // Kiểm tra xem ô đang gõ có phải là ô nhập tên thành viên không (class="member-name")
+      if (e.target && e.target.classList.contains('member-name')) {
+        
+        // 1. Lưu lại vị trí con trỏ chuột hiện tại để khi code đổi chữ không bị nhảy con trỏ về cuối dòng
+        let start = e.target.selectionStart;
+        let end = e.target.selectionEnd;
+
+        let oldVal = e.target.value;
+        
+        // 2. Chuyển toàn bộ chuỗi về chữ thường (Xử lý trường hợp bật Caps Lock), 
+        // sau đó tìm tất cả các chữ cái đứng đầu mỗi từ và viết hoa chúng lên.
+        let newVal = oldVal.toLowerCase().replace(/(?:^|\s)\S/g, function(a) { 
+            return a.toUpperCase(); 
+        });
+
+        // 3. Chỉ cập nhật lại value nếu có sự thay đổi để tối ưu hiệu suất trình duyệt
+        if (oldVal !== newVal) {
+          e.target.value = newVal;
+          
+          // Trả lại vị trí con trỏ chuột về đúng chỗ cũ
+          e.target.setSelectionRange(start, end);
+        }
+      }
+    });
   </script>
 </body>
 </html>
