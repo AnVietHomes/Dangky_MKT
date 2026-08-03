@@ -176,6 +176,15 @@
     <form id="marketingForm">
 <div class="info-section">
         <!-- 1. KHUNG CHỨA TẠM CHO GÓI TỔNG (Ẩn mặc định) -->
+        <!-- 1.1 TÊN GÓI TỔNG (Nằm ngay trên Email) -->
+        <div id="row-master-name" class="info-row" style="display: none; margin-bottom: 25px;">
+            <div class="inline-group" style="width: 100%;">
+                <span class="info-label" style="color: #0b1f8c; font-weight: bold;">Tên Gói Tổng:</span>
+                <input type="text" class="inline-input" id="masterPackageName" placeholder="VD: Chiến dịch Booking tháng 8 - Khối CNQN..." style="font-weight: 700; color: #0b1f8c;">
+            </div>
+        </div>
+
+        <!-- 1.2 KHUNG CHỨA TẠM EMAIL & PHÒNG BAN CHO GÓI TỔNG -->
         <div id="shared-chung-goi-tong" class="info-row" style="display: none; align-items: center; margin-bottom: 25px;"></div>
 
         <!-- 2. KHU VỰC GÓI THƯỜNG (Giữ nguyên form cũ) -->
@@ -928,13 +937,14 @@
       let finalMnvs = "";
 
       if (isMaster) {
-          // Thu thập nhóm Gói Tổng và gắn nhãn "🌟 [GÓI TỔNG]" để báo hiệu cho Admin
-          let gtNames = Array.from(document.querySelectorAll('.gt-team-name')).map(i => i.value.trim()).filter(v => v !== "");
-          finalTeamName = "🌟 [GÓI TỔNG] " + (gtNames.length > 0 ? gtNames.join(' + ') : "Khối " + document.getElementById('division').value);
+          // Lấy Tên Gói Tổng trực tiếp từ ô nhập liệu và đính kèm cờ báo hiệu
+          let masterName = document.getElementById('masterPackageName').value.trim();
+          if(!masterName) masterName = "Khối " + document.getElementById('division').value;
+          
+          finalTeamName = "🌟 [GÓI TỔNG] " + masterName;
           finalNames = Array.from(document.querySelectorAll('.gt-member-name')).map(i => i.value.trim()).filter(v => v !== "").join(', ');
-          finalMnvs = "Miễn trừ Mã NV"; // Loại bỏ Mã NV theo yêu cầu
+          finalMnvs = "Miễn trừ Mã NV"; 
       } else {
-          // Thu thập Gói Thường bình thường
           finalTeamName = document.getElementById('teamName').value;
           finalNames = Array.from(document.querySelectorAll('.member-name')).map(i => i.value.trim()).filter(v => v !== "").join(', ');
           finalMnvs = Array.from(document.querySelectorAll('.member-mnv')).map(i => i.value.trim()).filter(v => v !== "").join(', ');
@@ -1098,6 +1108,7 @@
         document.getElementById('lblNormal').classList.toggle('active', !isMaster);
         document.getElementById('lblMaster').classList.toggle('active', isMaster);
 
+        let rowMasterName = document.getElementById('row-master-name');
         let sharedGt = document.getElementById('shared-chung-goi-tong');
         let rowTeamEmail = document.getElementById('row-team-email');
         let rowDeptDiv = document.getElementById('row-dept-div');
@@ -1107,40 +1118,42 @@
         let wrapDiv = document.getElementById('wrap-div');
 
         if (isMaster) {
-            // Chuyển form sang Gói Tổng
             sharedGt.appendChild(wrapEmail);
             sharedGt.appendChild(wrapDept);
             sharedGt.appendChild(wrapDiv);
             
+            rowMasterName.style.display = 'flex'; // Hiện ô Tên gói tổng
             sharedGt.style.display = 'flex';
             document.getElementById('row-members').style.display = 'none';
             rowTeamEmail.style.display = 'none';
             rowDeptDiv.style.display = 'none';
             document.getElementById('khu-vuc-goi-tong').style.display = 'block';
             
-            // Hủy bắt buộc nhập của Gói thường
+            // Bắt buộc nhập Tên gói tổng, bỏ bắt buộc Gói thường
+            document.getElementById('masterPackageName').required = true;
             document.getElementById('teamName').required = false;
             if(document.querySelector('.member-name')) document.querySelector('.member-name').required = false;
             if(document.querySelector('.member-mnv')) document.querySelector('.member-mnv').required = false;
         } else {
-            // Trả về form Gói Thường
             rowTeamEmail.appendChild(wrapEmail);
             rowDeptDiv.appendChild(wrapDept);
             rowDeptDiv.appendChild(wrapDiv);
             
+            rowMasterName.style.display = 'none'; // Ẩn ô Tên gói tổng
             sharedGt.style.display = 'none';
-            document.getElementById('row-members').style.display = 'grid'; // Lưới cũ
+            document.getElementById('row-members').style.display = 'grid';
             rowTeamEmail.style.display = 'flex';
             rowDeptDiv.style.display = 'flex';
             document.getElementById('khu-vuc-goi-tong').style.display = 'none';
             
-            // Bật lại bắt buộc nhập
+            // Trả lại bắt buộc nhập cho Gói thường
+            document.getElementById('masterPackageName').required = false;
             document.getElementById('teamName').required = true;
             if(document.querySelector('.member-name')) document.querySelector('.member-name').required = true;
             if(document.querySelector('.member-mnv')) document.querySelector('.member-mnv').required = true;
         }
     }
-
+    
     // 2. Thêm thành viên vào bên trong một nhóm của Gói Tổng
     function addMemToGtGroup(btn) {
         let container = btn.parentElement;
