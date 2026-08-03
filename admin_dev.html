@@ -836,7 +836,11 @@ function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
       let flatItems = [];
       globalData.forEach(phieu => {
         let tk = (phieu.phongKD || "").split('-'); let phong = tk[0] ? tk[0].trim() : 'Chưa phân phòng'; let khoi = tk[1] ? tk[1].trim() : 'Chưa phân khối';
-        let tv = String(phieu.thanhVien||"").split(',').join('<br>');
+        let rawTv = String(phieu.thanhVien || "");
+        // Nếu là Gói tổng (có chứa thẻ div hoặc chữ GÓI TỔNG), giữ nguyên HTML; nếu gói thường thì mới ngắt dòng bằng dấu phẩy
+        let tv = (rawTv.includes('🌟') || rawTv.includes('div')) 
+            ? rawTv 
+            : rawTv.split(',').join('<br>');
         
         (phieu.chiTiet || []).forEach(ct => { 
             let mKey = getMonthKey(ct.start, phieu.ngayTao);
