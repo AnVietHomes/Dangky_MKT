@@ -750,12 +750,13 @@
       input.value = val; calculateTotal();
     }
 
-    function calculateTotal() {
+function calculateTotal() {
       let total = 0;
       document.querySelectorAll('.calc-budget').forEach(input => {
         total += parseFloat(input.value.replace(/\./g, '')) || 0;
       });
-      document.getElementById('totalBudgetDisplay').innerText = formatNumber(total);
+      // Đã sửa 'totalBudgetDisplay' thành đúng ID thực tế là 'totalBudget'
+      document.getElementById('totalBudget').innerText = formatNumber(total);
     }
 
     function openModal() { document.getElementById('searchModal').style.display = 'flex'; }
@@ -894,7 +895,7 @@
       if(typeof calculateTotal === 'function') calculateTotal();
     }
     
-    function openAdvanceModal() {
+   function openAdvanceModal() {
       const form = document.getElementById('marketingForm');
       if(!form.checkValidity()) { form.reportValidity(); return; }
 
@@ -906,7 +907,16 @@
 
       if(!hasItem) { alert("Vui lòng chọn ít nhất 1 dự án và điền đầy đủ số tiền!"); return; }
 
-      document.getElementById('advTeamNameDisplay').innerText = document.getElementById('teamName').value;
+      // --- CẬP NHẬT LOGIC LẤY TÊN NHÓM ---
+      let isMaster = document.getElementById('toggleGoiTong') && document.getElementById('toggleGoiTong').checked;
+      let displayName = "";
+      if (isMaster) {
+          displayName = document.getElementById('masterPackageName').value.trim() || ("Khối " + document.getElementById('division').value);
+      } else {
+          displayName = document.getElementById('teamName').value;
+      }
+
+      document.getElementById('advTeamNameDisplay').innerText = displayName;
       document.getElementById('advContentDisplay').innerText = "Tạm ứng Marketing dự án " + projectNames.join(', ');
       document.getElementById('advanceModal').style.display = 'flex';
     }
@@ -963,10 +973,11 @@
         bankName: document.getElementById('bankName').value
       };
 
+      // Cập nhật lại các biến lưu trữ cache cho đúng với tên biến mới (finalNames, finalMnvs...)
       const userInfoToSave = {
-        names: gatheredNames,
-        mnvs: gatheredMnvs,
-        teamName: document.getElementById('teamName').value,
+        names: finalNames,
+        mnvs: finalMnvs,
+        teamName: isMaster ? (document.getElementById('masterPackageName').value.trim() || "") : document.getElementById('teamName').value,
         emailContact: document.getElementById('emailContact').value,
         dept: document.getElementById('department').value
       };
