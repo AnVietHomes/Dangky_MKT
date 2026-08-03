@@ -209,7 +209,7 @@
         </div>
       </div>
       
-<!-- === BỘ CSS XỬ LÝ HIỆU ỨNG CẮT GÓC L-SHAPE HOÀN HẢO === -->
+<!-- === BỘ CSS XỬ LÝ HIỆU ỨNG CẮT GÓC L-SHAPE HOÀN HẢO (BẢN NÉT MẢNH) === -->
 <style>
   .smart-cutout-wrapper {
      background: transparent !important;
@@ -223,25 +223,33 @@
      border-spacing: 0 !important;
      width: 100%;
      background: transparent !important; 
-     filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.08));
+     /* Giảm nhẹ độ bóng đổ cho thanh thoát hơn */
+     filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.05));
   }
   
   .smart-cutout-wrapper thead, .smart-cutout-wrapper tbody, .smart-cutout-wrapper tfoot td.cutout-label {
      background-color: #fff;
   }
   
-  /* Đã sửa về 1px để nét thanh mảnh, sắc nét, không bị bóng mờ trắng */
+  /* 1. TẨY SẠCH VIỀN CŨ (Chống nét viền đôi dày cộp) */
   .smart-cutout-wrapper th, .smart-cutout-wrapper td {
-     border-right: 1px solid #0b1f8c;
-     border-bottom: 1px solid #0b1f8c;
+     border: none !important; 
+  }
+
+  /* 2. ĐI NÉT VIỀN MỚI SIÊU MẢNH & MÀU NHẠT */
+  /* Sử dụng màu rgba(11, 31, 140, 0.15) tức là màu xanh navy nhưng độ nhạt chỉ bằng 15% */
+  .smart-cutout-wrapper th, .smart-cutout-wrapper td {
+     border-right: 1px solid rgba(11, 31, 140, 0.15) !important;
+     border-bottom: 1px solid rgba(11, 31, 140, 0.15) !important;
   }
   .smart-cutout-wrapper th:first-child, .smart-cutout-wrapper td:first-child {
-     border-left: 1px solid #0b1f8c;
+     border-left: 1px solid rgba(11, 31, 140, 0.15) !important;
   }
   .smart-cutout-wrapper thead tr:first-child th {
-     border-top: 1px solid #0b1f8c;
+     border-top: 1px solid rgba(11, 31, 140, 0.15) !important;
   }
   
+  /* 3. BO GÓC BẢNG TRƠN TRU */
   .smart-cutout-wrapper thead tr:first-child th:first-child { border-top-left-radius: 12px; }
   .smart-cutout-wrapper thead tr:first-child th:last-child { border-top-right-radius: 12px; }
   .smart-cutout-wrapper tbody tr:last-child td:last-child { border-bottom-right-radius: 12px; }
@@ -249,12 +257,16 @@
   .smart-cutout-wrapper tfoot td.cutout-label {
      border-bottom-left-radius: 12px; 
   }
+
+  /* Ô số tiền tổng vẫn giữ viền đậm một chút để đóng khối chữ L sắc nét */
   .smart-cutout-wrapper tfoot td.cutout-value {
      border-bottom-right-radius: 12px; 
      background-color: #0b1f8c !important;
      color: white !important;
+     border: 1px solid #0b1f8c !important; 
   }
   
+  /* Các ô bên phải bị giấu đi */
   .smart-cutout-wrapper tfoot td.empty-space {
      border: none !important;
      background: transparent !important;
