@@ -921,8 +921,11 @@ function calculateTotal() {
       document.getElementById('advanceModal').style.display = 'flex';
     }
 
-    function submitEntireProposal() {
-      const btn = document.getElementById('btnFinalSubmit'); btn.disabled = true; btn.innerText = "ĐANG XỬ LÝ...";
+function submitEntireProposal() {
+      const btn = document.getElementById('btnFinalSubmit'); 
+      btn.disabled = true; 
+      // 1. Cập nhật câu thông báo để Sale an tâm chờ đợi
+      btn.innerHTML = "⏳ ĐANG GHI DỮ LIỆU LÊN HỆ THỐNG... (Vui lòng đợi 15-20s)";
 
       const items = [];
       document.querySelectorAll('#tableBody tr').forEach(row => {
@@ -939,7 +942,7 @@ function calculateTotal() {
         }
       });
 
-     // Kịch bản gửi dữ liệu: Phân biệt Gói Thường và Gói Tổng
+      // Kịch bản gửi dữ liệu: Phân biệt Gói Thường và Gói Tổng
       let isMaster = document.getElementById('toggleGoiTong') && document.getElementById('toggleGoiTong').checked;
       
       let finalTeamName = "";
@@ -947,14 +950,34 @@ function calculateTotal() {
       let finalMnvs = "";
 
       if (isMaster) {
-          // Lấy Tên Gói Tổng trực tiếp từ ô nhập liệu và đính kèm cờ báo hiệu
           let masterName = document.getElementById('masterPackageName').value.trim();
           if(!masterName) masterName = "Khối " + document.getElementById('division').value;
           
           finalTeamName = "🌟 [GÓI TỔNG] " + masterName;
-          finalNames = Array.from(document.querySelectorAll('.gt-member-name')).map(i => i.value.trim()).filter(v => v !== "").join(', ');
+          
+          // GOM DỮ LIỆU DẠNG GIẬT CẤP (Chuẩn form Ảnh 2 - Tuyệt đối không dùng dấu phẩy)
+          let groupsArr = [];
+          document.querySelectorAll('.goi-tong-group').forEach(group => {
+              let tName = group.querySelector('.gt-team-name').value.trim();
+              let mNames = Array.from(group.querySelectorAll('.gt-member-name')).map(i => i.value.trim()).filter(v => v !== "");
+              
+              if (tName || mNames.length > 0) {
+                  // 1. Tên nhóm in đậm, màu xanh
+                  let groupHtml = `<div style="font-weight:bold; color:#0b1f8c; margin-bottom: 2px;">${tName || 'Nhóm'}</div>`;
+                  
+                  // 2. Thành viên thụt lề vào trong 15px
+                  if (mNames.length > 0) {
+                      groupHtml += mNames.map(m => `<div style="padding-left: 15px; color: #333; margin-bottom: 2px;">${m}</div>`).join('');
+                  }
+                  groupsArr.push(groupHtml);
+              }
+          });
+          
+          // Nối các nhóm bằng 1 khoảng trắng cao 8px (Tuyệt đối không dùng phẩy)
+          finalNames = groupsArr.join('<div style="height: 8px;"></div>');
           finalMnvs = "Miễn trừ Mã NV"; 
       } else {
+          // ... (Phần Gói thường của bạn giữ nguyên bên dưới)
           finalTeamName = document.getElementById('teamName').value;
           finalNames = Array.from(document.querySelectorAll('.member-name')).map(i => i.value.trim()).filter(v => v !== "").join(', ');
           finalMnvs = Array.from(document.querySelectorAll('.member-mnv')).map(i => i.value.trim()).filter(v => v !== "").join(', ');
