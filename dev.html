@@ -215,9 +215,9 @@
               <th width="18%">Ngân sách</th><th width="7%">Bắt đầu</th><th width="7%">Kết thúc</th><th width="6%">KPI</th>
             </tr>
           </thead>
-          <tbody id="tableBody">
+         <tbody id="tableBody">
             <tr>
-              <td>1</td>
+              <td style="position: relative;">1 <span onclick="clearRow(this)" title="Xóa trắng dòng này" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); color: var(--red-status); cursor: pointer; font-size: 22px; font-weight: bold; line-height: 1;">×</span></td>
               <td><select class="table-input project-select" name="project" required><option value="" disabled selected>Chọn dự án...</option></select></td>
               <td><input type="text" class="table-input calc-budget" name="budget" placeholder="0" oninput="formatCurrency(this)" required></td>
               <td><input type="text" class="table-input date-format start-date" name="start" placeholder="DD/MM" maxlength="5" required></td>
@@ -229,7 +229,7 @@
               <td style="background-color: #f9f9f9;" readonly></td>
             </tr>
             <tr>
-              <td>2</td>
+              <td style="position: relative;">2 <span onclick="clearRow(this)" title="Xóa trắng dòng này" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); color: var(--red-status); cursor: pointer; font-size: 22px; font-weight: bold; line-height: 1;">×</span></td>
               <td><select class="table-input project-select" name="project"><option value="" disabled selected>Chọn dự án...</option></select></td>
               <td><input type="text" class="table-input calc-budget" name="budget" placeholder="0" oninput="formatCurrency(this)"></td>
               <td><input type="text" class="table-input date-format start-date" name="start" placeholder="DD/MM" maxlength="5"></td>
@@ -241,7 +241,7 @@
               <td style="background-color: #f9f9f9;" readonly></td>
             </tr>
             <tr>
-              <td>3</td>
+              <td style="position: relative;">3 <span onclick="clearRow(this)" title="Xóa trắng dòng này" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); color: var(--red-status); cursor: pointer; font-size: 22px; font-weight: bold; line-height: 1;">×</span></td>
               <td><select class="table-input project-select" name="project"><option value="" disabled selected>Chọn dự án...</option></select></td>
               <td><input type="text" class="table-input calc-budget" name="budget" placeholder="0" oninput="formatCurrency(this)"></td>
               <td><input type="text" class="table-input date-format start-date" name="start" placeholder="DD/MM" maxlength="5"></td>
@@ -678,6 +678,26 @@
       document.getElementById('resultView').style.display = 'none'; document.getElementById('marketingForm').style.display = 'block'; document.getElementById('mainTitle').innerText = "ĐỀ XUẤT CHIẾN DỊCH MARKETING"; document.getElementById('btnBack').style.display = 'none';
     }
 
+    function clearRow(btn) {
+      const row = btn.closest('tr');
+      
+      // Đặt lại Dự án về trạng thái rỗng
+      row.querySelector('select[name="project"]').value = '';
+      
+      // Xóa các ô nhập liệu khác
+      row.querySelector('input[name="budget"]').value = '';
+      row.querySelector('input[name="kpi"]').value = '';
+      row.querySelector('input[name="channel"]').value = '';
+      row.querySelector('input[name="phone"]').value = '';
+      row.querySelector('input[name="account"]').value = '';
+      
+      // Kích hoạt sự kiện 'change' để bỏ yêu cầu bắt buộc nhập (required) nếu là dòng 2 và 3
+      row.querySelector('select[name="project"]').dispatchEvent(new Event('change'));
+      
+      // Tính lại tổng tiền
+      calculateTotal();
+    }
+    
     function openAdvanceModal() {
       const form = document.getElementById('marketingForm');
       if(!form.checkValidity()) { form.reportValidity(); return; }
