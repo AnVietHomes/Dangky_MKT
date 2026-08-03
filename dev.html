@@ -8,6 +8,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <style>
+    /* --- NÚT GẠT CHUYỂN ĐỔI GÓI TỔNG --- */
+.toggle-wrapper { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 25px; background: #f8f9fa; padding: 15px; border-radius: 12px; border: 1.5px dashed #0b1f8c; }
+.toggle-label { font-size: 15px; font-weight: bold; color: #333; transition: color 0.3s; }
+.toggle-label.active-normal { color: #0b1f8c; }
+.toggle-label.active-master { color: #e74c3c; }
+
+.switch { position: relative; display: inline-block; width: 60px; height: 30px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #0b1f8c; transition: .4s; border-radius: 34px; }
+.slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: #e74c3c; }
+input:checked + .slider:before { transform: translateX(30px); }
     :root { --bg-light-blue: #d4efff; --primary-blue: #0b1f8c; --text-dark: #222222; --text-gray: #666666; --red-status: #c00000; --table-border: #222222; }
     body { font-family: 'Manrope', sans-serif; margin: 0; padding: 0; background-color: var(--bg-light-blue); color: var(--text-dark); min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
     .top-header { width: 100%; max-width: 1600px; display: flex; justify-content: space-between; align-items: center; padding: 20px 50px; margin-top: 10px; box-sizing: border-box; }
@@ -161,7 +173,7 @@
         
         <div class="member-group-wrapper">
             <div>
-                <label style="display: block; margin-bottom: 8px; font-weight: bold;">Thành viên:</label>
+               <label id="label-thanh-vien" style="display: block; margin-bottom: 8px; font-weight: bold;">Thành viên:</label>
                 <div id="memberNamesGroup" class="grid-names">
                     <input type="text" class="pill-input member-name" placeholder="Nguyễn Văn A" required>
                     <input type="text" class="pill-input member-name" placeholder="Nguyễn Văn B">
@@ -185,8 +197,8 @@
 
         <div class="info-row">
           <div class="inline-group">
-            <span class="info-label">Tên nhóm:</span>
-            <input type="text" class="inline-input" id="teamName" placeholder="VD: ABC" required>
+            <span id="label-ten-nhom">Tên nhóm:</span>
+            <input type="text" id="input-ten-nhom" name="ten_nhom" placeholder="VD: ABC" class="...">
           </div>
           <div class="inline-group">
             <span class="info-label">Email liên hệ:</span>
@@ -347,6 +359,15 @@
 </tfoot>
         </table>
       </div>
+
+      <div class="toggle-wrapper">
+    <span class="toggle-label active-normal" id="lblNormal">Đăng ký Gói Thường (Theo nhóm)</span>
+    <label class="switch">
+        <input type="checkbox" id="toggleGoiTong" onchange="switchPackageMode()">
+        <span class="slider"></span>
+    </label>
+    <span class="toggle-label" id="lblMaster">Đăng ký GÓI TỔNG (Theo Khối)</span>
+</div>
       
       <div class="btn-submit-container"><button type="button" id="btnOpenAdvance" class="btn-submit" onclick="openAdvanceModal()">Tiếp tục (Điền đơn Tạm Ứng)</button></div>
     </form>
@@ -898,6 +919,35 @@
         } else { alert("Lỗi: " + res.message); }
         btn.disabled = false; btn.innerText = "NỘP TOÀN BỘ ĐỀ XUẤT";
       });
+    }
+
+    // HÀM XỬ LÝ NÚT GẠT GÓI TỔNG
+    function switchPackageMode() {
+        let isMaster = document.getElementById('toggleGoiTong').checked;
+        
+        // Đổi màu sắc nhãn gạt
+        let lblNormal = document.getElementById('lblNormal');
+        let lblMaster = document.getElementById('lblMaster');
+        if (lblNormal) lblNormal.classList.toggle('active-normal', !isMaster);
+        if (lblMaster) lblMaster.classList.toggle('active-master', isMaster);
+
+        // Gọi các thẻ ID vừa gắn ở Phần 1
+        let labelTenNhom = document.getElementById('label-ten-nhom'); 
+        let labelThanhVien = document.getElementById('label-thanh-vien'); 
+        let inputTenNhom = document.getElementById('input-ten-nhom'); 
+
+        // Nếu BẬT chế độ Gói Tổng
+        if (isMaster) {
+            if (labelTenNhom) labelTenNhom.innerText = "Tên Gói Tổng (VD: Gói Khối A1):";
+            if (labelThanhVien) labelThanhVien.innerText = "Các Nhóm tham gia (VD: Nhóm 1, Nhóm 2):";
+            if (inputTenNhom) inputTenNhom.placeholder = "Nhập tên gói tổng...";
+        } 
+        // Nếu TẮT chế độ Gói Tổng (Về bình thường)
+        else {
+            if (labelTenNhom) labelTenNhom.innerText = "Tên nhóm:";
+            if (labelThanhVien) labelThanhVien.innerText = "Thành viên:";
+            if (inputTenNhom) inputTenNhom.placeholder = "VD: ABC";
+        }
     }
   </script>
   
