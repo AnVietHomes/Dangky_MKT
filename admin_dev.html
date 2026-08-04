@@ -252,6 +252,7 @@ tr.row-duplicate td {
     let loggedInUser = null; let currentViewRole = ''; let globalData = []; let bldItemsArray = [];
     let khoiMap = {}; 
     let currentPrintContext = null; 
+    let globalGdkDict = {};
 
     const ROLE_TITLES = { 'SUPER_ADMIN': 'Quản Trị Viên Tối Cao', 'BLD': 'Ban Lãnh Đạo', 'PTGD': 'Phó Tổng Giám Đốc', 'GDCN': 'Giám Đốc Chi Nhánh', 'GDKD': 'Giám Đốc Kinh Doanh', 'GDKD_KIEM_TPKD': 'GĐKD (Kiêm TPKD)', 'TPKD': 'Trưởng Phòng Kinh Doanh', 'TPMKT': 'Trưởng Phòng Marketing', 'MKT': 'Chuyên Viên Marketing' };
 
@@ -407,14 +408,17 @@ function simulateRole(role) {
       let today = new Date(); let m = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0'); document.getElementById('reportMonth').value = m;
       const deptsString = JSON.stringify(loggedInUser.managedDepartments);
       
-      callAPI("getDashboardData", { role: currentViewRole, departments: deptsString }, function(result) {
+callAPI("getDashboardData", { role: currentViewRole, departments: deptsString }, function(result) {
         showLoading(false);
         if (result && result.success) { 
             globalData = result.data; 
+            
+            // HỨNG TỪ ĐIỂN TỪ BACKEND LƯU VÀO BỘ NHỚ
+            if (result.gdkDict) { globalGdkDict = result.gdkDict; }
+
             renderTableByRole(currentViewRole); 
             renderAdvanceTableByRole(currentViewRole); 
             if (isHighLevel) renderReport(); 
-            // THÊM LỆNH NÀY: Tự động áp dụng lại bộ lọc sau khi tải xong dữ liệu mới
             if (typeof applyGlobalSearch === 'function') applyGlobalSearch();
         }
       });
@@ -1540,17 +1544,24 @@ function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
         return `<table class="no-border" style="width: 100%; text-align: center !important; margin-top: 5px;"><tr style="font-weight:bold; font-size: 10pt;"><td style="width: 50%; text-align:center !important;">XÁC NHẬN P.MARKETING</td><td style="width: 50%; text-align:center !important;">NGƯỜI LÀM ĐƠN</td></tr><tr><td style="text-align:center !important; padding-top: 15px !important;">${signTuMkt}</td><td style="text-align:center !important; padding-top: 15px !important;">${signTag}</td></tr></table><table class="no-border" style="width: 100%; text-align: center !important; margin-top: 25px;"><tr style="font-weight:bold; font-size: 10pt;"><td style="width: 33.33%; text-align:center !important;">BAN LÃNH ĐẠO</td><td style="width: 33.33%; text-align:center !important;">XÁC NHẬN P. KẾ TOÁN</td><td style="width: 33.33%; text-align:center !important;">XÁC NHẬN P. ADMIN</td></tr><tr><td style="text-align:center !important; padding-top: 15px !important;">${signTuBld}</td><td></td><td></td></tr></table>`;
     }
 
-    // XỬ LÝ FORMAT THÔNG TIN CHUNG & DÀN CỘT CHO GÓI TỔNG
+ // XỬ LÝ FORMAT THÔNG TIN CHUNG & DÀN CỘT CHO GÓI TỔNG
     function getPrintHeaderInfo(phieu, phong, khoi) {
         let isGoiTong = phieu.tenNhom && phieu.tenNhom.includes('[GÓI TỔNG]');
         let repName = ""; let repMnv = ""; let formInfoHtml = "";
         
         if (isGoiTong) {
-            // 1. Chừa trống dấu chấm cho cả Tên đại diện và Mã NV trong Đơn tạm ứng
-            repName = ".............................................................";
-            repMnv = "..................................";
+            // SỬ DỤNG TỪ ĐIỂN ĐƯỢC KÉO VỀ TỪ SHEET BACKEND
+            let maKhoi = khoi.trim().toUpperCase();
+            let gdkInfo = globalGdkDict[maKhoi];
             
-            // 2. Ép danh sách thành 5 cột (column-count: 5), giảm font-size xuống 8.5pt, thu hẹp khoảng cách dòng (line-height: 1.3)
+            if (gdkInfo) {
+                repName = gdkInfo.ten;
+                repMnv = gdkInfo.mnv;
+            } else {
+                repName = ".............................................................";
+                repMnv = "..................................";
+            }
+            
             formInfoHtml = `<table class="form-table" style="margin-bottom: 5px;">
                 <tr><td class="form-label" style="width: 1%;">Tên Gói Tổng:</td><td class="form-dots" style="text-align: left;"><b>${phieu.tenNhom||''}</b></td><td class="form-label" style="width: 1%; padding-left: 20px;">Email:</td><td class="form-dots" style="text-align: left;">${phieu.email||''}</td></tr>
                 <tr><td class="form-label">Phòng KD:</td><td class="form-dots" style="text-align: left;"><b>${phong}</b></td><td class="form-label" style="padding-left: 20px;">Khối KD:</td><td class="form-dots" style="text-align: left;"><b>${khoi}</b></td></tr>
