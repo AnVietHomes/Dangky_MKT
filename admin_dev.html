@@ -1546,15 +1546,20 @@ function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
         let repName = ""; let repMnv = ""; let formInfoHtml = "";
         
         if (isGoiTong) {
-            // Đã thay đổi: Gán chuỗi dấu chấm để in ra giấy điền tay thay vì tự động nhặt tên
-            repName = "....................................................................";
+            // 1. Chừa trống dấu chấm cho cả Tên đại diện và Mã NV trong Đơn tạm ứng
+            repName = ".............................................................";
             repMnv = "..................................";
             
-            formInfoHtml = `<table class="form-table" style="margin-bottom: 10px;">
+            // 2. Ép danh sách thành 5 cột (column-count: 5), giảm font-size xuống 8.5pt, thu hẹp khoảng cách dòng (line-height: 1.3)
+            formInfoHtml = `<table class="form-table" style="margin-bottom: 5px;">
                 <tr><td class="form-label" style="width: 1%;">Tên Gói Tổng:</td><td class="form-dots" style="text-align: left;"><b>${phieu.tenNhom||''}</b></td><td class="form-label" style="width: 1%; padding-left: 20px;">Email:</td><td class="form-dots" style="text-align: left;">${phieu.email||''}</td></tr>
                 <tr><td class="form-label">Phòng KD:</td><td class="form-dots" style="text-align: left;"><b>${phong}</b></td><td class="form-label" style="padding-left: 20px;">Khối KD:</td><td class="form-dots" style="text-align: left;"><b>${khoi}</b></td></tr>
-                <tr><td colspan="4" style="padding-top: 15px; font-weight: bold;">Danh sách Thành viên tham gia:</td></tr>
-                <tr><td colspan="4"><div style="border: 1px solid #ccc; border-radius: 8px; padding: 12px; background: #fafafa; column-count: 3; column-gap: 20px; text-align: left; font-size: 10pt; line-height: 1.5; margin-top: 5px;">${phieu.thanhVien}</div></td></tr>
+                <tr><td colspan="4" style="padding-top: 10px; font-weight: bold;">Danh sách Thành viên tham gia:</td></tr>
+                <tr><td colspan="4">
+                    <div style="border: 1px solid #ccc; border-radius: 8px; padding: 8px 12px; background: #fafafa; column-count: 5; column-gap: 15px; text-align: left; font-size: 8.5pt; line-height: 1.3; margin-top: 5px;">
+                        ${phieu.thanhVien}
+                    </div>
+                </td></tr>
             </table>`;
         } else {
             let mnvRaw = phieu.maNhanVien ? String(phieu.maNhanVien) : "...";
