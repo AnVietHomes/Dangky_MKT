@@ -1325,6 +1325,26 @@ let rawTv = String(phieu.thanhVien || "");
             isArchived = true;
         }
 
+        // --- BỔ SUNG: RADAR GIẢI CỨU ĐỀ XUẤT VẮT CHÉO THÁNG ---
+        if (isArchived) {
+            let latestEnd = "";
+            (phieu.chiTiet || []).forEach(ct => { 
+                if (ct.end || ct.ketThuc) latestEnd = String(ct.end || ct.ketThuc).trim(); 
+            });
+            if (latestEnd) {
+                let endParts = latestEnd.split(/[-/.]/); // Hỗ trợ quét mọi định dạng ngày (/, -, .)
+                if (endParts.length >= 2) {
+                    let endMonth = parseInt(endParts[1], 10);
+                    let endYear = endParts.length === 3 ? parseInt(endParts[2], 10) : activeYearNum; 
+                    // Nếu tháng kết thúc vẫn bằng hoặc lớn hơn tháng hiện tại -> Kéo ra bảng chính!
+                    if (endYear > activeYearNum || (endYear === activeYearNum && endMonth >= activeMonthNum)) {
+                        isArchived = false; 
+                    }
+                }
+            }
+        }
+        // ------------------------------------------------------
+
         let totalDuyet_orig = 0; let prjNames = []; let tk = String(phieu.phongKD || "").split('-'); let phong = tk[0] ? tk[0].trim() : ''; let khoi = tk[1] ? tk[1].trim() : '';
         (phieu.chiTiet || []).forEach(ct => { let liveInput = document.querySelector(`.bld-budget[data-id-dong="${ct.idDong}"]`); if((role === 'BLD' || role === 'SUPER_ADMIN') && liveInput) { totalDuyet_orig += parseNumber(liveInput.value); } else { totalDuyet_orig += Number(ct.nganSachDuyet); } prjNames.push(ct.tenDuAn); });
 
