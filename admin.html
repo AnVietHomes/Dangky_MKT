@@ -1062,11 +1062,16 @@ let rawTv = String(phieu.thanhVien || "");
               : `<span style="color:var(--primary-blue); font-weight:bold;">Nhóm: ${tenNhomRaw}</span>`;
 
           let tvDisplay = isGoiTong 
-              ? `<div style="margin-top:8px; padding: 10px; background: #fef5f5; border-left: 3px solid #d32f2f; border-radius: 4px; font-size: 11.5px; color: #333; line-height: 1.8; box-shadow: inset 0 0 5px rgba(0,0,0,0.02);">${item.thanhVien}</div>` 
+              ? `<div style="margin-top:8px; padding: 10px; background: #fef5f5; border-left: 3px solid #d32f2f; border-radius: 4px; font-size: 12px; color: #333; line-height: 1.8; box-shadow: inset 0 0 5px rgba(0,0,0,0.02);">${item.thanhVien}</div>` 
               : `<div style="margin-top:4px;">${item.thanhVien}</div>`;
           // -------------------------------------------------------
 
-          let rowHTML = `<tr data-id-dong="${item.idDong}" data-id-phieu="${item.idPhieu}" data-nsduyet="${item.nsDuyet}" data-search="${searchData}" class="${rowClass}"><td><div style="display:flex; flex-direction:column; align-items:center; gap:6px;"><button class="btn-view" onclick="viewDetail('${item.idPhieu}', 'proposal')">👁️</button><input type="checkbox" class="cb-print-proposal cb-print-item" data-khoi="${kId}" data-phong="${pId}" data-duan="${dId}" value="${item.idPhieu}" title="Tích chọn để in" style="cursor:pointer; width:16px; height:16px;"></div></td>`;
+          // TẤT CẢ LỖI NẰM Ở ĐÂY: Dấu ngoặc kép (") đã phá vỡ thẻ <tr>. Ta cần bóc sạch nó khỏi searchData!
+          let safeSearchData = (typeof searchData !== 'undefined' ? searchData : '').replace(/["']/g, '');
+
+          // Đưa safeSearchData vào thẻ <tr> để bảng KHÔNG BAO GIỜ bị bẻ gãy nữa
+          let rowHTML = `<tr data-id-dong="${item.idDong}" data-id-phieu="${item.idPhieu}" data-nsduyet="${item.nsDuyet}" data-search="${safeSearchData}" class="${rowClass}"><td><div style="display:flex; flex-direction:column; align-items:center; gap:6px;"><button class="btn-view" onclick="viewDetail('${item.idPhieu}', 'proposal')">👁️</button><input type="checkbox" class="cb-print-proposal cb-print-item" data-khoi="${kId}" data-phong="${pId}" data-duan="${dId}" value="${item.idPhieu}" title="Tích chọn để in" style="cursor:pointer; width:16px; height:16px;"></div></td>`;
+          
           if (isKD) { let checkedState = item.phieuObj.isNewSale ? 'checked' : ''; rowHTML += `<td><input type="checkbox" class="cb-newsale" style="width:16px; height:16px; cursor:pointer;" title="Nhóm sale mới" ${checkedState} ${isReadOnlyMode?'disabled':''}></td>`; }
           
           rowHTML += `<td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${item.idPhieu}</span></td><td><span style="font-weight:700; color:var(--primary-blue);">${item.phong}</span><br><span style="font-size:11px; color:#666;">Khối ${item.khoi}</span></td><td style="text-align:left; font-size:12px; line-height:1.5;">${tenNhomHtml}${kpiHtml}${truyThuHtml}${tvDisplay}</td><td>${statusText}</td><td>${dxDisplay}</td>`;
