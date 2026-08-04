@@ -13,6 +13,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <style>
+    /* --- HIỆU ỨNG BÔI MÀU CHO CÁC NHÓM TRÙNG TÊN --- */
+tr.row-duplicate td {
+    background-color: #d4efff !important; /* Xanh biển nhạt đặc trưng của An Việt Homes */
+}
     :root { --bg-login: #d4efff; --primary-blue: #0b1f8c; --text-dark: #333333; --text-gray: #666666; --input-bg: #f4f6f8; --border-color: #e5e8ec; --success-green: #27ae60; --danger: #e74c3c; --warning: #f39c12; }
     /* CHỐNG BÔI ĐEN VÀ COPY TEXT */
     body { font-family: 'Manrope', Arial, sans-serif; margin: 0; padding: 0; min-height: 100vh; background-color: var(--bg-login); box-sizing: border-box; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
@@ -923,6 +927,16 @@ let rawTv = String(phieu.thanhVien || "");
         let sumDxKhoi = {}, sumDxPhong = {}, sumDxDuAn = {}; 
         let sumDuyetKhoi = {}, sumDuyetPhong = {}, sumDuyetDuAn = {}; 
         let sumAdvKhoi = {}, sumAdvPhong = {}, sumAdvDuAn = {}; 
+
+        // --- CODE BƯỚC 2: QUÉT TRÙNG LẶP ---
+    let nameCountMap = {};
+    itemsArray.forEach(item => {
+        let tName = (item.phieuObj.tenNhom || "").trim().toLowerCase();
+        if (tName) {
+            nameCountMap[tName] = (nameCountMap[tName] || 0) + 1;
+        }
+    });
+    // ------------------------------------
         
         itemsArray.forEach(item => {
             let kId = safeId(item.khoi); 
@@ -1055,35 +1069,32 @@ let rawTv = String(phieu.thanhVien || "");
 
 // --- BỘ NHẬN DIỆN VÀ GIAO DIỆN GIẬT CẤP CHO GÓI TỔNG ---
           let tenNhomRaw = item.phieuObj.tenNhom || "";
+          
+          // 2. Kiểm tra xem nhóm này có bị trùng lặp không (xuất hiện > 1 lần)
+          let tNameCheck = tenNhomRaw.trim().toLowerCase();
+          let isDuplicate = tNameCheck && nameCountMap[tNameCheck] > 1;
+          let dupClass = isDuplicate ? ' row-duplicate' : ''; // Gắn class bôi màu
+
           let isGoiTong = tenNhomRaw.includes('[GÓI TỔNG]');
           
           let tenNhomHtml = isGoiTong 
               ? `<span style="color:#d32f2f; font-weight:900; font-size:13px; text-transform: uppercase;">${tenNhomRaw}</span>` 
               : `<span style="color:var(--primary-blue); font-weight:bold;">Nhóm: ${tenNhomRaw}</span>`;
+          
+          // 3. Thêm Nhãn cảnh báo bằng chữ "⚠️ TRÙNG LẶP" màu đỏ cực kỳ nổi bật
+          if (isDuplicate) {
+              tenNhomHtml += `<br><span style="display:inline-block; margin-top:4px; color:#d32f2f; font-size:10.5px; font-weight:bold; background:#fff; padding:2px 8px; border-radius:12px; border:1px solid #d32f2f;">⚠️ TRÙNG LẶP</span>`;
+          }
 
           let tvDisplay = isGoiTong 
               ? `<div style="margin-top:8px; padding: 10px; background: #fef5f5; border-left: 3px solid #d32f2f; border-radius: 4px; font-size: 12px; color: #333; line-height: 1.8; box-shadow: inset 0 0 5px rgba(0,0,0,0.02);">${item.thanhVien}</div>` 
               : `<div style="margin-top:4px;">${item.thanhVien}</div>`;
           // -------------------------------------------------------
 
-          // TẤT CẢ LỖI NẰM Ở ĐÂY: Dấu ngoặc kép (") đã phá vỡ thẻ <tr>. Ta cần bóc sạch nó khỏi searchData!
           let safeSearchData = (typeof searchData !== 'undefined' ? searchData : '').replace(/["']/g, '');
 
-          // Đưa safeSearchData vào thẻ <tr> để bảng KHÔNG BAO GIỜ bị bẻ gãy nữa
-          let rowHTML = `<tr data-id-dong="${item.idDong}" data-id-phieu="${item.idPhieu}" data-nsduyet="${item.nsDuyet}" data-search="${safeSearchData}" class="${rowClass}"><td><div style="display:flex; flex-direction:column; align-items:center; gap:6px;"><button class="btn-view" onclick="viewDetail('${item.idPhieu}', 'proposal')">👁️</button><input type="checkbox" class="cb-print-proposal cb-print-item" data-khoi="${kId}" data-phong="${pId}" data-duan="${dId}" value="${item.idPhieu}" title="Tích chọn để in" style="cursor:pointer; width:16px; height:16px;"></div></td>`;
-          
-          if (isKD) { let checkedState = item.phieuObj.isNewSale ? 'checked' : ''; rowHTML += `<td><input type="checkbox" class="cb-newsale" style="width:16px; height:16px; cursor:pointer;" title="Nhóm sale mới" ${checkedState} ${isReadOnlyMode?'disabled':''}></td>`; }
-          
-          rowHTML += `<td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${item.idPhieu}</span></td><td><span style="font-weight:700; color:var(--primary-blue);">${item.phong}</span><br><span style="font-size:11px; color:#666;">Khối ${item.khoi}</span></td><td style="text-align:left; font-size:12px; line-height:1.5;">${tenNhomHtml}${kpiHtml}${truyThuHtml}${tvDisplay}</td><td>${statusText}</td><td>${dxDisplay}</td>`;
-
-          if (isPTGD) { 
-              let advDisplay = isTruyThu ? `<s style="opacity:0.6;">${formatNumber(advAmt)}</s><br><span style="font-size:10px; color:#d32f2f; font-weight:800;">(Truy thu tạm ứng)</span>` : formatNumber(advAmt);
-              rowHTML += `<td style="color:var(--primary-blue); font-weight:bold;">${item.phieuObj.advPercent || 0}%</td><td style="color:var(--danger); font-weight:bold;">${advDisplay}</td><td style="width:250px;">${ghiChuHtml}</td>`; 
-          } else if (isBLD || isMKT) { 
-              if (isTruyThu && isReadOnlyMode) { nsDuyetHtml = `<s style="opacity:0.6;">${formatNumber(item.nsDuyet)}</s>`; }
-              rowHTML += `<td>${nsDuyetHtml}</td><td style="width:250px;">${ghiChuHtml}</td>`; 
-          }
-          rowHTML += `<td class="td-actions">${btnHtml}</td></tr>`; html += rowHTML;
+          // Đã thêm biến dupClass vào class của thẻ tr để kích hoạt CSS bôi màu nền
+          let rowHTML = `<tr data-id-dong="${item.idDong}" data-id-phieu="${item.idPhieu}" data-nsduyet="${item.nsDuyet}" data-search="${safeSearchData}" class="${rowClass}${dupClass}"><td><div style="display:flex; flex-direction:column; align-items:center; gap:6px;"><button class="btn-view" onclick="viewDetail('${item.idPhieu}', 'proposal')">👁️</button><input type="checkbox" class="cb-print-proposal cb-print-item" data-khoi="${kId}" data-phong="${pId}" data-duan="${dId}" value="${item.idPhieu}" title="Tích chọn để in" style="cursor:pointer; width:16px; height:16px;"></div></td>`;
         });
 
         if (itemsArray.length > 0) {
