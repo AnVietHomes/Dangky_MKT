@@ -1347,7 +1347,21 @@ let rawTv = String(phieu.thanhVien || "");
         
         let subNote = isTruyThu ? '<b style="color:#d32f2f;">(ĐÃ TRUY THU GÓI)</b><br>' : (isKpiDacBiet ? '<b style="color:#8e44ad;">(KPI Đặc biệt)</b><br>' : '');
 
-        let rowHTML = `<tr class="${rowClass}"><td><div style="display:flex; flex-direction:column; align-items:center; gap:6px;"><button class="btn-view" onclick="viewDetail('${phieu.idPhieu}', 'advance')">👁️</button><input type="checkbox" class="cb-print-advance" value="${phieu.idPhieu}" title="Tích chọn để in" style="cursor:pointer; width:16px; height:16px;"></div></td><td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${phieu.idPhieu}</span></td><td><span style="font-weight:700; color:var(--primary-blue);">${phong}</span><br><span style="font-size:11px; color:#666;">Khối ${khoi}</span></td><td style="text-align:left; font-size:12px; line-height:1.4;">${subNote}${String(phieu.thanhVien||"").replace(/,/g, '<br>')}</td><td style="color:#0b1f8c; font-weight:800; font-size:12px;">${prjNames.join(', ')}</td><td>${bdgDisplay}</td><td style="color:var(--danger); font-weight:bold; white-space:nowrap;">${percentHtml}</td><td class="td-adv-amount" style="color:var(--danger); font-weight:bold;">${advDisplay}</td><td class="td-status-tu"><span style="color:var(--warning); font-weight:700;">${phieu.trangThaiTU}</span></td><td class="td-actions-tu">`;
+        // --- ĐỒNG BỘ GIAO DIỆN GÓI TỔNG CHO TAB TẠM ỨNG ---
+        let tenNhomRaw = phieu.tenNhom || "";
+        let isGoiTong = tenNhomRaw.includes('[GÓI TỔNG]');
+        
+        let tenNhomHtml = isGoiTong 
+              ? `<span style="color:#d32f2f; font-weight:900; font-size:13px; text-transform: uppercase;">${tenNhomRaw}</span>` 
+              : `<span style="color:var(--primary-blue); font-weight:bold;">Nhóm: ${tenNhomRaw}</span>`;
+              
+        let rawTv = String(phieu.thanhVien || "");
+        let tvDisplay = isGoiTong 
+              ? `<div style="margin-top:8px; padding: 10px; background: #fef5f5; border-left: 3px solid #d32f2f; border-radius: 4px; font-size: 12px; color: #333; line-height: 1.8; box-shadow: inset 0 0 5px rgba(0,0,0,0.02);">${rawTv}</div>` 
+              : `<div style="margin-top:4px;">${rawTv.split(',').join('<br>')}</div>`;
+        // ----------------------------------------------------
+
+        let rowHTML = `<tr class="${rowClass}"><td><div style="display:flex; flex-direction:column; align-items:center; gap:6px;"><button class="btn-view" onclick="viewDetail('${phieu.idPhieu}', 'advance')">👁️</button><input type="checkbox" class="cb-print-advance" value="${phieu.idPhieu}" title="Tích chọn để in" style="cursor:pointer; width:16px; height:16px;"></div></td><td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${phieu.idPhieu}</span></td><td><span style="font-weight:700; color:var(--primary-blue);">${phong}</span><br><span style="font-size:11px; color:#666;">Khối ${khoi}</span></td><td style="text-align:left; font-size:12px; line-height:1.4;">${tenNhomHtml}<br>${subNote}${tvDisplay}</td><td style="color:#0b1f8c; font-weight:800; font-size:12px;">${prjNames.join(', ')}</td><td>${bdgDisplay}</td><td style="color:var(--danger); font-weight:bold; white-space:nowrap;">${percentHtml}</td><td class="td-adv-amount" style="color:var(--danger); font-weight:bold;">${advDisplay}</td><td class="td-status-tu"><span style="color:var(--warning); font-weight:700;">${phieu.trangThaiTU}</span></td><td class="td-actions-tu">`;
 
         if(role === 'TPMKT') {
            if(phieu.trangThaiTU === 'PENDING_MKT_TU') { rowHTML += `<button class="btn-action btn-approve" onclick="updateStatusTUOptimistic('${phieu.idPhieu}', 'PENDING_BLD_TU', this)">Duyệt Lên BLĐ</button><button class="btn-action btn-reject" onclick="updateStatusTUOptimistic('${phieu.idPhieu}', 'REJECTED_TU', this)">Từ Chối</button>`; } 
