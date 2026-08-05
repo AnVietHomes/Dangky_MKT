@@ -1764,12 +1764,16 @@ function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
     // KẾT THÚC KHỐI QUẢN LÝ IN ẤN
     // =====================================================================
 
-    function toggleGroupCbs(cbElement, level, id) {
+function toggleGroupCbs(cbElement, level, id) {
         let isChecked = cbElement.checked;
         
-        // 1. Tự động đánh dấu tất cả các Phiếu (Con mắt) thuộc nhóm này
+        // --- CHỐT CHẶN: Chỉ tìm kiếm bên trong đúng Bảng (table) chứa ô checkbox vừa được bấm ---
+        let currentTable = cbElement.closest('table');
+        if (!currentTable) return;
+
+        // 1. Tự động đánh dấu tất cả các Phiếu thuộc nhóm này TRONG CÙNG BẢNG
         let childSelector = `.cb-print-item[data-${level}="${id}"]`;
-        let childCbs = document.querySelectorAll(childSelector);
+        let childCbs = currentTable.querySelectorAll(childSelector);
         
         childCbs.forEach(child => {
             let tr = child.closest('tr');
@@ -1779,11 +1783,11 @@ function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
             }
         });
 
-        // 2. Chế độ thác nước: Nếu tích Khối thì tích luôn cả checkbox của Phòng và Dự án bên trong
+        // 2. Chế độ thác nước: Tích Khối -> Tích Phòng -> Tích Dự án TRONG CÙNG BẢNG
         if (level === 'khoi') {
-            document.querySelectorAll(`.cb-group-phong[data-parent-khoi="${id}"], .cb-group-duan[data-parent-khoi="${id}"]`).forEach(c => c.checked = isChecked);
+            currentTable.querySelectorAll(`.cb-group-phong[data-parent-khoi="${id}"], .cb-group-duan[data-parent-khoi="${id}"]`).forEach(c => c.checked = isChecked);
         } else if (level === 'phong') {
-            document.querySelectorAll(`.cb-group-duan[data-parent-phong="${id}"]`).forEach(c => c.checked = isChecked);
+            currentTable.querySelectorAll(`.cb-group-duan[data-parent-phong="${id}"]`).forEach(c => c.checked = isChecked);
         }
     }
 
