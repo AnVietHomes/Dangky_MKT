@@ -1035,25 +1035,23 @@ function submitEntireProposal() {
       
       populateDatalists(); 
 
-      callAPI("submitForm", { data: JSON.stringify(payload) }, function(res) {
+callAPI("submitForm", { data: JSON.stringify(payload) }, function(res) {
         if (res.success) {
+          // 1. Báo thành công
           alert("Gửi đề xuất chiến dịch và Đơn xin tạm ứng thành công!\nMã số phiếu của bạn là: " + res.id + "\n(Vui lòng lưu lại Mã này hoặc kiểm tra Email để tra cứu)");
           
-          document.querySelectorAll('#tableBody tr').forEach(row => {
-              row.querySelector('select[name="project"]').value = '';
-              row.querySelector('input[name="budget"]').value = '';
-              row.querySelector('input[name="kpi"]').value = '';
-              row.querySelector('input[name="channel"]').value = '';
-              row.querySelector('input[name="phone"]').value = '';
-              row.querySelector('input[name="account"]').value = '';
-          });
-          document.getElementById('advanceForm').reset(); 
-          calculateTotal();
-          
+          // 2. Đóng hộp thoại tạm ứng
           closeAdvanceModal();
-          showFormView();
-        } else { alert("Lỗi: " + res.message); }
-        btn.disabled = false; btn.innerText = "NỘP TOÀN BỘ ĐỀ XUẤT";
+          
+          // 3. Tải lại toàn bộ trang web để dọn dẹp bộ nhớ và trả về giao diện gốc mới tinh
+          window.location.reload();
+          
+        } else { 
+          // Nếu có lỗi thì báo lỗi và nhả nút ra cho Sale bấm lại
+          alert("Lỗi: " + res.message); 
+          btn.disabled = false; 
+          btn.innerText = "NỘP TOÀN BỘ ĐỀ XUẤT";
+        }
       });
     }
   </script>
