@@ -585,27 +585,47 @@
     let currentSearchResults = [];
     let currentSearchIndex = 0;
 
+// --- BỘ QUẢN LÝ HÀNG ĐỢI API ---
+    let isApiRunning = false;
+    let apiTaskQueue = [];
+
     function callAPI(action, params, successCallback) {
+      // 1. Thay vì chạy ngay, hệ thống sẽ nhét lệnh vào Hàng đợi (Queue)
+      apiTaskQueue.push({ action, params, successCallback });
+      
+      // 2. Kích hoạt bộ máy kiểm tra và xử lý hàng đợi
+      processApiQueue();
+    }
+
+    function processApiQueue() {
+      // Nếu đang có lệnh khác chạy hoặc hàng đợi trống -> Bỏ qua, xếp hàng chờ đến lượt
+      if (isApiRunning || apiTaskQueue.length === 0) return;
+      
+      isApiRunning = true; // Khóa cửa, bắt đầu xử lý lệnh đầu tiên trong hàng đợi
+      const currentTask = apiTaskQueue[0];
+      
+      const action = currentTask.action;
+      const params = currentTask.params;
+      const successCallback = currentTask.successCallback;
+
       const callbackName = "cb_" + action + "_" + new Date().getTime();
       let isDone = false;
 
       const timeoutId = setTimeout(() => {
           if (isDone) return;
           isDone = true;
-          showLoading(false);
+          if (typeof showLoading === 'function') showLoading(false);
           alert("Mạng có vẻ chậm. Dữ liệu có thể đã được lưu, vui lòng ấn F5 để kiểm tra lại!");
-          if (document.getElementById(scriptId)) document.getElementById(scriptId).remove();
-          delete window[callbackName];
+          finishTaskAndNext(); // Kích hoạt lệnh tiếp theo dù bị lỗi
           try { successCallback({ success: false, message: "Timeout" }); } catch(e) {}
-      }, 45000); 
+      }, 90000); // Đã tăng thời gian chờ lên 90 giây
 
       window[callbackName] = function(response) {
           if (isDone) return;
           isDone = true;
           clearTimeout(timeoutId);
+          finishTaskAndNext(); // Lệnh hoàn thành, gọi lệnh tiếp theo
           try { successCallback(response); } catch (e) { console.error(e); }
-          if (document.getElementById(scriptId)) document.getElementById(scriptId).remove();
-          delete window[callbackName];
       };
 
       const scriptId = "jsonp_" + new Date().getTime(); 
@@ -616,13 +636,25 @@
           if (isDone) return;
           isDone = true;
           clearTimeout(timeoutId);
-          showLoading(false);
+          if (typeof showLoading === 'function') showLoading(false);
           alert("Lỗi kết nối máy chủ Google! Vui lòng kiểm tra lại mạng.");
-          if (document.getElementById(scriptId)) document.getElementById(scriptId).remove();
-          delete window[callbackName];
+          finishTaskAndNext(); // Lệnh lỗi mạng, vẫn tiếp tục gọi lệnh tiếp theo
           try { successCallback({ success: false, message: "Lỗi mạng" }); } catch(e) {}
       };
 
+      // Hàm dọn dẹp và gọi lệnh kế tiếp
+      function finishTaskAndNext() {
+          if (document.getElementById(scriptId)) document.getElementById(scriptId).remove();
+          delete window[callbackName];
+          
+          apiTaskQueue.shift(); // Xóa lệnh vừa chạy xong khỏi hàng đợi
+          isApiRunning = false; // Mở khóa cửa
+          
+          // Nghỉ 300ms rồi tự động trượt lên gọi lệnh tiếp theo trong hàng đợi
+          setTimeout(processApiQueue, 300);
+      }
+
+      // Đóng gói và gửi lệnh đi bằng JSONP
       let queryString = `?action=${action}&callback=${callbackName}&_ts=${new Date().getTime()}`;
       for (let key in params) { 
           queryString += `&${key}=${encodeURIComponent(params[key])}`; 
@@ -630,6 +662,7 @@
       script.src = API_URL + queryString; 
       document.body.appendChild(script);
     }
+    // ---------------------------------
     
     function formatNumber(num) { return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
 
