@@ -316,7 +316,7 @@ tr.row-duplicate td {
       }
     });
 
-    function callAPI(action, params, successCallback) {
+   function callAPI(action, params, successCallback) {
         // Nâng thời gian chờ lên 90 giây để Google Apps Script thoải mái xử lý
         const TIMEOUT_DURATION = 90000; 
         let isDone = false;
@@ -358,7 +358,7 @@ tr.row-duplicate td {
             try { successCallback({ success: false, message: "Lỗi mạng" }); } catch(e) {}
         });
     }
-
+    
     function showLoading(show, mainText="ĐANG XỬ LÝ...", subText="Vui lòng đợi trong giây lát") { 
       document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none'; 
       if (show) { document.getElementById('loadingMainText').innerText = mainText; document.getElementById('loadingSubtext').innerText = subText; }
