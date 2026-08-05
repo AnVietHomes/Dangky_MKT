@@ -317,46 +317,51 @@ tr.row-duplicate td {
     });
 
    function callAPI(action, params, successCallback) {
-        // Nâng thời gian chờ lên 90 giây để Google Apps Script thoải mái xử lý
-        const TIMEOUT_DURATION = 90000; 
-        let isDone = false;
+      const callbackName = "cb_" + action + "_" + new Date().getTime();
+      let isDone = false;
 
-        const timeoutId = setTimeout(() => {
-            if (isDone) return;
-            isDone = true;
-            showLoading(false);
-            alert("Mạng có vẻ chậm. Dữ liệu có thể đã được lưu, vui lòng ấn F5 để kiểm tra lại!");
-            try { successCallback({ success: false, message: "Timeout" }); } catch(e) {}
-        }, TIMEOUT_DURATION);
+      // Đã giữ nguyên nâng cấp thời gian chờ lên 90 giây để khắc phục lỗi mạng chậm
+      const timeoutId = setTimeout(() => {
+          if (isDone) return;
+          isDone = true;
+          showLoading(false);
+          alert("Mạng có vẻ chậm. Dữ liệu có thể đã được lưu, vui lòng ấn F5 để kiểm tra lại!");
+          if (document.getElementById(scriptId)) document.getElementById(scriptId).remove();
+          delete window[callbackName];
+          try { successCallback({ success: false, message: "Timeout" }); } catch(e) {}
+      }, 90000); 
 
-        // Chuyển đổi dữ liệu sang định dạng Form-Data (Khắc phục luôn lỗi quá giới hạn ký tự khi duyệt hàng loạt)
-        let formData = new URLSearchParams();
-        formData.append('action', action);
-        for (let key in params) {
-            formData.append(key, params[key]);
-        }
+      window[callbackName] = function(response) {
+          if (isDone) return;
+          isDone = true;
+          clearTimeout(timeoutId);
+          try { successCallback(response); } catch (e) { console.error(e); }
+          if (document.getElementById(scriptId)) document.getElementById(scriptId).remove();
+          delete window[callbackName];
+      };
 
-        // Sử dụng Fetch API (Giao thức POST) hiện đại và bảo mật
-        fetch(API_URL, {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(result => {
-            if (isDone) return;
-            isDone = true;
-            clearTimeout(timeoutId);
-            try { successCallback(result); } catch (e) { console.error(e); }
-        })
-        .catch(error => {
-            if (isDone) return;
-            isDone = true;
-            clearTimeout(timeoutId);
-            showLoading(false);
-            console.error("Lỗi Fetch API:", error);
-            alert("Lỗi kết nối máy chủ Google! Vui lòng kiểm tra lại mạng.");
-            try { successCallback({ success: false, message: "Lỗi mạng" }); } catch(e) {}
-        });
+      const scriptId = "jsonp_" + new Date().getTime(); 
+      const script = document.createElement("script"); 
+      script.id = scriptId;
+
+      script.onerror = function() {
+          if (isDone) return;
+          isDone = true;
+          clearTimeout(timeoutId);
+          showLoading(false);
+          alert("Lỗi kết nối máy chủ Google! Vui lòng kiểm tra lại mạng.");
+          if (document.getElementById(scriptId)) document.getElementById(scriptId).remove();
+          delete window[callbackName];
+          try { successCallback({ success: false, message: "Lỗi mạng" }); } catch(e) {}
+      };
+
+      // Sử dụng phương thức JSONP bypass chuyển hướng của Google để lấy dữ liệu tức thì
+      let queryString = `?action=${action}&callback=${callbackName}&_ts=${new Date().getTime()}`;
+      for (let key in params) { 
+          queryString += `&${key}=${encodeURIComponent(params[key])}`; 
+      }
+      script.src = API_URL + queryString; 
+      document.body.appendChild(script);
     }
     
     function showLoading(show, mainText="ĐANG XỬ LÝ...", subText="Vui lòng đợi trong giây lát") { 
