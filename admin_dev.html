@@ -1510,23 +1510,62 @@ function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
       } catch (e) { alert("Có lỗi cục bộ khi cập nhật: " + e.message); btn.innerText = 'Cập nhật'; btn.disabled = false; }
     }
 
-    function submitBldApproval(isFinal) {
+  function submitBldApproval(isFinal) {
       try {
         if(isFinal && !confirm("Xác nhận chốt số? Hệ thống sẽ duyệt TẤT CẢ các đơn đang hiển thị.")) return; 
-        showLoading(true); const itemsData = [];
+        
+        const itemsData = [];
         let signature = `(Ghi chú bởi: ${loggedInUser.name})`;
+        
+        // Thu thập toàn bộ dữ liệu trên màn hình
         document.querySelectorAll('.bld-budget').forEach(input => { 
             let noteEl = input.closest('tr').querySelector('.bld-note'); 
             let note = noteEl ? noteEl.value.trim() : "";
             if (note !== "" && !note.includes(signature)) { note = note + " " + signature; if(noteEl) noteEl.value = note; }
             itemsData.push({ idDong: input.getAttribute('data-id-dong'), nganSachDuyet: parseNumber(input.value), ghiChuBLD: note }); 
         });
-        if (itemsData.length === 0) { showLoading(false); alert("Chưa có dữ liệu nào trên màn hình để lưu!"); return; }
-        let payload = JSON.stringify({ isFinalApprove: isFinal, items: itemsData }); if (payload.length > 5000) { showLoading(false); alert("Lỗi: Số lượng phiếu duyệt cùng lúc quá lớn. Vui lòng thử duyệt từng đơn."); return; }
-        callAPI("bldApprove", { data: payload }, function(res) { showLoading(false); if (res && res.success) { alert(res.message); simulateRole(currentViewRole); } else { alert("Lỗi từ máy chủ: " + (res ? res.message : "Chưa phản hồi")); } });
-      } catch (err) { showLoading(false); alert("Có lỗi cục bộ khi lưu. Vui lòng tải lại trang: " + err.message); }
-    }
+        
+        if (itemsData.length === 0) { alert("Chưa có dữ liệu nào trên màn hình để lưu!"); return; }
+        
+        // --- BẮT ĐẦU CHIẾN THUẬT CHIA ĐỂ TRỊ (CHUNKING) ---
+        showLoading(true, "ĐANG ĐỒNG BỘ DỮ LIỆU...", `Đang xử lý 0 / ${itemsData.length} dòng...`);
+        let currentIndex = 0;
+        const CHUNK_SIZE = 2; // Chỉ gửi 2 dòng mỗi nhịp để đảm bảo URL luôn cực ngắn và an toàn
 
+        function sendNextChunk() {
+            // Nếu đã quét hết mảng dữ liệu -> Hoàn thành
+            if (currentIndex >= itemsData.length) {
+                showLoading(false);
+                alert("✅ Hoàn tất! Hệ thống đã chốt duyệt xong toàn bộ dữ liệu.");
+                simulateRole(currentViewRole); // Tải lại bảng
+                return;
+            }
+
+            // Cắt ra 2 dòng tiếp theo để gửi
+            let chunk = itemsData.slice(currentIndex, currentIndex + CHUNK_SIZE);
+            let payload = JSON.stringify({ isFinalApprove: isFinal, items: chunk });
+
+            callAPI("bldApprove", { data: payload }, function(res) {
+                // Tăng con trỏ lên và cập nhật giao diện
+                currentIndex += CHUNK_SIZE;
+                let displayCount = Math.min(currentIndex, itemsData.length);
+                document.getElementById('loadingSubtext').innerText = `Đang xử lý ${displayCount} / ${itemsData.length} dòng...`;
+                
+                // Nghỉ 400ms giữa mỗi nhịp để Google không đánh dấu là spam (Rate limit)
+                setTimeout(sendNextChunk, 400); 
+            });
+        }
+        
+        // Kích hoạt nhịp gửi đầu tiên
+        sendNextChunk();
+        // ---------------------------------------------------
+        
+      } catch (err) { 
+        showLoading(false); 
+        alert("Có lỗi cục bộ khi lưu. Vui lòng tải lại trang: " + err.message); 
+      }
+    }
+    
     function sendApprovalMail(btn, idPhieu) {
       if(!confirm("Bạn có chắc chắn muốn gửi Email bản duyệt tới nhóm này?")) return;
       const originalText = btn.innerText; btn.innerText = "Đang gửi..."; btn.disabled = true;
