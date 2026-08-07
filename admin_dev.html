@@ -1604,19 +1604,24 @@ function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
     }
 
     function sendAllApprovalMails() {
-        // 1. CHỈ THU THẬP CÁC PHIẾU ĐANG HIỂN THỊ TRÊN MÀN HÌNH (THÁNG HIỆN TẠI)
         let visibleIds = [];
         
-        // Quét tất cả các ô checkbox của đề xuất (chứa mã phiếu)
+        // 1. Quét tất cả các ô checkbox chứa mã phiếu
         document.querySelectorAll('input[type="checkbox"][value^="DX-"]').forEach(cb => {
             let tr = cb.closest('tr');
-            // Nếu dòng chứa ô checkbox đó không bị ẩn -> Phiếu đang nằm trong tháng này
-            if (tr && tr.style.display !== 'none') {
+            
+            // KỸ THUẬT KIỂM TRA HIỂN THỊ TUYỆT ĐỐI: 
+            // offsetWidth > 0 đảm bảo dòng này đang thực sự hiện hữu và chiếm không gian trên màn hình
+            // Bỏ qua mọi dòng bị ẩn (dù là ẩn trực tiếp hay bị giấu trong thư mục cha)
+            if (tr && tr.offsetWidth > 0 && tr.offsetHeight > 0) {
                 visibleIds.push(cb.value);
             }
         });
 
-        // 2. Lọc danh sách: Chỉ chọn những phiếu Đã duyệt (APPROVED_BY_BLD) VÀ Đang hiển thị
+        // Loại bỏ trùng lặp mã (đề phòng có 2 ô checkbox của cùng 1 mã đang hiển thị)
+        visibleIds = [...new Set(visibleIds)];
+
+        // 2. Lọc danh sách: Chỉ chọn những phiếu Đã duyệt (APPROVED_BY_BLD) VÀ Đang thực sự hiển thị
         const approvedItems = globalData.filter(p => 
             p.trangThai === 'APPROVED_BY_BLD' && visibleIds.includes(p.idPhieu)
         );
@@ -1628,7 +1633,7 @@ function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
 
         if (!confirm(`Hệ thống sẽ gửi TỰ ĐỘNG ${approvedItems.length} email cho các đơn ĐANG HIỂN THỊ.\nVui lòng không đóng trang cho đến khi hoàn tất!`)) return;
 
-        // 3. KÍCH HOẠT HÀNG ĐỢI GỬI EMAIL TỪ TỐN CHỐNG SẬP
+        // 3. KÍCH HOẠT HÀNG ĐỢI GỬI EMAIL
         showLoading(true, "ĐANG GỬI EMAIL...", `Đã gửi 0 / ${approvedItems.length} email...`);
         let currentIndex = 0;
 
