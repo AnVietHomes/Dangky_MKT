@@ -1604,14 +1604,64 @@ function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
     }
 
     function sendAllApprovalMails() {
-      const approvedItems = globalData.filter(p => p.trangThai === 'APPROVED_BY_BLD');
-      if(approvedItems.length === 0) { alert("Không có phiếu duyệt nào!"); return; }
-      if(!confirm(`Bắt đầu quy trình gửi tự động ${approvedItems.length} email. Vui lòng không đóng trang.`)) return;
-      showLoading(true, "Đang gửi Email...", "Hệ thống đang phát thư, vui lòng chờ..."); let currentIndex = 0; let successCount = 0;
-      function sendNext() { if (currentIndex >= approvedItems.length) { showLoading(false); alert(`Hoàn tất! Đã gửi thành công ${successCount}/${approvedItems.length} Email.`); return; } callAPI("sendPdfEmail", { idPhieu: approvedItems[currentIndex].idPhieu }, function(res) { if (res && res.success) successCount++; currentIndex++; sendNext(); }); }
-      sendNext();
-    }
+        let visibleIds = [];
+        
+        // 1. Quét tất cả các ô checkbox chứa mã phiếu
+        document.querySelectorAll('input[type="checkbox"][value^="DX-"]').forEach(cb => {
+            let tr = cb.closest('tr');
+            
+            // KỸ THUẬT KIỂM TRA HIỂN THỊ TUYỆT ĐỐI: 
+            // offsetWidth > 0 đảm bảo dòng này đang thực sự hiện hữu và chiếm không gian trên màn hình
+            // Bỏ qua mọi dòng bị ẩn (dù là ẩn trực tiếp hay bị giấu trong thư mục cha)
+            if (tr && tr.offsetWidth > 0 && tr.offsetHeight > 0) {
+                visibleIds.push(cb.value);
+            }
+        });
 
+        // Loại bỏ trùng lặp mã (đề phòng có 2 ô checkbox của cùng 1 mã đang hiển thị)
+        visibleIds = [...new Set(visibleIds)];
+
+        // 2. Lọc danh sách: Chỉ chọn những phiếu Đã duyệt (APPROVED_BY_BLD) VÀ Đang thực sự hiển thị
+        const approvedItems = globalData.filter(p => 
+            p.trangThai === 'APPROVED_BY_BLD' && visibleIds.includes(p.idPhieu)
+        );
+
+        if (approvedItems.length === 0) { 
+            alert("Không có phiếu nào trên màn hình hiện tại đủ điều kiện gửi Email (Chỉ gửi cho phiếu Đã duyệt)!"); 
+            return; 
+        }
+
+        if (!confirm(`Hệ thống sẽ gửi TỰ ĐỘNG ${approvedItems.length} email cho các đơn ĐANG HIỂN THỊ.\nVui lòng không đóng trang cho đến khi hoàn tất!`)) return;
+
+        // 3. KÍCH HOẠT HÀNG ĐỢI GỬI EMAIL
+        showLoading(true, "ĐANG GỬI EMAIL...", `Đã gửi 0 / ${approvedItems.length} email...`);
+        let currentIndex = 0;
+
+        function sendNextEmail() {
+            // Nếu đã gửi hết danh sách -> Báo thành công
+            if (currentIndex >= approvedItems.length) {
+                showLoading(false);
+                alert(`✅ Hoàn tất! Đã gửi thành công ${approvedItems.length} email cho tháng này.`);
+                simulateRole(currentViewRole); // Làm mới lại bảng
+                return;
+            }
+
+            let phieu = approvedItems[currentIndex];
+            
+            // Gọi API gửi Email cho từng phiếu
+            callAPI("sendPdfEmail", { idPhieu: phieu.idPhieu }, function(res) {
+                currentIndex++;
+                document.getElementById('loadingSubtext').innerText = `Đã gửi ${currentIndex} / ${approvedItems.length} email...`;
+                
+                // Nghỉ 400ms giữa mỗi email để Google không coi là Spam
+                setTimeout(sendNextEmail, 400);
+            });
+        }
+        
+        // Phát lệnh gửi email đầu tiên
+        sendNextEmail(); 
+    }
+    
   // =====================================================================
     // KHỐI QUẢN LÝ IN ẤN & XUẤT PDF (ĐÃ TÍCH HỢP CHỮ KÝ ĐỘNG THEO TRẠNG THÁI)
     // =====================================================================
