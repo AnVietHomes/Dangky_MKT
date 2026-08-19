@@ -884,11 +884,39 @@ let rawTv = String(phieu.thanhVien || "");
         
         let tv = "";
         if (isGoiTong) {
-            // Thuật toán dịch Text sạch thành HTML: Tìm chữ trong ngoặc vuông để in đậm, biến \n thành <br>
-            let formattedGtTv = rawTv.replace(/\[(.*?)\]/g, '<b style="color:#0b1f8c;">$1:</b>').replace(/\n/g, '<br>');
-            tv = `<div style="padding: 8px; background: #fef5f5; border-left: 3px solid #d32f2f; border-radius: 4px; font-size: 12px; color: #333; line-height: 1.8; box-shadow: inset 0 0 5px rgba(0,0,0,0.02);">${formattedGtTv}</div>`;
+            let formattedGtTv = "";
+            let groups = rawTv.split('\n'); // Tách từng nhóm theo dấu xuống dòng
+            
+            groups.forEach((groupText, index) => {
+                if (!groupText.trim()) return;
+                
+                // Dùng Regex bóc tách Tên nhóm (trong ngoặc vuông) và Danh sách thành viên
+                let match = groupText.match(/\[(.*?)\]\s*(.*)/);
+                if (match) {
+                    let groupName = match[1].trim();
+                    let members = match[2].split(','); // Tách từng thành viên bằng dấu phẩy
+                    
+                    // 1. Tên nhóm: Nằm riêng 1 dòng, in đậm, màu xanh. 
+                    // (Thêm khoảng cách margin-top nếu không phải nhóm đầu tiên để phân biệt rõ ràng)
+                    let marginTop = index === 0 ? "0px" : "12px"; 
+                    formattedGtTv += `<div style="font-weight: 700; color: #0b1f8c; margin-top: ${marginTop}; margin-bottom: 4px; font-size: 13px;">${groupName}</div>`;
+                    
+                    // 2. Các thành viên: Mỗi người 1 dòng, thụt lề 15px, thêm dấu chấm nhỏ cho dễ nhìn
+                    members.forEach(member => {
+                        if (member.trim()) {
+                            formattedGtTv += `<div style="padding-left: 15px; color: #333; margin-bottom: 2px;">• ${member.trim()}</div>`;
+                        }
+                    });
+                } else {
+                    // Fallback dự phòng
+                    formattedGtTv += `<div style="margin-top: 8px;">${groupText}</div>`;
+                }
+            });
+            
+            // Bọc toàn bộ vào khối nền màu đỏ nhạt đặc trưng
+            tv = `<div style="padding: 10px 12px 12px 12px; background: #fef5f5; border-left: 3px solid #d32f2f; border-radius: 4px; font-size: 12px; line-height: 1.6; box-shadow: inset 0 0 5px rgba(0,0,0,0.02);">${formattedGtTv}</div>`;
         } else {
-            // Xử lý hiển thị cho Gói thường
+            // Hiển thị cho Gói thường
             tv = rawTv.split(',').join('<br>');
         }
         
@@ -1410,22 +1438,47 @@ let rawTv = String(phieu.thanhVien || "");
         let subNote = isTruyThu ? '<b style="color:#d32f2f;">(ĐÃ TRUY THU GÓI)</b><br>' : (isKpiDacBiet ? '<b style="color:#8e44ad;">(KPI Đặc biệt)</b><br>' : '');
 
 // --- ĐỒNG BỘ GIAO DIỆN GÓI TỔNG BẰNG TEXT SẠCH ---
-        let tenNhomRaw = phieu.tenNhom || "";
+let rawTv = String(phieu.thanhVien || "");
+        let tenNhomRaw = String(phieu.tenNhom || "");
         let isGoiTong = tenNhomRaw.includes('[GÓI TỔNG]');
         
-        let tenNhomHtml = isGoiTong 
-              ? `<span style="color:#d32f2f; font-weight:900; font-size:13px; text-transform: uppercase;">${tenNhomRaw}</span>` 
-              : `<span style="color:var(--primary-blue); font-weight:bold;">Nhóm: ${tenNhomRaw}</span>`;
-              
-        let rawTv = String(phieu.thanhVien || "");
-        
-        // Thuật toán: Tìm các chữ trong ngoặc vuông [...] để tô đậm chữ xanh, biến \n thành thẻ <br>
-        let formattedGtTv = rawTv.replace(/\[(.*?)\]/g, '<b style="color:#0b1f8c;">$1:</b>').replace(/\n/g, '<br>');
-
-        let tvDisplay = isGoiTong 
-              ? `<div style="margin-top:8px; padding: 10px; background: #fef5f5; border-left: 3px solid #d32f2f; border-radius: 4px; font-size: 12px; color: #333; line-height: 1.8; box-shadow: inset 0 0 5px rgba(0,0,0,0.02);">${formattedGtTv}</div>` 
-              : `<div style="margin-top:4px;">${rawTv.split(',').join('<br>')}</div>`;
-        // ----------------------------------------------------
+        let tv = "";
+        if (isGoiTong) {
+            let formattedGtTv = "";
+            let groups = rawTv.split('\n'); // Tách từng nhóm theo dấu xuống dòng
+            
+            groups.forEach((groupText, index) => {
+                if (!groupText.trim()) return;
+                
+                // Dùng Regex bóc tách Tên nhóm (trong ngoặc vuông) và Danh sách thành viên
+                let match = groupText.match(/\[(.*?)\]\s*(.*)/);
+                if (match) {
+                    let groupName = match[1].trim();
+                    let members = match[2].split(','); // Tách từng thành viên bằng dấu phẩy
+                    
+                    // 1. Tên nhóm: Nằm riêng 1 dòng, in đậm, màu xanh. 
+                    // (Thêm khoảng cách margin-top nếu không phải nhóm đầu tiên để phân biệt rõ ràng)
+                    let marginTop = index === 0 ? "0px" : "12px"; 
+                    formattedGtTv += `<div style="font-weight: 700; color: #0b1f8c; margin-top: ${marginTop}; margin-bottom: 4px; font-size: 13px;">${groupName}</div>`;
+                    
+                    // 2. Các thành viên: Mỗi người 1 dòng, thụt lề 15px, thêm dấu chấm nhỏ cho dễ nhìn
+                    members.forEach(member => {
+                        if (member.trim()) {
+                            formattedGtTv += `<div style="padding-left: 15px; color: #333; margin-bottom: 2px;">• ${member.trim()}</div>`;
+                        }
+                    });
+                } else {
+                    // Fallback dự phòng
+                    formattedGtTv += `<div style="margin-top: 8px;">${groupText}</div>`;
+                }
+            });
+            
+            // Bọc toàn bộ vào khối nền màu đỏ nhạt đặc trưng
+            tv = `<div style="padding: 10px 12px 12px 12px; background: #fef5f5; border-left: 3px solid #d32f2f; border-radius: 4px; font-size: 12px; line-height: 1.6; box-shadow: inset 0 0 5px rgba(0,0,0,0.02);">${formattedGtTv}</div>`;
+        } else {
+            // Hiển thị cho Gói thường
+            tv = rawTv.split(',').join('<br>');
+        }
 
         let rowHTML = `<tr class="${rowClass}"><td><div style="display:flex; flex-direction:column; align-items:center; gap:6px;"><button class="btn-view" onclick="viewDetail('${phieu.idPhieu}', 'advance')">👁️</button><input type="checkbox" class="cb-print-advance" value="${phieu.idPhieu}" title="Tích chọn để in" style="cursor:pointer; width:16px; height:16px;"></div></td><td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${phieu.idPhieu}</span></td><td><span style="font-weight:700; color:var(--primary-blue);">${phong}</span><br><span style="font-size:11px; color:#666;">Khối ${khoi}</span></td><td style="text-align:left; font-size:12px; line-height:1.4;">${tenNhomHtml}<br>${subNote}${tvDisplay}</td><td style="color:#0b1f8c; font-weight:800; font-size:12px;">${prjNames.join(', ')}</td><td>${bdgDisplay}</td><td style="color:var(--danger); font-weight:bold; white-space:nowrap;">${percentHtml}</td><td class="td-adv-amount" style="color:var(--danger); font-weight:bold;">${advDisplay}</td><td class="td-status-tu"><span style="color:var(--warning); font-weight:700;">${phieu.trangThaiTU}</span></td><td class="td-actions-tu">`;
 
