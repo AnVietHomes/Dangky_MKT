@@ -879,10 +879,18 @@ function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
       globalData.forEach(phieu => {
         let tk = (phieu.phongKD || "").split('-'); let phong = tk[0] ? tk[0].trim() : 'Chưa phân phòng'; let khoi = tk[1] ? tk[1].trim() : 'Chưa phân khối';
 let rawTv = String(phieu.thanhVien || "");
-        // Nếu là Gói tổng (có chứa thẻ div hoặc chữ GÓI TỔNG), giữ nguyên HTML; nếu gói thường thì mới ngắt dòng bằng dấu phẩy
-        let tv = (rawTv.includes('🌟') || rawTv.includes('div')) 
-            ? rawTv 
-            : rawTv.split(',').join('<br>');
+        let tenNhomRaw = String(phieu.tenNhom || "");
+        let isGoiTong = tenNhomRaw.includes('[GÓI TỔNG]');
+        
+        let tv = "";
+        if (isGoiTong) {
+            // Thuật toán dịch Text sạch thành HTML: Tìm chữ trong ngoặc vuông để in đậm, biến \n thành <br>
+            let formattedGtTv = rawTv.replace(/\[(.*?)\]/g, '<b style="color:#0b1f8c;">$1:</b>').replace(/\n/g, '<br>');
+            tv = `<div style="padding: 8px; background: #fef5f5; border-left: 3px solid #d32f2f; border-radius: 4px; font-size: 12px; color: #333; line-height: 1.8; box-shadow: inset 0 0 5px rgba(0,0,0,0.02);">${formattedGtTv}</div>`;
+        } else {
+            // Xử lý hiển thị cho Gói thường
+            tv = rawTv.split(',').join('<br>');
+        }
         
         (phieu.chiTiet || []).forEach(ct => { 
             let mKey = getMonthKey(ct.start, phieu.ngayTao);
@@ -1401,7 +1409,7 @@ let rawTv = String(phieu.thanhVien || "");
         
         let subNote = isTruyThu ? '<b style="color:#d32f2f;">(ĐÃ TRUY THU GÓI)</b><br>' : (isKpiDacBiet ? '<b style="color:#8e44ad;">(KPI Đặc biệt)</b><br>' : '');
 
-        // --- ĐỒNG BỘ GIAO DIỆN GÓI TỔNG CHO TAB TẠM ỨNG ---
+// --- ĐỒNG BỘ GIAO DIỆN GÓI TỔNG BẰNG TEXT SẠCH ---
         let tenNhomRaw = phieu.tenNhom || "";
         let isGoiTong = tenNhomRaw.includes('[GÓI TỔNG]');
         
@@ -1410,8 +1418,12 @@ let rawTv = String(phieu.thanhVien || "");
               : `<span style="color:var(--primary-blue); font-weight:bold;">Nhóm: ${tenNhomRaw}</span>`;
               
         let rawTv = String(phieu.thanhVien || "");
+        
+        // Thuật toán: Tìm các chữ trong ngoặc vuông [...] để tô đậm chữ xanh, biến \n thành thẻ <br>
+        let formattedGtTv = rawTv.replace(/\[(.*?)\]/g, '<b style="color:#0b1f8c;">$1:</b>').replace(/\n/g, '<br>');
+
         let tvDisplay = isGoiTong 
-              ? `<div style="margin-top:8px; padding: 10px; background: #fef5f5; border-left: 3px solid #d32f2f; border-radius: 4px; font-size: 12px; color: #333; line-height: 1.8; box-shadow: inset 0 0 5px rgba(0,0,0,0.02);">${rawTv}</div>` 
+              ? `<div style="margin-top:8px; padding: 10px; background: #fef5f5; border-left: 3px solid #d32f2f; border-radius: 4px; font-size: 12px; color: #333; line-height: 1.8; box-shadow: inset 0 0 5px rgba(0,0,0,0.02);">${formattedGtTv}</div>` 
               : `<div style="margin-top:4px;">${rawTv.split(',').join('<br>')}</div>`;
         // ----------------------------------------------------
 
