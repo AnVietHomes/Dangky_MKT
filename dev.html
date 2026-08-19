@@ -988,27 +988,23 @@ function submitEntireProposal() {
           
           finalTeamName = "🌟 [GÓI TỔNG] " + masterName;
           
-          // GOM DỮ LIỆU DẠNG GIẬT CẤP (Chuẩn form Ảnh 2 - Tuyệt đối không dùng dấu phẩy)
-          let groupsArr = [];
-          document.querySelectorAll('.goi-tong-group').forEach(group => {
-              let tName = group.querySelector('.gt-team-name').value.trim();
-              let mNames = Array.from(group.querySelectorAll('.gt-member-name')).map(i => i.value.trim()).filter(v => v !== "");
+// --- ĐỒNG BỘ GIAO DIỆN GÓI TỔNG BẰNG TEXT SẠCH ---
+        let tenNhomRaw = phieu.tenNhom || "";
+        let isGoiTong = tenNhomRaw.includes('[GÓI TỔNG]');
+        
+        let tenNhomHtml = isGoiTong 
+              ? `<span style="color:#d32f2f; font-weight:900; font-size:13px; text-transform: uppercase;">${tenNhomRaw}</span>` 
+              : `<span style="color:var(--primary-blue); font-weight:bold;">Nhóm: ${tenNhomRaw}</span>`;
               
-              if (tName || mNames.length > 0) {
-                  // 1. Tên nhóm in đậm, màu xanh
-                  let groupHtml = `<div style="font-weight:bold; color:#0b1f8c; margin-bottom: 2px;">${tName || 'Nhóm'}</div>`;
-                  
-                  // 2. Thành viên thụt lề vào trong 15px
-                  if (mNames.length > 0) {
-                      groupHtml += mNames.map(m => `<div style="padding-left: 15px; color: #333; margin-bottom: 2px;">${m}</div>`).join('');
-                  }
-                  groupsArr.push(groupHtml);
-              }
-          });
-          
-          // Nối các nhóm bằng 1 khoảng trắng cao 8px (Tuyệt đối không dùng phẩy)
-          finalNames = groupsArr.join('<div style="height: 8px;"></div>');
-          finalMnvs = "Miễn trừ Mã NV"; 
+        let rawTv = String(phieu.thanhVien || "");
+        
+        // Thuật toán: Tìm các chữ trong ngoặc vuông [...] để tô đậm chữ xanh, biến \n thành thẻ <br>
+        let formattedGtTv = rawTv.replace(/\[(.*?)\]/g, '<b style="color:#0b1f8c;">$1:</b>').replace(/\n/g, '<br>');
+
+        let tvDisplay = isGoiTong 
+              ? `<div style="margin-top:8px; padding: 10px; background: #fef5f5; border-left: 3px solid #d32f2f; border-radius: 4px; font-size: 12px; color: #333; line-height: 1.8; box-shadow: inset 0 0 5px rgba(0,0,0,0.02);">${formattedGtTv}</div>` 
+              : `<div style="margin-top:4px;">${rawTv.split(',').join('<br>')}</div>`;
+        // ----------------------------------------------------
       } else {
           // ... (Phần Gói thường của bạn giữ nguyên bên dưới)
           finalTeamName = document.getElementById('teamName').value;
