@@ -594,6 +594,49 @@ callAPI("getDashboardData", { role: currentViewRole, departments: deptsString },
         let bgStyle = isApprovedTU ? '' : 'background-color: #ffebee;';
         if (item.isTruyThu) bgStyle = 'background-color: #ffb3b3;'; 
 
+        // --- ĐỒNG BỘ GIAO DIỆN GÓI TỔNG BẰNG TEXT SẠCH (CHO TAB BÁO CÁO) ---
+        let rawTv = String(item.thanhVien || "");
+        let tenNhomRaw = String(item.tenNhom || "");
+        let isGoiTong = tenNhomRaw.includes('[GÓI TỔNG]');
+        
+        // Format Tên Nhóm để in đậm đỏ nếu là gói tổng
+        let tenNhomHtml = isGoiTong 
+            ? `<span style="color:#d32f2f; font-weight:900; font-size:13px; text-transform: uppercase;">${tenNhomRaw}</span>` 
+            : `<span style="color:var(--primary-blue); font-weight:bold;">${tenNhomRaw}</span>`;
+            
+        let tvDisplay = "";
+        if (isGoiTong) {
+            let formattedGtTv = "";
+            let groups = rawTv.replace(/<br>/g, '\n').split('\n'); // Báo cáo có thể đang lưu HTML <br>, ta chuyển về text sạch để tách
+            
+            groups.forEach((groupText, index) => {
+                if (!groupText.trim()) return;
+                
+                let match = groupText.match(/\[(.*?)\]\s*(.*)/);
+                if (match) {
+                    let groupName = match[1].trim();
+                    let members = match[2].split(','); 
+                    
+                    let marginTop = index === 0 ? "0px" : "12px"; 
+                    formattedGtTv += `<div style="font-weight: 700; color: #0b1f8c; margin-top: ${marginTop}; margin-bottom: 4px; font-size: 13px;">${groupName}</div>`;
+                    
+                    members.forEach(member => {
+                        if (member.trim()) {
+                            formattedGtTv += `<div style="padding-left: 15px; color: #333; margin-bottom: 2px;">• ${member.trim()}</div>`;
+                        }
+                    });
+                } else {
+                    formattedGtTv += `<div style="margin-top: 8px;">${groupText}</div>`;
+                }
+            });
+            
+            tvDisplay = `<div style="padding: 10px 12px 12px 12px; background: #fef5f5; border-left: 3px solid #d32f2f; border-radius: 4px; font-size: 12px; line-height: 1.6; box-shadow: inset 0 0 5px rgba(0,0,0,0.02);">${formattedGtTv}</div>`;
+        } else {
+            // Hiển thị cho Gói thường
+            tvDisplay = rawTv.replace(/<br>/g, '\n').split('\n').join('<br>'); 
+        }
+        // ----------------------------------------------------
+
         let kpiText = item.isKpiDacBiet ? '<b style="color:#8e44ad;">(Nhóm KPI Đặc biệt)</b><br>' : '';
         let rowCls = "row-approved";
         if (item.isTruyThu) {
@@ -604,7 +647,7 @@ callAPI("getDashboardData", { role: currentViewRole, departments: deptsString },
         let bdgDisplay = item.isTruyThu ? `<s style="opacity:0.6;">${formatNumber(item.nganSach)}</s>` : formatNumber(item.nganSach);
         let advDisplay = item.isTruyThu ? `<s style="opacity:0.6;">${formatNumber(item.tamUng)}</s><br><span style="font-size:10px; color:#d32f2f; font-weight:800;">(Truy thu tạm ứng đã chi)</span>` : formatNumber(item.tamUng);
 
-        html += `<tr class="${rowCls}"><td><b>${item.idPhieu}</b></td><td style="font-weight: bold; color: var(--primary-blue);">${item.tenNhom}</td><td style="text-align:left; font-size:12px; line-height: 1.4;">${kpiText}${item.thanhVien}</td><td><b>Phòng:</b> ${item.phong}</td><td style="color:var(--primary-blue); font-weight:bold;">${item.tenDuAn}</td><td style="color:var(--danger); font-weight:bold; font-size:15px;">${bdgDisplay}</td><td style="${bgStyle} color:var(--danger); font-weight:bold; font-size:14px;">${advDisplay}</td><td style="${bgStyle}">${advStatusText}</td></tr>`;
+        html += `<tr class="${rowCls}"><td><b>${item.idPhieu}</b></td><td style="font-weight: bold; color: var(--primary-blue);">${tenNhomHtml}</td><td style="text-align:left; font-size:12px; line-height: 1.4;">${kpiText}${tvDisplay}</td><td><b>Phòng:</b> ${item.phong}</td><td style="color:var(--primary-blue); font-weight:bold;">${item.tenDuAn}</td><td style="color:var(--danger); font-weight:bold; font-size:15px;">${bdgDisplay}</td><td style="${bgStyle} color:var(--danger); font-weight:bold; font-size:14px;">${advDisplay}</td><td style="${bgStyle}">${advStatusText}</td></tr>`;
       });
 
       if (currentKhoi !== null) { html += `<tr style="background:#e8f4fc; font-weight:bold;"><td colspan="5" style="text-align:right; color:var(--primary-blue);">TỔNG CỘNG KHỐI ${currentKhoi}</td><td style="color:var(--danger); font-size:15px;">${formatNumber(khoiBudget)}</td><td style="color:var(--success-green); font-size:15px;">${formatNumber(khoiAdvance)}</td><td></td></tr>`; }
@@ -1987,21 +2030,50 @@ function exportToTracking() {
         
         showLoading(true, "ĐANG ĐỒNG BỘ...", "Đang chuyển khối lượng dữ liệu lớn. Quá trình này mất khoảng 5 - 15 giây, vui lòng chờ...");
         
-        let exportData = bldItemsArray.map(item => ({
-            idPhieu: item.idPhieu,
-            tenDuAn: item.tenDuAn,
-            khoi: item.khoi,
-            phong: item.phong,
-            thanhVien: item.thanhVien,
-            nsDeXuat: item.nsDeXuat,
-            nsDuyet: item.nsDuyet,
-            ghiChu: item.ghiChu,
-            trangThai: item.trangThai,
-            isTruyThu: item.phieuObj.isTruyThu === true,
-            isKpiDacBiet: item.phieuObj.isKpiDacBiet === true,
-            advPercent: Number(item.phieuObj.advPercent || 0),
-            trangThaiTU: item.phieuObj.trangThaiTU
-        }));
+let exportData = bldItemsArray.map(item => {
+            // --- ĐỊNH DẠNG LẠI TEXT TRỰC QUAN CHO GOOGLE SHEET ---
+            let rawTv = item.phieuObj.thanhVien || "";
+            let isGoiTong = String(item.phieuObj.tenNhom || "").includes('[GÓI TỔNG]');
+            let sheetText = rawTv;
+            
+            if (isGoiTong) {
+                let groups = rawTv.split('\n');
+                let formattedGroups = groups.map(g => {
+                    let match = g.match(/\[(.*?)\]\s*(.*)/);
+                    if (match) {
+                        let groupName = match[1].trim().toUpperCase(); // Ép IN HOA tên nhóm cho nổi bật
+                        // Tách từng thành viên, xuống dòng, thụt lề 3 khoảng trắng và thêm dấu chấm
+                        let members = match[2].split(',')
+                                        .filter(m => m.trim() !== '')
+                                        .map(m => "   • " + m.trim());
+                        return `[${groupName}]\n${members.join('\n')}`;
+                    }
+                    return g;
+                });
+                // Nối các nhóm lại, cách nhau bằng 1 dòng trắng (\n\n)
+                sheetText = formattedGroups.join('\n\n'); 
+            } else {
+                // Áp dụng format xuống dòng cho cả Gói thường
+                sheetText = rawTv.split(',').filter(m => m.trim() !== '').map(m => "• " + m.trim()).join('\n');
+            }
+            // -----------------------------------------------------
+
+            return {
+                idPhieu: item.idPhieu,
+                tenDuAn: item.tenDuAn,
+                khoi: item.khoi,
+                phong: item.phong,
+                thanhVien: sheetText, // Sử dụng text đã được "trang điểm"
+                nsDeXuat: item.nsDeXuat,
+                nsDuyet: item.nsDuyet,
+                ghiChu: item.ghiChu,
+                trangThai: item.trangThai,
+                isTruyThu: item.phieuObj.isTruyThu === true,
+                isKpiDacBiet: item.phieuObj.isKpiDacBiet === true,
+                advPercent: Number(item.phieuObj.advPercent || 0),
+                trangThaiTU: item.phieuObj.trangThaiTU
+            };
+        });
 
         // Kỹ thuật "Hidden Form & Iframe" để bypass 100% giới hạn CORS và độ lớn dữ liệu của Google
         let iframeId = 'hiddenSyncIframe_' + Date.now();
