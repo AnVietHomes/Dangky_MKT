@@ -1987,12 +1987,13 @@ function exportToTracking() {
         
         showLoading(true, "ĐANG ĐỒNG BỘ...", "Đang chuyển khối lượng dữ liệu lớn. Quá trình này mất khoảng 5 - 15 giây, vui lòng chờ...");
         
-        let exportData = bldItemsArray.map(item => ({
+let exportData = bldItemsArray.map(item => ({
             idPhieu: item.idPhieu,
             tenDuAn: item.tenDuAn,
             khoi: item.khoi,
             phong: item.phong,
-            thanhVien: item.thanhVien,
+            // SỬA TẠI ĐÂY: Trỏ trực tiếp vào phieuObj để lấy Dữ liệu Text Sạch nguyên bản
+            thanhVien: item.phieuObj.thanhVien, 
             nsDeXuat: item.nsDeXuat,
             nsDuyet: item.nsDuyet,
             ghiChu: item.ghiChu,
