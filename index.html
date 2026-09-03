@@ -585,25 +585,19 @@
     let currentSearchResults = [];
     let currentSearchIndex = 0;
 
-// --- BỘ QUẢN LÝ HÀNG ĐỢI API ---
+// --- BỘ QUẢN LÝ HÀNG ĐỢI API (PHIÊN BẢN LUỒNG ĐÔI) ---
     let isApiRunning = false;
     let apiTaskQueue = [];
 
     function callAPI(action, params, successCallback) {
-      // 1. Thay vì chạy ngay, hệ thống sẽ nhét lệnh vào Hàng đợi (Queue)
       apiTaskQueue.push({ action, params, successCallback });
-      
-      // 2. Kích hoạt bộ máy kiểm tra và xử lý hàng đợi
       processApiQueue();
     }
 
     function processApiQueue() {
-      // Nếu đang có lệnh khác chạy hoặc hàng đợi trống -> Bỏ qua, xếp hàng chờ đến lượt
       if (isApiRunning || apiTaskQueue.length === 0) return;
-      
-      isApiRunning = true; // Khóa cửa, bắt đầu xử lý lệnh đầu tiên trong hàng đợi
+      isApiRunning = true;
       const currentTask = apiTaskQueue[0];
-      
       const action = currentTask.action;
       const params = currentTask.params;
       const successCallback = currentTask.successCallback;
@@ -616,51 +610,82 @@
           isDone = true;
           if (typeof showLoading === 'function') showLoading(false);
           alert("Mạng có vẻ chậm. Dữ liệu có thể đã được lưu, vui lòng ấn F5 để kiểm tra lại!");
-          finishTaskAndNext(); // Kích hoạt lệnh tiếp theo dù bị lỗi
+          finishTaskAndNext();
           try { successCallback({ success: false, message: "Timeout" }); } catch(e) {}
-      }, 90000); // Đã tăng thời gian chờ lên 90 giây
+      }, 90000);
 
-      window[callbackName] = function(response) {
-          if (isDone) return;
-          isDone = true;
-          clearTimeout(timeoutId);
-          finishTaskAndNext(); // Lệnh hoàn thành, gọi lệnh tiếp theo
-          try { successCallback(response); } catch (e) { console.error(e); }
-      };
+      const scriptId = "jsonp_" + new Date().getTime();
 
-      const scriptId = "jsonp_" + new Date().getTime(); 
-      const script = document.createElement("script"); 
-      script.id = scriptId;
-
-      script.onerror = function() {
-          if (isDone) return;
-          isDone = true;
-          clearTimeout(timeoutId);
-          if (typeof showLoading === 'function') showLoading(false);
-          alert("Lỗi kết nối máy chủ Google! Vui lòng kiểm tra lại mạng.");
-          finishTaskAndNext(); // Lệnh lỗi mạng, vẫn tiếp tục gọi lệnh tiếp theo
-          try { successCallback({ success: false, message: "Lỗi mạng" }); } catch(e) {}
-      };
-
-      // Hàm dọn dẹp và gọi lệnh kế tiếp
       function finishTaskAndNext() {
-          if (document.getElementById(scriptId)) document.getElementById(scriptId).remove();
+          let scriptEl = document.getElementById(scriptId);
+          if (scriptEl) scriptEl.remove();
           delete window[callbackName];
-          
-          apiTaskQueue.shift(); // Xóa lệnh vừa chạy xong khỏi hàng đợi
-          isApiRunning = false; // Mở khóa cửa
-          
-          // Nghỉ 300ms rồi tự động trượt lên gọi lệnh tiếp theo trong hàng đợi
+          apiTaskQueue.shift();
+          isApiRunning = false;
           setTimeout(processApiQueue, 300);
       }
 
-      // Đóng gói và gửi lệnh đi bằng JSONP
-      let queryString = `?action=${action}&callback=${callbackName}&_ts=${new Date().getTime()}`;
-      for (let key in params) { 
-          queryString += `&${key}=${encodeURIComponent(params[key])}`; 
+      // LUỒNG 1: DÙNG FETCH POST CHO LỆNH NẶNG (Chống lỗi giới hạn URL)
+      if (action === "submitForm") {
+          fetch(API_URL + "?action=" + action, {
+              method: 'POST',
+              body: JSON.stringify(params),
+              headers: { "Content-Type": "text/plain;charset=utf-8" } // Trick lách CORS để load siêu tốc
+          })
+          .then(res => res.text())
+          .then(text => {
+              if (isDone) return;
+              isDone = true;
+              clearTimeout(timeoutId);
+              
+              // Tự động bóc lớp vỏ JSONP của máy chủ để lấy dữ liệu thực
+              let cleanJson = text;
+              let match = text.match(/^[^(]*\((.*)\)[^)]*$/);
+              if (match) cleanJson = match[1]; 
+              
+              finishTaskAndNext();
+              try { successCallback(JSON.parse(cleanJson)); } catch (e) { console.error(e); }
+          })
+          .catch(err => {
+              if (isDone) return;
+              isDone = true;
+              clearTimeout(timeoutId);
+              if (typeof showLoading === 'function') showLoading(false);
+              alert("Lỗi kết nối máy chủ Google! Vui lòng kiểm tra mạng.");
+              finishTaskAndNext();
+              try { successCallback({ success: false, message: "Lỗi mạng" }); } catch(e) {}
+          });
+      } 
+      // LUỒNG 2: DÙNG JSONP CHO CÁC LỆNH NHẸ ĐỂ GIỮ TỐC ĐỘ TỐI ĐA
+      else {
+          const script = document.createElement("script");
+          script.id = scriptId;
+
+          script.onerror = function() {
+              if (isDone) return;
+              isDone = true;
+              clearTimeout(timeoutId);
+              if (typeof showLoading === 'function') showLoading(false);
+              alert("Lỗi kết nối máy chủ Google! Vui lòng kiểm tra mạng.");
+              finishTaskAndNext();
+              try { successCallback({ success: false, message: "Lỗi mạng" }); } catch(e) {}
+          };
+
+          window[callbackName] = function(response) {
+              if (isDone) return;
+              isDone = true;
+              clearTimeout(timeoutId);
+              finishTaskAndNext();
+              try { successCallback(response); } catch (e) { console.error(e); }
+          };
+
+          let queryString = `?action=${action}&callback=${callbackName}&_ts=${new Date().getTime()}`;
+          for (let key in params) {
+              queryString += `&${key}=${encodeURIComponent(params[key])}`;
+          }
+          script.src = API_URL + queryString;
+          document.body.appendChild(script);
       }
-      script.src = API_URL + queryString; 
-      document.body.appendChild(script);
     }
     // ---------------------------------
     
@@ -982,29 +1007,27 @@ function submitEntireProposal() {
       let finalNames = "";
       let finalMnvs = "";
 
-      if (isMaster) {
+if (isMaster) {
           let masterName = document.getElementById('masterPackageName').value.trim();
           if(!masterName) masterName = "Khối " + document.getElementById('division').value;
           
           finalTeamName = "🌟 [GÓI TỔNG] " + masterName;
           
-// --- ĐỒNG BỘ GIAO DIỆN GÓI TỔNG BẰNG TEXT SẠCH ---
-        let tenNhomRaw = phieu.tenNhom || "";
-        let isGoiTong = tenNhomRaw.includes('[GÓI TỔNG]');
-        
-        let tenNhomHtml = isGoiTong 
-              ? `<span style="color:#d32f2f; font-weight:900; font-size:13px; text-transform: uppercase;">${tenNhomRaw}</span>` 
-              : `<span style="color:var(--primary-blue); font-weight:bold;">Nhóm: ${tenNhomRaw}</span>`;
+          // GOM DỮ LIỆU DẠNG TEXT SẠCH CHO GOOGLE SHEETS
+          let groupsArr = [];
+          document.querySelectorAll('.goi-tong-group').forEach(group => {
+              let tName = group.querySelector('.gt-team-name').value.trim() || 'Nhóm';
+              let mNames = Array.from(group.querySelectorAll('.gt-member-name')).map(i => i.value.trim()).filter(v => v !== "");
               
-        let rawTv = String(phieu.thanhVien || "");
-        
-        // Thuật toán: Tìm các chữ trong ngoặc vuông [...] để tô đậm chữ xanh, biến \n thành thẻ <br>
-        let formattedGtTv = rawTv.replace(/\[(.*?)\]/g, '<b style="color:#0b1f8c;">$1:</b>').replace(/\n/g, '<br>');
-
-        let tvDisplay = isGoiTong 
-              ? `<div style="margin-top:8px; padding: 10px; background: #fef5f5; border-left: 3px solid #d32f2f; border-radius: 4px; font-size: 12px; color: #333; line-height: 1.8; box-shadow: inset 0 0 5px rgba(0,0,0,0.02);">${formattedGtTv}</div>` 
-              : `<div style="margin-top:4px;">${rawTv.split(',').join('<br>')}</div>`;
-        // ----------------------------------------------------
+              if (mNames.length > 0) {
+                  // Tạo chuỗi text sạch: [Tên Nhóm] Thành viên 1, Thành viên 2
+                  groupsArr.push(`[${tName}] ${mNames.join(', ')}`);
+              }
+          });
+          
+          // Nối các nhóm bằng dấu xuống dòng (\n) để Sheet lưu trữ gọn gàng
+          finalNames = groupsArr.join('\n');
+          finalMnvs = "Miễn trừ Mã NV"; 
       } else {
           // ... (Phần Gói thường của bạn giữ nguyên bên dưới)
           finalTeamName = document.getElementById('teamName').value;
