@@ -254,7 +254,7 @@ tr.row-duplicate td {
     let currentPrintContext = null; 
     let globalGdkDict = {};
 
-    const ROLE_TITLES = { 'SUPER_ADMIN': 'Quản Trị Viên Tối Cao', 'BLD': 'Ban Lãnh Đạo', 'PTGD': 'Phó Tổng Giám Đốc', 'GDCN': 'Giám Đốc Chi Nhánh', 'GDKD': 'Giám Đốc Kinh Doanh', 'GDKD_KIEM_TPKD': 'GĐKD (Kiêm TPKD)', 'TPKD': 'Trưởng Phòng Kinh Doanh', 'TPMKT': 'Trưởng Phòng Marketing', 'MKT': 'Chuyên Viên Marketing' };
+    const ROLE_TITLES = { 'SUPER_ADMIN': 'Quản Trị Viên Tối Cao', 'BLD': 'Ban Lãnh Đạo', 'BLD_GDCN': 'Ban Lãnh đạo (kiêm Giám đốc CN)', 'PTGD': 'Phó Tổng Giám Đốc', 'GDCN': 'Giám Đốc Chi Nhánh', 'GDKD': 'Giám Đốc Kinh Doanh', 'GDKD_KIEM_TPKD': 'GĐKD (Kiêm TPKD)', 'TPKD': 'Trưởng Phòng Kinh Doanh', 'TPMKT': 'Trưởng Phòng Marketing', 'MKT': 'Chuyên Viên Marketing' };
 
     function formatNumber(num) { return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
     function parseNumber(str) { return parseFloat(str.replace(/\./g, '')) || 0; }
