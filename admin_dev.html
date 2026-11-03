@@ -902,8 +902,7 @@ function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
       const theadCNQN = document.getElementById('tableHeaderCNQN');
       const tbCNQN = document.getElementById('tableBodyCNQN');
 
-      let isBLD = (role === 'BLD' || role === 'SUPER_ADMIN'); let isMKT = (role === 'MKT' || role === 'TPMKT'); let isPTGD = (role === 'PTGD' || role === 'GDCN'); let isKD = (role === 'TPKD' || role === 'GDKD' || role === 'GDKD_KIEM_TPKD'); let isHighLevel = (isBLD || isMKT || isPTGD);
-
+      let isBLD = (role === 'BLD' || role === 'SUPER_ADMIN' || role === 'BLD_GDCN'); let isMKT = (role === 'MKT' || role === 'TPMKT'); let isPTGD = (role === 'PTGD' || role === 'GDCN' || role === 'BLD_GDCN'); let isKD = (role === 'TPKD' || role === 'GDKD' || role === 'GDKD_KIEM_TPKD'); let isHighLevel = (isBLD || isMKT || isPTGD);
       if (tbAction) tbAction.innerHTML = '';
       if (tbCNQN) tbCNQN.innerHTML = '';
       if (cnqnContainer) cnqnContainer.style.display = 'none';
@@ -1403,7 +1402,7 @@ let rawTv = String(phieu.thanhVien || "");
     }
 
     function renderAdvanceTableByRole(role) {
-      if(role !== 'MKT' && role !== 'TPMKT' && role !== 'BLD' && role !== 'SUPER_ADMIN') return;
+      if(role !== 'MKT' && role !== 'TPMKT' && role !== 'BLD' && role !== 'SUPER_ADMIN' && role !== 'BLD_GDCN') return;
       const tb = document.getElementById('tableAdvanceBody'); 
       const allowedDXStatuses = ['PENDING_MKT', 'PENDING_TPMKT', 'PENDING_BLD', 'BLD_DRAFTING', 'APPROVED_BY_BLD'];
 
@@ -1530,8 +1529,10 @@ let rawTv = String(phieu.thanhVien || "");
            if(phieu.trangThaiTU === 'PENDING_MKT_TU') { rowHTML += `<button class="btn-action btn-approve" onclick="updateStatusTUOptimistic('${phieu.idPhieu}', 'PENDING_BLD_TU', this)">Duyệt Lên BLĐ</button><button class="btn-action btn-reject" onclick="updateStatusTUOptimistic('${phieu.idPhieu}', 'REJECTED_TU', this)">Từ Chối</button>`; } 
            else if (phieu.trangThaiTU === 'REJECTED_TU') { rowHTML += `<button class="btn-action btn-draft" onclick="updateStatusTUOptimistic('${phieu.idPhieu}', 'PENDING_BLD_TU', this)">Phê Duyệt Lại</button>`; } 
            else { rowHTML += `<button class="btn-action btn-draft" onclick="saveAdvPercent('${phieu.idPhieu}', this)">Cập nhật %</button>`; }
-        } else if(role === 'BLD' || role === 'SUPER_ADMIN') {
-           if(phieu.trangThaiTU === 'PENDING_BLD_TU') { rowHTML += `<button class="btn-action btn-approve" onclick="updateStatusTUOptimistic('${phieu.idPhieu}', 'APPROVED_TU', this)">Phê Duyệt</button><button class="btn-action btn-reject" onclick="updateStatusTUOptimistic('${phieu.idPhieu}', 'REJECTED_TU', this)">Từ Chối</button>`; } 
+        } else if(role === 'BLD' || role === 'SUPER_ADMIN' || role === 'BLD_GDCN') {
+    if(phieu.trangThaiTU === 'PENDING_BLD_TU') { 
+        rowHTML += `<button class="btn-action btn-approve" onclick="updateStatusTUOptimistic('${phieu.idPhieu}', 'APPROVED_TU', this)">Phê Duyệt</button><button class="btn-action btn-reject" onclick="updateStatusTUOptimistic('${phieu.idPhieu}', 'REJECTED_TU', this)">Từ Chối</button>`; 
+    } 
            else if (phieu.trangThaiTU === 'REJECTED_TU') { rowHTML += `<button class="btn-action btn-draft" onclick="updateStatusTUOptimistic('${phieu.idPhieu}', 'APPROVED_TU', this)">Phê Duyệt Lại</button>`; } 
            else { rowHTML += `<button class="btn-action btn-draft" onclick="saveAdvPercent('${phieu.idPhieu}', this)">Cập nhật %</button>`; }
         }
