@@ -146,20 +146,12 @@
   <datalist id="list-bankName"></datalist>
 
 <header class="top-header">
-    <!-- Thêm display: flex và gap để căn giữa các phần tử và tạo khoảng cách -->
     <div class="header-left" style="display: flex; align-items: center; gap: 20px;">
-      
-      <!-- Logo -->
       <img src="logo.svg" alt="An Việt Homes" class="brand-logo" style="height: 55px; width: auto;" onerror="this.src='https://placehold.co/120x60/d4efff/0b1f8c?text=LOGO'">
-      
-      <!-- Vạch phân cách mảnh dọc -->
       <div style="width: 1px; height: 45px; background-color: #0b1f8c; opacity: 0.5;"></div>
-      
-      <!-- Tên doanh nghiệp (Đã tăng font-size lên 16px và làm đậm) -->
       <div class="company-name" style="font-size: 16px; font-weight: 800; color: #0b1f8c; line-height: 1.4;">
         CÔNG TY CỔ PHẦN PHÁT TRIỂN DỊCH VỤ<br>VÀ ĐỊA ỐC AN VIỆT HOMES
       </div>
-
     </div>
     
     <button class="btn-check-status" onclick="openModal()">Kiểm tra trạng thái duyệt</button>
@@ -175,8 +167,7 @@
 
     <form id="marketingForm">
 <div class="info-section">
-        <!-- 1. KHUNG CHỨA TẠM CHO GÓI TỔNG (Ẩn mặc định) -->
-        <!-- 1.1 TÊN GÓI TỔNG (Nằm ngay trên Email) -->
+        <!-- KHU VỰC TÊN GÓI TỔNG -->
         <div id="row-master-name" class="info-row" style="display: none; margin-bottom: 25px;">
             <div class="inline-group" style="width: 100%;">
                 <span class="info-label" style="color: #0b1f8c; font-weight: bold;">Tên Gói Tổng:</span>
@@ -184,10 +175,10 @@
             </div>
         </div>
 
-        <!-- 1.2 KHUNG CHỨA TẠM EMAIL & PHÒNG BAN CHO GÓI TỔNG -->
+        <!-- KHUNG CHỨA TẠM -->
         <div id="shared-chung-goi-tong" class="info-row" style="display: none; align-items: center; margin-bottom: 25px;"></div>
 
-        <!-- 2. KHU VỰC GÓI THƯỜNG (Giữ nguyên form cũ) -->
+        <!-- KHU VỰC GÓI THƯỜNG -->
         <div id="row-members" class="member-group-wrapper">
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: bold;">Thành viên:</label>
@@ -235,10 +226,9 @@
           </div>
         </div>
 
-        <!-- 3. KHU VỰC GÓI TỔNG (Đã fix font chữ nút Thêm Nhóm) -->
+        <!-- KHU VỰC NHÓM GÓI TỔNG -->
         <div id="khu-vuc-goi-tong" style="display: none; padding-top: 15px; border-top: 1.5px dashed #ccc; margin-top: 15px;">
             <div id="danhSachNhomGoiTong">
-                <!-- Nhóm 1 -->
                 <div class="goi-tong-group">
                     <div class="inline-group" style="width: auto; flex: none;">
                         <span class="info-label">Tên nhóm 1:</span>
@@ -251,7 +241,6 @@
                         <button type="button" class="btn-add-member" style="width: 32px; height: 32px;" onclick="addMemToGtGroup(this)" title="Thêm thành viên">+</button>
                     </div>
                 </div>
-                <!-- Nhóm 2 -->
                 <div class="goi-tong-group">
                     <div class="inline-group" style="width: auto; flex: none;">
                         <span class="info-label">Tên nhóm 2:</span>
@@ -264,111 +253,33 @@
                         <button type="button" class="btn-add-member" style="width: 32px; height: 32px;" onclick="addMemToGtGroup(this)">+</button>
                     </div>
                 </div>
-                <!-- Nhóm 3 -->
-                <div class="goi-tong-group">
-                    <div class="inline-group" style="width: auto; flex: none;">
-                        <span class="info-label">Tên nhóm 3:</span>
-                        <input type="text" class="inline-input gt-team-name" placeholder="VD: Nhóm Eagle..." style="width: 150px;">
-                    </div>
-                    <div class="gt-members" style="display: flex; gap: 10px; flex: 1; align-items: center; flex-wrap: wrap;">
-                        <input type="text" class="pill-input gt-member-name" style="width: 140px;" placeholder="Thành viên 1">
-                        <input type="text" class="pill-input gt-member-name" style="width: 140px;" placeholder="Thành viên 2">
-                        <input type="text" class="pill-input gt-member-name" style="width: 140px;" placeholder="Thành viên 3">
-                        <button type="button" class="btn-add-member" style="width: 32px; height: 32px;" onclick="addMemToGtGroup(this)">+</button>
-                    </div>
-                </div>
-                <!-- Nhóm 4 -->
-                <div class="goi-tong-group">
-                    <div class="inline-group" style="width: auto; flex: none;">
-                        <span class="info-label">Tên nhóm 4:</span>
-                        <input type="text" class="inline-input gt-team-name" placeholder="VD: Nhóm Shark..." style="width: 150px;">
-                    </div>
-                    <div class="gt-members" style="display: flex; gap: 10px; flex: 1; align-items: center; flex-wrap: wrap;">
-                        <input type="text" class="pill-input gt-member-name" style="width: 140px;" placeholder="Thành viên 1">
-                        <input type="text" class="pill-input gt-member-name" style="width: 140px;" placeholder="Thành viên 2">
-                        <input type="text" class="pill-input gt-member-name" style="width: 140px;" placeholder="Thành viên 3">
-                        <button type="button" class="btn-add-member" style="width: 32px; height: 32px;" onclick="addMemToGtGroup(this)">+</button>
-                    </div>
-                </div>
             </div>
-            <!-- ĐÃ CẬP NHẬT LẠI FONT CHỮ MANROPE CHO NÚT NÀY -->
             <button type="button" style="background: transparent; border: 1.5px dashed #0b1f8c; color: #0b1f8c; font-weight: bold; font-family: 'Manrope', sans-serif; font-size: 14px; padding: 8px 20px; border-radius: 20px; cursor: pointer; margin-top: 5px;" onclick="addNewGtGroup()">+ Thêm Nhóm Mới</button>
         </div>
       </div>
       
-<!-- === BỘ CSS XỬ LÝ HIỆU ỨNG CẮT GÓC L-SHAPE HOÀN HẢO (BẢN NÉT MẢNH) === -->
+<!-- CSS HIỆU ỨNG CẮT GÓC L-SHAPE -->
 <style>
-  .smart-cutout-wrapper {
-     background: transparent !important;
-     border: none !important;
-     box-shadow: none !important;
-     border-radius: 0 !important;
-  }
-  
-  .smart-cutout-wrapper table {
-     border-collapse: separate !important;
-     border-spacing: 0 !important;
-     width: 100%;
-     background: transparent !important; 
-     /* Giảm nhẹ độ bóng đổ cho thanh thoát hơn */
-     filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.05));
-  }
-  
-  .smart-cutout-wrapper thead, .smart-cutout-wrapper tbody, .smart-cutout-wrapper tfoot td.cutout-label {
-     background-color: #fff;
-  }
-  
-  /* 1. TẨY SẠCH VIỀN CŨ (Chống nét viền đôi dày cộp) */
-  .smart-cutout-wrapper th, .smart-cutout-wrapper td {
-     border: none !important; 
-  }
-
-  /* 2. ĐI NÉT VIỀN MỚI SIÊU MẢNH & MÀU NHẠT */
-  /* Sử dụng màu rgba(11, 31, 140, 0.15) tức là màu xanh navy nhưng độ nhạt chỉ bằng 15% */
-  .smart-cutout-wrapper th, .smart-cutout-wrapper td {
-     border-right: 1px solid rgba(11, 31, 140, 0.15) !important;
-     border-bottom: 1px solid rgba(11, 31, 140, 0.15) !important;
-  }
-  .smart-cutout-wrapper th:first-child, .smart-cutout-wrapper td:first-child {
-     border-left: 1px solid rgba(11, 31, 140, 0.15) !important;
-  }
-  .smart-cutout-wrapper thead tr:first-child th {
-     border-top: 1px solid rgba(11, 31, 140, 0.15) !important;
-  }
-  
-  /* 3. BO GÓC BẢNG TRƠN TRU */
+  .smart-cutout-wrapper { background: transparent !important; border: none !important; box-shadow: none !important; border-radius: 0 !important; }
+  .smart-cutout-wrapper table { border-collapse: separate !important; border-spacing: 0 !important; width: 100%; background: transparent !important; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.05)); }
+  .smart-cutout-wrapper thead, .smart-cutout-wrapper tbody, .smart-cutout-wrapper tfoot td.cutout-label { background-color: #fff; }
+  .smart-cutout-wrapper th, .smart-cutout-wrapper td { border: none !important; }
+  .smart-cutout-wrapper th, .smart-cutout-wrapper td { border-right: 1px solid rgba(11, 31, 140, 0.15) !important; border-bottom: 1px solid rgba(11, 31, 140, 0.15) !important; }
+  .smart-cutout-wrapper th:first-child, .smart-cutout-wrapper td:first-child { border-left: 1px solid rgba(11, 31, 140, 0.15) !important; }
+  .smart-cutout-wrapper thead tr:first-child th { border-top: 1px solid rgba(11, 31, 140, 0.15) !important; }
   .smart-cutout-wrapper thead tr:first-child th:first-child { border-top-left-radius: 12px; }
   .smart-cutout-wrapper thead tr:first-child th:last-child { border-top-right-radius: 12px; }
   .smart-cutout-wrapper tbody tr:last-child td:last-child { border-bottom-right-radius: 12px; }
-  
-  .smart-cutout-wrapper tfoot td.cutout-label {
-     border-bottom-left-radius: 12px; 
-  }
-
-  /* Ô số tiền tổng vẫn giữ viền đậm một chút để đóng khối chữ L sắc nét */
-  .smart-cutout-wrapper tfoot td.cutout-value {
-     border-bottom-right-radius: 12px; 
-     background-color: #0b1f8c !important;
-     color: white !important;
-     border: 1px solid #0b1f8c !important; 
-  }
-  
-  /* Các ô bên phải bị giấu đi */
-  .smart-cutout-wrapper tfoot td.empty-space {
-     border: none !important;
-     background: transparent !important;
-  }
+  .smart-cutout-wrapper tfoot td.cutout-label { border-bottom-left-radius: 12px; }
+  .smart-cutout-wrapper tfoot td.cutout-value { border-bottom-right-radius: 12px; background-color: #0b1f8c !important; color: white !important; border: 1px solid #0b1f8c !important; }
+  .smart-cutout-wrapper tfoot td.empty-space { border: none !important; background: transparent !important; }
 </style>
       
    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; margin-top: 25px;">
           <div class="table-title" style="margin-bottom: 0;">Nội dung đề xuất chiến dịch Marketing</div>
-          
           <div class="toggle-small-wrap">
               <span id="lblNormal" class="lbl-toggle lbl-normal active">Đăng ký Gói Thường</span>
-              <label class="switch-small">
-                  <input type="checkbox" id="toggleGoiTong" onchange="switchPackageMode()">
-                  <span class="slider-small"></span>
-              </label>
+              <label class="switch-small"><input type="checkbox" id="toggleGoiTong" onchange="switchPackageMode()"><span class="slider-small"></span></label>
               <span id="lblMaster" class="lbl-toggle lbl-master">Đăng ký GÓI TỔNG (Theo Khối)</span>
           </div>
       </div>
@@ -578,114 +489,39 @@
       });
     });
 
-    // MÃ HÓA BẢO MẬT ĐƯỜNG LINK API BẰNG BASE64
     const API_URL = atob("aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J3RmdzemFWbUptT2hzX0dPTWxjb212LVJUY0ZKMlNYVTRuYnJHRFJScVM4bVpjRk9SNTlZbkJFbDVib0ttVGVCRmEvZXhlYw==");
     
     let departmentsData = [];
     let currentSearchResults = [];
     let currentSearchIndex = 0;
 
-// --- BỘ QUẢN LÝ HÀNG ĐỢI API (PHIÊN BẢN LUỒNG ĐÔI) ---
+    // --- BỘ QUẢN LÝ KẾT NỐI API MỚI NHẤT (CHUẨN FETCH POST) ---
+    // Loại bỏ hoàn toàn hệ thống JSONP gây rác DOM và lỗi đường dẫn dài
     let isApiRunning = false;
-    let apiTaskQueue = [];
 
     function callAPI(action, params, successCallback) {
-      apiTaskQueue.push({ action, params, successCallback });
-      processApiQueue();
-    }
-
-    function processApiQueue() {
-      if (isApiRunning || apiTaskQueue.length === 0) return;
+      if (isApiRunning) { console.warn("Hệ thống đang xử lý tác vụ..."); return; }
       isApiRunning = true;
-      const currentTask = apiTaskQueue[0];
-      const action = currentTask.action;
-      const params = currentTask.params;
-      const successCallback = currentTask.successCallback;
+      
+      let payload = { action: action };
+      for (let key in params) { payload[key] = params[key]; }
 
-      const callbackName = "cb_" + action + "_" + new Date().getTime();
-      let isDone = false;
-
-      const timeoutId = setTimeout(() => {
-          if (isDone) return;
-          isDone = true;
-          if (typeof showLoading === 'function') showLoading(false);
-          alert("Mạng có vẻ chậm. Dữ liệu có thể đã được lưu, vui lòng ấn F5 để kiểm tra lại!");
-          finishTaskAndNext();
-          try { successCallback({ success: false, message: "Timeout" }); } catch(e) {}
-      }, 90000);
-
-      const scriptId = "jsonp_" + new Date().getTime();
-
-      function finishTaskAndNext() {
-          let scriptEl = document.getElementById(scriptId);
-          if (scriptEl) scriptEl.remove();
-          delete window[callbackName];
-          apiTaskQueue.shift();
-          isApiRunning = false;
-          setTimeout(processApiQueue, 300);
-      }
-
-      // LUỒNG 1: DÙNG FETCH POST CHO LỆNH NẶNG (Chống lỗi giới hạn URL)
-      if (action === "submitForm") {
-          fetch(API_URL + "?action=" + action, {
-              method: 'POST',
-              body: JSON.stringify(params),
-              headers: { "Content-Type": "text/plain;charset=utf-8" } // Trick lách CORS để load siêu tốc
-          })
-          .then(res => res.text())
-          .then(text => {
-              if (isDone) return;
-              isDone = true;
-              clearTimeout(timeoutId);
-              
-              // Tự động bóc lớp vỏ JSONP của máy chủ để lấy dữ liệu thực
-              let cleanJson = text;
-              let match = text.match(/^[^(]*\((.*)\)[^)]*$/);
-              if (match) cleanJson = match[1]; 
-              
-              finishTaskAndNext();
-              try { successCallback(JSON.parse(cleanJson)); } catch (e) { console.error(e); }
-          })
-          .catch(err => {
-              if (isDone) return;
-              isDone = true;
-              clearTimeout(timeoutId);
-              if (typeof showLoading === 'function') showLoading(false);
-              alert("Lỗi kết nối máy chủ Google! Vui lòng kiểm tra mạng.");
-              finishTaskAndNext();
-              try { successCallback({ success: false, message: "Lỗi mạng" }); } catch(e) {}
-          });
-      } 
-      // LUỒNG 2: DÙNG JSONP CHO CÁC LỆNH NHẸ ĐỂ GIỮ TỐC ĐỘ TỐI ĐA
-      else {
-          const script = document.createElement("script");
-          script.id = scriptId;
-
-          script.onerror = function() {
-              if (isDone) return;
-              isDone = true;
-              clearTimeout(timeoutId);
-              if (typeof showLoading === 'function') showLoading(false);
-              alert("Lỗi kết nối máy chủ Google! Vui lòng kiểm tra mạng.");
-              finishTaskAndNext();
-              try { successCallback({ success: false, message: "Lỗi mạng" }); } catch(e) {}
-          };
-
-          window[callbackName] = function(response) {
-              if (isDone) return;
-              isDone = true;
-              clearTimeout(timeoutId);
-              finishTaskAndNext();
-              try { successCallback(response); } catch (e) { console.error(e); }
-          };
-
-          let queryString = `?action=${action}&callback=${callbackName}&_ts=${new Date().getTime()}`;
-          for (let key in params) {
-              queryString += `&${key}=${encodeURIComponent(params[key])}`;
-          }
-          script.src = API_URL + queryString;
-          document.body.appendChild(script);
-      }
+      fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      })
+      .then(response => response.json())
+      .then(result => {
+        isApiRunning = false;
+        if (typeof successCallback === 'function') successCallback(result);
+      })
+      .catch(error => {
+        isApiRunning = false;
+        if (typeof showLoading === 'function') showLoading(false);
+        alert("Lỗi kết nối máy chủ Google! Vui lòng kiểm tra mạng.");
+        if (typeof successCallback === 'function') successCallback({ success: false, message: "Lỗi mạng" });
+      });
     }
     // ---------------------------------
     
@@ -695,24 +531,13 @@
         let suggestions = JSON.parse(localStorage.getItem('avh_table_suggestions') || '{"kpi":[],"channel":[],"phone":[],"account":[]}');
         const fillList = (id, arr) => {
             const dl = document.getElementById(id);
-            if(dl) {
-                dl.innerHTML = '';
-                arr.forEach(val => {
-                    const opt = document.createElement('option');
-                    opt.value = val;
-                    dl.appendChild(opt);
-                });
-            }
+            if(dl) { dl.innerHTML = ''; arr.forEach(val => { const opt = document.createElement('option'); opt.value = val; dl.appendChild(opt); }); }
         };
-        fillList('list-kpi', suggestions.kpi);
-        fillList('list-channel', suggestions.channel);
-        fillList('list-phone', suggestions.phone);
-        fillList('list-account', suggestions.account);
+        fillList('list-kpi', suggestions.kpi); fillList('list-channel', suggestions.channel);
+        fillList('list-phone', suggestions.phone); fillList('list-account', suggestions.account);
 
         let bankSuggestions = JSON.parse(localStorage.getItem('avh_bank_suggestions') || '{"owner":[],"account":[],"name":[]}');
-        fillList('list-bankOwner', bankSuggestions.owner);
-        fillList('list-bankAccount', bankSuggestions.account);
-        fillList('list-bankName', bankSuggestions.name);
+        fillList('list-bankOwner', bankSuggestions.owner); fillList('list-bankAccount', bankSuggestions.account); fillList('list-bankName', bankSuggestions.name);
     }
 
     document.addEventListener("DOMContentLoaded", function() {
@@ -772,19 +597,13 @@
             document.getElementById('emailContact').value = info.emailContact || '';
             
             setTimeout(() => {
-              if (info.dept) {
-                document.getElementById('department').value = info.dept;
-                document.getElementById('department').dispatchEvent(new Event('change'));
-              }
+              if (info.dept) { document.getElementById('department').value = info.dept; document.getElementById('department').dispatchEvent(new Event('change')); }
             }, 300);
           }
           
           let targetMonth = today.getMonth() + 1;
           let targetYear = today.getFullYear();
-          if (today.getDate() >= 25) {
-              targetMonth += 1;
-              if (targetMonth > 12) { targetMonth = 1; targetYear += 1; }
-          }
+          if (today.getDate() >= 25) { targetMonth += 1; if (targetMonth > 12) { targetMonth = 1; targetYear += 1; } }
           const lastDay = new Date(targetYear, targetMonth, 0).getDate();
           const startStr = `01/${String(targetMonth).padStart(2, '0')}`;
           const endStr = `${String(lastDay).padStart(2, '0')}/${String(targetMonth).padStart(2, '0')}`;
@@ -808,12 +627,9 @@
       input.value = val; calculateTotal();
     }
 
-function calculateTotal() {
+    function calculateTotal() {
       let total = 0;
-      document.querySelectorAll('.calc-budget').forEach(input => {
-        total += parseFloat(input.value.replace(/\./g, '')) || 0;
-      });
-      // Đã sửa 'totalBudgetDisplay' thành đúng ID thực tế là 'totalBudget'
+      document.querySelectorAll('.calc-budget').forEach(input => { total += parseFloat(input.value.replace(/\./g, '')) || 0; });
       document.getElementById('totalBudget').innerText = formatNumber(total);
     }
 
@@ -831,7 +647,9 @@ function calculateTotal() {
       const btn = document.getElementById('btnRunSearch');
       btn.innerText = "ĐANG TÌM KIẾM..."; btn.disabled = true;
 
-      callAPI("searchProposals", { data: JSON.stringify({proposalId: sProposalId, mnv: sId, month: sMonth}) }, function(res) {
+      // FIX: Bọc payload bằng encodeURIComponent để loại bỏ lỗi khi người dùng gõ ký tự lạ (như %)
+      const searchPayload = { proposalId: sProposalId, mnv: sId, month: sMonth };
+      callAPI("searchProposals", { data: encodeURIComponent(JSON.stringify(searchPayload)) }, function(res) {
         btn.innerText = "KIỂM TRA"; btn.disabled = false;
         if(res.success) {
           currentSearchResults = res.data; currentSearchIndex = 0;
@@ -842,7 +660,7 @@ function calculateTotal() {
              document.getElementById('carouselContent').innerHTML = "";
              document.getElementById('btnPrevSlide').style.display = 'none'; document.getElementById('btnNextSlide').style.display = 'none'; document.getElementById('carouselPageIndicator').innerText = "";
           } else {
-             document.getElementById('searchSummaryText').innerHTML = `Đã tìm thấy <span style="color:#e74c3c;">${currentSearchResults.length}</span> phiếu đăng ký khớp với thôngquan bảo mật trong <span style="color:#e74c3c;">${displayMonth}</span>`;
+             document.getElementById('searchSummaryText').innerHTML = `Đã tìm thấy <span style="color:#e74c3c;">${currentSearchResults.length}</span> phiếu đăng ký khớp với thông tin bảo mật trong <span style="color:#e74c3c;">${displayMonth}</span>`;
              if(currentSearchResults.length > 1) { document.getElementById('btnPrevSlide').style.display = 'block'; document.getElementById('btnNextSlide').style.display = 'block'; } 
              else { document.getElementById('btnPrevSlide').style.display = 'none'; document.getElementById('btnNextSlide').style.display = 'none'; }
              renderSlide(currentSearchIndex);
@@ -916,44 +734,22 @@ function calculateTotal() {
       </div>`;
     }
 
-    function showFormView() {
-      document.getElementById('resultView').style.display = 'none'; document.getElementById('marketingForm').style.display = 'block'; document.getElementById('mainTitle').innerText = "ĐỀ XUẤT CHIẾN DỊCH MARKETING"; document.getElementById('btnBack').style.display = 'none';
-    }
+    function showFormView() { document.getElementById('resultView').style.display = 'none'; document.getElementById('marketingForm').style.display = 'block'; document.getElementById('mainTitle').innerText = "ĐỀ XUẤT CHIẾN DỊCH MARKETING"; document.getElementById('btnBack').style.display = 'none'; }
 
-   // Hàm mới: Chỉ bật nút X khi có dự án được chọn
     function toggleClearBtn(selectElem) {
       let clearBtn = selectElem.parentElement.querySelector('.clear-btn');
-      if (clearBtn) {
-        clearBtn.style.display = selectElem.value ? 'block' : 'none';
-      }
+      if (clearBtn) { clearBtn.style.display = selectElem.value ? 'block' : 'none'; }
     }
 
-    // Hàm cập nhật: Xóa trắng dòng và ẩn nút X đi
     function clearRow(btn) {
-      const row = btn.closest('tr');
-      const selectElem = row.querySelector('select[name="project"]');
-      
-      // Đặt lại Dự án về trạng thái rỗng
+      const row = btn.closest('tr'); const selectElem = row.querySelector('select[name="project"]');
       selectElem.value = '';
-      
-      // Xóa các ô nhập liệu khác
-      row.querySelector('input[name="budget"]').value = '';
-      row.querySelector('input[name="kpi"]').value = '';
-      row.querySelector('input[name="channel"]').value = '';
-      row.querySelector('input[name="phone"]').value = '';
-      row.querySelector('input[name="account"]').value = '';
-      
-      // Ẩn nút X đi vì dự án đã trở về rỗng
-      btn.style.display = 'none';
-
-      // Kích hoạt lại sự kiện 'change' để bỏ yêu cầu bắt buộc nhập (required)
-      selectElem.dispatchEvent(new Event('change'));
-      
-      // Tính lại tổng tiền
+      row.querySelector('input[name="budget"]').value = ''; row.querySelector('input[name="kpi"]').value = ''; row.querySelector('input[name="channel"]').value = ''; row.querySelector('input[name="phone"]').value = ''; row.querySelector('input[name="account"]').value = '';
+      btn.style.display = 'none'; selectElem.dispatchEvent(new Event('change'));
       if(typeof calculateTotal === 'function') calculateTotal();
     }
     
-   function openAdvanceModal() {
+    function openAdvanceModal() {
       const form = document.getElementById('marketingForm');
       if(!form.checkValidity()) { form.reportValidity(); return; }
 
@@ -965,24 +761,17 @@ function calculateTotal() {
 
       if(!hasItem) { alert("Vui lòng chọn ít nhất 1 dự án và điền đầy đủ số tiền!"); return; }
 
-      // --- CẬP NHẬT LOGIC LẤY TÊN NHÓM ---
       let isMaster = document.getElementById('toggleGoiTong') && document.getElementById('toggleGoiTong').checked;
       let displayName = "";
-      if (isMaster) {
-          displayName = document.getElementById('masterPackageName').value.trim() || ("Khối " + document.getElementById('division').value);
-      } else {
-          displayName = document.getElementById('teamName').value;
-      }
+      if (isMaster) { displayName = document.getElementById('masterPackageName').value.trim() || ("Khối " + document.getElementById('division').value); } 
+      else { displayName = document.getElementById('teamName').value; }
 
-      document.getElementById('advTeamNameDisplay').innerText = displayName;
-      document.getElementById('advContentDisplay').innerText = "Tạm ứng Marketing dự án " + projectNames.join(', ');
-      document.getElementById('advanceModal').style.display = 'flex';
+      document.getElementById('advTeamNameDisplay').innerText = displayName; document.getElementById('advContentDisplay').innerText = "Tạm ứng Marketing dự án " + projectNames.join(', '); document.getElementById('advanceModal').style.display = 'flex';
     }
 
-function submitEntireProposal() {
+    function submitEntireProposal() {
       const btn = document.getElementById('btnFinalSubmit'); 
       btn.disabled = true; 
-      // 1. Cập nhật câu thông báo để Sale an tâm chờ đợi
       btn.innerHTML = "⏳ ĐANG GHI DỮ LIỆU LÊN HỆ THỐNG... (Vui lòng đợi 15-20s)";
 
       const items = [];
@@ -990,8 +779,7 @@ function submitEntireProposal() {
         const p = row.querySelector('select[name="project"]').value;
         if (p && p.trim() !== "") {
           items.push({
-            projectName: p,
-            proposedBudget: row.querySelector('input[name="budget"]').value.replace(/\./g, '') || 0,
+            projectName: p, proposedBudget: row.querySelector('input[name="budget"]').value.replace(/\./g, '') || 0,
             start: row.querySelector('input[name="start"]').value, end: row.querySelector('input[name="end"]').value,
             kpi: row.querySelector('input[name="kpi"]').value, channel: row.querySelector('input[name="channel"]').value,
             phoneNumber: row.querySelector('input[name="phone"]').value, accountInfo: row.querySelector('input[name="account"]').value,
@@ -1000,68 +788,46 @@ function submitEntireProposal() {
         }
       });
 
-      // Kịch bản gửi dữ liệu: Phân biệt Gói Thường và Gói Tổng
       let isMaster = document.getElementById('toggleGoiTong') && document.getElementById('toggleGoiTong').checked;
-      
-      let finalTeamName = "";
-      let finalNames = "";
-      let finalMnvs = "";
+      let finalTeamName = ""; let finalNames = ""; let finalMnvs = "";
 
-if (isMaster) {
+      if (isMaster) {
           let masterName = document.getElementById('masterPackageName').value.trim();
           if(!masterName) masterName = "Khối " + document.getElementById('division').value;
           
           finalTeamName = "🌟 [GÓI TỔNG] " + masterName;
-          
-          // GOM DỮ LIỆU DẠNG TEXT SẠCH CHO GOOGLE SHEETS
           let groupsArr = [];
           document.querySelectorAll('.goi-tong-group').forEach(group => {
               let tName = group.querySelector('.gt-team-name').value.trim() || 'Nhóm';
               let mNames = Array.from(group.querySelectorAll('.gt-member-name')).map(i => i.value.trim()).filter(v => v !== "");
-              
-              if (mNames.length > 0) {
-                  // Tạo chuỗi text sạch: [Tên Nhóm] Thành viên 1, Thành viên 2
-                  groupsArr.push(`[${tName}] ${mNames.join(', ')}`);
-              }
+              if (mNames.length > 0) { groupsArr.push(`[${tName}] ${mNames.join(', ')}`); }
           });
           
-          // Nối các nhóm bằng dấu xuống dòng (\n) để Sheet lưu trữ gọn gàng
           finalNames = groupsArr.join('\n');
           finalMnvs = "Miễn trừ Mã NV"; 
       } else {
-          // ... (Phần Gói thường của bạn giữ nguyên bên dưới)
           finalTeamName = document.getElementById('teamName').value;
           finalNames = Array.from(document.querySelectorAll('.member-name')).map(i => i.value.trim()).filter(v => v !== "").join(', ');
           finalMnvs = Array.from(document.querySelectorAll('.member-mnv')).map(i => i.value.trim()).filter(v => v !== "").join(', ');
       }
       
       const payload = {
-        teamName: finalTeamName, 
-        memberName: finalNames, 
-        memberIds: finalMnvs, 
+        teamName: finalTeamName, memberName: finalNames, memberIds: finalMnvs, 
         emailContact: document.getElementById('emailContact').value,
         department: document.getElementById('department').value + " - " + document.getElementById('division').value, 
-        items: items,
-        advPercent: document.getElementById('advPercent').value, 
-        bankOwner: document.getElementById('bankOwner').value, 
-        bankAccount: document.getElementById('bankAccount').value, 
-        bankName: document.getElementById('bankName').value
+        items: items, advPercent: document.getElementById('advPercent').value, 
+        bankOwner: document.getElementById('bankOwner').value, bankAccount: document.getElementById('bankAccount').value, bankName: document.getElementById('bankName').value
       };
 
-      // Cập nhật lại các biến lưu trữ cache cho đúng với tên biến mới (finalNames, finalMnvs...)
       const userInfoToSave = {
-        names: finalNames,
-        mnvs: finalMnvs,
+        names: finalNames, mnvs: finalMnvs,
         teamName: isMaster ? (document.getElementById('masterPackageName').value.trim() || "") : document.getElementById('teamName').value,
-        emailContact: document.getElementById('emailContact').value,
-        dept: document.getElementById('department').value
+        emailContact: document.getElementById('emailContact').value, dept: document.getElementById('department').value
       };
       localStorage.setItem('avh_sale_info', JSON.stringify(userInfoToSave));
 
       let bankSuggestions = JSON.parse(localStorage.getItem('avh_bank_suggestions') || '{"owner":[],"account":[],"name":[]}');
-      let bOwner = document.getElementById('bankOwner').value.trim();
-      let bAccount = document.getElementById('bankAccount').value.trim();
-      let bName = document.getElementById('bankName').value.trim();
+      let bOwner = document.getElementById('bankOwner').value.trim(); let bAccount = document.getElementById('bankAccount').value.trim(); let bName = document.getElementById('bankName').value.trim();
       
       if(bOwner && !bankSuggestions.owner.includes(bOwner)) bankSuggestions.owner.push(bOwner);
       if(bAccount && !bankSuggestions.account.includes(bAccount)) bankSuggestions.account.push(bAccount);
@@ -1072,205 +838,96 @@ if (isMaster) {
       document.querySelectorAll('#tableBody tr').forEach(row => {
           const p = row.querySelector('select[name="project"]').value;
           if(p) {
-              let kpi = row.querySelector('input[name="kpi"]').value.trim();
-              let channel = row.querySelector('input[name="channel"]').value.trim();
-              let phone = row.querySelector('input[name="phone"]').value.trim();
-              let account = row.querySelector('input[name="account"]').value.trim();
+              let kpi = row.querySelector('input[name="kpi"]').value.trim(); let channel = row.querySelector('input[name="channel"]').value.trim();
+              let phone = row.querySelector('input[name="phone"]').value.trim(); let account = row.querySelector('input[name="account"]').value.trim();
               
-              if(kpi && !suggestions.kpi.includes(kpi)) suggestions.kpi.push(kpi);
-              if(channel && !suggestions.channel.includes(channel)) suggestions.channel.push(channel);
-              if(phone && !suggestions.phone.includes(phone)) suggestions.phone.push(phone);
-              if(account && !suggestions.account.includes(account)) suggestions.account.push(account);
+              if(kpi && !suggestions.kpi.includes(kpi)) suggestions.kpi.push(kpi); if(channel && !suggestions.channel.includes(channel)) suggestions.channel.push(channel);
+              if(phone && !suggestions.phone.includes(phone)) suggestions.phone.push(phone); if(account && !suggestions.account.includes(account)) suggestions.account.push(account);
           }
       });
       localStorage.setItem('avh_table_suggestions', JSON.stringify(suggestions));
       
       populateDatalists(); 
 
-callAPI("submitForm", { data: JSON.stringify(payload) }, function(res) {
+      // FIX: Bọc payload bằng encodeURIComponent để loại bỏ lỗi khi Sale gõ ký tự lạ
+      callAPI("submitForm", { data: encodeURIComponent(JSON.stringify(payload)) }, function(res) {
         if (res.success) {
-          // 1. Báo thành công
           alert("Gửi đề xuất chiến dịch và Đơn xin tạm ứng thành công!\nMã số phiếu của bạn là: " + res.id + "\n(Vui lòng lưu lại Mã này hoặc kiểm tra Email để tra cứu)");
-          
-          // 2. Đóng hộp thoại tạm ứng
-          closeAdvanceModal();
-          
-          // 3. Tải lại toàn bộ trang web để dọn dẹp bộ nhớ và trả về giao diện gốc mới tinh
-          window.location.reload();
-          
+          closeAdvanceModal(); window.location.reload();
         } else { 
-          // Nếu có lỗi thì báo lỗi và nhả nút ra cho Sale bấm lại
-          alert("Lỗi: " + res.message); 
-          btn.disabled = false; 
-          btn.innerText = "NỘP TOÀN BỘ ĐỀ XUẤT";
+          alert("Lỗi: " + res.message); btn.disabled = false; btn.innerText = "NỘP TOÀN BỘ ĐỀ XUẤT";
         }
       });
     }
   </script>
   
 <script>
-    // 1. CHẶN CHUỘT PHẢI & PHÍM TẮT DEVTOOLS
     document.addEventListener('contextmenu', event => event.preventDefault());
     document.addEventListener('keydown', function(e) {
-      if (
-        e.key === 'F12' || e.keyCode === 123 ||
-        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.keyCode === 73)) || 
-        (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j' || e.keyCode === 74)) || 
-        (e.ctrlKey && (e.key === 'U' || e.key === 'u' || e.keyCode === 85))
-      ) {
-        e.preventDefault();
-        return false;
-      }
+      if (e.key === 'F12' || e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.keyCode === 73)) || (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j' || e.keyCode === 74)) || (e.ctrlKey && (e.key === 'U' || e.key === 'u' || e.keyCode === 85))) { e.preventDefault(); return false; }
     });
 
-    // 2. BẪY DEBUGGER: ĐÁNH SẬP TRANG NẾU CỐ TÌNH VƯỢT RÀO
     setInterval(function() {
       let before = new Date().getTime();
-      
-      // Lệnh này sẽ làm trình duyệt khựng lại nếu DevTools đang mở
       debugger; 
-      
       let after = new Date().getTime();
-      
-      // Nếu thời gian xử lý lệnh debugger mất hơn 100ms -> DevTools đang mở
       if (after - before > 100) {
-          // Xóa toàn bộ nội dung trang web ngay lập tức
-          document.body.innerHTML = `
-            <div style="display:flex; height:100vh; width:100vw; background:#222; color:red; align-items:center; justify-content:center; font-family:sans-serif; flex-direction:column;">
-                <h1 style="font-size: 3rem;">⚠️ CẢNH BÁO BẢO MẬT</h1>
-                <h2>Phát hiện hành vi can thiệp hệ thống trái phép.</h2>
-                <p>Hệ thống đã tự động khóa kết nối của bạn.</p>
-            </div>
-          `;
-          
-          // Phá hủy các biến dữ liệu quan trọng
-          window.globalData = null;
-          window.API_URL = null;
-          
-          // Ép tải lại hoặc chuyển hướng sau 3 giây
-          setTimeout(() => {
-              window.location.replace("about:blank");
-          }, 3000);
+          document.body.innerHTML = `<div style="display:flex; height:100vh; width:100vw; background:#222; color:red; align-items:center; justify-content:center; font-family:sans-serif; flex-direction:column;"><h1 style="font-size: 3rem;">⚠️ CẢNH BÁO BẢO MẬT</h1><h2>Phát hiện hành vi can thiệp hệ thống trái phép.</h2><p>Hệ thống đã tự động khóa kết nối của bạn.</p></div>`;
+          window.globalData = null; window.API_URL = null;
+          setTimeout(() => { window.location.replace("about:blank"); }, 3000);
       }
-    }, 1000); // Kiểm tra liên tục mỗi giây
+    }, 1000); 
   </script>
   
-  <!-- ========================================== -->
-  <!-- SCRIPT AUTO FORMAT TÊN THÀNH VIÊN          -->
-  <!-- ========================================== -->
   <script>
     document.addEventListener('input', function(e) {
-      // Kiểm tra xem ô đang gõ có phải là ô nhập tên thành viên không (class="member-name")
       if (e.target && e.target.classList.contains('member-name')) {
-        
-        // 1. Lưu lại vị trí con trỏ chuột hiện tại để khi code đổi chữ không bị nhảy con trỏ về cuối dòng
-        let start = e.target.selectionStart;
-        let end = e.target.selectionEnd;
-
-        let oldVal = e.target.value;
-        
-        // 2. Chuyển toàn bộ chuỗi về chữ thường (Xử lý trường hợp bật Caps Lock), 
-        // sau đó tìm tất cả các chữ cái đứng đầu mỗi từ và viết hoa chúng lên.
-        let newVal = oldVal.toLowerCase().replace(/(?:^|\s)\S/g, function(a) { 
-            return a.toUpperCase(); 
-        });
-
-        // 3. Chỉ cập nhật lại value nếu có sự thay đổi để tối ưu hiệu suất trình duyệt
-        if (oldVal !== newVal) {
-          e.target.value = newVal;
-          
-          // Trả lại vị trí con trỏ chuột về đúng chỗ cũ
-          e.target.setSelectionRange(start, end);
-        }
+        let start = e.target.selectionStart; let end = e.target.selectionEnd; let oldVal = e.target.value;
+        let newVal = oldVal.toLowerCase().replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
+        if (oldVal !== newVal) { e.target.value = newVal; e.target.setSelectionRange(start, end); }
       }
     });
 
-    // 1. Chuyển đổi trạng thái Gói Thường / Gói Tổng
     function switchPackageMode() {
         let isMaster = document.getElementById('toggleGoiTong').checked;
         
-        document.getElementById('lblNormal').classList.toggle('active', !isMaster);
-        document.getElementById('lblMaster').classList.toggle('active', isMaster);
+        document.getElementById('lblNormal').classList.toggle('active', !isMaster); document.getElementById('lblMaster').classList.toggle('active', isMaster);
 
-        let rowMasterName = document.getElementById('row-master-name');
-        let sharedGt = document.getElementById('shared-chung-goi-tong');
-        let rowTeamEmail = document.getElementById('row-team-email');
-        let rowDeptDiv = document.getElementById('row-dept-div');
-        
-        let wrapEmail = document.getElementById('wrap-email');
-        let wrapDept = document.getElementById('wrap-dept');
-        let wrapDiv = document.getElementById('wrap-div');
+        let rowMasterName = document.getElementById('row-master-name'); let sharedGt = document.getElementById('shared-chung-goi-tong');
+        let rowTeamEmail = document.getElementById('row-team-email'); let rowDeptDiv = document.getElementById('row-dept-div');
+        let wrapEmail = document.getElementById('wrap-email'); let wrapDept = document.getElementById('wrap-dept'); let wrapDiv = document.getElementById('wrap-div');
 
         if (isMaster) {
-            sharedGt.appendChild(wrapEmail);
-            sharedGt.appendChild(wrapDept);
-            sharedGt.appendChild(wrapDiv);
+            sharedGt.appendChild(wrapEmail); sharedGt.appendChild(wrapDept); sharedGt.appendChild(wrapDiv);
             
-            rowMasterName.style.display = 'flex'; // Hiện ô Tên gói tổng
-            sharedGt.style.display = 'flex';
-            document.getElementById('row-members').style.display = 'none';
-            rowTeamEmail.style.display = 'none';
-            rowDeptDiv.style.display = 'none';
+            rowMasterName.style.display = 'flex'; sharedGt.style.display = 'flex';
+            document.getElementById('row-members').style.display = 'none'; rowTeamEmail.style.display = 'none'; rowDeptDiv.style.display = 'none';
             document.getElementById('khu-vuc-goi-tong').style.display = 'block';
             
-            // Bắt buộc nhập Tên gói tổng, bỏ bắt buộc Gói thường
-            document.getElementById('masterPackageName').required = true;
-            document.getElementById('teamName').required = false;
-            if(document.querySelector('.member-name')) document.querySelector('.member-name').required = false;
-            if(document.querySelector('.member-mnv')) document.querySelector('.member-mnv').required = false;
+            document.getElementById('masterPackageName').required = true; document.getElementById('teamName').required = false;
+            if(document.querySelector('.member-name')) document.querySelector('.member-name').required = false; if(document.querySelector('.member-mnv')) document.querySelector('.member-mnv').required = false;
         } else {
-            rowTeamEmail.appendChild(wrapEmail);
-            rowDeptDiv.appendChild(wrapDept);
-            rowDeptDiv.appendChild(wrapDiv);
+            rowTeamEmail.appendChild(wrapEmail); rowDeptDiv.appendChild(wrapDept); rowDeptDiv.appendChild(wrapDiv);
             
-            rowMasterName.style.display = 'none'; // Ẩn ô Tên gói tổng
-            sharedGt.style.display = 'none';
-            document.getElementById('row-members').style.display = 'grid';
-            rowTeamEmail.style.display = 'flex';
-            rowDeptDiv.style.display = 'flex';
+            rowMasterName.style.display = 'none'; sharedGt.style.display = 'none';
+            document.getElementById('row-members').style.display = 'grid'; rowTeamEmail.style.display = 'flex'; rowDeptDiv.style.display = 'flex';
             document.getElementById('khu-vuc-goi-tong').style.display = 'none';
             
-            // Trả lại bắt buộc nhập cho Gói thường
-            document.getElementById('masterPackageName').required = false;
-            document.getElementById('teamName').required = true;
-            if(document.querySelector('.member-name')) document.querySelector('.member-name').required = true;
-            if(document.querySelector('.member-mnv')) document.querySelector('.member-mnv').required = true;
+            document.getElementById('masterPackageName').required = false; document.getElementById('teamName').required = true;
+            if(document.querySelector('.member-name')) document.querySelector('.member-name').required = true; if(document.querySelector('.member-mnv')) document.querySelector('.member-mnv').required = true;
         }
     }
     
-    // 2. Thêm thành viên vào bên trong một nhóm của Gói Tổng
     function addMemToGtGroup(btn) {
-        let container = btn.parentElement;
-        let memCount = container.querySelectorAll('.gt-member-name').length + 1;
-        
-        let newInput = document.createElement('input');
-        newInput.type = 'text';
-        newInput.className = 'pill-input gt-member-name';
-        newInput.placeholder = 'Thành viên ' + memCount;
-        newInput.style.width = '140px';
-        
+        let container = btn.parentElement; let memCount = container.querySelectorAll('.gt-member-name').length + 1;
+        let newInput = document.createElement('input'); newInput.type = 'text'; newInput.className = 'pill-input gt-member-name'; newInput.placeholder = 'Thành viên ' + memCount; newInput.style.width = '140px';
         container.insertBefore(newInput, btn);
     }
 
-    // 3. Tạo hẳn một nhóm mới bên trong Gói Tổng
     function addNewGtGroup() {
-        let container = document.getElementById('danhSachNhomGoiTong');
-        let groupCount = container.querySelectorAll('.goi-tong-group').length + 1;
-        
-        let div = document.createElement('div');
-        div.className = 'goi-tong-group';
-        div.innerHTML = `
-            <div class="inline-group" style="width: auto; flex: none;">
-                <span class="info-label">Tên nhóm ${groupCount}:</span>
-                <input type="text" class="inline-input gt-team-name" placeholder="VD: Nhóm Mới..." style="width: 150px;">
-            </div>
-            <div class="gt-members" style="display: flex; gap: 10px; flex: 1; align-items: center; flex-wrap: wrap;">
-                <input type="text" class="pill-input gt-member-name" style="width: 140px;" placeholder="Thành viên 1">
-                <input type="text" class="pill-input gt-member-name" style="width: 140px;" placeholder="Thành viên 2">
-                <input type="text" class="pill-input gt-member-name" style="width: 140px;" placeholder="Thành viên 3">
-                <button type="button" class="btn-add-member" style="width: 32px; height: 32px;" onclick="addMemToGtGroup(this)" title="Thêm thành viên">+</button>
-            </div>
-        `;
+        let container = document.getElementById('danhSachNhomGoiTong'); let groupCount = container.querySelectorAll('.goi-tong-group').length + 1;
+        let div = document.createElement('div'); div.className = 'goi-tong-group';
+        div.innerHTML = `<div class="inline-group" style="width: auto; flex: none;"><span class="info-label">Tên nhóm ${groupCount}:</span><input type="text" class="inline-input gt-team-name" placeholder="VD: Nhóm Mới..." style="width: 150px;"></div><div class="gt-members" style="display: flex; gap: 10px; flex: 1; align-items: center; flex-wrap: wrap;"><input type="text" class="pill-input gt-member-name" style="width: 140px;" placeholder="Thành viên 1"><input type="text" class="pill-input gt-member-name" style="width: 140px;" placeholder="Thành viên 2"><input type="text" class="pill-input gt-member-name" style="width: 140px;" placeholder="Thành viên 3"><button type="button" class="btn-add-member" style="width: 32px; height: 32px;" onclick="addMemToGtGroup(this)" title="Thêm thành viên">+</button></div>`;
         container.appendChild(div);
     }
   </script>
