@@ -926,8 +926,20 @@
         let sumDuyetKhoi = {}, sumDuyetPhong = {}, sumDuyetDuAn = {}; 
         let sumAdvKhoi = {}, sumAdvPhong = {}, sumAdvDuAn = {}; 
 
-        let nameCountMap = {};
-        itemsArray.forEach(item => { let tName = (item.phieuObj.tenNhom || "").trim().toLowerCase(); if (tName) nameCountMap[tName] = (nameCountMap[tName] || 0) + 1; });
+        // --- THUẬT TOÁN KIỂM TRA TRÙNG LẶP MỚI ---
+        let projectCountMap = {};
+        itemsArray.forEach(item => {
+            let status = (item.trangThai || "").toUpperCase();
+            // Bỏ qua các đơn đã bị từ chối ở mọi cấp
+            if (status.startsWith('REJECTED')) return;
+
+            let tName = (item.phieuObj.tenNhom || "").trim().toLowerCase();
+            let pName = (item.tenDuAn || "").trim().toLowerCase();
+            if (tName && pName) {
+                let key = tName + "___" + pName;
+                projectCountMap[key] = (projectCountMap[key] || 0) + 1;
+            }
+        });
         
         itemsArray.forEach(item => {
             let kId = safeId(item.khoi); let pId = safeId(item.khoi + '|' + item.phong); let dId = safeId(item.khoi + '|' + item.phong + '|' + item.tenDuAn); 
@@ -1045,7 +1057,12 @@
 
           let tenNhomRaw = item.phieuObj.tenNhom || "";
           let tNameCheck = tenNhomRaw.trim().toLowerCase();
-          let isDuplicate = tNameCheck && nameCountMap[tNameCheck] > 1;
+          let pNameCheck = (item.tenDuAn || "").trim().toLowerCase();
+          let pairKey = tNameCheck + "___" + pNameCheck;
+          
+          let statusItem = (item.trangThai || "").toUpperCase();
+          // Kiểm tra: Không phải đơn bị từ chối VÀ số lượng đăng ký cho cùng dự án > 1
+          let isDuplicate = !statusItem.startsWith('REJECTED') && projectCountMap[pairKey] > 1;
           let dupClass = isDuplicate ? ' row-duplicate' : ''; 
           let isGoiTong = tenNhomRaw.includes('[GÓI TỔNG]');
           
