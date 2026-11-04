@@ -122,7 +122,7 @@
 
     <div id="globalSearchContainer" style="display: none; margin-bottom: 25px; width: 100%;">
       <div style="display: flex; gap: 15px; width: 100%;">
-        <input type="text" id="globalSearch" class="form-control" placeholder="🔍 TÌM KIẾM HOẶC LỌC NHANH..." onkeyup="applyGlobalSearch()" style="flex: 1; border: 2px solid var(--primary-blue); font-weight: bold; font-size: 15px; padding: 16px 20px;">
+        <input type="search" id="globalSearch" class="form-control" placeholder="🔍 TÌM KIẾM HOẶC LỌC NHANH..." oninput="applyGlobalSearch()" style="flex: 1; border: 2px solid var(--primary-blue); font-weight: bold; font-size: 15px; padding: 16px 20px;">
         <select id="statusFilter" class="form-control" onchange="applyGlobalSearch()" style="width: 250px; border: 2px solid var(--primary-blue); font-weight: bold; font-size: 14px; color: var(--primary-blue); cursor: pointer; padding: 0 15px;">
           <option value="ALL">Tất cả trạng thái</option>
           <option value="PENDING">⏳ Đang chờ duyệt</option>
