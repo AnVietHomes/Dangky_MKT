@@ -13,7 +13,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <style>
-    tr.row-duplicate td { background-color: #d4efff !important; }
+    tr.row-duplicate td { background-color: #ffebd7 !important; }
     :root { --bg-login: #d4efff; --primary-blue: #0b1f8c; --text-dark: #333333; --text-gray: #666666; --input-bg: #f4f6f8; --border-color: #e5e8ec; --success-green: #27ae60; --danger: #e74c3c; --warning: #f39c12; }
     body { font-family: 'Manrope', Arial, sans-serif; margin: 0; padding: 0; min-height: 100vh; background-color: var(--bg-login); box-sizing: border-box; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
     input, textarea { -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text; }
@@ -85,6 +85,241 @@
     .modal-header { font-size: 22px; font-weight: 800; color: var(--primary-blue); margin-bottom: 20px; text-transform: uppercase;}
 
     .loading-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; justify-content:center; align-items:center; font-weight:800; color:#fff; font-size: 18px; flex-direction: column; gap:15px;}
+
+    /* --- CSS NÚT GẠT SÁNG/TỐI --- */
+    .theme-switch {
+      position: relative;
+      display: inline-block;
+      width: 64px;
+      height: 32px;
+      margin-right: 5px;
+    }
+    .theme-switch input { 
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 24px;
+      width: 24px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      z-index: 2;
+    }
+    input:checked + .slider {
+      background-color: #2ecc71; /* Màu xanh lá khi ON */
+    }
+    input:checked + .slider:before {
+      transform: translateX(32px);
+    }
+    .slider:after {
+      content: 'OFF';
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      position: absolute;
+      right: 9px;
+      top: 9px;
+      z-index: 1;
+    }
+    input:checked + .slider:after {
+      content: 'ON';
+      left: 11px;
+      right: auto;
+    }
+    
+    /* --- BỘ MÀU GIAO DIỆN TỐI (DARK MODE) CHUẨN XÁC --- */
+    body.dark-mode {
+      --bg-login: #121212; 
+      --primary-blue: #66b2ff; 
+      --text-dark: #e0e0e0; 
+      --text-gray: #aaaaaa; 
+      --input-bg: #2a2a2a; 
+      --border-color: #444444;
+      background-color: #121212;
+      color: #e0e0e0;
+    }
+    body.dark-mode .dashboard-container, 
+    body.dark-mode .login-card, 
+    body.dark-mode .modal-card, 
+    body.dark-mode #topSummaryBlocks > div {
+      background-color: #1e1e1e;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+    
+    /* Đổi logo thành màu trắng */
+    body.dark-mode .dash-header-left img,
+    body.dark-mode .login-header img {
+      content: url("logodark.svg");
+    }
+
+    /* Bảng chung và đường viền */
+    body.dark-mode table, body.dark-mode .table-container { border-color: #444; }
+    body.dark-mode th { background-color: #2a2a2a; color: #fff; border-color: #444; }
+    body.dark-mode td { border-color: #444; color: #e0e0e0; }
+    body.dark-mode input, body.dark-mode select { background-color: #333; color: #fff; border-color: #555; }
+
+    /* FIX 1: Bảng Tổng hợp theo Khối & Dự án ở trên cùng */
+    body.dark-mode .summary-table,
+    body.dark-mode #tableSumKhoi,
+    body.dark-mode #tableSumDuAn {
+        background-color: #1e1e1e !important;
+        color: #e0e0e0 !important;
+    }
+    body.dark-mode .summary-table th,
+    body.dark-mode .summary-table td {
+        background-color: #1e1e1e !important;
+        color: #e0e0e0 !important;
+        border-color: #444 !important;
+    }
+    body.dark-mode .summary-table tr[style*="background:#fffaf0"],
+    body.dark-mode .summary-table tr[style*="background: #fffaf0"] {
+        background-color: #2c2416 !important;
+    }
+
+    /* Toolbar và các khối công cụ */
+    body.dark-mode .super-admin-toolbar, body.dark-mode #cnqnContainer > div:first-child { background: #111; }
+    body.dark-mode .mkt-toolbar, body.dark-mode #exportBlock { background: #2a2a2a; border-color: #444; }
+
+    /* FIX 2: Màu các hàng Khối, Phòng, Dự án trong bảng chính */
+    body.dark-mode tr[style*="background:#0b1f8c"], 
+    body.dark-mode tr[style*="background: #0b1f8c"],
+    body.dark-mode tr[style*="background-color: #0b1f8c"] {
+       background-color: #1a2a6c !important; 
+       color: #ffffff !important;
+    }
+    body.dark-mode tr[style*="background:#d4efff"], 
+    body.dark-mode tr[style*="background: #d4efff"] {
+        background-color: #1f3a5e !important;
+        color: #ffffff !important; 
+    }
+    body.dark-mode tr[style*="background:#f9f9f9"], 
+    body.dark-mode tr[style*="background: #f9f9f9"] {
+        background-color: #2c2c2c !important;
+        color: #ffffff !important;
+    }
+    body.dark-mode tr[style*="background:#fffaf0"], 
+    body.dark-mode tr[style*="background: #fffaf0"] {
+        background-color: #382e1c !important;
+        color: #ffffff !important;
+    }
+
+    /* Ép toàn bộ chữ, nhãn (label), và span bên trong các hàng gộp chuyển sang sáng màu */
+    body.dark-mode tr[style*="background"] td,
+    body.dark-mode tr[style*="background"] span,
+    body.dark-mode tr[style*="background"] label {
+        color: #ffffff !important;
+    }
+
+    /* FIX 3: Cột Thời gian chạy và các ô nhập liệu (Note, % Tạm ứng) */
+    body.dark-mode td span[style*="color:#333"],
+    body.dark-mode td span[style*="color: #333"] {
+        color: #e0e0e0 !important;
+    }
+    body.dark-mode input.bld-note,
+    body.dark-mode input.adv-percent-input {
+      background-color: #2a2a2a !important;
+      border: 1px solid #444 !important;
+      color: #e0e0e0 !important;
+    }
+
+    /* Khối Lưu trữ và Gói tổng */
+    body.dark-mode div[id^="arch_"] {
+        background-color: #1e1e1e !important;
+        border-color: #444 !important;
+    }
+    body.dark-mode div[style*="background: #fef5f5"] {
+       background-color: #3a2222 !important;
+       color: #e0e0e0 !important;
+       border-left-color: #ff5252 !important;
+    }
+    body.dark-mode div[style*="background: #fef5f5"] div {
+       color: #e0e0e0 !important;
+    }
+
+    /* Màu các hàng trạng thái đặc biệt */
+    body.dark-mode tr.row-truythu { 
+        background-color: rgba(211, 47, 47, 0.25) !important; 
+        border-left: 6px solid #ff5252 !important;
+    }
+    body.dark-mode tr.row-rejected { 
+        background-color: rgba(231, 76, 60, 0.2) !important; 
+    }
+    body.dark-mode tr.row-approved { 
+        background-color: rgba(39, 174, 96, 0.15) !important; 
+    }
+    body.dark-mode tr.op-kpi { 
+        background-color: rgba(142, 68, 173, 0.2) !important; 
+    }
+
+    /* Tab 2 (Tạm ứng) */
+    body.dark-mode #tableAdvanceBody td {
+        color: #e0e0e0 !important;
+    }
+    /* --- TINH CHỈNH RIÊNG CHO GIAO DIỆN TỐI (DARK MODE) --- */
+
+    /* 1. Làm dịu màu hàng trùng lặp trên nền tối (tông màu cam đất trầm, không bị chói) */
+    body.dark-mode tr.row-duplicate td {
+        background-color: rgba(180, 100, 30, 0.25) !important;
+        color: #ffbb88 !important;
+    }
+    body.dark-mode tr.row-duplicate span {
+        color: inherit !important;
+    }
+    /* 2. Xử lý triệt để khoảng trắng thừa dưới bảng tổng hợp */
+    body.dark-mode #topSummaryBlocks > div {
+        background-color: #1e1e1e !important;
+        border: 1px solid #444 !important;
+    }
+    body.dark-mode #topSummaryBlocks table {
+        background-color: #1e1e1e !important;
+    }
+    /* Đảm bảo toàn bộ vùng chứa khối tổng hợp phủ kín màu tối */
+    body.dark-mode #topSummaryBlocks {
+        background-color: transparent !important;
+    }
+    /* --- ĐỒNG BỘ GIAO DIỆN TỐI CHO TAB 3 (BÁO CÁO) --- */
+
+    /* 1. Đổi màu hàng tiêu đề Khối trong bảng báo cáo (màu xanh dương gốc) thành tối màu */
+    body.dark-mode #reportTable tr[style*="background:#0b1f8c"],
+    body.dark-mode #reportTable tr[style*="background: #0b1f8c"] {
+        background-color: #1a2a6c !important;
+        color: #ffffff !important;
+    }
+
+    /* 2. Đổi màu dòng "TỔNG CỘNG KHỐI" (gốc mang nền trắng sáng #e8f4fc) thành nền tối */
+    body.dark-mode #reportTable tr[style*="background:#e8f4fc"],
+    body.dark-mode #reportTable tr[style*="background: #e8f4fc"] {
+        background-color: #25334a !important;
+        color: #ffffff !important;
+    }
+
+    /* 3. Ép toàn bộ chữ và các thẻ bên trong dòng tổng cộng khối chuyển sang sáng màu */
+    body.dark-mode #reportTable tr[style*="background:#e8f4fc"] td,
+    body.dark-mode #reportTable tr[style*="background:#e8f4fc"] span {
+        color: #ffffff !important;
+    }
+
+    /* 4. Đảm bảo toàn bộ bảng báo cáo nhận màu chữ sáng */
+    body.dark-mode #reportTable td {
+        color: #e0e0e0 !important;
+        border-color: #444 !important;
+    }
   </style>
 </head>
 <body>
@@ -106,7 +341,17 @@
   <div class="dashboard-container" id="dashboardScreen">
     <div class="dash-header">
       <div class="dash-header-left"><img src="logo.svg" alt="An Việt Homes" style="max-width: 85px;" onerror="this.src='https://placehold.co/85x35/ffffff/004b9a?text=LOGO'"><h2 class="dash-title">KHU VỰC QUẢN LÝ & PHÊ DUYỆT</h2></div>
-      <div><span class="user-badge" id="userInfo"></span><a class="btn-logout" onclick="logout()">Đăng xuất</a></div>
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <label class="theme-switch" title="Chế độ Tối/Sáng">
+          <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()">
+          <span class="slider"></span>
+        </label>
+        <span class="user-badge" id="userInfo"></span>
+        <span id="syncQueueBadge" style="display:none; font-weight:700; background:#fff3cd; color:#856404; padding:8px 15px; border-radius:20px; font-size:13px; border:1px solid #ffeeba;">
+          ⏳ Đang lưu <b id="syncQueueCount">0</b> tác vụ...
+        </span>
+        <a class="btn-logout" onclick="logout()">Đăng xuất</a>
+      </div>
     </div>
     
     <div class="super-admin-toolbar" id="superAdminToolbar">
@@ -122,7 +367,7 @@
 
     <div id="globalSearchContainer" style="display: none; margin-bottom: 25px; width: 100%;">
       <div style="display: flex; gap: 15px; width: 100%;">
-        <input type="text" id="globalSearch" class="form-control" placeholder="🔍 TÌM KIẾM HOẶC LỌC NHANH..." onkeyup="applyGlobalSearch()" style="flex: 1; border: 2px solid var(--primary-blue); font-weight: bold; font-size: 15px; padding: 16px 20px;">
+        <input type="search" id="globalSearch" class="form-control" placeholder="🔍 TÌM KIẾM HOẶC LỌC NHANH..." oninput="applyGlobalSearch()" style="flex: 1; border: 2px solid var(--primary-blue); font-weight: bold; font-size: 15px; padding: 16px 20px;">
         <select id="statusFilter" class="form-control" onchange="applyGlobalSearch()" style="width: 250px; border: 2px solid var(--primary-blue); font-weight: bold; font-size: 14px; color: var(--primary-blue); cursor: pointer; padding: 0 15px;">
           <option value="ALL">Tất cả trạng thái</option>
           <option value="PENDING">⏳ Đang chờ duyệt</option>
@@ -322,31 +567,70 @@
     });
 
     // --- BỘ QUẢN LÝ KẾT NỐI API HIỆN ĐẠI (FETCH POST) ---
-    let isApiRunning = false;
+    // =========================================================================
+    // HỆ THỐNG HÀNG CHỜ REQUEST QUEUE - GIẢI QUYẾT TRIỆT ĐỂ NGHẼN/MẤT DATA
+    // =========================================================================
+    let requestQueue = [];
+    let isProcessingQueue = false;
 
-    function callAPI(action, params, successCallback) {
-      if (isApiRunning) { console.warn("Hệ thống đang xử lý tác vụ khác, vui lòng chờ..."); return; }
-      isApiRunning = true;
+    function processNextInQueue() {
+      const badge = document.getElementById('syncQueueBadge');
+      const countEl = document.getElementById('syncQueueCount');
       
-      let payload = { action: action };
-      for (let key in params) { payload[key] = params[key]; }
+      if (requestQueue.length === 0) {
+        isProcessingQueue = false;
+        if (badge) badge.style.display = 'none';
+        return;
+      }
+
+      isProcessingQueue = true;
+      if (badge && countEl) {
+        badge.style.display = 'inline-block';
+        countEl.innerText = requestQueue.length;
+      }
+
+      const task = requestQueue[0];
 
       fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(task.payload)
       })
       .then(response => response.json())
       .then(result => {
-        isApiRunning = false;
-        if (typeof successCallback === 'function') successCallback(result);
+        requestQueue.shift(); // Xóa tác vụ đã xong
+        if (typeof task.callback === 'function') task.callback(result);
+        processNextInQueue(); // Chạy tác vụ tiếp theo
       })
       .catch(error => {
-        isApiRunning = false;
-        showLoading(false);
-        alert("Mạng có vẻ chậm hoặc kết nối bị gián đoạn. Dữ liệu có thể đã được lưu, vui lòng ấn F5 để kiểm tra lại!");
-        if (typeof successCallback === 'function') successCallback({ success: false, message: "Lỗi mạng" });
+        console.error("Lỗi gửi dữ liệu:", error);
+        // Nếu lỗi mạng, thử lại tác vụ này tối đa 3 lần hoặc thông báo
+        if (!task.retryCount) task.retryCount = 0;
+        task.retryCount++;
+        if (task.retryCount <= 3) {
+          setTimeout(processNextInQueue, 1000); // Thử lại sau 1s
+        } else {
+          requestQueue.shift();
+          alert(`Cảnh báo: Không thể đồng bộ đơn ${task.payload.idPhieu || ''}. Vui lòng bấm F5 kiểm tra lại!`);
+          if (typeof task.callback === 'function') task.callback({ success: false, message: "Lỗi mạng" });
+          processNextInQueue();
+        }
       });
+    }
+
+    // Hàm gọi API chuẩn qua Hàng chờ Queue
+    function callAPI(action, params, successCallback) {
+      let payload = { action: action };
+      for (let key in params) { payload[key] = params[key]; }
+
+      requestQueue.push({
+        payload: payload,
+        callback: successCallback
+      });
+
+      if (!isProcessingQueue) {
+        processNextInQueue();
+      }
     }
     
     function showLoading(show, mainText="ĐANG XỬ LÝ...", subText="Vui lòng đợi trong giây lát") { 
@@ -395,7 +679,12 @@
       }
       let today = new Date(); let m = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0'); document.getElementById('reportMonth').value = m;
       
-      const deptsString = JSON.stringify(loggedInUser.managedDepartments);
+      // Cấp quyền lấy dữ liệu toàn bộ các phòng/khối cho PTGĐ và BLĐ
+      let depts = loggedInUser.managedDepartments;
+      if (currentViewRole === 'PTGD' || currentViewRole === 'SUPER_ADMIN' || currentViewRole === 'BLD' || currentViewRole === 'BLD_GDCN') {
+          depts = ['ALL'];
+      }
+      const deptsString = JSON.stringify(depts);
       
       callAPI("getDashboardData", { role: currentViewRole, departments: deptsString }, function(result) {
         showLoading(false);
@@ -803,22 +1092,50 @@
       return 'HISTORY';
     }
 
-    function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
+   function updateStatusOptimistic(idPhieu, newStatus, btnElement, revertStatus) {
       try {
         let targetPhieu = globalData.find(p => p.idPhieu === idPhieu);
-        let cb = btnElement.closest('tr').querySelector('.cb-newsale');
+        let tr = btnElement.closest('tr');
+        let cb = tr ? tr.querySelector('.cb-newsale') : null;
         let isNewSaleVal = targetPhieu ? targetPhieu.isNewSale : false;
         if (cb) isNewSaleVal = cb.checked;
         
-        if (targetPhieu) { targetPhieu.trangThai = newStatus; targetPhieu.isNewSale = isNewSaleVal; }
+        // 1. Cập nhật dữ liệu bộ nhớ RAM
+        if (targetPhieu) { 
+          targetPhieu.trangThai = newStatus; 
+          targetPhieu.isNewSale = isNewSaleVal; 
+        }
         
-        renderTableByRole(currentViewRole);
-        applyGlobalSearch(); 
-        
+        // 2. Cập nhật trực tiếp trên DOM (Không render lại bảng -> cực mượt)
+        if (tr) {
+          let statusTd = tr.querySelector(`#status_${idPhieu}`) || tr.children[5]; // Ô trạng thái
+          let actionTd = tr.querySelector('.td-actions'); // Ô nút bấm
+          
+          if (newStatus.startsWith('REJECTED')) {
+            tr.className = tr.className.replace('row-approved', '') + ' row-rejected';
+            if (statusTd) statusTd.innerHTML = `<span style="color:var(--danger); font-weight:700;">TỪ CHỐI</span>`;
+          } else if (newStatus === 'APPROVED_BY_BLD') {
+            tr.className = tr.className.replace('row-rejected', '') + ' row-approved';
+            if (statusTd) statusTd.innerHTML = `<span style="color:var(--success-green); font-weight:700;">ĐÃ DUYỆT</span>`;
+          } else {
+            let pStr = newStatus.replace('PENDING_', 'CHỜ ');
+            if (statusTd) statusTd.innerHTML = `<span style="color:var(--warning); font-weight:700;">${pStr}</span>`;
+          }
+          
+          // Làm mờ hoặc ẩn các nút bấm vừa thao tác để tránh bấm lại
+          if (actionTd) {
+            actionTd.innerHTML = `<span style="font-size:11px; color:#27ae60; font-weight:bold;">✓ Đã ghi nhận</span>`;
+          }
+        }
+
+        // 3. Đẩy vào hàng chờ Queue gửi ngầm lên Google Apps Script
         callAPI("updateStatus", { data: JSON.stringify({ idPhieu: idPhieu, newStatus: newStatus, isNewSale: isNewSaleVal }) }, function(res) { 
-            if(!res || !res.success) alert("Lỗi đồng bộ máy chủ!"); 
+          if(!res || !res.success) {
+            console.error("Lỗi đồng bộ máy chủ!");
+          }
         });
-      } catch(e) { alert("Lỗi: " + e.message); }
+
+      } catch(e) { alert("Lỗi cục bộ: " + e.message); }
     }
 
     function renderTableByRole(role) {
@@ -883,7 +1200,7 @@
 
       let thHtml = `<th width="4%"></th>`;
       if (isKD) thHtml += `<th width="5%">Nhóm Sale Mới</th>`;
-      thHtml += `<th>Mã Phiếu</th><th>Phòng / Khối</th><th>Thành Viên</th><th>Trạng Thái</th><th>Ngân Sách Đề Xuất</th>`;
+      thHtml += `<th>Mã Phiếu</th><th>Phòng / Khối</th><th>Thành Viên</th><th>Thời Gian Chạy</th><th>Trạng Thái</th><th>Ngân Sách Đề Xuất</th>`;
       if (isPTGD) { thHtml += `<th>Tỷ Lệ T.Ư</th><th>Tạm Ứng Đầu Kỳ</th><th>Ghi Chú</th>`; } else if (isBLD || isMKT) { thHtml += `<th>BLĐ Duyệt Thực Tế</th><th>Ghi Chú</th>`; } 
       thHtml += `<th class="td-actions">Hành Động</th>`;
       
@@ -908,7 +1225,11 @@
             }
         }
 
-        let isManaged = (loggedInUser.managedDepartments.indexOf('ALL') > -1 || loggedInUser.managedDepartments.includes(item.phong) || loggedInUser.managedDepartments.includes(item.khoi));
+        // Cho phép PTGĐ xem được hiển thị của toàn bộ các khối
+        let isManaged = (loggedInUser.managedDepartments.indexOf('ALL') > -1 || 
+                         loggedInUser.managedDepartments.includes(item.phong) || 
+                         loggedInUser.managedDepartments.includes(item.khoi) || 
+                         role === 'PTGD' || role === 'SUPER_ADMIN' || role === 'BLD');
         let isCNQN = (item.khoi.toUpperCase() === 'CNQN' && (role === 'PTGD' || role === 'GDCN'));
 
         if (isArchived) {
@@ -926,8 +1247,20 @@
         let sumDuyetKhoi = {}, sumDuyetPhong = {}, sumDuyetDuAn = {}; 
         let sumAdvKhoi = {}, sumAdvPhong = {}, sumAdvDuAn = {}; 
 
-        let nameCountMap = {};
-        itemsArray.forEach(item => { let tName = (item.phieuObj.tenNhom || "").trim().toLowerCase(); if (tName) nameCountMap[tName] = (nameCountMap[tName] || 0) + 1; });
+        // --- THUẬT TOÁN KIỂM TRA TRÙNG LẶP MỚI ---
+        let projectCountMap = {};
+        itemsArray.forEach(item => {
+            let status = (item.trangThai || "").toUpperCase();
+            // Bỏ qua các đơn đã bị từ chối ở mọi cấp
+            if (status.startsWith('REJECTED')) return;
+
+            let tName = (item.phieuObj.tenNhom || "").trim().toLowerCase();
+            let pName = (item.tenDuAn || "").trim().toLowerCase();
+            if (tName && pName) {
+                let key = tName + "___" + pName;
+                projectCountMap[key] = (projectCountMap[key] || 0) + 1;
+            }
+        });
         
         itemsArray.forEach(item => {
             let kId = safeId(item.khoi); let pId = safeId(item.khoi + '|' + item.phong); let dId = safeId(item.khoi + '|' + item.phong + '|' + item.tenDuAn); 
@@ -946,7 +1279,7 @@
             sumAdvKhoi[kId] = (sumAdvKhoi[kId] || 0) + valAdv; sumAdvPhong[pId] = (sumAdvPhong[pId] || 0) + valAdv; sumAdvDuAn[dId] = (sumAdvDuAn[dId] || 0) + valAdv;
         });
 
-        let currentKhoi = null; let currentPhong = null; let currentDuAn = null; let html = ''; let colBefore = isKD ? 6 : 5; 
+        let currentKhoi = null; let currentPhong = null; let currentDuAn = null; let html = ''; let colBefore = isKD ? 7 : 6;
         let localGrandDx = 0; let localGrandAdv = 0; let localGrandDy = 0;
 
         itemsArray.forEach((item) => {
@@ -975,8 +1308,11 @@
           if (isKpiDacBiet) rowClass += ' op-kpi'; 
           if (isTruyThu) rowClass = 'row-truythu'; 
 
-          let isEditableNote = (isBLD || role === 'TPMKT' || role === 'MKT' || isPTGD) && !isReadOnlyMode;
-          let nsDuyetHtml = (isBLD && !isReadOnlyMode) ? `<input type="text" class="input-budget bld-budget" data-id-dong="${item.idDong}" value="${formatNumber(item.nsDuyet)}" oninput="formatCurrencyAdmin(this)">` : `<span style="color:var(--danger); font-weight:bold;">${formatNumber(item.nsDuyet)}</span>`;
+        // Ép lộ trình: BLĐ chỉ được nhập số tiền khi đơn đã qua TPMKT (trạng thái PENDING_BLD)
+          let isBldEditable = isBLD && !isReadOnlyMode && (item.trangThai === 'PENDING_BLD' || item.trangThai === 'BLD_DRAFTING');
+          
+          let isEditableNote = (isBldEditable || role === 'TPMKT' || role === 'MKT' || isPTGD) && !isReadOnlyMode;
+          let nsDuyetHtml = isBldEditable ? `<input type="text" class="input-budget bld-budget" data-id-dong="${item.idDong}" value="${formatNumber(item.nsDuyet)}" oninput="formatCurrencyAdmin(this)">` : `<span style="color:var(--danger); font-weight:bold;">${formatNumber(item.nsDuyet)}</span>`;
           let ghiChuText = item.ghiChu || "";
           let cleanNote = ghiChuText.replace(/"/g, '&quot;');
           let displayNote = cleanNote.replace(/(\(Ghi chú bởi:.*?\))/g, '<br><i style="font-size:10.5px; color:#888;">$1</i>');
@@ -994,14 +1330,20 @@
           if (isReadOnlyMode) {
              btnHtml = `<span style="color:#999; font-size: 11px; font-weight: bold; background: #e0e0e0; padding: 4px 8px; border-radius: 4px;">Chỉ xem</span>`;
           } else {
-              if (isEditableNote && !isBLD) { btnHtml += `<button class="btn-action btn-draft" style="background:#f39c12;" onclick="saveSingleRow(this, '${item.idDong}')">Lưu Ghi Chú</button>`; }
               if (isBLD) {
-                  btnHtml += `<button class="btn-action btn-draft" onclick="saveSingleRow(this, '${item.idDong}')">Cập nhật</button>`;
+                  if (isBldEditable) {
+                      btnHtml += `<button class="btn-action btn-draft" onclick="saveSingleRow(this, '${item.idDong}')">Cập nhật</button>`;
+                  }
+                  
                   if (item.trangThai === 'REJECTED_BLD' || item.trangThai === 'REJECTED') {
                       btnHtml += `<button class="btn-action btn-draft" onclick="updateStatusOptimistic('${item.idPhieu}', 'PENDING_BLD', this, 'PENDING_BLD')">Hoàn Tác (Duyệt Lại)</button>`;
-                  } else if (item.trangThai !== 'APPROVED_BY_BLD') {
+                  } else if (item.trangThai === 'PENDING_BLD' || item.trangThai === 'BLD_DRAFTING') {
+                      // ĐÚNG LỘ TRÌNH: Chỉ khi TPMKT đã duyệt xong mới hiện nút chốt cuối cùng
                       btnHtml += `<button class="btn-action btn-approve" style="background:#8e44ad;" onclick="approveSingleBLD(this, '${item.idPhieu}')">Duyệt Đơn</button>`;
                       btnHtml += `<button class="btn-action btn-reject" onclick="updateStatusOptimistic('${item.idPhieu}', 'REJECTED_BLD', this, 'PENDING_BLD')">Từ Chối</button>`;
+                  } else if (item.trangThai !== 'APPROVED_BY_BLD') {
+                      // Đơn chưa đến bước BLĐ (đang nằm ở TPKD, GDKD, hoặc TPMKT)
+                      btnHtml += `<span style="font-size:11px; color:#f39c12; font-weight:bold; font-style:italic;">Đang chờ các cấp dưới duyệt...</span>`;
                   }
               } else {
                   let grp = getStatusGroup(item.phieuObj, role);
@@ -1045,7 +1387,12 @@
 
           let tenNhomRaw = item.phieuObj.tenNhom || "";
           let tNameCheck = tenNhomRaw.trim().toLowerCase();
-          let isDuplicate = tNameCheck && nameCountMap[tNameCheck] > 1;
+          let pNameCheck = (item.tenDuAn || "").trim().toLowerCase();
+          let pairKey = tNameCheck + "___" + pNameCheck;
+          
+          let statusItem = (item.trangThai || "").toUpperCase();
+          // Kiểm tra: Không phải đơn bị từ chối VÀ số lượng đăng ký cho cùng dự án > 1
+          let isDuplicate = !statusItem.startsWith('REJECTED') && projectCountMap[pairKey] > 1;
           let dupClass = isDuplicate ? ' row-duplicate' : ''; 
           let isGoiTong = tenNhomRaw.includes('[GÓI TỔNG]');
           
@@ -1057,10 +1404,18 @@
 
           let safeSearchData = (typeof searchData !== 'undefined' ? searchData : '').replace(/["']/g, '');
 
+          // --- CODE TRÍCH XUẤT THỜI GIAN CHẠY ---
+          let ctData = (item.phieuObj.chiTiet || []).find(c => c.idDong === item.idDong);
+          let startDate = ctData && ctData.start ? ctData.start : '...';
+          let endDate = ctData && (ctData.end || ctData.ketThuc) ? (ctData.end || ctData.ketThuc) : '...';
+          let timeString = `<span style="font-weight:700; color:#333; font-size:12px; white-space:nowrap;">${startDate} - ${endDate}</span>`;
+          // ------------------------------------
+
           let rowHTML = `<tr data-id-dong="${item.idDong}" data-id-phieu="${item.idPhieu}" data-nsduyet="${item.nsDuyet}" data-search="${safeSearchData}" class="${rowClass}${dupClass}"><td><div style="display:flex; flex-direction:column; align-items:center; gap:6px;"><button class="btn-view" onclick="viewDetail('${item.idPhieu}', 'proposal')">👁️</button><input type="checkbox" class="cb-print-proposal cb-print-item" data-khoi="${kId}" data-phong="${pId}" data-duan="${dId}" value="${item.idPhieu}" title="Tích chọn để in" style="cursor:pointer; width:16px; height:16px;"></div></td>`;
           if (isKD) { let checkedState = item.phieuObj.isNewSale ? 'checked' : ''; rowHTML += `<td><input type="checkbox" class="cb-newsale" style="width:16px; height:16px; cursor:pointer;" title="Nhóm sale mới" ${checkedState} ${isReadOnlyMode?'disabled':''}></td>`; }
           
-          rowHTML += `<td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${item.idPhieu}</span></td><td><span style="font-weight:700; color:var(--primary-blue);">${item.phong}</span><br><span style="font-size:11px; color:#666;">Khối ${item.khoi}</span></td><td style="text-align:left; font-size:12px; line-height:1.5;">${tenNhomHtml}${kpiHtml}${truyThuHtml}${tvDisplay}</td><td>${statusText}</td><td>${dxDisplay}</td>`;
+          // Chèn thêm <td style="text-align:center;">${timeString}</td> vào trước ${statusText}
+          rowHTML += `<td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${item.idPhieu}</span></td><td><span style="font-weight:700; color:var(--primary-blue);">${item.phong}</span><br><span style="font-size:11px; color:#666;">Khối ${item.khoi}</span></td><td style="text-align:left; font-size:12px; line-height:1.5;">${tenNhomHtml}${kpiHtml}${truyThuHtml}${tvDisplay}</td><td style="text-align:center;">${timeString}</td><td>${statusText}</td><td>${dxDisplay}</td>`;
 
           if (isPTGD) { 
               let advDisplay = isTruyThu ? `<s style="opacity:0.6;">${formatNumber(advAmt)}</s><br><span style="font-size:10px; color:#d32f2f; font-weight:800;">(Truy thu tạm ứng)</span>` : formatNumber(advAmt);
@@ -1149,20 +1504,35 @@
     function updateStatusTUOptimistic(idPhieu, newStatus, btnElement) {
       try {
         let advPercent = 0;
-        if (btnElement) {
-           const row = btnElement.closest('tr'); 
-           if (row) { let percentInput = row.querySelector('.adv-percent-input'); if (percentInput) advPercent = parseFloat(percentInput.value) || 0; }
+        let tr = btnElement ? btnElement.closest('tr') : null;
+        if (tr) { 
+          let percentInput = tr.querySelector('.adv-percent-input'); 
+          if (percentInput) advPercent = parseFloat(percentInput.value) || 0; 
         }
 
         let targetPhieu = globalData.find(p => p.idPhieu === idPhieu); 
-        if (targetPhieu) { targetPhieu.trangThaiTU = newStatus; targetPhieu.advPercent = advPercent; }
+        if (targetPhieu) { 
+          targetPhieu.trangThaiTU = newStatus; 
+          targetPhieu.advPercent = advPercent; 
+        }
 
-        renderAdvanceTableByRole(currentViewRole);
-        if (typeof applyGlobalSearch === 'function') { applyGlobalSearch(); }
+        if (tr) {
+          let statusTd = tr.querySelector('.td-status-tu');
+          let actionTd = tr.querySelector('.td-actions-tu');
+          
+          if (newStatus === 'APPROVED_TU') {
+            tr.className = 'row-approved';
+            if (statusTd) statusTd.innerHTML = `<span style="color:var(--success-green); font-weight:700;">ĐÃ DUYỆT T.ỨNG</span>`;
+          } else if (newStatus === 'REJECTED_TU') {
+            tr.className = 'row-rejected';
+            if (statusTd) statusTd.innerHTML = `<span style="color:var(--danger); font-weight:700;">TỪ CHỐI T.ỨNG</span>`;
+          }
+          if (actionTd) actionTd.innerHTML = `<span style="font-size:11px; color:#27ae60; font-weight:bold;">✓ Đã ghi nhận</span>`;
+        }
 
         let payload = { idPhieu: idPhieu, newStatus: newStatus, advPercent: advPercent };
         callAPI("updateStatusTU", { data: JSON.stringify(payload) }, function(res) { 
-            if(!res || !res.success) alert("Lỗi đồng bộ Tạm Ứng!"); 
+          if(!res || !res.success) console.error("Lỗi đồng bộ Tạm Ứng!"); 
         });
       } catch(e) { alert("Lỗi cục bộ: " + e.message); }
     }
@@ -1767,5 +2137,27 @@
       }
     }, 1000); 
   </script>
+  <script>
+    // --- LOGIC CHUYỂN ĐỔI DARK MODE BẰNG NÚT GẠT ---
+    function toggleDarkMode() {
+        const isDark = document.getElementById('darkModeToggle').checked;
+        if (isDark) {
+            document.body.classList.add('dark-mode');
+            localStorage.setItem('avh_theme', 'dark');
+        } else {
+            document.body.classList.remove('dark-mode');
+            localStorage.setItem('avh_theme', 'light');
+        }
+    }
+
+    // Tự động khôi phục giao diện tối và bật nút gạt sang ON nếu lần trước người dùng đã bật
+    document.addEventListener("DOMContentLoaded", function() {
+        if (localStorage.getItem('avh_theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            const toggle = document.getElementById('darkModeToggle');
+            if(toggle) toggle.checked = true; // Tự động gạt nút sang màu xanh
+        }
+    });
+</script>
 </body>
 </html>
