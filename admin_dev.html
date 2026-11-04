@@ -556,15 +556,28 @@
     }
 
     document.addEventListener("DOMContentLoaded", function() {
-      const savedSession = localStorage.getItem("avh_admin_session");
-      if (savedSession) {
-        loggedInUser = JSON.parse(savedSession);
-        document.getElementById('loginScreen').style.display = 'none'; document.getElementById('dashboardScreen').style.display = 'flex'; 
+  const savedSession = localStorage.getItem("avh_admin_session");
+  if (savedSession) {
+    try {
+      loggedInUser = JSON.parse(savedSession);
+      // Kiểm tra xem session có đủ thông tin cơ bản không
+      if (loggedInUser && loggedInUser.role) {
+        document.getElementById('loginScreen').style.display = 'none'; 
+        document.getElementById('dashboardScreen').style.display = 'flex'; 
         document.getElementById('userInfo').innerText = `Xin chào, ${loggedInUser.name} - ${ROLE_TITLES[loggedInUser.role] || loggedInUser.role}`;
-        if (loggedInUser.role === 'SUPER_ADMIN') document.getElementById('superAdminToolbar').style.display = 'flex';
+        if (loggedInUser.role === 'SUPER_ADMIN') {
+          document.getElementById('superAdminToolbar').style.display = 'flex';
+        }
         simulateRole(loggedInUser.role);
+        return;
       }
-    });
+    } catch (e) {
+      console.error("Lỗi đọc session cũ:", e);
+    }
+    // Nếu session lỗi, xóa đi để tránh kẹt giao diện
+    localStorage.removeItem("avh_admin_session");
+  }
+});
 
     // --- BỘ QUẢN LÝ KẾT NỐI API HIỆN ĐẠI (FETCH POST) ---
     // =========================================================================
