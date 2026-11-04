@@ -271,6 +271,28 @@
     body.dark-mode #tableAdvanceBody td {
         color: #e0e0e0 !important;
     }
+    /* --- TINH CHỈNH RIÊNG CHO GIAO DIỆN TỐI (DARK MODE) --- */
+
+    /* 1. Làm dịu màu hàng trùng lặp trên nền tối (tông màu cam đất trầm, không bị chói) */
+    body.dark-mode tr.row-duplicate td {
+        background-color: rgba(180, 100, 30, 0.25) !important;
+        color: #ffbb88 !important;
+    }
+    body.dark-mode tr.row-duplicate span {
+        color: inherit !important;
+    }
+    /* 2. Xử lý triệt để khoảng trắng thừa dưới bảng tổng hợp */
+    body.dark-mode #topSummaryBlocks > div {
+        background-color: #1e1e1e !important;
+        border: 1px solid #444 !important;
+    }
+    body.dark-mode #topSummaryBlocks table {
+        background-color: #1e1e1e !important;
+    }
+    /* Đảm bảo toàn bộ vùng chứa khối tổng hợp phủ kín màu tối */
+    body.dark-mode #topSummaryBlocks {
+        background-color: transparent !important;
+    }
   </style>
 </head>
 <body>
