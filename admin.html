@@ -888,7 +888,7 @@
 
       let thHtml = `<th width="4%"></th>`;
       if (isKD) thHtml += `<th width="5%">Nhóm Sale Mới</th>`;
-      thHtml += `<th>Mã Phiếu</th><th>Phòng / Khối</th><th>Thành Viên</th><th>Trạng Thái</th><th>Ngân Sách Đề Xuất</th>`;
+      thHtml += `<th>Mã Phiếu</th><th>Phòng / Khối</th><th>Thành Viên</th><th>Thời Gian Chạy</th><th>Trạng Thái</th><th>Ngân Sách Đề Xuất</th>`;
       if (isPTGD) { thHtml += `<th>Tỷ Lệ T.Ư</th><th>Tạm Ứng Đầu Kỳ</th><th>Ghi Chú</th>`; } else if (isBLD || isMKT) { thHtml += `<th>BLĐ Duyệt Thực Tế</th><th>Ghi Chú</th>`; } 
       thHtml += `<th class="td-actions">Hành Động</th>`;
       
@@ -967,7 +967,7 @@
             sumAdvKhoi[kId] = (sumAdvKhoi[kId] || 0) + valAdv; sumAdvPhong[pId] = (sumAdvPhong[pId] || 0) + valAdv; sumAdvDuAn[dId] = (sumAdvDuAn[dId] || 0) + valAdv;
         });
 
-        let currentKhoi = null; let currentPhong = null; let currentDuAn = null; let html = ''; let colBefore = isKD ? 6 : 5; 
+        let currentKhoi = null; let currentPhong = null; let currentDuAn = null; let html = ''; let colBefore = isKD ? 7 : 6;
         let localGrandDx = 0; let localGrandAdv = 0; let localGrandDy = 0;
 
         itemsArray.forEach((item) => {
@@ -1092,10 +1092,18 @@
 
           let safeSearchData = (typeof searchData !== 'undefined' ? searchData : '').replace(/["']/g, '');
 
+          // --- CODE TRÍCH XUẤT THỜI GIAN CHẠY ---
+          let ctData = (item.phieuObj.chiTiet || []).find(c => c.idDong === item.idDong);
+          let startDate = ctData && ctData.start ? ctData.start : '...';
+          let endDate = ctData && (ctData.end || ctData.ketThuc) ? (ctData.end || ctData.ketThuc) : '...';
+          let timeString = `<span style="font-weight:700; color:#333; font-size:12px; white-space:nowrap;">${startDate} - ${endDate}</span>`;
+          // ------------------------------------
+
           let rowHTML = `<tr data-id-dong="${item.idDong}" data-id-phieu="${item.idPhieu}" data-nsduyet="${item.nsDuyet}" data-search="${safeSearchData}" class="${rowClass}${dupClass}"><td><div style="display:flex; flex-direction:column; align-items:center; gap:6px;"><button class="btn-view" onclick="viewDetail('${item.idPhieu}', 'proposal')">👁️</button><input type="checkbox" class="cb-print-proposal cb-print-item" data-khoi="${kId}" data-phong="${pId}" data-duan="${dId}" value="${item.idPhieu}" title="Tích chọn để in" style="cursor:pointer; width:16px; height:16px;"></div></td>`;
           if (isKD) { let checkedState = item.phieuObj.isNewSale ? 'checked' : ''; rowHTML += `<td><input type="checkbox" class="cb-newsale" style="width:16px; height:16px; cursor:pointer;" title="Nhóm sale mới" ${checkedState} ${isReadOnlyMode?'disabled':''}></td>`; }
           
-          rowHTML += `<td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${item.idPhieu}</span></td><td><span style="font-weight:700; color:var(--primary-blue);">${item.phong}</span><br><span style="font-size:11px; color:#666;">Khối ${item.khoi}</span></td><td style="text-align:left; font-size:12px; line-height:1.5;">${tenNhomHtml}${kpiHtml}${truyThuHtml}${tvDisplay}</td><td>${statusText}</td><td>${dxDisplay}</td>`;
+          // Chèn thêm <td style="text-align:center;">${timeString}</td> vào trước ${statusText}
+          rowHTML += `<td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${item.idPhieu}</span></td><td><span style="font-weight:700; color:var(--primary-blue);">${item.phong}</span><br><span style="font-size:11px; color:#666;">Khối ${item.khoi}</span></td><td style="text-align:left; font-size:12px; line-height:1.5;">${tenNhomHtml}${kpiHtml}${truyThuHtml}${tvDisplay}</td><td style="text-align:center;">${timeString}</td><td>${statusText}</td><td>${dxDisplay}</td>`;
 
           if (isPTGD) { 
               let advDisplay = isTruyThu ? `<s style="opacity:0.6;">${formatNumber(advAmt)}</s><br><span style="font-size:10px; color:#d32f2f; font-weight:800;">(Truy thu tạm ứng)</span>` : formatNumber(advAmt);
