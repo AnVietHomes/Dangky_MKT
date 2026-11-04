@@ -987,8 +987,11 @@
           if (isKpiDacBiet) rowClass += ' op-kpi'; 
           if (isTruyThu) rowClass = 'row-truythu'; 
 
-          let isEditableNote = (isBLD || role === 'TPMKT' || role === 'MKT' || isPTGD) && !isReadOnlyMode;
-          let nsDuyetHtml = (isBLD && !isReadOnlyMode) ? `<input type="text" class="input-budget bld-budget" data-id-dong="${item.idDong}" value="${formatNumber(item.nsDuyet)}" oninput="formatCurrencyAdmin(this)">` : `<span style="color:var(--danger); font-weight:bold;">${formatNumber(item.nsDuyet)}</span>`;
+        // Ép lộ trình: BLĐ chỉ được nhập số tiền khi đơn đã qua TPMKT (trạng thái PENDING_BLD)
+          let isBldEditable = isBLD && !isReadOnlyMode && (item.trangThai === 'PENDING_BLD' || item.trangThai === 'BLD_DRAFTING');
+          
+          let isEditableNote = (isBldEditable || role === 'TPMKT' || role === 'MKT' || isPTGD) && !isReadOnlyMode;
+          let nsDuyetHtml = isBldEditable ? `<input type="text" class="input-budget bld-budget" data-id-dong="${item.idDong}" value="${formatNumber(item.nsDuyet)}" oninput="formatCurrencyAdmin(this)">` : `<span style="color:var(--danger); font-weight:bold;">${formatNumber(item.nsDuyet)}</span>`;
           let ghiChuText = item.ghiChu || "";
           let cleanNote = ghiChuText.replace(/"/g, '&quot;');
           let displayNote = cleanNote.replace(/(\(Ghi chú bởi:.*?\))/g, '<br><i style="font-size:10.5px; color:#888;">$1</i>');
@@ -1006,14 +1009,20 @@
           if (isReadOnlyMode) {
              btnHtml = `<span style="color:#999; font-size: 11px; font-weight: bold; background: #e0e0e0; padding: 4px 8px; border-radius: 4px;">Chỉ xem</span>`;
           } else {
-              if (isEditableNote && !isBLD) { btnHtml += `<button class="btn-action btn-draft" style="background:#f39c12;" onclick="saveSingleRow(this, '${item.idDong}')">Lưu Ghi Chú</button>`; }
               if (isBLD) {
-                  btnHtml += `<button class="btn-action btn-draft" onclick="saveSingleRow(this, '${item.idDong}')">Cập nhật</button>`;
+                  if (isBldEditable) {
+                      btnHtml += `<button class="btn-action btn-draft" onclick="saveSingleRow(this, '${item.idDong}')">Cập nhật</button>`;
+                  }
+                  
                   if (item.trangThai === 'REJECTED_BLD' || item.trangThai === 'REJECTED') {
                       btnHtml += `<button class="btn-action btn-draft" onclick="updateStatusOptimistic('${item.idPhieu}', 'PENDING_BLD', this, 'PENDING_BLD')">Hoàn Tác (Duyệt Lại)</button>`;
-                  } else if (item.trangThai !== 'APPROVED_BY_BLD') {
+                  } else if (item.trangThai === 'PENDING_BLD' || item.trangThai === 'BLD_DRAFTING') {
+                      // ĐÚNG LỘ TRÌNH: Chỉ khi TPMKT đã duyệt xong mới hiện nút chốt cuối cùng
                       btnHtml += `<button class="btn-action btn-approve" style="background:#8e44ad;" onclick="approveSingleBLD(this, '${item.idPhieu}')">Duyệt Đơn</button>`;
                       btnHtml += `<button class="btn-action btn-reject" onclick="updateStatusOptimistic('${item.idPhieu}', 'REJECTED_BLD', this, 'PENDING_BLD')">Từ Chối</button>`;
+                  } else if (item.trangThai !== 'APPROVED_BY_BLD') {
+                      // Đơn chưa đến bước BLĐ (đang nằm ở TPKD, GDKD, hoặc TPMKT)
+                      btnHtml += `<span style="font-size:11px; color:#f39c12; font-weight:bold; font-style:italic;">Đang chờ các cấp dưới duyệt...</span>`;
                   }
               } else {
                   let grp = getStatusGroup(item.phieuObj, role);
