@@ -395,7 +395,12 @@
       }
       let today = new Date(); let m = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0'); document.getElementById('reportMonth').value = m;
       
-      const deptsString = JSON.stringify(loggedInUser.managedDepartments);
+      // Cấp quyền lấy dữ liệu toàn bộ các phòng/khối cho PTGĐ và BLĐ
+      let depts = loggedInUser.managedDepartments;
+      if (currentViewRole === 'PTGD' || currentViewRole === 'SUPER_ADMIN' || currentViewRole === 'BLD' || currentViewRole === 'BLD_GDCN') {
+          depts = ['ALL'];
+      }
+      const deptsString = JSON.stringify(depts);
       
       callAPI("getDashboardData", { role: currentViewRole, departments: deptsString }, function(result) {
         showLoading(false);
@@ -908,7 +913,11 @@
             }
         }
 
-        let isManaged = (loggedInUser.managedDepartments.indexOf('ALL') > -1 || loggedInUser.managedDepartments.includes(item.phong) || loggedInUser.managedDepartments.includes(item.khoi));
+        // Cho phép PTGĐ xem được hiển thị của toàn bộ các khối
+        let isManaged = (loggedInUser.managedDepartments.indexOf('ALL') > -1 || 
+                         loggedInUser.managedDepartments.includes(item.phong) || 
+                         loggedInUser.managedDepartments.includes(item.khoi) || 
+                         role === 'PTGD' || role === 'SUPER_ADMIN' || role === 'BLD');
         let isCNQN = (item.khoi.toUpperCase() === 'CNQN' && (role === 'PTGD' || role === 'GDCN'));
 
         if (isArchived) {
