@@ -170,6 +170,103 @@
     body.dark-mode tr.row-approved { background-color: rgba(39, 174, 96, 0.1); }
     body.dark-mode tr.row-rejected { background-color: rgba(231, 76, 60, 0.1); }
     body.dark-mode tr.row-duplicate td { background-color: rgba(243, 156, 18, 0.15) !important; }
+    /* Đổi logo thành màu trắng trong giao diện tối */
+    body.dark-mode .dash-header-left img,
+    body.dark-mode .login-header img {
+      content: url("logodark.svg"); /* Đảm bảo bạn đã upload file logodark.svg lên server */
+    }
+
+    /* Đổi màu chữ cho các thành phần bị chìm */
+    body.dark-mode .time-col, /* Cột thời gian chạy */
+    body.dark-mode .bld-note, /* Ô nhập ghi chú */
+    body.dark-mode .adv-percent-input /* Ô nhập % tạm ứng */ {
+      color: #e0e0e0 !important;
+    }
+    
+    /* Chỉnh màu cho ô nhập liệu (Input) trong giao diện tối để chữ không bị chìm */
+    body.dark-mode input.bld-note,
+    body.dark-mode input.adv-percent-input {
+      background-color: #2a2a2a !important;
+      border: 1px solid #444 !important;
+      color: #e0e0e0 !important;
+    }
+
+    /* Bảng Tổng hợp theo Khối/Dự án ở Tab 1 */
+    body.dark-mode #tableSumKhoi td,
+    body.dark-mode #tableSumDuAn td {
+        color: #e0e0e0 !important;
+    }
+
+    /* Đổi màu các hàng tiêu đề nhóm (Khối, Phòng, Dự án) trên bảng chính và lưu trữ */
+    body.dark-mode tr[style*="background:#0b1f8c"], /* Hàng Khối (màu gốc là xanh dương đậm) */
+    body.dark-mode tr[style*="background: #0b1f8c"],
+    body.dark-mode tr[style*="background-color: #0b1f8c"] {
+       background-color: #1a2a6c !important; /* Đổi màu nền tối hơn */
+       color: #fff !important;
+    }
+    
+    body.dark-mode tr[style*="background:#d4efff"], /* Hàng Phòng (màu gốc là xanh lam nhạt) */
+    body.dark-mode tr[style*="background: #d4efff"] {
+        background-color: #1f3a5e !important;
+        color: #a4c8e1 !important; /* Đổi chữ thành xanh dương nhạt cho dễ đọc */
+    }
+
+    body.dark-mode tr[style*="background:#f9f9f9"], /* Hàng Dự án (màu gốc là xám nhạt) */
+    body.dark-mode tr[style*="background: #f9f9f9"] {
+        background-color: #2c2c2c !important;
+        color: #e0e0e0 !important;
+    }
+
+    body.dark-mode tr[style*="background:#fffaf0"], /* Hàng Tổng cộng */
+    body.dark-mode tr[style*="background: #fffaf0"] {
+        background-color: #382e1c !important;
+        color: #e0e0e0 !important;
+    }
+    
+    /* Sửa chữ bên trong nhãn (label) của các hàng gộp (Khối, Phòng, Dự án) */
+    body.dark-mode tr[style*="background"] label {
+        color: inherit !important;
+    }
+
+    /* Fix nền khối Lưu trữ đề xuất bị trắng */
+    body.dark-mode div[id^="arch_"] {
+        background-color: #1e1e1e !important;
+        border-color: #444 !important;
+    }
+
+    /* Màu nền các thẻ thành viên của GÓI TỔNG */
+    body.dark-mode div[style*="background: #fef5f5"] {
+       background-color: #3a2222 !important;
+       color: #e0e0e0 !important;
+       border-left-color: #ff5252 !important;
+    }
+    body.dark-mode div[style*="background: #fef5f5"] div {
+       color: #e0e0e0 !important;
+    }
+
+    /* Màu các hàng đặc biệt (Truy thu, Bị từ chối, Đã duyệt) */
+    body.dark-mode tr.row-truythu { 
+        background-color: rgba(211, 47, 47, 0.2) !important; 
+        border-left: 6px solid #ff5252 !important;
+    }
+    body.dark-mode tr.row-rejected { 
+        background-color: rgba(231, 76, 60, 0.15) !important; 
+    }
+    body.dark-mode tr.row-approved { 
+        background-color: rgba(39, 174, 96, 0.1) !important; 
+    }
+    body.dark-mode tr.op-kpi { 
+        background-color: rgba(142, 68, 173, 0.15) !important; 
+    }
+
+    /* Chỉnh màu chữ trong Tab 2 (Tạm ứng) bị chìm */
+    body.dark-mode #tableAdvanceBody td {
+        color: #e0e0e0 !important;
+    }
+    body.dark-mode .td-adv-amount,
+    body.dark-mode .td-status-tu span {
+        filter: brightness(1.2); /* Tăng độ sáng cho các con số/trạng thái màu đỏ/vàng */
+    }
   </style>
 </head>
 <body>
