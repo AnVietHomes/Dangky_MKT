@@ -143,7 +143,7 @@
       right: auto;
     }
     
-    /* --- BỘ MÀU GIAO DIỆN TỐI (DARK MODE) --- */
+    /* --- BỘ MÀU GIAO DIỆN TỐI (DARK MODE) CHUẨN XÁC --- */
     body.dark-mode {
       --bg-login: #121212; 
       --primary-blue: #66b2ff; 
@@ -154,36 +154,83 @@
       background-color: #121212;
       color: #e0e0e0;
     }
-    body.dark-mode .dashboard-container, body.dark-mode .login-card, body.dark-mode .modal-card, body.dark-mode #topSummaryBlocks > div {
+    body.dark-mode .dashboard-container, 
+    body.dark-mode .login-card, 
+    body.dark-mode .modal-card, 
+    body.dark-mode #topSummaryBlocks > div {
       background-color: #1e1e1e;
       box-shadow: 0 10px 40px rgba(0,0,0,0.5);
     }
+    
+    /* Đổi logo thành màu trắng */
+    body.dark-mode .dash-header-left img,
+    body.dark-mode .login-header img {
+      content: url("logodark.svg");
+    }
+
+    /* Bảng chung và đường viền */
     body.dark-mode table, body.dark-mode .table-container { border-color: #444; }
     body.dark-mode th { background-color: #2a2a2a; color: #fff; border-color: #444; }
     body.dark-mode td { border-color: #444; color: #e0e0e0; }
-    body.dark-mode .summary-table th { background: #2a2a2a; }
-    body.dark-mode .super-admin-toolbar, body.dark-mode #cnqnContainer > div:first-child { background: #111; }
-    body.dark-mode .mkt-toolbar, body.dark-mode #exportBlock { background: #2a2a2a; border-color: #444; }
     body.dark-mode input, body.dark-mode select { background-color: #333; color: #fff; border-color: #555; }
-    
-    /* Chỉnh lại màu nền các dòng đặc biệt cho dễ nhìn trên nền tối */
-    body.dark-mode tr.row-approved { background-color: rgba(39, 174, 96, 0.1); }
-    body.dark-mode tr.row-rejected { background-color: rgba(231, 76, 60, 0.1); }
-    body.dark-mode tr.row-duplicate td { background-color: rgba(243, 156, 18, 0.15) !important; }
-    /* Đổi logo thành màu trắng trong giao diện tối */
-    body.dark-mode .dash-header-left img,
-    body.dark-mode .login-header img {
-      content: url("logodark.svg"); /* Đảm bảo bạn đã upload file logodark.svg lên server */
+
+    /* FIX 1: Bảng Tổng hợp theo Khối & Dự án ở trên cùng */
+    body.dark-mode .summary-table,
+    body.dark-mode #tableSumKhoi,
+    body.dark-mode #tableSumDuAn {
+        background-color: #1e1e1e !important;
+        color: #e0e0e0 !important;
+    }
+    body.dark-mode .summary-table th,
+    body.dark-mode .summary-table td {
+        background-color: #1e1e1e !important;
+        color: #e0e0e0 !important;
+        border-color: #444 !important;
+    }
+    body.dark-mode .summary-table tr[style*="background:#fffaf0"],
+    body.dark-mode .summary-table tr[style*="background: #fffaf0"] {
+        background-color: #2c2416 !important;
     }
 
-    /* Đổi màu chữ cho các thành phần bị chìm */
-    body.dark-mode .time-col, /* Cột thời gian chạy */
-    body.dark-mode .bld-note, /* Ô nhập ghi chú */
-    body.dark-mode .adv-percent-input /* Ô nhập % tạm ứng */ {
-      color: #e0e0e0 !important;
+    /* Toolbar và các khối công cụ */
+    body.dark-mode .super-admin-toolbar, body.dark-mode #cnqnContainer > div:first-child { background: #111; }
+    body.dark-mode .mkt-toolbar, body.dark-mode #exportBlock { background: #2a2a2a; border-color: #444; }
+
+    /* FIX 2: Màu các hàng Khối, Phòng, Dự án trong bảng chính */
+    body.dark-mode tr[style*="background:#0b1f8c"], 
+    body.dark-mode tr[style*="background: #0b1f8c"],
+    body.dark-mode tr[style*="background-color: #0b1f8c"] {
+       background-color: #1a2a6c !important; 
+       color: #ffffff !important;
     }
-    
-    /* Chỉnh màu cho ô nhập liệu (Input) trong giao diện tối để chữ không bị chìm */
+    body.dark-mode tr[style*="background:#d4efff"], 
+    body.dark-mode tr[style*="background: #d4efff"] {
+        background-color: #1f3a5e !important;
+        color: #ffffff !important; 
+    }
+    body.dark-mode tr[style*="background:#f9f9f9"], 
+    body.dark-mode tr[style*="background: #f9f9f9"] {
+        background-color: #2c2c2c !important;
+        color: #ffffff !important;
+    }
+    body.dark-mode tr[style*="background:#fffaf0"], 
+    body.dark-mode tr[style*="background: #fffaf0"] {
+        background-color: #382e1c !important;
+        color: #ffffff !important;
+    }
+
+    /* Ép toàn bộ chữ, nhãn (label), và span bên trong các hàng gộp chuyển sang sáng màu */
+    body.dark-mode tr[style*="background"] td,
+    body.dark-mode tr[style*="background"] span,
+    body.dark-mode tr[style*="background"] label {
+        color: #ffffff !important;
+    }
+
+    /* FIX 3: Cột Thời gian chạy và các ô nhập liệu (Note, % Tạm ứng) */
+    body.dark-mode td span[style*="color:#333"],
+    body.dark-mode td span[style*="color: #333"] {
+        color: #e0e0e0 !important;
+    }
     body.dark-mode input.bld-note,
     body.dark-mode input.adv-percent-input {
       background-color: #2a2a2a !important;
@@ -191,50 +238,11 @@
       color: #e0e0e0 !important;
     }
 
-    /* Bảng Tổng hợp theo Khối/Dự án ở Tab 1 */
-    body.dark-mode #tableSumKhoi td,
-    body.dark-mode #tableSumDuAn td {
-        color: #e0e0e0 !important;
-    }
-
-    /* Đổi màu các hàng tiêu đề nhóm (Khối, Phòng, Dự án) trên bảng chính và lưu trữ */
-    body.dark-mode tr[style*="background:#0b1f8c"], /* Hàng Khối (màu gốc là xanh dương đậm) */
-    body.dark-mode tr[style*="background: #0b1f8c"],
-    body.dark-mode tr[style*="background-color: #0b1f8c"] {
-       background-color: #1a2a6c !important; /* Đổi màu nền tối hơn */
-       color: #fff !important;
-    }
-    
-    body.dark-mode tr[style*="background:#d4efff"], /* Hàng Phòng (màu gốc là xanh lam nhạt) */
-    body.dark-mode tr[style*="background: #d4efff"] {
-        background-color: #1f3a5e !important;
-        color: #a4c8e1 !important; /* Đổi chữ thành xanh dương nhạt cho dễ đọc */
-    }
-
-    body.dark-mode tr[style*="background:#f9f9f9"], /* Hàng Dự án (màu gốc là xám nhạt) */
-    body.dark-mode tr[style*="background: #f9f9f9"] {
-        background-color: #2c2c2c !important;
-        color: #e0e0e0 !important;
-    }
-
-    body.dark-mode tr[style*="background:#fffaf0"], /* Hàng Tổng cộng */
-    body.dark-mode tr[style*="background: #fffaf0"] {
-        background-color: #382e1c !important;
-        color: #e0e0e0 !important;
-    }
-    
-    /* Sửa chữ bên trong nhãn (label) của các hàng gộp (Khối, Phòng, Dự án) */
-    body.dark-mode tr[style*="background"] label {
-        color: inherit !important;
-    }
-
-    /* Fix nền khối Lưu trữ đề xuất bị trắng */
+    /* Khối Lưu trữ và Gói tổng */
     body.dark-mode div[id^="arch_"] {
         background-color: #1e1e1e !important;
         border-color: #444 !important;
     }
-
-    /* Màu nền các thẻ thành viên của GÓI TỔNG */
     body.dark-mode div[style*="background: #fef5f5"] {
        background-color: #3a2222 !important;
        color: #e0e0e0 !important;
@@ -244,28 +252,24 @@
        color: #e0e0e0 !important;
     }
 
-    /* Màu các hàng đặc biệt (Truy thu, Bị từ chối, Đã duyệt) */
+    /* Màu các hàng trạng thái đặc biệt */
     body.dark-mode tr.row-truythu { 
-        background-color: rgba(211, 47, 47, 0.2) !important; 
+        background-color: rgba(211, 47, 47, 0.25) !important; 
         border-left: 6px solid #ff5252 !important;
     }
     body.dark-mode tr.row-rejected { 
-        background-color: rgba(231, 76, 60, 0.15) !important; 
+        background-color: rgba(231, 76, 60, 0.2) !important; 
     }
     body.dark-mode tr.row-approved { 
-        background-color: rgba(39, 174, 96, 0.1) !important; 
+        background-color: rgba(39, 174, 96, 0.15) !important; 
     }
     body.dark-mode tr.op-kpi { 
-        background-color: rgba(142, 68, 173, 0.15) !important; 
+        background-color: rgba(142, 68, 173, 0.2) !important; 
     }
 
-    /* Chỉnh màu chữ trong Tab 2 (Tạm ứng) bị chìm */
+    /* Tab 2 (Tạm ứng) */
     body.dark-mode #tableAdvanceBody td {
         color: #e0e0e0 !important;
-    }
-    body.dark-mode .td-adv-amount,
-    body.dark-mode .td-status-tu span {
-        filter: brightness(1.2); /* Tăng độ sáng cho các con số/trạng thái màu đỏ/vàng */
     }
   </style>
 </head>
