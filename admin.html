@@ -85,6 +85,91 @@
     .modal-header { font-size: 22px; font-weight: 800; color: var(--primary-blue); margin-bottom: 20px; text-transform: uppercase;}
 
     .loading-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; justify-content:center; align-items:center; font-weight:800; color:#fff; font-size: 18px; flex-direction: column; gap:15px;}
+
+    /* --- CSS NÚT GẠT SÁNG/TỐI --- */
+    .theme-switch {
+      position: relative;
+      display: inline-block;
+      width: 64px;
+      height: 32px;
+      margin-right: 5px;
+    }
+    .theme-switch input { 
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 24px;
+      width: 24px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      z-index: 2;
+    }
+    input:checked + .slider {
+      background-color: #2ecc71; /* Màu xanh lá khi ON */
+    }
+    input:checked + .slider:before {
+      transform: translateX(32px);
+    }
+    .slider:after {
+      content: 'OFF';
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      position: absolute;
+      right: 9px;
+      top: 9px;
+      z-index: 1;
+    }
+    input:checked + .slider:after {
+      content: 'ON';
+      left: 11px;
+      right: auto;
+    }
+    
+    /* --- BỘ MÀU GIAO DIỆN TỐI (DARK MODE) --- */
+    body.dark-mode {
+      --bg-login: #121212; 
+      --primary-blue: #66b2ff; 
+      --text-dark: #e0e0e0; 
+      --text-gray: #aaaaaa; 
+      --input-bg: #2a2a2a; 
+      --border-color: #444444;
+      background-color: #121212;
+      color: #e0e0e0;
+    }
+    body.dark-mode .dashboard-container, body.dark-mode .login-card, body.dark-mode .modal-card, body.dark-mode #topSummaryBlocks > div {
+      background-color: #1e1e1e;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+    body.dark-mode table, body.dark-mode .table-container { border-color: #444; }
+    body.dark-mode th { background-color: #2a2a2a; color: #fff; border-color: #444; }
+    body.dark-mode td { border-color: #444; color: #e0e0e0; }
+    body.dark-mode .summary-table th { background: #2a2a2a; }
+    body.dark-mode .super-admin-toolbar, body.dark-mode #cnqnContainer > div:first-child { background: #111; }
+    body.dark-mode .mkt-toolbar, body.dark-mode #exportBlock { background: #2a2a2a; border-color: #444; }
+    body.dark-mode input, body.dark-mode select { background-color: #333; color: #fff; border-color: #555; }
+    
+    /* Chỉnh lại màu nền các dòng đặc biệt cho dễ nhìn trên nền tối */
+    body.dark-mode tr.row-approved { background-color: rgba(39, 174, 96, 0.1); }
+    body.dark-mode tr.row-rejected { background-color: rgba(231, 76, 60, 0.1); }
+    body.dark-mode tr.row-duplicate td { background-color: rgba(243, 156, 18, 0.15) !important; }
   </style>
 </head>
 <body>
@@ -106,7 +191,14 @@
   <div class="dashboard-container" id="dashboardScreen">
     <div class="dash-header">
       <div class="dash-header-left"><img src="logo.svg" alt="An Việt Homes" style="max-width: 85px;" onerror="this.src='https://placehold.co/85x35/ffffff/004b9a?text=LOGO'"><h2 class="dash-title">KHU VỰC QUẢN LÝ & PHÊ DUYỆT</h2></div>
-      <div><span class="user-badge" id="userInfo"></span><a class="btn-logout" onclick="logout()">Đăng xuất</a></div>
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <label class="theme-switch" title="Chế độ Tối/Sáng">
+          <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()">
+          <span class="slider"></span>
+        </label>
+        <span class="user-badge" id="userInfo"></span>
+        <a class="btn-logout" onclick="logout()">Đăng xuất</a>
+      </div>
     </div>
     
     <div class="super-admin-toolbar" id="superAdminToolbar">
@@ -1810,5 +1902,27 @@
       }
     }, 1000); 
   </script>
+  <script>
+    // --- LOGIC CHUYỂN ĐỔI DARK MODE BẰNG NÚT GẠT ---
+    function toggleDarkMode() {
+        const isDark = document.getElementById('darkModeToggle').checked;
+        if (isDark) {
+            document.body.classList.add('dark-mode');
+            localStorage.setItem('avh_theme', 'dark');
+        } else {
+            document.body.classList.remove('dark-mode');
+            localStorage.setItem('avh_theme', 'light');
+        }
+    }
+
+    // Tự động khôi phục giao diện tối và bật nút gạt sang ON nếu lần trước người dùng đã bật
+    document.addEventListener("DOMContentLoaded", function() {
+        if (localStorage.getItem('avh_theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            const toggle = document.getElementById('darkModeToggle');
+            if(toggle) toggle.checked = true; // Tự động gạt nút sang màu xanh
+        }
+    });
+</script>
 </body>
 </html>
