@@ -293,6 +293,33 @@
     body.dark-mode #topSummaryBlocks {
         background-color: transparent !important;
     }
+    /* --- ĐỒNG BỘ GIAO DIỆN TỐI CHO TAB 3 (BÁO CÁO) --- */
+
+    /* 1. Đổi màu hàng tiêu đề Khối trong bảng báo cáo (màu xanh dương gốc) thành tối màu */
+    body.dark-mode #reportTable tr[style*="background:#0b1f8c"],
+    body.dark-mode #reportTable tr[style*="background: #0b1f8c"] {
+        background-color: #1a2a6c !important;
+        color: #ffffff !important;
+    }
+
+    /* 2. Đổi màu dòng "TỔNG CỘNG KHỐI" (gốc mang nền trắng sáng #e8f4fc) thành nền tối */
+    body.dark-mode #reportTable tr[style*="background:#e8f4fc"],
+    body.dark-mode #reportTable tr[style*="background: #e8f4fc"] {
+        background-color: #25334a !important;
+        color: #ffffff !important;
+    }
+
+    /* 3. Ép toàn bộ chữ và các thẻ bên trong dòng tổng cộng khối chuyển sang sáng màu */
+    body.dark-mode #reportTable tr[style*="background:#e8f4fc"] td,
+    body.dark-mode #reportTable tr[style*="background:#e8f4fc"] span {
+        color: #ffffff !important;
+    }
+
+    /* 4. Đảm bảo toàn bộ bảng báo cáo nhận màu chữ sáng */
+    body.dark-mode #reportTable td {
+        color: #e0e0e0 !important;
+        border-color: #444 !important;
+    }
   </style>
 </head>
 <body>
