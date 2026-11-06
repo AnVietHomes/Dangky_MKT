@@ -1342,9 +1342,9 @@
                   if (role === 'MKT') {
                       if (item.trangThai === 'APPROVED_BY_BLD') btnHtml += `<button class="btn-action btn-sendmail" onclick="sendApprovalMail(this, '${item.idPhieu}')">Gửi File Duyệt</button>`;
                   } else if (role === 'TPMKT') {
-                      if (item.trangThai === 'APPROVED_BY_BLD') { 
-                          btnHtml += `<button class="btn-action btn-sendmail" onclick="sendApprovalMail(this, '${item.idPhieu}')">Gửi File Duyệt</button>"; 
-                      } else if (grp === 'ACTION') { 
+    if (item.trangThai === 'APPROVED_BY_BLD') { 
+        btnHtml += `<button class="btn-action btn-sendmail" onclick="sendApprovalMail(this, '${item.idPhieu}')">Gửi File Duyệt</button>`; 
+    } else if (grp === 'ACTION') {
                           let nStatus = WORKFLOW_CONFIG[role].approveTo;
                           let rStatus = WORKFLOW_CONFIG[role].rejectTo;
                           btnHtml += `<button class="btn-action btn-approve" onclick="updateStatusOptimistic('${item.idPhieu}', '${nStatus}', this, '${nStatus}')">Duyệt Lên BLĐ</button><button class="btn-action btn-reject" onclick="updateStatusOptimistic('${item.idPhieu}', '${rStatus}', this, '${rStatus}')">Từ Chối</button>`; 
