@@ -1316,7 +1316,7 @@
           if (isKpiDacBiet) rowClass += ' op-kpi'; 
           if (isTruyThu) rowClass = 'row-truythu'; 
 
-          let isBldEditable = isBLD && !isReadOnlyMode && (item.trangThai === 'PENDING_BLD' || item.trangThai === 'BLD_DRAFTING' || item.trangThai === 'APPROVED_BY_BLD');
+          let isBldEditable = (isBLD || role === 'BLD_GDCN') && !isReadOnlyMode && (item.trangThai === 'PENDING_BLD' || item.trangThai === 'BLD_DRAFTING' || item.trangThai === 'APPROVED_BY_BLD');
           let isEditableNote = (isBldEditable || role === 'TPMKT' || role === 'MKT' || isPTGD) && !isReadOnlyMode;
           
           // --- MỞ RỘNG QUYỀN SỬA TIỀN ---
