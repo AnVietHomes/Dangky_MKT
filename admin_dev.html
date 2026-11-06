@@ -1323,6 +1323,9 @@
           let btnHtml = '';
           if (isReadOnlyMode) {
              btnHtml = `<span style="color:#999; font-size: 11px; font-weight: bold; background: #e0e0e0; padding: 4px 8px; border-radius: 4px;">Chỉ xem</span>`;
+          } else if (isProjectRejected && !item.trangThai.startsWith('REJECTED') && !isBLD) {
+             // Thay thế các nút bấm bằng nhãn thông báo khóa thao tác
+             btnHtml = `<span style="color:var(--danger); font-size:11px; font-weight:bold; background:#fff; padding:6px 10px; border-radius:4px; border:1px solid var(--danger); display:inline-block; text-align:center;">🚫 Đã bị loại bỏ</span>`;
           } else {
               if (isBLD) {
                   if (isBldEditable) {
@@ -1408,7 +1411,10 @@
           let endDate = ctData && (ctData.end || ctData.ketThuc) ? (ctData.end || ctData.ketThuc) : '...';
           let timeString = `<span style="font-weight:700; color:#333; font-size:12px; white-space:nowrap;">${startDate} - ${endDate}</span>`;
 
-          let rowHTML = `<tr data-id-dong="${item.idDong}" data-id-phieu="${item.idPhieu}" data-nsduyet="${item.nsDuyet}" data-search="${safeSearchData}" class="${rowClass}${dupClass}"><td><div style="display:flex; flex-direction:column; align-items:center; gap:6px;"><button class="btn-view" onclick="viewDetail('${item.idPhieu}', 'proposal')">👁️</button><input type="checkbox" class="cb-print-proposal cb-print-item" data-khoi="${kId}" data-phong="${pId}" data-duan="${dId}" value="${item.idPhieu}" title="Tích chọn để in" style="cursor:pointer; width:16px; height:16px;"></div></td>`;
+          // Tự động làm mờ nếu dự án đã bị loại bỏ ở các cấp trước đó
+          let rowStyle = (isProjectRejected && !item.trangThai.startsWith('REJECTED')) ? 'opacity: 0.6; background-color: #ffebee;' : '';
+          
+          let rowHTML = `<tr data-id-dong="${item.idDong}" data-id-phieu="${item.idPhieu}" data-nsduyet="${item.nsDuyet}" data-search="${safeSearchData}" class="${rowClass}${dupClass}" style="${rowStyle}"><td><div style="display:flex; flex-direction:column; align-items:center; gap:6px;"><button class="btn-view" onclick="viewDetail('${item.idPhieu}', 'proposal')">👁️</button><input type="checkbox" class="cb-print-proposal cb-print-item" data-khoi="${kId}" data-phong="${pId}" data-duan="${dId}" value="${item.idPhieu}" title="Tích chọn để in" style="cursor:pointer; width:16px; height:16px;"></div></td>`;
           if (isKD) { let checkedState = item.phieuObj.isNewSale ? 'checked' : ''; rowHTML += `<td><input type="checkbox" class="cb-newsale" style="width:16px; height:16px; cursor:pointer;" title="Nhóm sale mới" ${checkedState} ${isReadOnlyMode?'disabled':''}></td>`; }
           
           rowHTML += `<td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${item.idPhieu}</span></td><td><span style="font-weight:700; color:var(--primary-blue);">${item.phong}</span><br><span style="font-size:11px; color:#666;">Khối ${item.khoi}</span></td><td style="text-align:left; font-size:12px; line-height:1.5;">${tenNhomHtml}${kpiHtml}${truyThuHtml}${tvDisplay}</td><td style="text-align:center;">${timeString}</td><td>${statusText}</td><td>${dxDisplay}</td>`;
