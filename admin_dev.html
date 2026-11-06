@@ -1291,14 +1291,19 @@
           let isBldEditable = isBLD && !isReadOnlyMode && (item.trangThai === 'PENDING_BLD' || item.trangThai === 'BLD_DRAFTING');
           let isEditableNote = (isBldEditable || role === 'TPMKT' || role === 'MKT' || isPTGD) && !isReadOnlyMode;
           
-          // --- KỸ THUẬT DUYỆT LINH HOẠT THEO DỰ ÁN ---
+          // --- KỸ THUẬT DUYỆT LINH HOẠT THEO DỰ ÁN (CÓ THỂ SỬA TIỀN & REALTIME) ---
           let nsDuyetHtml = '';
-          if (isBldEditable) {
+          
+          // Mở rộng quyền sửa tiền: TPMKT, BLĐ, PTGĐ, GDCN đều được sửa nếu không phải là chế độ chỉ xem
+          let canEditMoney = (!isReadOnlyMode && (isBldEditable || role === 'TPMKT' || role === 'PTGD' || role === 'GDCN' || role === 'BLD_GDCN'));
+
+          if (canEditMoney) {
               nsDuyetHtml = `
               <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
                   <div style="font-weight: 800; color: var(--primary-blue); font-size: 12px;">📁 ${item.tenDuAn}</div>
                   <div style="display: flex; align-items: center; gap: 8px;">
-                      <input type="text" class="input-budget bld-budget" data-id-dong="${item.idDong}" value="${formatNumber(item.nsDuyet)}" oninput="formatCurrencyAdmin(this)">
+                      <!-- Gắn sự kiện oninput gọi hàm formatAndRecalc để tính toán realtime -->
+                      <input type="text" class="input-budget bld-budget" data-id-dong="${item.idDong}" value="${formatNumber(item.nsDuyet)}" oninput="formatAndRecalc(this, '${item.idPhieu}')">
                       <button type="button" class="btn-action" style="background: var(--danger); padding: 6px 10px; font-size: 11px;" onclick="rejectProjectInRow(this, ${item.nsDeXuat})">Từ chối dự án</button>
                   </div>
               </div>`;
@@ -1420,7 +1425,11 @@
           rowHTML += `<td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${item.idPhieu}</span></td><td><span style="font-weight:700; color:var(--primary-blue);">${item.phong}</span><br><span style="font-size:11px; color:#666;">Khối ${item.khoi}</span></td><td style="text-align:left; font-size:12px; line-height:1.5;">${tenNhomHtml}${kpiHtml}${truyThuHtml}${tvDisplay}</td><td style="text-align:center;">${timeString}</td><td>${statusText}</td><td>${dxDisplay}</td>`;
 
           if (isPTGD) { 
-              let advDisplay = isTruyThu ? `<s style="opacity:0.6;">${formatNumber(advAmt)}</s><br><span style="font-size:10px; color:#d32f2f; font-weight:800;">(Truy thu tạm ứng)</span>` : formatNumber(advAmt);
+              // Đã bọc thẻ span có class adv-realtime để update realtime
+              let advDisplay = isTruyThu 
+                  ? `<s style="opacity:0.6;">${formatNumber(advAmt)}</s><br><span style="font-size:10px; color:#d32f2f; font-weight:800;">(Truy thu tạm ứng)</span>` 
+                  : `<span class="adv-realtime-${item.idPhieu}">${formatNumber(advAmt)}</span>`;
+              
               rowHTML += `<td style="color:var(--primary-blue); font-weight:bold;">${item.phieuObj.advPercent || 0}%</td><td style="color:var(--danger); font-weight:bold;">${advDisplay}</td><td style="width:250px;">${ghiChuHtml}</td>`; 
           } else if (isBLD || isMKT) { 
               if (isTruyThu && isReadOnlyMode) { nsDuyetHtml = `<s style="opacity:0.6;">${formatNumber(item.nsDuyet)}</s>`; }
@@ -2280,6 +2289,45 @@
                 btn.disabled = false; 
             }
         });
+    }
+
+    // --- HÀM TÍNH TOÁN REALTIME KHI SẾP SỬA NGÂN SÁCH ---
+    function formatAndRecalc(input, idPhieu) {
+        // 1. Định dạng dấu phẩy hàng nghìn khi gõ
+        let val = input.value.replace(/\D/g, '');
+        if (val !== '') {
+            input.value = formatNumber(val);
+        }
+
+        let rawVal = Number(val) || 0;
+        let idDong = input.getAttribute('data-id-dong');
+
+        // 2. Lưu trực tiếp số tiền vừa sửa vào globalData để in ấn/gửi PDF
+        let targetPhieu = globalData.find(p => p.idPhieu === idPhieu);
+        if (targetPhieu) {
+            let ct = (targetPhieu.chiTiet || []).find(c => c.idDong === idDong);
+            if (ct) {
+                ct.nganSachDuyet = rawVal;
+            }
+
+            // 3. Tính toán lại tổng tiền của toàn bộ phiếu (nếu phiếu có nhiều dòng dự án)
+            let totalNewApprove = targetPhieu.chiTiet.reduce((sum, c) => sum + Number(c.nganSachDuyet || 0), 0);
+
+            // 4. Tính toán số tiền Tạm ứng đầu kỳ mới dựa trên tỷ lệ T.Ư
+            let advPct = Number(targetPhieu.advPercent || 0);
+            let newAdvAmount = Math.round(totalNewApprove * (advPct / 100));
+
+            // 5. Cập nhật số tiền tạm ứng realtime lên giao diện
+            let advCells = document.querySelectorAll(`.adv-realtime-${idPhieu}`);
+            advCells.forEach(cell => {
+                cell.innerText = formatNumber(newAdvAmount);
+            });
+        }
+        
+        // 6. Cập nhật lại các bảng tóm tắt tổng tiền phía trên (nếu có)
+        if (typeof recalcBLDSummary === 'function') {
+            recalcBLDSummary();
+        }
     }
 </script>
 </body>
