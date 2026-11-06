@@ -1303,7 +1303,7 @@
                   </div>
               </div>`;
           } else {
-              let projStatusTag = isProjectRejected ? `<br><span style="color:var(--danger); font-size:11px; font-weight:bold; background:#ffebee; padding:2px 6px; border-radius:4px;">❌ BLĐ Từ chối dự án này</span>` : `<br><span style="color:var(--success-green); font-size:11px; font-weight:bold;">✅ Đồng ý dự án</span>`;
+              let projStatusTag = isProjectRejected ? `<br><span style="color:var(--danger); font-size:11px; font-weight:bold; background:#ffebee; padding:2px 6px; border-radius:4px;">❌ Đã từ chối dự án này</span>` : `<br><span style="color:var(--success-green); font-size:11px; font-weight:bold;">✅ Đồng ý dự án</span>`;
               nsDuyetHtml = `<div style="text-align: left;"><b>${item.tenDuAn}:</b> <span style="color:var(--danger); font-weight:bold;">${formatNumber(item.nsDuyet)}</span> ${projStatusTag}</div>`;
           }
 
@@ -1342,12 +1342,16 @@
                   if (role === 'MKT') {
                       if (item.trangThai === 'APPROVED_BY_BLD') btnHtml += `<button class="btn-action btn-sendmail" onclick="sendApprovalMail(this, '${item.idPhieu}')">Gửi File Duyệt</button>`;
                   } else if (role === 'TPMKT') {
-    if (item.trangThai === 'APPROVED_BY_BLD') { 
-        btnHtml += `<button class="btn-action btn-sendmail" onclick="sendApprovalMail(this, '${item.idPhieu}')">Gửi File Duyệt</button>`; 
-    } else if (grp === 'ACTION') {
+                      if (item.trangThai === 'APPROVED_BY_BLD') { 
+                          btnHtml += `<button class="btn-action btn-sendmail" onclick="sendApprovalMail(this, '${item.idPhieu}')">Gửi File Duyệt</button>`; 
+                      } else if (grp === 'ACTION') { 
                           let nStatus = WORKFLOW_CONFIG[role].approveTo;
                           let rStatus = WORKFLOW_CONFIG[role].rejectTo;
-                          btnHtml += `<button class="btn-action btn-approve" onclick="updateStatusOptimistic('${item.idPhieu}', '${nStatus}', this, '${nStatus}')">Duyệt Lên BLĐ</button><button class="btn-action btn-reject" onclick="updateStatusOptimistic('${item.idPhieu}', '${rStatus}', this, '${rStatus}')">Từ Chối</button>`; 
+                          let projectCount = (item.phieuObj.chiTiet || []).length;
+                          if (projectCount > 1 && item.nsDuyet !== 0) {
+                              btnHtml += `<button class="btn-action btn-reject" style="background:#e67e22; margin-bottom:5px; width:100%;" onclick="rejectSingleProjectUI('${item.idDong}', this)">Loại bỏ dự án này</button><br>`;
+                          }
+                          btnHtml += `<button class="btn-action btn-approve" style="margin-bottom:5px; width:100%;" onclick="updateStatusOptimistic('${item.idPhieu}', '${nStatus}', this, '${nStatus}')">Duyệt Lên BLĐ</button><br><button class="btn-action btn-reject" style="width:100%;" onclick="updateStatusOptimistic('${item.idPhieu}', '${rStatus}', this, '${rStatus}')">Từ Chối Toàn Bộ Đơn</button>`; 
                       } else if (grp === 'REJECTED_MINE') { 
                           btnHtml += `<button class="btn-action btn-draft" onclick="updateStatusOptimistic('${item.idPhieu}', 'PENDING_TPMKT', this, 'PENDING_TPMKT')">Hoàn Tác (Duyệt Lại)</button>`; 
                       }
@@ -1355,7 +1359,11 @@
                       if (grp === 'ACTION') { 
                           let nStatus = WORKFLOW_CONFIG[role] ? WORKFLOW_CONFIG[role].approveTo : '';
                           let rStatus = WORKFLOW_CONFIG[role] ? WORKFLOW_CONFIG[role].rejectTo : `REJECTED_${role}`;
-                          btnHtml += `<button class="btn-action btn-approve" onclick="updateStatusOptimistic('${item.idPhieu}', '${nStatus}', this, '${nStatus}')">Duyệt</button><button class="btn-action btn-reject" onclick="updateStatusOptimistic('${item.idPhieu}', '${rStatus}', this, '${item.trangThai}')">Từ Chối</button>`; 
+                          let projectCount = (item.phieuObj.chiTiet || []).length;
+                          if (projectCount > 1 && item.nsDuyet !== 0) {
+                              btnHtml += `<button class="btn-action btn-reject" style="background:#e67e22; margin-bottom:5px; width:100%;" onclick="rejectSingleProjectUI('${item.idDong}', this)">Loại bỏ dự án này</button><br>`;
+                          }
+                          btnHtml += `<button class="btn-action btn-approve" style="margin-bottom:5px; width:100%;" onclick="updateStatusOptimistic('${item.idPhieu}', '${nStatus}', this, '${nStatus}')">Duyệt Đơn Này</button><br><button class="btn-action btn-reject" style="width:100%;" onclick="updateStatusOptimistic('${item.idPhieu}', '${rStatus}', this, '${item.trangThai}')">Từ Chối Cả Đơn</button>`; 
                       } else if (grp === 'REJECTED_MINE') { 
                           let origStatus = 'PENDING_TPKD';
                           if(item.trangThai === 'REJECTED_TPKD') origStatus = 'PENDING_TPKD'; else if(item.trangThai === 'REJECTED_GDKD') origStatus = 'PENDING_GDKD'; else if(item.trangThai === 'REJECTED_PTGD') origStatus = 'PENDING_PTGD'; else if(item.trangThai === 'REJECTED_GDCN') origStatus = 'PENDING_PTGD'; 
@@ -1363,7 +1371,6 @@
                       }
                   }
               }
-          }
 
           let statusText = '';
           if (item.trangThai === 'APPROVED_BY_BLD') { statusText = `<span style="color:var(--success-green); font-weight:700;" id="status_${item.idPhieu}">ĐÃ DUYỆT</span>`; }
@@ -2200,6 +2207,47 @@
             if(toggle) toggle.checked = true;
         }
     });
+
+    function rejectSingleProjectUI(idDong, btn) {
+        if(!confirm("Bạn có chắc chắn muốn TỪ CHỐI RIÊNG dự án này?\n\nLưu ý: Các dự án khác trong đơn vẫn sẽ được giữ nguyên. Sau khi loại bỏ xong, bạn cần bấm nút 'Duyệt Đơn' ở dự án còn lại để đẩy đơn đi tiếp.")) return;
+        
+        let originalText = btn.innerText;
+        btn.innerText = "Đang xử lý..."; 
+        btn.disabled = true;
+        
+        let note = `(Dự án bị loại bỏ bởi ${ROLE_TITLES[currentViewRole] || currentViewRole})`;
+        
+        // Gửi lệnh set ngân sách bằng 0 lên Data để đánh dấu dòng này bị từ chối
+        callAPI("bldApprove", { data: JSON.stringify({ isFinalApprove: false, items: [{idDong: idDong, nganSachDuyet: 0, ghiChuBLD: note}] }) }, function(res) { 
+            if (res && res.success) {
+                let tr = btn.closest('tr');
+                tr.style.opacity = "0.55";
+                tr.style.backgroundColor = "#ffebee";
+                btn.innerText = "Đã loại bỏ";
+                btn.style.background = "#95a5a6";
+                
+                // Ẩn các nút Duyệt/Từ chối cả đơn ở dòng đã loại bỏ để tránh bấm nhầm
+                let siblings = tr.querySelectorAll('.btn-approve, .btn-reject');
+                siblings.forEach(el => {
+                    if (el !== btn) el.style.display = 'none';
+                });
+
+                // Cập nhật dữ liệu tạm thời
+                let targetPhieu = globalData.find(p => p.chiTiet && p.chiTiet.some(c => c.idDong === idDong));
+                if (targetPhieu) {
+                    let ct = targetPhieu.chiTiet.find(c => c.idDong === idDong);
+                    if (ct) {
+                        ct.nganSachDuyet = 0;
+                        ct.ghiChuBLD = note;
+                    }
+                }
+            } else { 
+                alert("Lỗi máy chủ: " + (res ? res.message : "Chưa rõ")); 
+                btn.innerText = originalText; 
+                btn.disabled = false; 
+            }
+        });
+    }
 </script>
 </body>
 </html>
