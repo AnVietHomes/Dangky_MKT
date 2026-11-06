@@ -1081,37 +1081,65 @@
         let isNewSaleVal = targetPhieu ? targetPhieu.isNewSale : false;
         if (cb) isNewSaleVal = cb.checked;
         
-        if (targetPhieu) { 
-          targetPhieu.trangThai = newStatus; 
-          targetPhieu.isNewSale = isNewSaleVal; 
-        }
-        
-        if (tr) {
-          let statusTd = tr.querySelector(`#status_${idPhieu}`) || tr.children[5];
-          let actionTd = tr.querySelector('.td-actions');
-          
-          if (newStatus.startsWith('REJECTED')) {
-            tr.className = tr.className.replace('row-approved', '') + ' row-rejected';
-            if (statusTd) statusTd.innerHTML = `<span style="color:var(--danger); font-weight:700;">TỪ CHỐI</span>`;
-          } else if (newStatus === 'APPROVED_BY_BLD') {
-            tr.className = tr.className.replace('row-rejected', '') + ' row-approved';
-            if (statusTd) statusTd.innerHTML = `<span style="color:var(--success-green); font-weight:700;">ĐÃ DUYỆT</span>`;
-          } else {
-            let pStr = newStatus.replace('PENDING_', 'CHỜ ');
-            if (statusTd) statusTd.innerHTML = `<span style="color:var(--warning); font-weight:700;">${pStr}</span>`;
-          }
-          
-          if (actionTd) {
-            actionTd.innerHTML = `<span style="font-size:11px; color:#27ae60; font-weight:bold;">✓ Đã ghi nhận</span>`;
-          }
-        }
-
-        callAPI("updateStatus", { data: JSON.stringify({ idPhieu: idPhieu, newStatus: newStatus, isNewSale: isNewSaleVal }) }, function(res) { 
-          if(!res || !res.success) {
-            console.error("Lỗi đồng bộ máy chủ!");
-          }
+        // 1. Tự động Gom dữ liệu Ngân sách vừa sửa để lưu (Nếu có)
+        let itemsData = [];
+        let signature = `(Ghi chú bởi: ${loggedInUser.name})`;
+        document.querySelectorAll(`tr[data-id-phieu="${idPhieu}"] .bld-budget`).forEach(input => { 
+            let noteEl = input.closest('tr').querySelector('.bld-note'); 
+            let note = noteEl ? noteEl.value.trim() : "";
+            if (note !== "" && !note.includes(signature)) { note = note + " " + signature; if(noteEl) noteEl.value = note; }
+            itemsData.push({ idDong: input.getAttribute('data-id-dong'), nganSachDuyet: parseNumber(input.value), ghiChuBLD: note }); 
         });
 
+        // Hàm thực thi việc chuyển trạng thái (chạy sau khi lưu tiền xong)
+        const proceedWithStatusUpdate = () => {
+            if (targetPhieu) { 
+              targetPhieu.trangThai = newStatus; 
+              targetPhieu.isNewSale = isNewSaleVal; 
+            }
+            
+            if (tr) {
+              let statusTd = tr.querySelector(`#status_${idPhieu}`) || tr.children[5];
+              let actionTd = tr.querySelector('.td-actions');
+              
+              if (newStatus.startsWith('REJECTED')) {
+                tr.className = tr.className.replace('row-approved', '') + ' row-rejected';
+                if (statusTd) statusTd.innerHTML = `<span style="color:var(--danger); font-weight:700;">TỪ CHỐI</span>`;
+              } else if (newStatus === 'APPROVED_BY_BLD') {
+                tr.className = tr.className.replace('row-rejected', '') + ' row-approved';
+                if (statusTd) statusTd.innerHTML = `<span style="color:var(--success-green); font-weight:700;">ĐÃ DUYỆT</span>`;
+              } else {
+                let pStr = newStatus.replace('PENDING_', 'CHỜ ');
+                if (statusTd) statusTd.innerHTML = `<span style="color:var(--warning); font-weight:700;">${pStr}</span>`;
+              }
+              
+              if (actionTd) {
+                actionTd.innerHTML = `<span style="font-size:11px; color:#27ae60; font-weight:bold;">✓ Đã ghi nhận</span>`;
+              }
+            }
+
+            callAPI("updateStatus", { data: JSON.stringify({ idPhieu: idPhieu, newStatus: newStatus, isNewSale: isNewSaleVal }) }, function(res) { 
+              if(!res || !res.success) console.error("Lỗi đồng bộ trạng thái!");
+            });
+        };
+
+        // 2. NẾU CÓ SỬA TIỀN: Bắt buộc gọi API lưu tiền (bldApprove) trước
+        if (itemsData.length > 0) {
+            let origText = btnElement.innerText;
+            btnElement.innerText = "Đang lưu số liệu...";
+            btnElement.disabled = true;
+            callAPI("bldApprove", { data: JSON.stringify({ isFinalApprove: false, items: itemsData }) }, function(res) { 
+                btnElement.innerText = origText;
+                btnElement.disabled = false;
+                if (res && res.success) {
+                    proceedWithStatusUpdate(); // Lưu tiền thành công thì mới cho phép chuyển trạng thái
+                } else {
+                    alert("Lỗi khi lưu số tiền, không thể duyệt: " + (res ? res.message : "Chưa rõ"));
+                }
+            });
+        } else {
+            proceedWithStatusUpdate(); // Nếu không có quyền sửa tiền thì chuyển trạng thái luôn
+        }
       } catch(e) { alert("Lỗi cục bộ: " + e.message); }
     }
 
@@ -1288,21 +1316,24 @@
           if (isKpiDacBiet) rowClass += ' op-kpi'; 
           if (isTruyThu) rowClass = 'row-truythu'; 
 
-          let isBldEditable = isBLD && !isReadOnlyMode && (item.trangThai === 'PENDING_BLD' || item.trangThai === 'BLD_DRAFTING');
+          let isBldEditable = isBLD && !isReadOnlyMode && (item.trangThai === 'PENDING_BLD' || item.trangThai === 'BLD_DRAFTING' || item.trangThai === 'APPROVED_BY_BLD');
           let isEditableNote = (isBldEditable || role === 'TPMKT' || role === 'MKT' || isPTGD) && !isReadOnlyMode;
           
-          // --- KỸ THUẬT DUYỆT LINH HOẠT THEO DỰ ÁN (CÓ THỂ SỬA TIỀN & REALTIME) ---
-          let nsDuyetHtml = '';
+          // --- MỞ RỘNG QUYỀN SỬA TIỀN ---
+          // Kiểm tra xem trạng thái hiện tại có phải là bước duyệt của Role này không
+          let grp = getStatusGroup(item.phieuObj, role);
+          let isMyTurnToApprove = (grp === 'ACTION');
           
-          // Mở rộng quyền sửa tiền: TPMKT, BLĐ, PTGĐ, GDCN đều được sửa nếu không phải là chế độ chỉ xem
-          let canEditMoney = (!isReadOnlyMode && (isBldEditable || role === 'TPMKT' || role === 'PTGD' || role === 'GDCN' || role === 'BLD_GDCN'));
+          // Cấp quyền sửa tiền cho TPMKT, PTGD, BLĐ_GĐCN, BLĐ khi đến lượt họ duyệt
+          let canEditMoney = !isReadOnlyMode && ['TPMKT', 'PTGD', 'BLD_GDCN', 'BLD', 'SUPER_ADMIN'].includes(role) && (isMyTurnToApprove || isBldEditable);
 
+          // --- KỸ THUẬT DUYỆT LINH HOẠT THEO DỰ ÁN ---
+          let nsDuyetHtml = '';
           if (canEditMoney) {
               nsDuyetHtml = `
               <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
                   <div style="font-weight: 800; color: var(--primary-blue); font-size: 12px;">📁 ${item.tenDuAn}</div>
                   <div style="display: flex; align-items: center; gap: 8px;">
-                      <!-- Gắn sự kiện oninput gọi hàm formatAndRecalc để tính toán realtime -->
                       <input type="text" class="input-budget bld-budget" data-id-dong="${item.idDong}" value="${formatNumber(item.nsDuyet)}" oninput="formatAndRecalc(this, '${item.idPhieu}')">
                       <button type="button" class="btn-action" style="background: var(--danger); padding: 6px 10px; font-size: 11px;" onclick="rejectProjectInRow(this, ${item.nsDeXuat})">Từ chối dự án</button>
                   </div>
@@ -2291,42 +2322,42 @@
         });
     }
 
-    // --- HÀM TÍNH TOÁN REALTIME KHI SẾP SỬA NGÂN SÁCH ---
     function formatAndRecalc(input, idPhieu) {
-        // 1. Định dạng dấu phẩy hàng nghìn khi gõ
         let val = input.value.replace(/\D/g, '');
-        if (val !== '') {
-            input.value = formatNumber(val);
-        }
+        if (val !== '') input.value = formatNumber(val);
 
         let rawVal = Number(val) || 0;
         let idDong = input.getAttribute('data-id-dong');
 
-        // 2. Lưu trực tiếp số tiền vừa sửa vào globalData để in ấn/gửi PDF
         let targetPhieu = globalData.find(p => p.idPhieu === idPhieu);
         if (targetPhieu) {
             let ct = (targetPhieu.chiTiet || []).find(c => c.idDong === idDong);
-            if (ct) {
-                ct.nganSachDuyet = rawVal;
-            }
+            if (ct) ct.nganSachDuyet = rawVal;
 
-            // 3. Tính toán lại tổng tiền của toàn bộ phiếu (nếu phiếu có nhiều dòng dự án)
             let totalNewApprove = targetPhieu.chiTiet.reduce((sum, c) => sum + Number(c.nganSachDuyet || 0), 0);
-
-            // 4. Tính toán số tiền Tạm ứng đầu kỳ mới dựa trên tỷ lệ T.Ư
             let advPct = Number(targetPhieu.advPercent || 0);
             let newAdvAmount = Math.round(totalNewApprove * (advPct / 100));
 
-            // 5. Cập nhật số tiền tạm ứng realtime lên giao diện
             let advCells = document.querySelectorAll(`.adv-realtime-${idPhieu}`);
-            advCells.forEach(cell => {
-                cell.innerText = formatNumber(newAdvAmount);
-            });
+            advCells.forEach(cell => { cell.innerText = formatNumber(newAdvAmount); });
         }
-        
-        // 6. Cập nhật lại các bảng tóm tắt tổng tiền phía trên (nếu có)
-        if (typeof recalcBLDSummary === 'function') {
+        if (typeof recalcBLDSummary === 'function') recalcBLDSummary();
+    }
+
+    function rejectProjectInRow(btn, defaultDeXuat) {
+        let container = btn.closest('div');
+        let inputBdg = container ? container.querySelector('.bld-budget') : null;
+        if (inputBdg) {
+            inputBdg.value = "0";
+            
+            // Kích hoạt tính toán Realtime (Cập nhật Tổng tiền và Tạm ứng) ngay khi bấm từ chối
+            let idPhieu = btn.closest('tr').getAttribute('data-id-phieu');
+            if (typeof formatAndRecalc === 'function') formatAndRecalc(inputBdg, idPhieu);
+            
             recalcBLDSummary();
+            btn.innerText = "Đã từ chối";
+            btn.style.background = "#95a5a6";
+            btn.disabled = true;
         }
     }
 </script>
