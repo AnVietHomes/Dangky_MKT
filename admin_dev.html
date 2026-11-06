@@ -1346,7 +1346,7 @@
                       if (item.trangThai === 'APPROVED_BY_BLD') btnHtml += `<button class="btn-action btn-sendmail" onclick="sendApprovalMail(this, '${item.idPhieu}')">Gửi File Duyệt</button>`;
                   } else if (role === 'TPMKT') {
                       if (item.trangThai === 'APPROVED_BY_BLD') { 
-                          btnHtml += `<button class="btn-action btn-sendmail" onclick="handleSendPdfEmail(this, '${item.idPhieu}')">Gửi File Duyệt</button>`;  
+                          btnHtml += `<button class="btn-action btn-sendmail" onclick="sendApprovalMail(this, '${item.idPhieu}')">Gửi File Duyệt</button>`; 
                       } else if (grp === 'ACTION') { 
                           let nStatus = WORKFLOW_CONFIG[role].approveTo;
                           let rStatus = WORKFLOW_CONFIG[role].rejectTo;
@@ -1815,8 +1815,19 @@
     
     function sendApprovalMail(btn, idPhieu) {
       if(!confirm("Bạn có chắc chắn muốn gửi Email bản duyệt tới nhóm này?")) return;
-      const originalText = btn.innerText; btn.innerText = "Đang gửi..."; btn.disabled = true;
-      callAPI("sendPdfEmail", { idPhieu: idPhieu }, function(res) { if(res && res.success) { btn.style.background = "#27ae60"; btn.innerText = "Đã gửi ✔"; } else { btn.disabled = false; btn.innerText = originalText; alert("Lỗi: " + (res ? res.message : "Mất kết nối máy chủ Google")); } });
+      const originalText = btn.innerText; 
+      btn.innerText = "Đang gửi..."; 
+      btn.disabled = true;
+      callAPI("sendPdfEmail", { idPhieu: idPhieu }, function(res) { 
+          if(res && res.success) { 
+              btn.style.background = "#27ae60"; 
+              btn.innerText = "Đã gửi ✔"; 
+          } else { 
+              btn.disabled = false; 
+              btn.innerText = originalText; 
+              alert("Lỗi: " + (res ? res.message : "Mất kết nối máy chủ Google")); 
+          } 
+      });
     }
 
     function sendAllApprovalMails() {
