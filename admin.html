@@ -162,19 +162,16 @@
       box-shadow: 0 10px 40px rgba(0,0,0,0.5);
     }
     
-    /* Đổi logo thành màu trắng */
     body.dark-mode .dash-header-left img,
     body.dark-mode .login-header img {
       content: url("logodark.svg");
     }
 
-    /* Bảng chung và đường viền */
     body.dark-mode table, body.dark-mode .table-container { border-color: #444; }
     body.dark-mode th { background-color: #2a2a2a; color: #fff; border-color: #444; }
     body.dark-mode td { border-color: #444; color: #e0e0e0; }
     body.dark-mode input, body.dark-mode select { background-color: #333; color: #fff; border-color: #555; }
 
-    /* FIX 1: Bảng Tổng hợp theo Khối & Dự án ở trên cùng */
     body.dark-mode .summary-table,
     body.dark-mode #tableSumKhoi,
     body.dark-mode #tableSumDuAn {
@@ -192,11 +189,9 @@
         background-color: #2c2416 !important;
     }
 
-    /* Toolbar và các khối công cụ */
     body.dark-mode .super-admin-toolbar, body.dark-mode #cnqnContainer > div:first-child { background: #111; }
     body.dark-mode .mkt-toolbar, body.dark-mode #exportBlock { background: #2a2a2a; border-color: #444; }
 
-    /* FIX 2: Màu các hàng Khối, Phòng, Dự án trong bảng chính */
     body.dark-mode tr[style*="background:#0b1f8c"], 
     body.dark-mode tr[style*="background: #0b1f8c"],
     body.dark-mode tr[style*="background-color: #0b1f8c"] {
@@ -219,14 +214,12 @@
         color: #ffffff !important;
     }
 
-    /* Ép toàn bộ chữ, nhãn (label), và span bên trong các hàng gộp chuyển sang sáng màu */
     body.dark-mode tr[style*="background"] td,
     body.dark-mode tr[style*="background"] span,
     body.dark-mode tr[style*="background"] label {
         color: #ffffff !important;
     }
 
-    /* FIX 3: Cột Thời gian chạy và các ô nhập liệu (Note, % Tạm ứng) */
     body.dark-mode td span[style*="color:#333"],
     body.dark-mode td span[style*="color: #333"] {
         color: #e0e0e0 !important;
@@ -238,7 +231,6 @@
       color: #e0e0e0 !important;
     }
 
-    /* Khối Lưu trữ và Gói tổng */
     body.dark-mode div[id^="arch_"] {
         background-color: #1e1e1e !important;
         border-color: #444 !important;
@@ -252,7 +244,6 @@
        color: #e0e0e0 !important;
     }
 
-    /* Màu các hàng trạng thái đặc biệt */
     body.dark-mode tr.row-truythu { 
         background-color: rgba(211, 47, 47, 0.25) !important; 
         border-left: 6px solid #ff5252 !important;
@@ -267,13 +258,10 @@
         background-color: rgba(142, 68, 173, 0.2) !important; 
     }
 
-    /* Tab 2 (Tạm ứng) */
     body.dark-mode #tableAdvanceBody td {
         color: #e0e0e0 !important;
     }
-    /* --- TINH CHỈNH RIÊNG CHO GIAO DIỆN TỐI (DARK MODE) --- */
 
-    /* 1. Làm dịu màu hàng trùng lặp trên nền tối (tông màu cam đất trầm, không bị chói) */
     body.dark-mode tr.row-duplicate td {
         background-color: rgba(180, 100, 30, 0.25) !important;
         color: #ffbb88 !important;
@@ -281,7 +269,6 @@
     body.dark-mode tr.row-duplicate span {
         color: inherit !important;
     }
-    /* 2. Xử lý triệt để khoảng trắng thừa dưới bảng tổng hợp */
     body.dark-mode #topSummaryBlocks > div {
         background-color: #1e1e1e !important;
         border: 1px solid #444 !important;
@@ -289,33 +276,24 @@
     body.dark-mode #topSummaryBlocks table {
         background-color: #1e1e1e !important;
     }
-    /* Đảm bảo toàn bộ vùng chứa khối tổng hợp phủ kín màu tối */
     body.dark-mode #topSummaryBlocks {
         background-color: transparent !important;
     }
-    /* --- ĐỒNG BỘ GIAO DIỆN TỐI CHO TAB 3 (BÁO CÁO) --- */
 
-    /* 1. Đổi màu hàng tiêu đề Khối trong bảng báo cáo (màu xanh dương gốc) thành tối màu */
     body.dark-mode #reportTable tr[style*="background:#0b1f8c"],
     body.dark-mode #reportTable tr[style*="background: #0b1f8c"] {
         background-color: #1a2a6c !important;
         color: #ffffff !important;
     }
-
-    /* 2. Đổi màu dòng "TỔNG CỘNG KHỐI" (gốc mang nền trắng sáng #e8f4fc) thành nền tối */
     body.dark-mode #reportTable tr[style*="background:#e8f4fc"],
     body.dark-mode #reportTable tr[style*="background: #e8f4fc"] {
         background-color: #25334a !important;
         color: #ffffff !important;
     }
-
-    /* 3. Ép toàn bộ chữ và các thẻ bên trong dòng tổng cộng khối chuyển sang sáng màu */
     body.dark-mode #reportTable tr[style*="background:#e8f4fc"] td,
     body.dark-mode #reportTable tr[style*="background:#e8f4fc"] span {
         color: #ffffff !important;
     }
-
-    /* 4. Đảm bảo toàn bộ bảng báo cáo nhận màu chữ sáng */
     body.dark-mode #reportTable td {
         color: #e0e0e0 !important;
         border-color: #444 !important;
@@ -486,7 +464,6 @@
   </div>
 
   <script>
-    // --- KHỞI TẠO BIẾN GLOBAL VÀ API ---
     const API_URL = "https://script.google.com/macros/s/AKfycbwFgszaVmJmOhs_GOMlcomv-RTcFJ2SXU4nbrGDRRqS8mZcFOR59YnBEl5boKmTeBFa/exec";
     
     let loggedInUser = null; let currentViewRole = ''; let globalData = []; let bldItemsArray = [];
@@ -496,7 +473,6 @@
 
     const ROLE_TITLES = { 'SUPER_ADMIN': 'Quản Trị Viên Tối Cao', 'BLD': 'Ban Lãnh Đạo', 'BLD_GDCN': 'Ban Lãnh đạo (kiêm Giám đốc CN)', 'PTGD': 'Phó Tổng Giám Đốc', 'GDCN': 'Giám Đốc Chi Nhánh', 'GDKD': 'Giám Đốc Kinh Doanh', 'GDKD_KIEM_TPKD': 'GĐKD (Kiêm TPKD)', 'TPKD': 'Trưởng Phòng Kinh Doanh', 'TPMKT': 'Trưởng Phòng Marketing', 'MKT': 'Chuyên Viên Marketing' };
 
-    // --- CẤU HÌNH MA TRẬN PHÂN QUYỀN (WORKFLOW CONFIG) ---
     const WORKFLOW_CONFIG = {
         'TPKD': { actionStatuses: ['PENDING_TPKD'], approveTo: 'PENDING_GDKD', rejectTo: 'REJECTED_TPKD' },
         'GDKD': { actionStatuses: ['PENDING_GDKD'], approveTo: 'PENDING_PTGD', rejectTo: 'REJECTED_GDKD' },
@@ -558,18 +534,25 @@
     document.addEventListener("DOMContentLoaded", function() {
       const savedSession = localStorage.getItem("avh_admin_session");
       if (savedSession) {
-        loggedInUser = JSON.parse(savedSession);
-        document.getElementById('loginScreen').style.display = 'none'; document.getElementById('dashboardScreen').style.display = 'flex'; 
-        document.getElementById('userInfo').innerText = `Xin chào, ${loggedInUser.name} - ${ROLE_TITLES[loggedInUser.role] || loggedInUser.role}`;
-        if (loggedInUser.role === 'SUPER_ADMIN') document.getElementById('superAdminToolbar').style.display = 'flex';
-        simulateRole(loggedInUser.role);
+        try {
+          loggedInUser = JSON.parse(savedSession);
+          if (loggedInUser && loggedInUser.role) {
+            document.getElementById('loginScreen').style.display = 'none'; 
+            document.getElementById('dashboardScreen').style.display = 'flex'; 
+            document.getElementById('userInfo').innerText = `Xin chào, ${loggedInUser.name} - ${ROLE_TITLES[loggedInUser.role] || loggedInUser.role}`;
+            if (loggedInUser.role === 'SUPER_ADMIN') {
+              document.getElementById('superAdminToolbar').style.display = 'flex';
+            }
+            simulateRole(loggedInUser.role);
+            return;
+          }
+        } catch (e) {
+          console.error("Lỗi đọc session cũ:", e);
+        }
+        localStorage.removeItem("avh_admin_session");
       }
     });
 
-    // --- BỘ QUẢN LÝ KẾT NỐI API HIỆN ĐẠI (FETCH POST) ---
-    // =========================================================================
-    // HỆ THỐNG HÀNG CHỜ REQUEST QUEUE - GIẢI QUYẾT TRIỆT ĐỂ NGHẼN/MẤT DATA
-    // =========================================================================
     let requestQueue = [];
     let isProcessingQueue = false;
 
@@ -598,17 +581,16 @@
       })
       .then(response => response.json())
       .then(result => {
-        requestQueue.shift(); // Xóa tác vụ đã xong
+        requestQueue.shift();
         if (typeof task.callback === 'function') task.callback(result);
-        processNextInQueue(); // Chạy tác vụ tiếp theo
+        processNextInQueue();
       })
       .catch(error => {
         console.error("Lỗi gửi dữ liệu:", error);
-        // Nếu lỗi mạng, thử lại tác vụ này tối đa 3 lần hoặc thông báo
         if (!task.retryCount) task.retryCount = 0;
         task.retryCount++;
         if (task.retryCount <= 3) {
-          setTimeout(processNextInQueue, 1000); // Thử lại sau 1s
+          setTimeout(processNextInQueue, 1000);
         } else {
           requestQueue.shift();
           alert(`Cảnh báo: Không thể đồng bộ đơn ${task.payload.idPhieu || ''}. Vui lòng bấm F5 kiểm tra lại!`);
@@ -618,7 +600,6 @@
       });
     }
 
-    // Hàm gọi API chuẩn qua Hàng chờ Queue
     function callAPI(action, params, successCallback) {
       let payload = { action: action };
       for (let key in params) { payload[key] = params[key]; }
@@ -679,7 +660,6 @@
       }
       let today = new Date(); let m = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0'); document.getElementById('reportMonth').value = m;
       
-      // Cấp quyền lấy dữ liệu toàn bộ các phòng/khối cho PTGĐ và BLĐ
       let depts = loggedInUser.managedDepartments;
       if (currentViewRole === 'PTGD' || currentViewRole === 'SUPER_ADMIN' || currentViewRole === 'BLD' || currentViewRole === 'BLD_GDCN') {
           depts = ['ALL'];
@@ -967,13 +947,16 @@
           if (input) item.nsDuyet = parseNumber(input.value);
           
           let advAmount = Math.round(item.nsDeXuat * (item.phieuObj.advPercent || 0) / 100);
+          
+          // Kiểm tra nếu ngân sách duyệt bằng 0 (dự án bị từ chối) thì không cộng dồn vào tổng duyệt
+          let isProjectRejected = (item.nsDuyet === 0);
           let isRej = (item.trangThai && item.trangThai.startsWith('REJECTED'));
           let isKpiDacBiet = checkKpiDacBiet(item.phieuObj);
           let isTruyThu = item.phieuObj.isTruyThu === true;
           
           let valDx = (isRej || isKpiDacBiet || isTruyThu) ? 0 : item.nsDeXuat;
-          let valDuyet = (isRej || isKpiDacBiet || isTruyThu) ? 0 : item.nsDuyet;
-          let valAdv = (isRej || isKpiDacBiet || isTruyThu) ? 0 : advAmount;
+          let valDuyet = (isRej || isProjectRejected || isKpiDacBiet || isTruyThu) ? 0 : item.nsDuyet;
+          let valAdv = (isRej || isProjectRejected || isKpiDacBiet || isTruyThu) ? 0 : advAmount;
 
           let kId = safeId(item.khoi); 
           let pId = safeId(item.khoi + '|' + item.phong); 
@@ -1032,7 +1015,10 @@
       let cleanTV = String(phieu.thanhVien||"").replace(/,/g, '<br>');
       document.getElementById('modalInfoGrid').innerHTML = `<div><b>Mã phiếu:</b> ${phieu.idPhieu}</div><div><b>Phòng ban:</b> ${phieu.phongKD}</div><div><b>Tên nhóm:</b> ${phieu.tenNhom}</div><div><b>Thành viên:</b><br>${cleanTV}</div>`;
       let tBody = '';
-      (phieu.chiTiet || []).forEach(ct => { tBody += `<tr><td style="text-align:center; padding:8px; border:1px solid #ccc;">${ct.tenDuAn}</td><td style="text-align:center; border:1px solid #ccc; font-weight:bold;">${formatNumber(ct.nganSachDeXuat)}</td><td style="text-align:center; border:1px solid #ccc;">${ct.kpi}</td><td style="text-align:center; border:1px solid #ccc;">${ct.channel}</td></tr>`; });
+      (phieu.chiTiet || []).forEach(ct => { 
+        let badgeStatus = Number(ct.nganSachDuyet || 0) > 0 ? `<span style="color:var(--success-green); font-weight:bold;">Đồng ý</span>` : `<span style="color:var(--danger); font-weight:bold;">Từ chối</span>`;
+        tBody += `<tr><td style="text-align:center; padding:8px; border:1px solid #ccc;">${ct.tenDuAn}</td><td style="text-align:center; border:1px solid #ccc; font-weight:bold;">${formatNumber(ct.nganSachDeXuat)}</td><td style="text-align:center; border:1px solid #ccc; font-weight:bold; color:var(--danger);">${formatNumber(ct.nganSachDuyet || 0)}</td><td style="text-align:center; border:1px solid #ccc;">${badgeStatus}</td><td style="text-align:center; border:1px solid #ccc;">${ct.kpi}</td><td style="text-align:center; border:1px solid #ccc;">${ct.channel}</td></tr>`; 
+      });
       document.getElementById('modalTableBody').innerHTML = tBody; document.getElementById('viewFormModal').style.display = 'flex';
     }
 
@@ -1067,11 +1053,8 @@
         }
     }
 
-    // --- LOGIC XÁC ĐỊNH TRẠNG THÁI HIỂN THỊ NÚT BẤM DỰA TRÊN MA TRẬN ---
     function getStatusGroup(phieuObj, role) {
       let st = phieuObj.trangThai;
-      
-      // Xử lý nhánh TỪ CHỐI
       if (st.startsWith('REJECTED')) {
           let rCode = role;
           if(role === 'GDKD_KIEM_TPKD') rCode = 'GDKD';
@@ -1082,11 +1065,9 @@
           return 'HISTORY'; 
       }
       
-      // Sử dụng cấu hình tự động (Ngoại trừ MKT và BLD_GDCN có logic đặc thù)
       let config = WORKFLOW_CONFIG[role];
       if (config && config.actionStatuses.includes(st)) return 'ACTION';
 
-      // Xử lý các Role có logic tùy biến
       if ((role === 'MKT' || role === 'TPMKT') && st === 'PENDING_TPMKT') return 'ACTION'; 
       if ((role === 'SUPER_ADMIN') && st === 'PENDING_BLD') return 'ACTION'; 
       return 'HISTORY';
@@ -1100,16 +1081,14 @@
         let isNewSaleVal = targetPhieu ? targetPhieu.isNewSale : false;
         if (cb) isNewSaleVal = cb.checked;
         
-        // 1. Cập nhật dữ liệu bộ nhớ RAM
         if (targetPhieu) { 
           targetPhieu.trangThai = newStatus; 
           targetPhieu.isNewSale = isNewSaleVal; 
         }
         
-        // 2. Cập nhật trực tiếp trên DOM (Không render lại bảng -> cực mượt)
         if (tr) {
-          let statusTd = tr.querySelector(`#status_${idPhieu}`) || tr.children[5]; // Ô trạng thái
-          let actionTd = tr.querySelector('.td-actions'); // Ô nút bấm
+          let statusTd = tr.querySelector(`#status_${idPhieu}`) || tr.children[5];
+          let actionTd = tr.querySelector('.td-actions');
           
           if (newStatus.startsWith('REJECTED')) {
             tr.className = tr.className.replace('row-approved', '') + ' row-rejected';
@@ -1122,13 +1101,11 @@
             if (statusTd) statusTd.innerHTML = `<span style="color:var(--warning); font-weight:700;">${pStr}</span>`;
           }
           
-          // Làm mờ hoặc ẩn các nút bấm vừa thao tác để tránh bấm lại
           if (actionTd) {
             actionTd.innerHTML = `<span style="font-size:11px; color:#27ae60; font-weight:bold;">✓ Đã ghi nhận</span>`;
           }
         }
 
-        // 3. Đẩy vào hàng chờ Queue gửi ngầm lên Google Apps Script
         callAPI("updateStatus", { data: JSON.stringify({ idPhieu: idPhieu, newStatus: newStatus, isNewSale: isNewSaleVal }) }, function(res) { 
           if(!res || !res.success) {
             console.error("Lỗi đồng bộ máy chủ!");
@@ -1201,7 +1178,7 @@
       let thHtml = `<th width="4%"></th>`;
       if (isKD) thHtml += `<th width="5%">Nhóm Sale Mới</th>`;
       thHtml += `<th>Mã Phiếu</th><th>Phòng / Khối</th><th>Thành Viên</th><th>Thời Gian Chạy</th><th>Trạng Thái</th><th>Ngân Sách Đề Xuất</th>`;
-      if (isPTGD) { thHtml += `<th>Tỷ Lệ T.Ư</th><th>Tạm Ứng Đầu Kỳ</th><th>Ghi Chú</th>`; } else if (isBLD || isMKT) { thHtml += `<th>BLĐ Duyệt Thực Tế</th><th>Ghi Chú</th>`; } 
+      if (isPTGD) { thHtml += `<th>Tỷ Lệ T.Ư</th><th>Tạm Ứng Đầu Kỳ</th><th>Ghi Chú</th>`; } else if (isBLD || isMKT) { thHtml += `<th>Dự Án & Ngân Sách Duyệt (BLĐ)</th><th>Ghi Chú</th>`; } 
       thHtml += `<th class="td-actions">Hành Động</th>`;
       
       if (thead) thead.innerHTML = thHtml; 
@@ -1225,7 +1202,6 @@
             }
         }
 
-        // Cho phép PTGĐ xem được hiển thị của toàn bộ các khối
         let isManaged = (loggedInUser.managedDepartments.indexOf('ALL') > -1 || 
                          loggedInUser.managedDepartments.includes(item.phong) || 
                          loggedInUser.managedDepartments.includes(item.khoi) || 
@@ -1247,11 +1223,9 @@
         let sumDuyetKhoi = {}, sumDuyetPhong = {}, sumDuyetDuAn = {}; 
         let sumAdvKhoi = {}, sumAdvPhong = {}, sumAdvDuAn = {}; 
 
-        // --- THUẬT TOÁN KIỂM TRA TRÙNG LẶP MỚI ---
         let projectCountMap = {};
         itemsArray.forEach(item => {
             let status = (item.trangThai || "").toUpperCase();
-            // Bỏ qua các đơn đã bị từ chối ở mọi cấp
             if (status.startsWith('REJECTED')) return;
 
             let tName = (item.phieuObj.tenNhom || "").trim().toLowerCase();
@@ -1269,10 +1243,11 @@
             let isKpiDacBiet = checkKpiDacBiet(item.phieuObj);
             let isTruyThu = item.phieuObj.isTruyThu === true;
             let isRej = item.trangThai.startsWith('REJECTED');
+            let isProjectRejected = (item.nsDuyet === 0);
             
             let valDx = (isRej || isKpiDacBiet || isTruyThu) ? 0 : item.nsDeXuat;
-            let valDuyet = (isRej || isKpiDacBiet || isTruyThu) ? 0 : item.nsDuyet;
-            let valAdv = (isRej || isKpiDacBiet || isTruyThu) ? 0 : advAmt;
+            let valDuyet = (isRej || isProjectRejected || isKpiDacBiet || isTruyThu) ? 0 : item.nsDuyet;
+            let valAdv = (isRej || isProjectRejected || isKpiDacBiet || isTruyThu) ? 0 : advAmt;
 
             sumDxKhoi[kId] = (sumDxKhoi[kId] || 0) + valDx; sumDxPhong[pId] = (sumDxPhong[pId] || 0) + valDx; sumDxDuAn[dId] = (sumDxDuAn[dId] || 0) + valDx;
             sumDuyetKhoi[kId] = (sumDuyetKhoi[kId] || 0) + valDuyet; sumDuyetPhong[pId] = (sumDuyetPhong[pId] || 0) + valDuyet; sumDuyetDuAn[dId] = (sumDuyetDuAn[dId] || 0) + valDuyet;
@@ -1287,8 +1262,13 @@
           let advAmt = Math.round(item.nsDeXuat * (item.phieuObj.advPercent || 0) / 100);
           let isKpiDacBiet = checkKpiDacBiet(item.phieuObj);
           let isTruyThu = item.phieuObj.isTruyThu === true;
+          let isProjectRejected = (item.nsDuyet === 0);
           
-          if(!item.trangThai.startsWith('REJECTED') && !isKpiDacBiet && !isTruyThu) { localGrandDx += item.nsDeXuat; localGrandAdv += advAmt; localGrandDy += item.nsDuyet; }
+          if(!item.trangThai.startsWith('REJECTED') && !isKpiDacBiet && !isTruyThu) { 
+              localGrandDx += item.nsDeXuat; 
+              localGrandAdv += advAmt; 
+              if (!isProjectRejected) localGrandDy += item.nsDuyet; 
+          }
           let searchData = `${item.khoi} ${item.phong} ${item.tenDuAn} ${item.thanhVien} ${item.phieuObj.tenNhom}`.replace(/<br>/g, ' ');
 
           if (currentKhoi !== kId) {
@@ -1308,11 +1288,25 @@
           if (isKpiDacBiet) rowClass += ' op-kpi'; 
           if (isTruyThu) rowClass = 'row-truythu'; 
 
-        // Ép lộ trình: BLĐ chỉ được nhập số tiền khi đơn đã qua TPMKT (trạng thái PENDING_BLD)
           let isBldEditable = isBLD && !isReadOnlyMode && (item.trangThai === 'PENDING_BLD' || item.trangThai === 'BLD_DRAFTING');
-          
           let isEditableNote = (isBldEditable || role === 'TPMKT' || role === 'MKT' || isPTGD) && !isReadOnlyMode;
-          let nsDuyetHtml = isBldEditable ? `<input type="text" class="input-budget bld-budget" data-id-dong="${item.idDong}" value="${formatNumber(item.nsDuyet)}" oninput="formatCurrencyAdmin(this)">` : `<span style="color:var(--danger); font-weight:bold;">${formatNumber(item.nsDuyet)}</span>`;
+          
+          // --- KỸ THUẬT DUYỆT LINH HOẠT THEO DỰ ÁN ---
+          let nsDuyetHtml = '';
+          if (isBldEditable) {
+              nsDuyetHtml = `
+              <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                  <div style="font-weight: 800; color: var(--primary-blue); font-size: 12px;">📁 ${item.tenDuAn}</div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                      <input type="text" class="input-budget bld-budget" data-id-dong="${item.idDong}" value="${formatNumber(item.nsDuyet)}" oninput="formatCurrencyAdmin(this)">
+                      <button type="button" class="btn-action" style="background: var(--danger); padding: 6px 10px; font-size: 11px;" onclick="rejectProjectInRow(this, ${item.nsDeXuat})">Từ chối dự án</button>
+                  </div>
+              </div>`;
+          } else {
+              let projStatusTag = isProjectRejected ? `<br><span style="color:var(--danger); font-size:11px; font-weight:bold; background:#ffebee; padding:2px 6px; border-radius:4px;">❌ Đã từ chối dự án này</span>` : `<br><span style="color:var(--success-green); font-size:11px; font-weight:bold;">✅ Đồng ý dự án</span>`;
+              nsDuyetHtml = `<div style="text-align: left;"><b>${item.tenDuAn}:</b> <span style="color:var(--danger); font-weight:bold;">${formatNumber(item.nsDuyet)}</span> ${projStatusTag}</div>`;
+          }
+
           let ghiChuText = item.ghiChu || "";
           let cleanNote = ghiChuText.replace(/"/g, '&quot;');
           let displayNote = cleanNote.replace(/(\(Ghi chú bởi:.*?\))/g, '<br><i style="font-size:10.5px; color:#888;">$1</i>');
@@ -1329,6 +1323,9 @@
           let btnHtml = '';
           if (isReadOnlyMode) {
              btnHtml = `<span style="color:#999; font-size: 11px; font-weight: bold; background: #e0e0e0; padding: 4px 8px; border-radius: 4px;">Chỉ xem</span>`;
+          } else if (isProjectRejected && !item.trangThai.startsWith('REJECTED') && !isBLD) {
+             // Thay thế các nút bấm bằng nhãn thông báo khóa thao tác
+             btnHtml = `<span style="color:var(--danger); font-size:11px; font-weight:bold; background:#fff; padding:6px 10px; border-radius:4px; border:1px solid var(--danger); display:inline-block; text-align:center;">🚫 Đã bị loại bỏ</span>`;
           } else {
               if (isBLD) {
                   if (isBldEditable) {
@@ -1338,11 +1335,9 @@
                   if (item.trangThai === 'REJECTED_BLD' || item.trangThai === 'REJECTED') {
                       btnHtml += `<button class="btn-action btn-draft" onclick="updateStatusOptimistic('${item.idPhieu}', 'PENDING_BLD', this, 'PENDING_BLD')">Hoàn Tác (Duyệt Lại)</button>`;
                   } else if (item.trangThai === 'PENDING_BLD' || item.trangThai === 'BLD_DRAFTING') {
-                      // ĐÚNG LỘ TRÌNH: Chỉ khi TPMKT đã duyệt xong mới hiện nút chốt cuối cùng
-                      btnHtml += `<button class="btn-action btn-approve" style="background:#8e44ad;" onclick="approveSingleBLD(this, '${item.idPhieu}')">Duyệt Đơn</button>`;
-                      btnHtml += `<button class="btn-action btn-reject" onclick="updateStatusOptimistic('${item.idPhieu}', 'REJECTED_BLD', this, 'PENDING_BLD')">Từ Chối</button>`;
+                      btnHtml += `<button class="btn-action btn-approve" style="background:#8e44ad;" onclick="approveSingleBLD(this, '${item.idPhieu}')">Chốt Duyệt Phiếu</button>`;
+                      btnHtml += `<button class="btn-action btn-reject" onclick="updateStatusOptimistic('${item.idPhieu}', 'REJECTED_BLD', this, 'PENDING_BLD')">Từ Chối Toàn Bộ</button>`;
                   } else if (item.trangThai !== 'APPROVED_BY_BLD') {
-                      // Đơn chưa đến bước BLĐ (đang nằm ở TPKD, GDKD, hoặc TPMKT)
                       btnHtml += `<span style="font-size:11px; color:#f39c12; font-weight:bold; font-style:italic;">Đang chờ các cấp dưới duyệt...</span>`;
                   }
               } else {
@@ -1355,7 +1350,11 @@
                       } else if (grp === 'ACTION') { 
                           let nStatus = WORKFLOW_CONFIG[role].approveTo;
                           let rStatus = WORKFLOW_CONFIG[role].rejectTo;
-                          btnHtml += `<button class="btn-action btn-approve" onclick="updateStatusOptimistic('${item.idPhieu}', '${nStatus}', this, '${nStatus}')">Duyệt Lên BLĐ</button><button class="btn-action btn-reject" onclick="updateStatusOptimistic('${item.idPhieu}', '${rStatus}', this, '${rStatus}')">Từ Chối</button>`; 
+                          let projectCount = (item.phieuObj.chiTiet || []).length;
+                          if (projectCount > 1 && item.nsDuyet !== 0) {
+                              btnHtml += `<button class="btn-action btn-reject" style="background:#e67e22; margin-bottom:5px; width:100%;" onclick="rejectSingleProjectUI('${item.idDong}', this)">Loại bỏ dự án này</button><br>`;
+                          }
+                          btnHtml += `<button class="btn-action btn-approve" style="margin-bottom:5px; width:100%;" onclick="updateStatusOptimistic('${item.idPhieu}', '${nStatus}', this, '${nStatus}')">Duyệt Lên BLĐ</button><br><button class="btn-action btn-reject" style="width:100%;" onclick="updateStatusOptimistic('${item.idPhieu}', '${rStatus}', this, '${rStatus}')">Từ Chối Toàn Bộ Đơn</button>`; 
                       } else if (grp === 'REJECTED_MINE') { 
                           btnHtml += `<button class="btn-action btn-draft" onclick="updateStatusOptimistic('${item.idPhieu}', 'PENDING_TPMKT', this, 'PENDING_TPMKT')">Hoàn Tác (Duyệt Lại)</button>`; 
                       }
@@ -1363,7 +1362,11 @@
                       if (grp === 'ACTION') { 
                           let nStatus = WORKFLOW_CONFIG[role] ? WORKFLOW_CONFIG[role].approveTo : '';
                           let rStatus = WORKFLOW_CONFIG[role] ? WORKFLOW_CONFIG[role].rejectTo : `REJECTED_${role}`;
-                          btnHtml += `<button class="btn-action btn-approve" onclick="updateStatusOptimistic('${item.idPhieu}', '${nStatus}', this, '${nStatus}')">Duyệt</button><button class="btn-action btn-reject" onclick="updateStatusOptimistic('${item.idPhieu}', '${rStatus}', this, '${item.trangThai}')">Từ Chối</button>`; 
+                          let projectCount = (item.phieuObj.chiTiet || []).length;
+                          if (projectCount > 1 && item.nsDuyet !== 0) {
+                              btnHtml += `<button class="btn-action btn-reject" style="background:#e67e22; margin-bottom:5px; width:100%;" onclick="rejectSingleProjectUI('${item.idDong}', this)">Loại bỏ dự án này</button><br>`;
+                          }
+                          btnHtml += `<button class="btn-action btn-approve" style="margin-bottom:5px; width:100%;" onclick="updateStatusOptimistic('${item.idPhieu}', '${nStatus}', this, '${nStatus}')">Duyệt Đơn Này</button><br><button class="btn-action btn-reject" style="width:100%;" onclick="updateStatusOptimistic('${item.idPhieu}', '${rStatus}', this, '${item.trangThai}')">Từ Chối Cả Đơn</button>`; 
                       } else if (grp === 'REJECTED_MINE') { 
                           let origStatus = 'PENDING_TPKD';
                           if(item.trangThai === 'REJECTED_TPKD') origStatus = 'PENDING_TPKD'; else if(item.trangThai === 'REJECTED_GDKD') origStatus = 'PENDING_GDKD'; else if(item.trangThai === 'REJECTED_PTGD') origStatus = 'PENDING_PTGD'; else if(item.trangThai === 'REJECTED_GDCN') origStatus = 'PENDING_PTGD'; 
@@ -1371,7 +1374,7 @@
                       }
                   }
               }
-          }
+            }
 
           let statusText = '';
           if (item.trangThai === 'APPROVED_BY_BLD') { statusText = `<span style="color:var(--success-green); font-weight:700;" id="status_${item.idPhieu}">ĐÃ DUYỆT</span>`; }
@@ -1391,7 +1394,6 @@
           let pairKey = tNameCheck + "___" + pNameCheck;
           
           let statusItem = (item.trangThai || "").toUpperCase();
-          // Kiểm tra: Không phải đơn bị từ chối VÀ số lượng đăng ký cho cùng dự án > 1
           let isDuplicate = !statusItem.startsWith('REJECTED') && projectCountMap[pairKey] > 1;
           let dupClass = isDuplicate ? ' row-duplicate' : ''; 
           let isGoiTong = tenNhomRaw.includes('[GÓI TỔNG]');
@@ -1404,17 +1406,17 @@
 
           let safeSearchData = (typeof searchData !== 'undefined' ? searchData : '').replace(/["']/g, '');
 
-          // --- CODE TRÍCH XUẤT THỜI GIAN CHẠY ---
           let ctData = (item.phieuObj.chiTiet || []).find(c => c.idDong === item.idDong);
           let startDate = ctData && ctData.start ? ctData.start : '...';
           let endDate = ctData && (ctData.end || ctData.ketThuc) ? (ctData.end || ctData.ketThuc) : '...';
           let timeString = `<span style="font-weight:700; color:#333; font-size:12px; white-space:nowrap;">${startDate} - ${endDate}</span>`;
-          // ------------------------------------
 
-          let rowHTML = `<tr data-id-dong="${item.idDong}" data-id-phieu="${item.idPhieu}" data-nsduyet="${item.nsDuyet}" data-search="${safeSearchData}" class="${rowClass}${dupClass}"><td><div style="display:flex; flex-direction:column; align-items:center; gap:6px;"><button class="btn-view" onclick="viewDetail('${item.idPhieu}', 'proposal')">👁️</button><input type="checkbox" class="cb-print-proposal cb-print-item" data-khoi="${kId}" data-phong="${pId}" data-duan="${dId}" value="${item.idPhieu}" title="Tích chọn để in" style="cursor:pointer; width:16px; height:16px;"></div></td>`;
+          // Tự động làm mờ nếu dự án đã bị loại bỏ ở các cấp trước đó
+          let rowStyle = (isProjectRejected && !item.trangThai.startsWith('REJECTED')) ? 'opacity: 0.6; background-color: #ffebee;' : '';
+          
+          let rowHTML = `<tr data-id-dong="${item.idDong}" data-id-phieu="${item.idPhieu}" data-nsduyet="${item.nsDuyet}" data-search="${safeSearchData}" class="${rowClass}${dupClass}" style="${rowStyle}"><td><div style="display:flex; flex-direction:column; align-items:center; gap:6px;"><button class="btn-view" onclick="viewDetail('${item.idPhieu}', 'proposal')">👁️</button><input type="checkbox" class="cb-print-proposal cb-print-item" data-khoi="${kId}" data-phong="${pId}" data-duan="${dId}" value="${item.idPhieu}" title="Tích chọn để in" style="cursor:pointer; width:16px; height:16px;"></div></td>`;
           if (isKD) { let checkedState = item.phieuObj.isNewSale ? 'checked' : ''; rowHTML += `<td><input type="checkbox" class="cb-newsale" style="width:16px; height:16px; cursor:pointer;" title="Nhóm sale mới" ${checkedState} ${isReadOnlyMode?'disabled':''}></td>`; }
           
-          // Chèn thêm <td style="text-align:center;">${timeString}</td> vào trước ${statusText}
           rowHTML += `<td><span style="background:var(--input-bg); padding:4px 10px; border-radius:20px; font-weight:700;">${item.idPhieu}</span></td><td><span style="font-weight:700; color:var(--primary-blue);">${item.phong}</span><br><span style="font-size:11px; color:#666;">Khối ${item.khoi}</span></td><td style="text-align:left; font-size:12px; line-height:1.5;">${tenNhomHtml}${kpiHtml}${truyThuHtml}${tvDisplay}</td><td style="text-align:center;">${timeString}</td><td>${statusText}</td><td>${dxDisplay}</td>`;
 
           if (isPTGD) { 
@@ -1501,6 +1503,18 @@
       if (typeof recalcBLDSummary === 'function') recalcBLDSummary();
     }
 
+    function rejectProjectInRow(btn, defaultDeXuat) {
+        let container = btn.closest('div');
+        let inputBdg = container ? container.querySelector('.bld-budget') : null;
+        if (inputBdg) {
+            inputBdg.value = "0";
+            recalcBLDSummary();
+            btn.innerText = "Đã từ chối";
+            btn.style.background = "#95a5a6";
+            btn.disabled = true;
+        }
+    }
+
     function updateStatusTUOptimistic(idPhieu, newStatus, btnElement) {
       try {
         let advPercent = 0;
@@ -1561,7 +1575,7 @@
         if (pendingItems.length === 0) { alert("Không có đơn tạm ứng nào đang chờ bạn duyệt!"); return; }
         if(!confirm(`Bạn có chắc chắn muốn duyệt ĐỒNG LOẠT ${pendingItems.length} đơn tạm ứng?`)) return;
 
-        showLoading(true, "ĐANG DUYỆT HÀNG LOẠT...", `Đã duyệt 0 / ${pendingItems.length}`);
+        showLoading(true, "Đang duyệt hàng loạt...", `Đã duyệt 0 / ${pendingItems.length}`);
         let currentIndex = 0;
 
         function processNext() {
@@ -1628,7 +1642,12 @@
         }
 
         let totalDuyet_orig = 0; let prjNames = []; let tk = String(phieu.phongKD || "").split('-'); let phong = tk[0] ? tk[0].trim() : ''; let khoi = tk[1] ? tk[1].trim() : '';
-        (phieu.chiTiet || []).forEach(ct => { let liveInput = document.querySelector(`.bld-budget[data-id-dong="${ct.idDong}"]`); if((role === 'BLD' || role === 'SUPER_ADMIN') && liveInput) { totalDuyet_orig += parseNumber(liveInput.value); } else { totalDuyet_orig += Number(ct.nganSachDuyet); } prjNames.push(ct.tenDuAn); });
+        (phieu.chiTiet || []).forEach(ct => { 
+            let liveInput = document.querySelector(`.bld-budget[data-id-dong="${ct.idDong}"]`); 
+            let curDuyet = (role === 'BLD' || role === 'SUPER_ADMIN') && liveInput ? parseNumber(liveInput.value) : Number(ct.nganSachDuyet || 0);
+            totalDuyet_orig += curDuyet; 
+            if (curDuyet > 0) prjNames.push(ct.tenDuAn); 
+        });
 
         let totalDuyet = totalDuyet_orig;
         let origAdvAmt = Math.round(totalDuyet_orig * Number(phieu.advPercent || 0) / 100);
@@ -1796,8 +1815,19 @@
     
     function sendApprovalMail(btn, idPhieu) {
       if(!confirm("Bạn có chắc chắn muốn gửi Email bản duyệt tới nhóm này?")) return;
-      const originalText = btn.innerText; btn.innerText = "Đang gửi..."; btn.disabled = true;
-      callAPI("sendPdfEmail", { idPhieu: idPhieu }, function(res) { if(res && res.success) { btn.style.background = "#27ae60"; btn.innerText = "Đã gửi ✔"; } else { btn.disabled = false; btn.innerText = originalText; alert("Lỗi: " + (res ? res.message : "Mất kết nối máy chủ Google")); } });
+      const originalText = btn.innerText; 
+      btn.innerText = "Đang gửi..."; 
+      btn.disabled = true;
+      callAPI("sendPdfEmail", { idPhieu: idPhieu }, function(res) { 
+          if(res && res.success) { 
+              btn.style.background = "#27ae60"; 
+              btn.innerText = "Đã gửi ✔"; 
+          } else { 
+              btn.disabled = false; 
+              btn.innerText = originalText; 
+              alert("Lỗi: " + (res ? res.message : "Mất kết nối máy chủ Google")); 
+          } 
+      });
     }
 
     function sendAllApprovalMails() {
@@ -1829,7 +1859,6 @@
         sendNextEmail(); 
     }
     
-    // --- QUẢN LÝ IN ẤN (GIỮ NGUYÊN LOGIC) ---
     function printHTMLNative(htmlContent, orientation, title) {
         try {
             showLoading(false); 
@@ -1904,17 +1933,37 @@
         if (currentPrintContext.type === 'proposal') {
             let tongTien = 0; let rowsHtml = ''; 
             (phieu.chiTiet || []).forEach((ct, index) => { 
-                let valNS = parseNumber(ct.nganSachDuyet?.toString() || "0"); if (!isTruyThu) tongTien += valNS; 
-                let displayNS = isTruyThu ? `<s style="opacity:0.6">${formatNumber(valNS)}</s>` : formatNumber(valNS);
-                rowsHtml += `<tr><td>${index+1}</td><td><b>${ct.tenDuAn||''}</b></td><td style="color:#c00000; font-weight:bold;">${displayNS}</td><td>${ct.start||''}</td><td>${ct.end||''}</td><td>${ct.kpi || ''}</td><td>${ct.channel || ''}</td><td>${ct.phone || ''}</td><td>${ct.account || ''}</td><td></td></tr>`; 
-            });
+            let valNS = parseNumber(ct.nganSachDuyet?.toString() || "0"); 
+            if (!isTruyThu && valNS > 0) tongTien += valNS; 
+            
+            let displayNS = "";
+            let trStyle = "";
+            let prjDisplay = `<b>${ct.tenDuAn||''}</b>`;
+
+            if (isTruyThu) {
+                displayNS = `<s style="opacity:0.6">${formatNumber(ct.nganSachDeXuat)}</s>`;
+            } else if (valNS === 0) {
+                // Xử lý giao diện in cho dự án bị từ chối
+                displayNS = `<span style="color:red; font-weight:bold;">0đ (Từ chối)</span>`;
+                trStyle = `background-color: #fbeee6; color: #a93226;`;
+                prjDisplay = `<s>${ct.tenDuAn||''}</s><br><span style="font-size:9pt; color:#c0392b; font-weight:bold;">(Dự án đã bị loại)</span>`;
+            } else {
+                displayNS = formatNumber(valNS);
+            }
+
+            rowsHtml += `<tr style="${trStyle}"><td>${index+1}</td><td>${prjDisplay}</td><td style="color:#c00000; font-weight:bold;">${displayNS}</td><td>${ct.start||''}</td><td>${ct.end||''}</td><td>${ct.kpi || ''}</td><td>${ct.channel || ''}</td><td>${ct.phone || ''}</td><td>${ct.account || ''}</td><td></td></tr>`; 
+          });
             let titlePrefix = isTruyThu ? `<span style="color:red; font-size:14pt;">(ĐÃ BỊ TRUY THU GÓI)</span><br>` : '';
             let htmlString = `<div style="width: 100%; box-sizing: border-box; line-height: 1.2;"><table class="no-border" style="width: 100%; margin-bottom: 5px;"><tr><td style="width: 45%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11.5pt; color: #0b1f8c;">CÔNG TY CP PHÁT TRIỂN DỊCH VỤ<br>VÀ ĐỊA ỐC AN VIỆT HOMES</td><td style="width: 55%; text-align: center !important; vertical-align: top; font-weight: bold; font-size: 11.5pt;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập - Tự do - Hạnh Phúc<hr style="width: 50%; border-top: 1.5px solid #000; margin: 4px auto;"></td></tr></table><div style="text-align: right; font-style: italic; font-size: 11pt; margin-bottom: 15px; margin-right: 15px;">${dateStr}</div><div style="text-align:center; font-size: 16pt; font-weight: bold; margin-bottom: 8px; color:#0b1f8c;">${titlePrefix}ĐỀ XUẤT CHIẾN DỊCH MARKETING</div><p style="text-align:center; font-size: 11pt; font-style: italic; margin-top: 0; margin-bottom: 20px;">Mã phiếu: <b>${phieu.idPhieu||''}</b></p>${formInfoHtml}<div style="font-weight: bold; font-size: 11pt; margin-bottom: 8px; text-align: left;">Nội dung đề xuất chiến dịch Marketing</div><div class="rounded-wrapper"><table class="styled-table"><thead><tr style="background-color:#0b1f8c; color:#fff; font-weight:bold;"><th rowspan="2">STT</th><th rowspan="2">Dự án</th><th colspan="4">Thông tin chiến dịch Marketing đăng ký</th><th rowspan="2">Kênh chạy</th><th rowspan="2">Số điện thoại<br>đăng ký</th><th rowspan="2">Tài khoản<br>chạy QC</th><th rowspan="2">BLĐ<br>Duyệt</th></tr><tr style="background-color:#0b1f8c; color:#fff; font-weight:bold;"><th>Ngân sách</th><th>Bắt đầu</th><th>Kết thúc</th><th>KPI</th></tr></thead><tbody>${rowsHtml}</tbody><tr style="background:#f4f6f8; font-weight:bold;"><td colspan="2" style="text-align:right !important;">TỔNG CỘNG</td><td style="color:#fff; background:#0b1f8c; font-size:13pt;">${formatNumber(tongTien)}</td><td colspan="7"></td></tr></table></div>${getProposalSignatureHTML(phieu)}</div>`;
             printHTMLNative(htmlString, 'landscape', 'Ban_Duyet_MKT_' + phieu.idPhieu);
         } else if (currentPrintContext.type === 'advance') {
             let prjNames = []; let totalDuyet = 0; let rowsHtml = ''; 
             (phieu.chiTiet || []).forEach(ct => { 
-                prjNames.push(ct.tenDuAn||''); let valNS = parseNumber(ct.nganSachDuyet?.toString() || "0"); totalDuyet += valNS; 
+                let valNS = parseNumber(ct.nganSachDuyet?.toString() || "0"); 
+                if (valNS > 0) {
+                    prjNames.push(ct.tenDuAn||''); 
+                    totalDuyet += valNS; 
+                }
                 let mThang = getMonthKey(ct.start, phieu.ngayTao).split('/')[0];
                 let advanceAmt = Math.round(valNS * Number(phieu.advPercent||0) / 100); 
                 let displayBdg = isTruyThu ? `<s style="opacity:0.6">${formatNumber(valNS)}</s>` : formatNumber(valNS);
@@ -1942,9 +1991,25 @@
           let { formInfoHtml } = getPrintHeaderInfo(phieu, phong, khoi);
           
           (phieu.chiTiet || []).forEach((ct, index) => { 
-            let valNS = parseNumber(ct.nganSachDuyet?.toString() || "0"); if (!isTruyThu) tongTien += valNS; 
-            let displayNS = isTruyThu ? `<s style="opacity:0.6">${formatNumber(valNS)}</s>` : formatNumber(valNS);
-            rowsHtml += `<tr><td>${index+1}</td><td><b>${ct.tenDuAn||''}</b></td><td style="color:#c00000; font-weight:bold;">${displayNS}</td><td>${ct.start||''}</td><td>${ct.end||''}</td><td>${ct.kpi || ''}</td><td>${ct.channel || ''}</td><td>${ct.phone || ''}</td><td>${ct.account || ''}</td><td></td></tr>`; 
+            let valNS = parseNumber(ct.nganSachDuyet?.toString() || "0"); 
+            if (!isTruyThu && valNS > 0) tongTien += valNS; 
+            
+            let displayNS = "";
+            let trStyle = "";
+            let prjDisplay = `<b>${ct.tenDuAn||''}</b>`;
+
+            if (isTruyThu) {
+                displayNS = `<s style="opacity:0.6">${formatNumber(ct.nganSachDeXuat)}</s>`;
+            } else if (valNS === 0) {
+                // Xử lý giao diện in cho dự án bị từ chối
+                displayNS = `<span style="color:red; font-weight:bold;">0đ (Từ chối)</span>`;
+                trStyle = `background-color: #fbeee6; color: #a93226;`;
+                prjDisplay = `<s>${ct.tenDuAn||''}</s><br><span style="font-size:9pt; color:#c0392b; font-weight:bold;">(Dự án đã bị loại)</span>`;
+            } else {
+                displayNS = formatNumber(valNS);
+            }
+
+            rowsHtml += `<tr style="${trStyle}"><td>${index+1}</td><td>${prjDisplay}</td><td style="color:#c00000; font-weight:bold;">${displayNS}</td><td>${ct.start||''}</td><td>${ct.end||''}</td><td>${ct.kpi || ''}</td><td>${ct.channel || ''}</td><td>${ct.phone || ''}</td><td>${ct.account || ''}</td><td></td></tr>`; 
           });
           let titlePrefix = isTruyThu ? `<span style="color:red; font-size:14pt;">(ĐÃ BỊ TRUY THU GÓI)</span><br>` : '';
 
@@ -1968,7 +2033,11 @@
           let { repName, repMnv } = getPrintHeaderInfo(phieu, phong, khoi);
           
           (phieu.chiTiet || []).forEach(ct => { 
-            prjNames.push(ct.tenDuAn||''); let valNS = parseNumber(ct.nganSachDuyet?.toString() || "0"); totalDuyet += valNS; 
+            let valNS = parseNumber(ct.nganSachDuyet?.toString() || "0"); 
+            if (valNS > 0) {
+                prjNames.push(ct.tenDuAn||''); 
+                totalDuyet += valNS; 
+            }
             let mThang = monthVal.split('-')[1]; let advanceAmt = Math.round(valNS * Number(phieu.advPercent||0) / 100); 
             let displayBdg = isTruyThu ? `<s style="opacity:0.6">${formatNumber(valNS)}</s>` : formatNumber(valNS);
             let displayAdv = isTruyThu ? `<s style="opacity:0.6">${formatNumber(advanceAmt)}</s>` : formatNumber(advanceAmt);
@@ -1997,9 +2066,25 @@
           let { formInfoHtml } = getPrintHeaderInfo(phieu, phong, khoi);
           
           (phieu.chiTiet || []).forEach((ct, index) => { 
-            let valNS = parseNumber(ct.nganSachDuyet?.toString() || "0"); if (!isTruyThu) tongTien += valNS; 
-            let displayNS = isTruyThu ? `<s style="opacity:0.6">${formatNumber(valNS)}</s>` : formatNumber(valNS);
-            rowsHtml += `<tr><td>${index+1}</td><td><b>${ct.tenDuAn||''}</b></td><td style="color:#c00000; font-weight:bold;">${displayNS}</td><td>${ct.start||''}</td><td>${ct.end||''}</td><td>${ct.kpi || ''}</td><td>${ct.channel || ''}</td><td>${ct.phone || ''}</td><td>${ct.account || ''}</td><td></td></tr>`; 
+            let valNS = parseNumber(ct.nganSachDuyet?.toString() || "0"); 
+            if (!isTruyThu && valNS > 0) tongTien += valNS; 
+            
+            let displayNS = "";
+            let trStyle = "";
+            let prjDisplay = `<b>${ct.tenDuAn||''}</b>`;
+
+            if (isTruyThu) {
+                displayNS = `<s style="opacity:0.6">${formatNumber(ct.nganSachDeXuat)}</s>`;
+            } else if (valNS === 0) {
+                // Xử lý giao diện in cho dự án bị từ chối
+                displayNS = `<span style="color:red; font-weight:bold;">0đ (Từ chối)</span>`;
+                trStyle = `background-color: #fbeee6; color: #a93226;`;
+                prjDisplay = `<s>${ct.tenDuAn||''}</s><br><span style="font-size:9pt; color:#c0392b; font-weight:bold;">(Dự án đã bị loại)</span>`;
+            } else {
+                displayNS = formatNumber(valNS);
+            }
+
+            rowsHtml += `<tr style="${trStyle}"><td>${index+1}</td><td>${prjDisplay}</td><td style="color:#c00000; font-weight:bold;">${displayNS}</td><td>${ct.start||''}</td><td>${ct.end||''}</td><td>${ct.kpi || ''}</td><td>${ct.channel || ''}</td><td>${ct.phone || ''}</td><td>${ct.account || ''}</td><td></td></tr>`; 
           });
           let titlePrefix = isTruyThu ? `<span style="color:red; font-size:14pt;">(ĐÃ BỊ TRUY THU GÓI)</span><br>` : '';
 
@@ -2023,7 +2108,11 @@
           let { repName, repMnv } = getPrintHeaderInfo(phieu, phong, khoi);
           
           (phieu.chiTiet || []).forEach(ct => { 
-            prjNames.push(ct.tenDuAn||''); let valNS = parseNumber(ct.nganSachDuyet?.toString() || "0"); totalDuyet += valNS; 
+            let valNS = parseNumber(ct.nganSachDuyet?.toString() || "0"); 
+            if (valNS > 0) {
+                prjNames.push(ct.tenDuAn||''); 
+                totalDuyet += valNS; 
+            }
             let mThang = getMonthKey(ct.start, phieu.ngayTao).split('/')[0];
             let advanceAmt = Math.round(valNS * Number(phieu.advPercent||0) / 100); 
             let displayBdg = isTruyThu ? `<s style="opacity:0.6">${formatNumber(valNS)}</s>` : formatNumber(valNS);
@@ -2096,7 +2185,6 @@
             };
         });
 
-        // Sử dụng Fetch POST để thay thế Form/Iframe (nhanh và bảo mật hơn)
         callAPI("exportTracking", { data: JSON.stringify({ url: url, items: exportData }) }, function(res) {
             showLoading(false);
             if (res && res.success) {
@@ -2111,7 +2199,6 @@
   </script>
   
   <script>
-    // --- CHỐNG COPY, DEVTOOLS (GIỮ NGUYÊN) ---
     document.addEventListener('contextmenu', event => event.preventDefault());
     document.addEventListener('keydown', function(e) {
       if (e.key === 'F12' || e.keyCode === 123 ||
@@ -2138,7 +2225,6 @@
     }, 1000); 
   </script>
   <script>
-    // --- LOGIC CHUYỂN ĐỔI DARK MODE BẰNG NÚT GẠT ---
     function toggleDarkMode() {
         const isDark = document.getElementById('darkModeToggle').checked;
         if (isDark) {
@@ -2150,14 +2236,51 @@
         }
     }
 
-    // Tự động khôi phục giao diện tối và bật nút gạt sang ON nếu lần trước người dùng đã bật
     document.addEventListener("DOMContentLoaded", function() {
         if (localStorage.getItem('avh_theme') === 'dark') {
             document.body.classList.add('dark-mode');
             const toggle = document.getElementById('darkModeToggle');
-            if(toggle) toggle.checked = true; // Tự động gạt nút sang màu xanh
+            if(toggle) toggle.checked = true;
         }
     });
+
+    function rejectSingleProjectUI(idDong, btn) {
+        if(!confirm("Bạn có chắc chắn muốn TỪ CHỐI RIÊNG dự án này?\n\nLưu ý: Các dự án khác trong đơn vẫn sẽ được giữ nguyên. Sau khi loại bỏ xong, bạn cần bấm nút 'Duyệt Đơn' ở dự án còn lại để đẩy đơn đi tiếp.")) return;
+        
+        let originalText = btn.innerText;
+        btn.innerText = "Đang xử lý..."; 
+        btn.disabled = true;
+        
+        // Lấy ghi chú hiện tại để không ghi đè thành câu thông báo loại bỏ (tránh lỗi gộp ô ghi chú)
+        let tr = btn.closest('tr');
+        let noteInput = tr.querySelector('.bld-note');
+        let currentNote = noteInput ? noteInput.value : "";
+        
+        // Gửi lệnh set ngân sách bằng 0 lên Data (Giữ nguyên ghi chú cũ)
+        callAPI("bldApprove", { data: JSON.stringify({ isFinalApprove: false, items: [{idDong: idDong, nganSachDuyet: 0, ghiChuBLD: currentNote}] }) }, function(res) { 
+            if (res && res.success) {
+                tr.style.opacity = "0.55";
+                tr.style.backgroundColor = "#ffebee";
+                btn.innerText = "Đã loại bỏ";
+                btn.style.background = "#95a5a6";
+                
+                let siblings = tr.querySelectorAll('.btn-approve, .btn-reject');
+                siblings.forEach(el => {
+                    if (el !== btn) el.style.display = 'none';
+                });
+
+                let targetPhieu = globalData.find(p => p.chiTiet && p.chiTiet.some(c => c.idDong === idDong));
+                if (targetPhieu) {
+                    let ct = targetPhieu.chiTiet.find(c => c.idDong === idDong);
+                    if (ct) ct.nganSachDuyet = 0;
+                }
+            } else { 
+                alert("Lỗi máy chủ: " + (res ? res.message : "Chưa rõ")); 
+                btn.innerText = originalText; 
+                btn.disabled = false; 
+            }
+        });
+    }
 </script>
 </body>
 </html>
