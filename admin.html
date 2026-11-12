@@ -388,7 +388,7 @@
 
       <div id="exportBlock">
         <b>Link Google Sheet Theo Dõi:</b><input type="text" id="trackingUrl" class="form-control" style="flex:1; margin:0;" placeholder="Dán đường link Google Sheet vào đây...">
-        <button class="btn-action btn-approve" style="padding: 12px 25px;" onclick="exportToTracking()">Đồng bộ Dữ liệu</button>
+        <button class="btn-action btn-approve" style="padding: 12px 25px;" onclick="">Đồng bộ Dữ liệu</button>
       </div>
 
       <div class="table-container"><table id="dataTable"><thead><tr id="tableHeader"></tr></thead><tbody id="tableBodyAction"></tbody></table></div>
@@ -2196,17 +2196,23 @@
         const url = document.getElementById('trackingUrl').value.trim(); 
         if(!url) { alert("Vui lòng dán link Google Sheet để đồng bộ!"); return; }
         
-        showLoading(true, "ĐANG ĐỒNG BỘ...", "Đang chuyển khối lượng dữ liệu lớn. Quá trình này mất khoảng 5 - 15 giây, vui lòng chờ...");
+        showLoading(true, "ĐANG ĐỒNG BỘ...", "Đang xử lý khối lượng dữ liệu lớn...");
         
-        // Sửa lỗi cấu trúc dữ liệu: Clone nguyên bản item để không làm mất object con phieuObj
         let exportData = bldItemsArray.map(item => {
-            let cloned = JSON.parse(JSON.stringify(item)); // Deep copy giữ nguyên cấu trúc gốc
+            let cloned = JSON.parse(JSON.stringify(item));
             
-            // Chỉ format lại chuỗi ký tự nếu tồn tại dữ liệu thành viên
+            // Xử lý text thành viên
+            let rawTv = "";
             if (cloned.phieuObj && cloned.phieuObj.thanhVien) {
-                let rawTv = cloned.phieuObj.thanhVien;
-                let isGoiTong = String(cloned.phieuObj.tenNhom || "").includes('[GÓI TỔNG]');
-                
+                rawTv = cloned.phieuObj.thanhVien;
+            } else if (cloned.thanhVien) {
+                rawTv = cloned.thanhVien;
+            }
+
+            let isGoiTong = String(cloned.phieuObj?.tenNhom || cloned.tenNhom || "").includes('[GÓI TỔNG]');
+            let sheetText = rawTv;
+            
+            if (rawTv) {
                 if (isGoiTong) {
                     let groups = rawTv.split('\n');
                     let formattedGroups = groups.map(g => {
@@ -2218,11 +2224,24 @@
                         }
                         return g;
                     });
-                    cloned.phieuObj.thanhVien = formattedGroups.join('\n\n'); 
+                    sheetText = formattedGroups.join('\n\n'); 
                 } else {
-                    cloned.phieuObj.thanhVien = rawTv.split(',').filter(m => m.trim() !== '').map(m => "• " + m.trim()).join('\n');
+                    sheetText = rawTv.split(',').filter(m => m.trim() !== '').map(m => "• " + m.trim()).join('\n');
                 }
             }
+
+            // Bơm dữ liệu vào CẢ 2 CẤU TRÚC (lồng nhau & phẳng) để Code.gs lấy kiểu gì cũng có
+            if (cloned.phieuObj) { cloned.phieuObj.thanhVien = sheetText; }
+            cloned.thanhVien = sheetText;
+            cloned.idPhieu = item.idPhieu || "";
+            cloned.tenDuAn = item.tenDuAn || "";
+            cloned.khoi = item.khoi || "";
+            cloned.phong = item.phong || "";
+            cloned.nsDeXuat = item.nsDeXuat || 0;
+            cloned.nsDuyet = item.nsDuyet || 0;
+            cloned.ghiChu = item.ghiChu || "";
+            cloned.trangThai = item.trangThai || "";
+            
             return cloned;
         });
 
@@ -2238,30 +2257,42 @@
         let form = document.createElement('form');
         form.id = formId;
         form.method = 'POST';
-        form.action = API_URL; // Biến API_URL có sẵn trong file của bạn
+        form.action = API_URL;
         form.target = iframeId;
         form.style.display = 'none';
 
+        // Gửi Action
         let inputAction = document.createElement('input');
         inputAction.type = 'hidden';
         inputAction.name = 'action';
         inputAction.value = 'exportTracking';
         form.appendChild(inputAction);
 
+        // Gửi URL rời (Phòng trường hợp Code.gs tìm e.parameter.url)
+        let inputUrl = document.createElement('input');
+        inputUrl.type = 'hidden';
+        inputUrl.name = 'url';
+        inputUrl.value = url;
+        form.appendChild(inputUrl);
+
+        // Gửi Data với nhiều từ khóa (items, data, list, records) phòng hờ Code.gs gọi sai tên mảng
         let inputData = document.createElement('input');
         inputData.type = 'hidden';
         inputData.name = 'data';
-        // Bỏ encodeURIComponent để tránh lỗi mã hóa kép làm hỏng chuỗi JSON khi Google bóc tách
-        inputData.value = JSON.stringify({ url: url, items: exportData });
+        inputData.value = JSON.stringify({ 
+            url: url, 
+            items: exportData, 
+            data: exportData, 
+            list: exportData,
+            records: exportData
+        });
         form.appendChild(inputData);
 
         document.body.appendChild(form);
 
-        // Bắt sự kiện khi iframe tải xong (Server Google đã phản hồi)
         iframe.onload = function() {
             showLoading(false);
-            alert("✅ Lệnh đồng bộ đã gửi thành công! Vui lòng kiểm tra file Google Sheet.");
-            
+            alert("✅ Lệnh đồng bộ đã gửi! Vui lòng kiểm tra Google Sheet.");
             setTimeout(() => {
                 let f = document.getElementById(formId);
                 let i = document.getElementById(iframeId);
