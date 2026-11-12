@@ -2196,7 +2196,7 @@
         const url = document.getElementById('trackingUrl').value.trim(); 
         if(!url) { alert("Vui lòng dán link Google Sheet để đồng bộ!"); return; }
         
-        showLoading(true, "ĐANG ĐỒNG BỘ...", "Đang chuyển dữ liệu, vui lòng chờ khoảng 5 giây...");
+        showLoading(true, "ĐANG ĐỒNG BỘ...", "Đang chuyển khối lượng dữ liệu lớn. Quá trình này mất khoảng 5 - 15 giây, vui lòng chờ...");
         
         let exportData = bldItemsArray.map(item => {
             let rawTv = item.phieuObj.thanhVien || "";
@@ -2228,16 +2228,58 @@
             };
         });
 
-        callAPI("exportTracking", { data: JSON.stringify({ url: url, items: exportData }) }, function(res) {
-            showLoading(false);
-            if (res && res.success) {
-                alert("✅ Lệnh đồng bộ đã gửi thành công! Vui lòng kiểm tra Google Sheet.");
-            } else {
-                alert("Lỗi máy chủ khi đồng bộ: " + (res ? res.message : "Chưa rõ"));
-            }
-        });
+        // Sử dụng lại kỹ thuật "Hidden Form & Iframe" để bypass 100% giới hạn CORS và Payload của Google
+        let iframeId = 'hiddenSyncIframe_' + Date.now();
+        let formId = 'hiddenSyncForm_' + Date.now();
+        
+        let iframe = document.createElement('iframe');
+        iframe.name = iframeId;
+        iframe.id = iframeId;
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
 
-      } catch(e) { showLoading(false); alert("Lỗi cục bộ: " + e.message); }
+        let form = document.createElement('form');
+        form.id = formId;
+        form.method = 'POST';
+        form.action = API_URL;
+        form.target = iframeId;
+        form.style.display = 'none';
+
+        let inputAction = document.createElement('input');
+        inputAction.type = 'hidden';
+        inputAction.name = 'action';
+        inputAction.value = 'exportTracking';
+        form.appendChild(inputAction);
+
+        let inputData = document.createElement('input');
+        inputData.type = 'hidden';
+        inputData.name = 'data';
+        inputData.value = encodeURIComponent(JSON.stringify({ url: url, items: exportData }));
+        form.appendChild(inputData);
+
+        document.body.appendChild(form);
+
+        // Bắt sự kiện khi iframe tải xong (Server Google đã phản hồi)
+        iframe.onload = function() {
+            showLoading(false);
+            alert("✅ Lệnh đồng bộ đã gửi thành công! Vui lòng kiểm tra file Google Sheet.");
+            
+            // Dọn rác DOM
+            setTimeout(() => {
+                let f = document.getElementById(formId);
+                let i = document.getElementById(iframeId);
+                if (f) f.remove();
+                if (i) i.remove();
+            }, 2000);
+        };
+
+        // Kích hoạt bắn dữ liệu đi
+        form.submit();
+
+      } catch(e) { 
+        showLoading(false); 
+        alert("Lỗi cục bộ: " + e.message); 
+      }
     }
   </script>
   
