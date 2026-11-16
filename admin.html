@@ -388,7 +388,7 @@
 
       <div id="exportBlock">
         <b>Link Google Sheet Theo Dõi:</b><input type="text" id="trackingUrl" class="form-control" style="flex:1; margin:0;" placeholder="Dán đường link Google Sheet vào đây...">
-        <button class="btn-action btn-approve" style="padding: 12px 25px;" onclick="">Đồng bộ Dữ liệu</button>
+        <button class="btn-action btn-approve" style="padding: 12px 25px;" onclick="exportToTracking()">Đồng bộ Dữ liệu</button>
       </div>
 
       <div class="table-container"><table id="dataTable"><thead><tr id="tableHeader"></tr></thead><tbody id="tableBodyAction"></tbody></table></div>
@@ -2196,117 +2196,48 @@
         const url = document.getElementById('trackingUrl').value.trim(); 
         if(!url) { alert("Vui lòng dán link Google Sheet để đồng bộ!"); return; }
         
-        showLoading(true, "ĐANG ĐỒNG BỘ...", "Đang xử lý khối lượng dữ liệu lớn...");
+        showLoading(true, "ĐANG ĐỒNG BỘ...", "Đang chuyển dữ liệu, vui lòng chờ khoảng 5 giây...");
         
         let exportData = bldItemsArray.map(item => {
-            let cloned = JSON.parse(JSON.stringify(item));
-            
-            // Xử lý text thành viên
-            let rawTv = "";
-            if (cloned.phieuObj && cloned.phieuObj.thanhVien) {
-                rawTv = cloned.phieuObj.thanhVien;
-            } else if (cloned.thanhVien) {
-                rawTv = cloned.thanhVien;
-            }
-
-            let isGoiTong = String(cloned.phieuObj?.tenNhom || cloned.tenNhom || "").includes('[GÓI TỔNG]');
+            let rawTv = item.phieuObj.thanhVien || "";
+            let isGoiTong = String(item.phieuObj.tenNhom || "").includes('[GÓI TỔNG]');
             let sheetText = rawTv;
             
-            if (rawTv) {
-                if (isGoiTong) {
-                    let groups = rawTv.split('\n');
-                    let formattedGroups = groups.map(g => {
-                        let match = g.match(/\[(.*?)\]\s*(.*)/);
-                        if (match) {
-                            let groupName = match[1].trim().toUpperCase(); 
-                            let members = match[2].split(',').filter(m => m.trim() !== '').map(m => "   • " + m.trim());
-                            return `[${groupName}]\n${members.join('\n')}`;
-                        }
-                        return g;
-                    });
-                    sheetText = formattedGroups.join('\n\n'); 
-                } else {
-                    sheetText = rawTv.split(',').filter(m => m.trim() !== '').map(m => "• " + m.trim()).join('\n');
-                }
+            if (isGoiTong) {
+                let groups = rawTv.split('\n');
+                let formattedGroups = groups.map(g => {
+                    let match = g.match(/\[(.*?)\]\s*(.*)/);
+                    if (match) {
+                        let groupName = match[1].trim().toUpperCase(); 
+                        let members = match[2].split(',').filter(m => m.trim() !== '').map(m => "   • " + m.trim());
+                        return `[${groupName}]\n${members.join('\n')}`;
+                    }
+                    return g;
+                });
+                sheetText = formattedGroups.join('\n\n'); 
+            } else {
+                sheetText = rawTv.split(',').filter(m => m.trim() !== '').map(m => "• " + m.trim()).join('\n');
             }
 
-            // Bơm dữ liệu vào CẢ 2 CẤU TRÚC (lồng nhau & phẳng) để Code.gs lấy kiểu gì cũng có
-            if (cloned.phieuObj) { cloned.phieuObj.thanhVien = sheetText; }
-            cloned.thanhVien = sheetText;
-            cloned.idPhieu = item.idPhieu || "";
-            cloned.tenDuAn = item.tenDuAn || "";
-            cloned.khoi = item.khoi || "";
-            cloned.phong = item.phong || "";
-            cloned.nsDeXuat = item.nsDeXuat || 0;
-            cloned.nsDuyet = item.nsDuyet || 0;
-            cloned.ghiChu = item.ghiChu || "";
-            cloned.trangThai = item.trangThai || "";
-            
-            return cloned;
+            return {
+                idPhieu: item.idPhieu, tenDuAn: item.tenDuAn, khoi: item.khoi, phong: item.phong,
+                thanhVien: sheetText, nsDeXuat: item.nsDeXuat, nsDuyet: item.nsDuyet, ghiChu: item.ghiChu,
+                trangThai: item.trangThai, isTruyThu: item.phieuObj.isTruyThu === true, 
+                isKpiDacBiet: item.phieuObj.isKpiDacBiet === true, advPercent: Number(item.phieuObj.advPercent || 0),
+                trangThaiTU: item.phieuObj.trangThaiTU
+            };
         });
 
-        let iframeId = 'hiddenSyncIframe_' + Date.now();
-        let formId = 'hiddenSyncForm_' + Date.now();
-        
-        let iframe = document.createElement('iframe');
-        iframe.name = iframeId;
-        iframe.id = iframeId;
-        iframe.style.display = 'none';
-        document.body.appendChild(iframe);
-
-        let form = document.createElement('form');
-        form.id = formId;
-        form.method = 'POST';
-        form.action = API_URL;
-        form.target = iframeId;
-        form.style.display = 'none';
-
-        // Gửi Action
-        let inputAction = document.createElement('input');
-        inputAction.type = 'hidden';
-        inputAction.name = 'action';
-        inputAction.value = 'exportTracking';
-        form.appendChild(inputAction);
-
-        // Gửi URL rời (Phòng trường hợp Code.gs tìm e.parameter.url)
-        let inputUrl = document.createElement('input');
-        inputUrl.type = 'hidden';
-        inputUrl.name = 'url';
-        inputUrl.value = url;
-        form.appendChild(inputUrl);
-
-        // Gửi Data với nhiều từ khóa (items, data, list, records) phòng hờ Code.gs gọi sai tên mảng
-        let inputData = document.createElement('input');
-        inputData.type = 'hidden';
-        inputData.name = 'data';
-        inputData.value = JSON.stringify({ 
-            url: url, 
-            items: exportData, 
-            data: exportData, 
-            list: exportData,
-            records: exportData
-        });
-        form.appendChild(inputData);
-
-        document.body.appendChild(form);
-
-        iframe.onload = function() {
+        callAPI("exportTracking", { data: JSON.stringify({ url: url, items: exportData }) }, function(res) {
             showLoading(false);
-            alert("✅ Lệnh đồng bộ đã gửi! Vui lòng kiểm tra Google Sheet.");
-            setTimeout(() => {
-                let f = document.getElementById(formId);
-                let i = document.getElementById(iframeId);
-                if (f) f.remove();
-                if (i) i.remove();
-            }, 2000);
-        };
+            if (res && res.success) {
+                alert("✅ Lệnh đồng bộ đã gửi thành công! Vui lòng kiểm tra Google Sheet.");
+            } else {
+                alert("Lỗi máy chủ khi đồng bộ: " + (res ? res.message : "Chưa rõ"));
+            }
+        });
 
-        form.submit();
-
-      } catch(e) { 
-        showLoading(false); 
-        alert("Lỗi cục bộ: " + e.message); 
-      }
+      } catch(e) { showLoading(false); alert("Lỗi cục bộ: " + e.message); }
     }
   </script>
   
