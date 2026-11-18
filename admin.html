@@ -2219,8 +2219,14 @@
                 sheetText = rawTv.split(',').filter(m => m.trim() !== '').map(m => "• " + m.trim()).join('\n');
             }
 
+            // --- PHẦN THÊM MỚI: Lấy thời gian chạy & tên nhóm ---
+            let ctData = (item.phieuObj.chiTiet || []).find(c => c.idDong === item.idDong);
+            let timeStr = ctData ? `${ctData.start || '...'} - ${ctData.end || ctData.ketThuc || '...'}` : '';
+
             return {
                 idPhieu: item.idPhieu, tenDuAn: item.tenDuAn, khoi: item.khoi, phong: item.phong,
+                tenNhom: item.phieuObj.tenNhom || "",
+                thoiGian: timeStr,
                 thanhVien: sheetText, nsDeXuat: item.nsDeXuat, nsDuyet: item.nsDuyet, ghiChu: item.ghiChu,
                 trangThai: item.trangThai, isTruyThu: item.phieuObj.isTruyThu === true, 
                 isKpiDacBiet: item.phieuObj.isKpiDacBiet === true, advPercent: Number(item.phieuObj.advPercent || 0),
