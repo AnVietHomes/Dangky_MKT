@@ -345,7 +345,7 @@
 
     <div id="globalSearchContainer" style="display: none; margin-bottom: 25px; width: 100%;">
       <div style="display: flex; gap: 15px; width: 100%;">
-        <input type="search" id="globalSearch" class="form-control" placeholder="🔍 TÌM KIẾM HOẶC LỌC NHANH..." oninput="applyGlobalSearch()" style="flex: 1; border: 2px solid var(--primary-blue); font-weight: bold; font-size: 15px; padding: 16px 20px;">
+        <input type="search" id="globalSearch" class="form-control" placeholder="🔍 TÌM MÃ PHIẾU, NHÓM, THÀNH VIÊN, DỰ ÁN, NỘI DUNG GHI CHÚ..." oninput="applyGlobalSearch()" style="flex: 1; border: 2px solid var(--primary-blue); font-weight: bold; font-size: 15px; padding: 16px 20px;">
         <select id="statusFilter" class="form-control" onchange="applyGlobalSearch()" style="width: 250px; border: 2px solid var(--primary-blue); font-weight: bold; font-size: 14px; color: var(--primary-blue); cursor: pointer; padding: 0 15px;">
           <option value="ALL">Tất cả trạng thái</option>
           <option value="PENDING">⏳ Đang chờ duyệt</option>
@@ -680,7 +680,15 @@
     }
 
     function applyGlobalSearch() {
-      let textFilter = document.getElementById('globalSearch').value.toUpperCase();
+      const normalizeSearch = (str) => String(str || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d")
+        .replace(/Đ/g, "D")
+        .toUpperCase();
+
+      let rawFilter = document.getElementById('globalSearch').value.trim();
+      let textFilter = normalizeSearch(rawFilter);
       let statusDropdown = document.getElementById('statusFilter');
       let statusVal = statusDropdown ? statusDropdown.value : 'ALL';
 
@@ -696,7 +704,8 @@
               let row = trs[i]; 
               if (row.closest('thead') || row.classList.contains('subtotal-row') || row.classList.contains('total-row')) continue; 
               
-              let textMatch = (textFilter === "" || row.innerText.toUpperCase().indexOf(textFilter) > -1);
+              let noteAttr = row.getAttribute('data-note-search') || "";
+              let textMatch = (textFilter === "" || normalizeSearch(row.innerText + " " + noteAttr).indexOf(textFilter) > -1);
               row.style.display = textMatch ? "" : "none";
             }
             return;
@@ -714,7 +723,12 @@
         trs.forEach(row => {
             let searchData = row.getAttribute('data-search');
             if (searchData) { 
-                let textMatch = (textFilter === "" || searchData.toUpperCase().indexOf(textFilter) > -1 || row.innerText.toUpperCase().indexOf(textFilter) > -1);
+                // Lấy thêm nội dung ghi chú đang hiển thị trực tiếp trong ô input (.bld-note)
+                let noteInput = row.querySelector('.bld-note');
+                let liveNoteVal = noteInput ? noteInput.value : "";
+                let combinedText = normalizeSearch(`${searchData} ${row.innerText} ${liveNoteVal}`);
+
+                let textMatch = (textFilter === "" || combinedText.indexOf(textFilter) > -1);
                 
                 let statusMatch = true;
                 if (statusVal !== "ALL") {
@@ -1297,7 +1311,7 @@
               localGrandAdv += advAmt; 
               if (!isProjectRejected) localGrandDy += item.nsDuyet; 
           }
-          let searchData = `${item.khoi} ${item.phong} ${item.tenDuAn} ${item.thanhVien} ${item.phieuObj.tenNhom}`.replace(/<br>/g, ' ');
+          let searchData = `${item.khoi} ${item.phong} ${item.tenDuAn} ${item.thanhVien} ${item.phieuObj.tenNhom} ${item.ghiChu || ''} ${item.phieuObj.ghiChu || ''}`.replace(/<br>/g, ' ');
 
           if (currentKhoi !== kId) {
               html += `<tr style="background:#0b1f8c; color:white; font-weight:bold; font-size: 14px; text-transform: uppercase;"><td colspan="${colBefore}" style="text-align:left; padding-left:15px;"><label style="cursor:pointer; display:inline-flex; align-items:center; gap:8px;"><input type="checkbox" class="cb-group-khoi" data-target="${kId}" onchange="toggleGroupCbs(this, 'khoi', '${kId}')" style="width:16px;height:16px; margin:0; cursor:pointer;">🏢 KHỐI: ${item.khoi}</label></td><td style="color:#f39c12;">${formatNumber(sumDxKhoi[kId])}</td>`;
