@@ -2255,12 +2255,10 @@ function exportToTracking() {
           return false;
         });
 
-        if (filteredItems.length === 0) {
-          alert(`Không tìm thấy đề xuất nào thuộc Tháng ${monthLabel} trong dữ liệu hiện tại!`);
-          return;
-        }
-        
-        showLoading(true, "ĐANG ĐỒNG BỘ...", `Đang chuyển ${filteredItems.length} mục của Tháng ${monthLabel}, vui lòng chờ khoảng 5 giây...`);
+        let loadingMsg = filteredItems.length > 0
+          ? `Đang chuyển ${filteredItems.length} mục của Tháng ${monthLabel}, vui lòng chờ khoảng 5 giây...`
+          : `Đang truy xuất dữ liệu Tháng ${monthLabel} từ Database MKT để đồng bộ...`;
+        showLoading(true, "ĐANG ĐỒNG BỘ...", loadingMsg);
         
         let exportData = filteredItems.map(item => {
             let rawTv = item.phieuObj.thanhVien || "";
