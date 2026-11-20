@@ -388,6 +388,7 @@
 
       <div id="exportBlock">
         <b>Link Google Sheet Theo Dõi:</b><input type="text" id="trackingUrl" class="form-control" style="flex:1; margin:0;" placeholder="Dán đường link Google Sheet vào đây...">
+        <input type="month" id="syncTrackingMonth" class="form-control" style="width: auto; display: inline-block; font-weight: bold;">
         <button class="btn-action btn-approve" style="padding: 12px 25px;" onclick="exportToTracking()">Đồng bộ Dữ liệu</button>
       </div>
 
@@ -2205,14 +2206,63 @@
         }
     }
 
-    function exportToTracking() {
+function exportToTracking() {
       try {
         const url = document.getElementById('trackingUrl').value.trim(); 
         if(!url) { alert("Vui lòng dán link Google Sheet để đồng bộ!"); return; }
+
+        // 1. Lấy tháng/năm từ ô chọn (mặc định tháng hiện tại nếu chưa chọn)
+        const monthInput = document.getElementById('syncTrackingMonth');
+        let selectedVal = monthInput ? monthInput.value : '';
+        if (!selectedVal) {
+          const now = new Date();
+          selectedVal = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+          if (monthInput) monthInput.value = selectedVal;
+        }
+        const [yearStr, monthStr] = selectedVal.split('-');
+        const targetYear = parseInt(yearStr, 10);
+        const targetMonth = parseInt(monthStr, 10);
+        const monthLabel = `${monthStr}/${yearStr}`;
+
+        // 2. Lọc các mục thuộc đúng tháng/năm đã chọn trong bldItemsArray
+        const matchSelectedMonth = (dateVal) => {
+          if (!dateVal) return null;
+          const str = String(dateVal).trim();
+          const dmy = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+          if (dmy) return Number(dmy[2]) === targetMonth && Number(dmy[3]) === targetYear;
+          const ymd = str.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+          if (ymd) return Number(ymd[2]) === targetMonth && Number(ymd[1]) === targetYear;
+          return null;
+        };
+
+        let filteredItems = bldItemsArray.filter(item => {
+          let ctData = (item.phieuObj.chiTiet || []).find(c => c.idDong === item.idDong);
+          let candidates = [
+            ctData && ctData.start,
+            ctData && (ctData.end || ctData.ketThuc),
+            item.ngayTao,
+            item.phieuObj && item.phieuObj.ngayTao
+          ];
+          for (let d of candidates) {
+            let res = matchSelectedMonth(d);
+            if (res !== null) return res;
+          }
+          // Dự phòng nếu ngày chạy chỉ ghi dạng dd/MM không có năm
+          if (ctData && ctData.start) {
+            let dm = String(ctData.start).trim().match(/^(\d{1,2})[\/\-](\d{1,2})$/);
+            if (dm) return Number(dm[2]) === targetMonth;
+          }
+          return false;
+        });
+
+        if (filteredItems.length === 0) {
+          alert(`Không tìm thấy đề xuất nào thuộc Tháng ${monthLabel} trong dữ liệu hiện tại!`);
+          return;
+        }
         
-        showLoading(true, "ĐANG ĐỒNG BỘ...", "Đang chuyển dữ liệu, vui lòng chờ khoảng 5 giây...");
+        showLoading(true, "ĐANG ĐỒNG BỘ...", `Đang chuyển ${filteredItems.length} mục của Tháng ${monthLabel}, vui lòng chờ khoảng 5 giây...`);
         
-        let exportData = bldItemsArray.map(item => {
+        let exportData = filteredItems.map(item => {
             let rawTv = item.phieuObj.thanhVien || "";
             let isGoiTong = String(item.phieuObj.tenNhom || "").includes('[GÓI TỔNG]');
             let sheetText = rawTv;
@@ -2248,10 +2298,18 @@
             };
         });
 
-        callAPI("exportTracking", { data: JSON.stringify({ url: url, items: exportData }) }, function(res) {
+        callAPI("exportTracking", { 
+            data: JSON.stringify({ 
+                url: url, 
+                month: targetMonth, 
+                year: targetYear, 
+                monthYear: monthLabel,
+                items: exportData 
+            }) 
+        }, function(res) {
             showLoading(false);
             if (res && res.success) {
-                alert("✅ Lệnh đồng bộ đã gửi thành công! Vui lòng kiểm tra Google Sheet.");
+                alert(`✅ Đã đồng bộ thành công ${exportData.length} mục của Tháng ${monthLabel}! Vui lòng kiểm tra Google Sheet.`);
             } else {
                 alert("Lỗi máy chủ khi đồng bộ: " + (res ? res.message : "Chưa rõ"));
             }
@@ -2259,6 +2317,16 @@
 
       } catch(e) { showLoading(false); alert("Lỗi cục bộ: " + e.message); }
     }
+
+    (function initSyncMonthPicker() {
+  const monthInput = document.getElementById('syncTrackingMonth');
+  if (monthInput && !monthInput.value) {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    monthInput.value = `${yyyy}-${mm}`;
+  }
+})();
   </script>
   
   <script>
